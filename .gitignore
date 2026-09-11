@@ -1,0 +1,65 @@
+# ===============================================================
+# Smart Campus - .gitignore
+# ===============================================================
+
+# --- Operating System Files ---
+[Dd]esktop.ini
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# --- IDE & Editor Configurations ---
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+.project
+.buildpath
+.settings/
+nbproject/
+
+# --- CodeIgniter Cache & Logs ---
+/application/cache/*
+!/application/cache/index.html
+/application/logs/*
+!/application/logs/index.html
+
+# --- User Uploaded Media & Avatars ---
+/assets/images/avatar_*
+/uploads/*
+!/uploads/index.html
+
+# --- Sensitive Environment & Database Backups ---
+.env
+.env.*
+*.log
+error_log
+php_error_log
+*.sql
+*.sqlite
+*.bak
+*.tmp
+
+# --- Dependencies (Composer / NPM) ---
+/vendor/
+composer.phar
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Testing & Temporary Scripts ---
+test_*.php
+scratch/
