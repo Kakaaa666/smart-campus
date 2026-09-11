@@ -1,0 +1,175 @@
+<?php
+$seg1 = $this->uri->segment(1);
+$seg2 = $this->uri->segment(2);
+?>
+                    <nav class="pcoded-navbar">
+                        <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
+                        <div class="pcoded-inner-navbar main-menu">
+                            <ul class="pcoded-item pcoded-left-item">
+                                <li class="<?= ($seg1 == '' || $seg1 == 'beranda') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-home icon-blue"></i></span>
+                                        <span class="pcoded-mtext">Beranda</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'ringkasan') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('ringkasan') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-line-chart"></i></span>
+                                        <span class="pcoded-mtext">Ringkasan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'kuisioner') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('kuisioner') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon">
+                                            <svg viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
+                                                <path d="M504.3 273.6L378.8 32c-9.9-17.1-31.8-23-48.9-13.1L217.3 83.5l140.7 243.6 133.2-76.9c9.4-5.4 15.6-15.2 13.1-26.6zM294.1 320L153.4 76.4 32.6 146.1c-17.1 9.9-23 31.8-13.1 48.9l125.5 217.4c6.2 10.7 17.6 17.3 29.9 17.3h33.8v-67.7c0-23.2 18.8-42 42-42h43.4zm-14.4 72c0-13.3-10.7-24-24-24s-24 10.7-24 24 10.7 24 24 24 24-10.7 24-24zm196.3 34H336v-34h140c11 0 20-9 20-20v-30c0-11-9-20-20-20H320c-11 0-20 9-20 20v118c0 25.4 20.6 46 46 46h130c11 0 20-9 20-20v-40c0-11-9-20-20-20z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="pcoded-mtext">Kuisioner</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'keuangan') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-money"></i></span>
+                                        <span class="pcoded-mtext">Keuangan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'kehadiran') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('kehadiran') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-bell"></i></span>
+                                        <span class="pcoded-mtext">Kehadiran Kuliah</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-id-badge"></i></span>
+                                        <span class="pcoded-mtext">Akademik</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                    <ul class="pcoded-submenu">
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'jadwal') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/jadwal') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Jadwal</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'nilai') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/nilai') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Nilai</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'khs') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/khs') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">KHS</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'transkrip') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/transkrip') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Transkrip</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'kurikulum') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/kurikulum') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Kurikulum</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'matakuliah') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/matakuliah') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Matakuliah</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'kalender') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('akademik/kalender') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Kalender</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'perwalian') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-th-large"></i></span>
+                                        <span class="pcoded-mtext">Perwalian</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                    <ul class="pcoded-submenu">
+                                        <li class="<?= ($seg1 == 'perwalian' && $seg2 == 'ambil-matakuliah') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('perwalian/ambil-matakuliah') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Ambil Matakuliah</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'perwalian' && $seg2 == 'frs') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('perwalian/frs') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">FRS</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="<?= ($seg1 == 'merdeka-belajar') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('merdeka-belajar') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-plane"></i></span>
+                                        <span class="pcoded-mtext">Merdeka Belajar</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'skpi') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('skpi') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span>
+                                        <span class="pcoded-mtext">Pengajuan SKPI</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 == 'verifikasi') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('verifikasi') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-check-square"></i></span>
+                                        <span class="pcoded-mtext">Verifikasi Ijazah</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'pengaturan' || $seg1 == 'profil') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-cogs"></i></span>
+                                        <span class="pcoded-mtext">Pengaturan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                    <ul class="pcoded-submenu">
+                                        <li class="<?= ($seg1 == 'profil' || ($seg1 == 'pengaturan' && $seg2 == 'profil')) ? 'active' : '' ?>">
+                                            <a href="<?= base_url('profil') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Profil</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'pengaturan' && $seg2 == 'ubah-password') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('profil#card-password') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Ubah Password</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
