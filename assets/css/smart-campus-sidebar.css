@@ -1,8 +1,15 @@
-/* Custom Styles for Smart Campus Sidebar to match reference image */
+/* Custom Styles for Smart Campus Sidebar - Clean White Theme */
 
 .pcoded .pcoded-navbar,
-.pcoded .pcoded-navbar .main-menu {
-    background-color: #383838 !important;
+.pcoded .pcoded-navbar .main-menu,
+.pcoded[theme-layout="vertical"] .pcoded-navbar,
+.pcoded .pcoded-navbar[navbar-theme="theme1"],
+.pcoded .pcoded-navbar[navbar-theme="themelight1"],
+.pcoded .pcoded-navbar .pcoded-inner-navbar {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.04) !important;
 }
 
 .pcoded .pcoded-navbar .pcoded-item {
@@ -20,55 +27,28 @@
     display: block !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item > li > a {
-    color: #ffffff !important;
-    font-size: 14.5px !important;
-    font-weight: 700 !important;
-    padding: 13px 20px !important;
+/* Default Menu Item (Tidak dipilih / Idle) */
+.pcoded .pcoded-navbar .pcoded-item > li > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a {
+    color: #374151 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 12px 20px !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     position: relative !important;
     transition: all 0.2s ease-in-out !important;
     text-decoration: none !important;
+    border-left: 4px solid transparent !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item > li > a:hover {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-}
-
-.pcoded .pcoded-navbar .pcoded-item > li.active > a {
-    background-color: #2e2e2e !important;
-    color: #ffffff !important;
-}
-
-/* Sidebar Icons - Fixed width & properly spaced */
-.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
-    position: relative !important;
-    color: #ffffff !important;
-    font-size: 18px !important;
-    width: 28px !important;
-    min-width: 28px !important;
-    height: 24px !important;
-    margin-right: 14px !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-}
-
-.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-}
-
-/* Sidebar Text - disable position:absolute so text NEVER overlaps icon */
-.pcoded[theme-layout="vertical"] .pcoded-navbar .pcoded-item > li > a .pcoded-mtext,
-.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext {
+.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-mtext,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-mtext {
     position: static !important;
     top: auto !important;
     left: auto !important;
@@ -79,28 +59,160 @@
     flex-grow: 1 !important;
     opacity: 1 !important;
     visibility: visible !important;
-    color: #ffffff !important;
-    font-size: 14.5px !important;
-    font-weight: 700 !important;
+    color: #374151 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
     line-height: 1.2 !important;
     padding-left: 0 !important;
     margin: 0 !important;
     white-space: nowrap !important;
 }
 
-/* Beranda active blue color */
-.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon .icon-blue,
-.pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon i,
-.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon i.fa-home {
-    color: #2196f3 !important;
-    fill: #2196f3 !important;
+.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-micon,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-micon {
+    position: relative !important;
+    color: #5a6a85 !important;
+    font-size: 17px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 24px !important;
+    margin-right: 14px !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    transition: color 0.2s ease, transform 0.2s ease !important;
 }
 
-/* Right caret arrow for dropdown menus */
-.pcoded[theme-layout="vertical"] .pcoded-navbar .pcoded-item li.pcoded-hasmenu > a:after {
-    color: rgba(255, 255, 255, 0.6) !important;
+.pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor !important;
+}
+
+/* ============================================================
+   Hover State (Saat Kursor Mengarah ke Menu) - Background Biru Muda & Teks Biru Tajam
+   ============================================================ */
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a {
+    background: #e8f0fe !important;
+    background-color: #e8f0fe !important;
+    color: #1565c0 !important;
+    border-left: 4px solid #1976d2 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-mtext,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-mtext,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-mtext {
+    color: #1565c0 !important;
+    font-weight: 700 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon,
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon i,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon i,
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon svg,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon svg {
+    color: #1565c0 !important;
+    fill: #1565c0 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li > a:hover:after,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a:after,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a:after {
+    color: #1565c0 !important;
+}
+
+/* ============================================================
+   Active State (Menu yang Sedang Dipilih) - Background Biru Solid, Teks & Ikon Putih Bersih
+   ============================================================ */
+.pcoded .pcoded-navbar .pcoded-item > li.active > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a {
+    background: #1976d2 !important;
+    background-color: #1976d2 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-left: 4px solid #0d47a1 !important;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.28) !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a .pcoded-mtext,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-mtext,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-mtext,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-mtext {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a .pcoded-micon,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+.pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon i,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon i,
+.pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon svg,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon svg,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item > li.active > a:after,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:after,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:after,
+.pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a:after,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a:after,
+.pcoded[theme-layout="vertical"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a:after {
+    color: #ffffff !important;
+}
+
+/* Hover pada menu yang sedang active */
+.pcoded .pcoded-navbar .pcoded-item > li.active > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active:hover > a {
+    background: #1565c0 !important;
+    background-color: #1565c0 !important;
+    color: #ffffff !important;
+}
+.pcoded .pcoded-navbar .pcoded-item > li.active > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar .pcoded-item > li.active > a:hover .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:hover .pcoded-micon {
+    color: #ffffff !important;
+}
+
+/* Panah dropdown default */
+.pcoded[theme-layout="vertical"] .pcoded-navbar .pcoded-item li.pcoded-hasmenu > a:after,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.pcoded-hasmenu > a:after {
+    color: #94a3b8 !important;
     font-family: 'themify' !important;
-    content: "\e649" !important; /* > chevron right */
+    content: "\e649" !important;
     font-size: 11px !important;
     position: absolute !important;
     right: 18px !important;
@@ -112,20 +224,27 @@
     transition: transform 0.25s ease-in-out !important;
 }
 
-.pcoded[theme-layout="vertical"] .pcoded-navbar .pcoded-item li.pcoded-hasmenu.pcoded-trigger > a:after {
-    content: "\e64b" !important; /* v chevron down */
+.pcoded[theme-layout="vertical"] .pcoded-navbar .pcoded-item li.pcoded-hasmenu.pcoded-trigger > a:after,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.pcoded-hasmenu.pcoded-trigger > a:after {
+    content: "\e64b" !important;
     color: #ffffff !important;
 }
 
-/* Submenu Dropdowns */
+/* ============================================================
+   Submenu Dropdowns
+   ============================================================ */
 .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
-    background-color: #2e2e2e !important;
+    background-color: #f8fafc !important;
     padding: 6px 0 !important;
-    box-shadow: inset 0 3px 6px rgba(0,0,0,0.2) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03) !important;
+    border-top: 1px solid #f1f5f9 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
-    color: #d1d5db !important;
+/* Submenu item default */
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
+    color: #4b5563 !important;
     font-size: 13.5px !important;
     font-weight: 500 !important;
     padding: 10px 20px 10px 58px !important;
@@ -134,35 +253,97 @@
     position: relative !important;
     transition: all 0.2s ease-in-out !important;
     text-decoration: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover {
-    color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    padding-left: 62px !important;
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
+    color: #4b5563 !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a {
-    color: #2196f3 !important;
-    background-color: rgba(33, 150, 243, 0.1) !important;
-    font-weight: 600 !important;
-}
-
-.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
     font-size: 10px !important;
     margin-right: 10px !important;
-    color: rgba(255, 255, 255, 0.4) !important;
+    color: #94a3b8 !important;
     display: inline-flex !important;
     align-items: center !important;
 }
 
-.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    font-size: 13.5px !important;
-    font-weight: 500 !important;
-    color: inherit !important;
+/* Submenu item hover */
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a {
+    color: #1565c0 !important;
+    background: #e8f0fe !important;
+    background-color: #e8f0fe !important;
+    padding-left: 62px !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-mtext {
+    color: #1565c0 !important;
+    font-weight: 600 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-micon {
+    color: #1565c0 !important;
+}
+
+/* Submenu item active */
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a {
+    color: #1565c0 !important;
+    background: #e3f2fd !important;
+    background-color: #e3f2fd !important;
+    font-weight: 700 !important;
+    border-left: 3px solid #1976d2 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext {
+    color: #1565c0 !important;
+    font-weight: 700 !important;
+}
+
+.pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon,
+.pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon {
+    color: #1976d2 !important;
+}
+
+/* Sidebar Scrollbar */
+.pcoded .pcoded-navbar .main-menu {
+    overflow-y: auto !important;
+}
+
+.pcoded .pcoded-navbar .main-menu::-webkit-scrollbar,
+.pcoded .pcoded-navbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.pcoded .pcoded-navbar .main-menu::-webkit-scrollbar-track,
+.pcoded .pcoded-navbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pcoded .pcoded-navbar .main-menu::-webkit-scrollbar-thumb,
+.pcoded .pcoded-navbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+}
+
+.pcoded .pcoded-navbar .main-menu::-webkit-scrollbar-thumb:hover,
+.pcoded .pcoded-navbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Sidebar close toggle button */
+.pcoded .pcoded-navbar .sidebar_toggle a {
+    color: #4b5563 !important;
 }
 
 /* ============================================================
@@ -176,6 +357,8 @@
     visibility: visible !important;
     display: block !important;
     z-index: 1028 !important;
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
 }
 
 .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-inner-navbar {
@@ -188,6 +371,7 @@
     justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
+    border-left: none !important;
 }
 
 /* Center icon cleanly in 70px sidebar */
@@ -202,11 +386,14 @@
     justify-content: center !important;
     border-radius: 6px !important;
     transition: all 0.2s ease-in-out !important;
+    color: #64748b !important;
 }
 
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    transform: scale(1.1) !important;
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon {
+    background-color: #e8f0fe !important;
+    color: #1976d2 !important;
+    transform: scale(1.08) !important;
 }
 
 /* Hide text in collapsed mode */
@@ -231,9 +418,10 @@
     top: 0 !important;
     position: absolute !important;
     width: 220px !important;
-    background-color: #2e2e2e !important;
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4) !important;
-    border-radius: 0 6px 6px 0 !important;
+    background-color: #ffffff !important;
+    box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0 8px 8px 0 !important;
     z-index: 1050 !important;
     display: block !important;
 }
@@ -241,6 +429,17 @@
 .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a {
     padding: 10px 20px !important;
     justify-content: flex-start !important;
+    color: #4b5563 !important;
+}
+
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a:hover {
+    background-color: #f1f5f9 !important;
+    color: #1976d2 !important;
+}
+
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li.active > a {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
 }
 
 .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a .pcoded-mtext {

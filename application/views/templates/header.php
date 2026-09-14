@@ -34,8 +34,170 @@
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/jquery.mCustomScrollbar.css') ?>">
     <!-- Style.css -->
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css') ?>">
-    <!-- Smart Campus Sidebar Style -->
-    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-sidebar.css') ?>">
+    <!-- Smart Campus Sidebar Style (dengan cache buster otomatis) -->
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-sidebar.css?v=' . time()) ?>">
+    <!-- Inline White Sidebar Style (Menjamin langsung putih tanpa terhalang cache browser) -->
+    <style id="smart-campus-white-sidebar-style">
+        /* Sidebar Container Putih */
+        .pcoded .pcoded-navbar,
+        .pcoded .pcoded-navbar .main-menu,
+        .pcoded[theme-layout="vertical"] .pcoded-navbar,
+        .pcoded .pcoded-navbar[navbar-theme="theme1"],
+        .pcoded .pcoded-navbar[navbar-theme="themelight1"],
+        .pcoded .pcoded-navbar .pcoded-inner-navbar {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            border-right: 1px solid #e2e8f0 !important;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        /* Default Item Menu (Tidak aktif) */
+        .pcoded .pcoded-navbar .pcoded-item > li > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a {
+            color: #374151 !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            border-left: 4px solid transparent !important;
+            background: transparent !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-mtext {
+            color: #374151 !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-micon {
+            color: #5a6a85 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon svg {
+            fill: currentColor !important;
+        }
+
+        /* Hover State - Soft Blue Background & Deep Blue Text/Icon */
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a {
+            background: #e8f0fe !important;
+            background-color: #e8f0fe !important;
+            color: #1565c0 !important;
+            border-left: 4px solid #1976d2 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-mtext {
+            color: #1565c0 !important;
+            font-weight: 700 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon,
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon i,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon i,
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon svg,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon svg {
+            color: #1565c0 !important;
+            fill: #1565c0 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li > a:hover:after,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a:after {
+            color: #1565c0 !important;
+        }
+
+        /* Active State - Solid Blue Background & White Text/Icon (Super Kontras & Tajam) */
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a {
+            background: #1976d2 !important;
+            background-color: #1976d2 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-left: 4px solid #0d47a1 !important;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.28) !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a .pcoded-mtext,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-mtext {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item li.active > a .pcoded-micon,
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon i,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon i,
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon svg,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon svg,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a:after,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a:after,
+        .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a:after,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a:after {
+            color: #ffffff !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item > li.active > a:hover,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active:hover > a {
+            background: #1565c0 !important;
+            color: #ffffff !important;
+        }
+
+        /* Submenu Dropdowns */
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
+            background-color: #f8fafc !important;
+            border-top: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
+            color: #4b5563 !important;
+            background: transparent !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
+            color: #4b5563 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
+            color: #94a3b8 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a {
+            color: #1565c0 !important;
+            background: #e8f0fe !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-mtext {
+            color: #1565c0 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a {
+            color: #1565c0 !important;
+            background: #e3f2fd !important;
+            font-weight: 700 !important;
+            border-left: 3px solid #1976d2 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext {
+            color: #1565c0 !important;
+            font-weight: 700 !important;
+        }
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon,
+        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon {
+            color: #1976d2 !important;
+        }
+    </style>
 </head>
 
 <body>
