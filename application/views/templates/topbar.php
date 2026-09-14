@@ -67,11 +67,6 @@
                                         </a>
                                     </li>
                                     <li class="waves-effect waves-light">
-                                        <a href="#!">
-                                            <i class="ti-settings"></i> Pengaturan
-                                        </a>
-                                    </li>
-                                    <li class="waves-effect waves-light">
                                         <a href="<?= base_url('auth/logout') ?>">
                                             <i class="ti-layout-sidebar-left"></i> Logout
                                         </a>
