@@ -153,6 +153,72 @@
             color: #ffffff !important;
         }
 
+        /* Saat Sidebar Di-minimize (Collapsed Mode): Icon Terpilih (Active) Tetap Jelas Kelihatan */
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a {
+            background: #1976d2 !important;
+            background-color: #1976d2 !important;
+            border-left: 4px solid #0d47a1 !important;
+            justify-content: center !important;
+            padding: 12px 0 !important;
+        }
+
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon {
+            background-color: #ffffff !important;
+            color: #1976d2 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22) !important;
+            margin: 0 auto !important;
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transform: scale(1.05) !important;
+        }
+
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon svg,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon svg,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a:hover .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a:hover .pcoded-micon svg {
+            color: #1976d2 !important;
+            fill: #1976d2 !important;
+            font-size: 19px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Hover pada icon saat sidebar di-minimize */
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li:not(.active) > a:hover .pcoded-micon,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon {
+            background-color: #e8f0fe !important;
+            color: #1976d2 !important;
+            border-radius: 8px !important;
+        }
+
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li:not(.active) > a:hover .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon i,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li:not(.active) > a:hover .pcoded-micon svg,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon svg {
+            color: #1976d2 !important;
+            fill: #1976d2 !important;
+        }
+
         /* Submenu Dropdowns */
         .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
             background-color: #f8fafc !important;
