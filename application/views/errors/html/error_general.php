@@ -13,7 +13,11 @@ if (function_exists('config_item') && config_item('base_url')) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <title><?= !empty($heading) ? htmlspecialchars($heading) : 'Terjadi Kesalahan' ?> | Smart Campus</title>
-    <link rel="icon" href="<?= $ci_base_url ?>assets/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/svg+xml" href="<?= $ci_base_url ?>assets/images/favicon.svg?v=<?= time() ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= $ci_base_url ?>assets/images/favicon-32x32.png?v=<?= time() ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= $ci_base_url ?>assets/images/favicon-16x16.png?v=<?= time() ?>">
+    <link rel="shortcut icon" href="<?= $ci_base_url ?>assets/images/favicon.ico?v=<?= time() ?>" type="image/x-icon">
+    <link rel="apple-touch-icon" href="<?= $ci_base_url ?>assets/images/favicon.png?v=<?= time() ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

@@ -16,7 +16,11 @@
     <meta name="keywords" content="smart campus, academic, student portal" />
     <meta name="author" content="Smart Campus" />
     <!-- Favicon icon -->
-    <link rel="icon" href="<?= base_url('assets/images/favicon.ico') ?>" type="image/x-icon">
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg?v=' . time()) ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/images/favicon-32x32.png?v=' . time()) ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/images/favicon-16x16.png?v=' . time()) ?>">
+    <link rel="shortcut icon" href="<?= base_url('assets/images/favicon.ico?v=' . time()) ?>" type="image/x-icon">
+    <link rel="apple-touch-icon" href="<?= base_url('assets/images/favicon.png?v=' . time()) ?>">
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
     <!-- waves.css -->
