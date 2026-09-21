@@ -1,11 +1,14 @@
-<?php
+﻿<?php
 $seg1 = $this->uri->segment(1);
 $seg2 = $this->uri->segment(2);
+$current_role = (int)$this->session->userdata('role');
 ?>
                     <nav class="pcoded-navbar">
                         <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
                         <div class="pcoded-inner-navbar main-menu">
                             <ul class="pcoded-item pcoded-left-item">
+
+                                <!-- Beranda: tampil untuk semua role -->
                                 <li class="<?= ($seg1 == '' || $seg1 == 'beranda') ? 'active' : '' ?>">
                                     <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-home icon-blue"></i></span>
@@ -13,6 +16,69 @@ $seg2 = $this->uri->segment(2);
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
+
+                                <?php if ($current_role === 2): ?>
+                                <!-- =============================================
+                                     MENU KHUSUS ADMIN KEUANGAN (role 2)
+                                ============================================= -->
+
+                                <!-- Dashboard Admin Keuangan -->
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-tachometer"></i></span>
+                                        <span class="pcoded-mtext">Dashboard Keuangan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <!-- Verifikasi Pembayaran -->
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-check-square"></i></span>
+                                        <span class="pcoded-mtext">Verifikasi Pembayaran</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <!-- Laporan ke Rektorat -->
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'laporan') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/laporan') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-bar-chart"></i></span>
+                                        <span class="pcoded-mtext">Laporan ke Rektorat</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <!-- Pengaturan (Profil) -->
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'pengaturan' || $seg1 == 'profil') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-cogs"></i></span>
+                                        <span class="pcoded-mtext">Pengaturan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                    <ul class="pcoded-submenu">
+                                        <li class="<?= ($seg1 == 'profil' || ($seg1 == 'pengaturan' && $seg2 == 'profil')) ? 'active' : '' ?>">
+                                            <a href="<?= base_url('profil') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Profil</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'pengaturan' && $seg2 == 'ubah-password') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('profil#card-password') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Ubah Password</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <?php else: ?>
+                                <!-- =============================================
+                                     MENU MAHASISWA & SUPER ADMIN (role 1 & 3)
+                                ============================================= -->
+
                                 <li class="<?= ($seg1 == 'ringkasan') ? 'active' : '' ?>">
                                     <a href="<?= base_url('ringkasan') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-line-chart"></i></span>
@@ -31,6 +97,42 @@ $seg2 = $this->uri->segment(2);
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
+
+                                <!-- Menu Keuangan -->
+                                <?php if ($current_role === 1): ?>
+                                <!-- Super Admin punya submenu keuangan -->
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-money"></i></span>
+                                        <span class="pcoded-mtext">Keuangan</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                    <ul class="pcoded-submenu">
+                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == '') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Info Mahasiswa</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Panel Admin</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'laporan') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('keuangan/laporan') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Laporan</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <?php else: ?>
+                                <!-- Mahasiswa: link langsung ke halaman keuangan -->
                                 <li class="<?= ($seg1 == 'keuangan') ? 'active' : '' ?>">
                                     <a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-money"></i></span>
@@ -38,6 +140,8 @@ $seg2 = $this->uri->segment(2);
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
+                                <?php endif; ?>
+
                                 <li class="<?= ($seg1 == 'kehadiran') ? 'active' : '' ?>">
                                     <a href="<?= base_url('kehadiran') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-bell"></i></span>
@@ -170,6 +274,9 @@ $seg2 = $this->uri->segment(2);
                                         </li>
                                     </ul>
                                 </li>
+
+                                <?php endif; // end else (non-admin-keuangan) ?>
+
                             </ul>
                         </div>
                     </nav>
