@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $seg1 = $this->uri->segment(1);
 $seg2 = $this->uri->segment(2);
 $current_role = (int)$this->session->userdata('role');
@@ -21,9 +21,14 @@ $current_role = (int)$this->session->userdata('role');
                                 <!-- =============================================
                                      MENU KHUSUS ADMIN KEUANGAN (role 2)
                                 ============================================= -->
+                                <?php
+                                    $ci =& get_instance();
+                                    $ci->load->model('M_keuangan');
+                                    $pending_verif_count = $ci->M_keuangan->count_pembayaran_by_status('PENDING');
+                                ?>
 
                                 <!-- Dashboard Admin Keuangan -->
-                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
+                                <li class="<?= ($seg1 == 'keuangan' && ($seg2 == 'admin' || $seg2 == 'dashboard' || $seg2 == '')) ? 'active' : '' ?>">
                                     <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-tachometer"></i></span>
                                         <span class="pcoded-mtext">Dashboard Keuangan</span>
@@ -31,11 +36,23 @@ $current_role = (int)$this->session->userdata('role');
                                     </a>
                                 </li>
 
-                                <!-- Verifikasi Pembayaran -->
-                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-check-square"></i></span>
+                                <!-- Verifikasi Pembayaran (Menu Tersendiri) -->
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'verifikasi') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/verifikasi') ?>" class="waves-effect waves-dark" style="position: relative;">
+                                        <span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span>
                                         <span class="pcoded-mtext">Verifikasi Pembayaran</span>
+                                        <?php if ($pending_verif_count > 0): ?>
+                                            <span class="badge badge-warning text-dark ml-2" style="font-size:11px;padding:3px 8px;border-radius:12px;font-weight:700;"><?= $pending_verif_count ?></span>
+                                        <?php endif; ?>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <!-- Kontrol Akses Tugas Akhir (Menu Tersendiri) -->
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'kontrol_ta') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
+                                        <span class="pcoded-mtext">Akses Tugas Akhir</span>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
@@ -100,11 +117,19 @@ $current_role = (int)$this->session->userdata('role');
 
                                 <!-- Menu Keuangan -->
                                 <?php if ($current_role === 1): ?>
-                                <!-- Super Admin punya submenu keuangan -->
+                                <?php
+                                    $ci =& get_instance();
+                                    $ci->load->model('M_keuangan');
+                                    $pending_verif_count = $ci->M_keuangan->count_pembayaran_by_status('PENDING');
+                                ?>
+                                <!-- Super Admin punya submenu keuangan lengkap -->
                                 <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan') ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-money"></i></span>
                                         <span class="pcoded-mtext">Keuangan</span>
+                                        <?php if ($pending_verif_count > 0): ?>
+                                            <span class="badge badge-warning text-dark ml-2" style="font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;"><?= $pending_verif_count ?></span>
+                                        <?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                     <ul class="pcoded-submenu">
@@ -115,17 +140,34 @@ $current_role = (int)$this->session->userdata('role');
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>
-                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'admin') ? 'active' : '' ?>">
+                                        <li class="<?= ($seg1 == 'keuangan' && ($seg2 == 'admin' || $seg2 == 'dashboard')) ? 'active' : '' ?>">
                                             <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext">Panel Admin</span>
+                                                <span class="pcoded-mtext">Dashboard Keuangan</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'verifikasi') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('keuangan/verifikasi') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Verifikasi Pembayaran</span>
+                                                <?php if ($pending_verif_count > 0): ?>
+                                                    <span class="badge badge-warning text-dark ml-1" style="font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;"><?= $pending_verif_count ?></span>
+                                                <?php endif; ?>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
+                                        <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'kontrol_ta') ? 'active' : '' ?>">
+                                            <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Akses Tugas Akhir</span>
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>
                                         <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'laporan') ? 'active' : '' ?>">
                                             <a href="<?= base_url('keuangan/laporan') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext">Laporan</span>
+                                                <span class="pcoded-mtext">Laporan ke Rektorat</span>
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>

@@ -70,18 +70,31 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 text-md-right mt-3 mt-md-0">
+                            <div class="col-md-5 text-md-right mt-3 mt-md-0">
                                 <a href="<?= base_url('keuangan/admin') ?>" class="btn btn-sm mr-2"
-                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 18px;">
+                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;">
                                     <i class="fa fa-arrow-left mr-1"></i>Kembali
                                 </a>
+                                <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn btn-sm mr-2"
+                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                                    <i class="fa fa-file-word-o mr-1"></i>Ekspor Word (.doc)
+                                </a>
                                 <button onclick="window.print()" class="btn btn-sm"
-                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:600;padding:9px 18px;">
-                                    <i class="fa fa-print mr-1"></i>Cetak Laporan
+                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;">
+                                    <i class="fa fa-print mr-1"></i>Cetak Rinci
                                 </button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Kop Surat Resmi (Hanya Muncul Saat Dicetak / Mode Print) -->
+                <div class="d-none d-print-block mb-4" style="text-align:center; border-bottom:3px double #0f172a; padding-bottom:12px;">
+                    <h3 style="margin:0; font-size:20px; font-weight:800; color:#1e3a8a;">UNIVERSITAS SMART CAMPUS</h3>
+                    <h5 style="margin:4px 0; font-size:14px; font-weight:700; color:#334155;">BIRO ADMINISTRASI KEUANGAN DAN AKADEMIK</h5>
+                    <p style="margin:0; font-size:11px; color:#64748b;">Jl. Kampus Terpadu No. 123 | Telp: (021) 789-0123 | Email: keuangan@smartcampus.ac.id</p>
+                    <div style="margin-top:12px; font-size:14px; font-weight:800; text-decoration:underline;">LAPORAN EKSEKUTIF PENERIMAAN KEUANGAN KAMPUS</div>
+                    <div style="font-size:11.5px; color:#475569;">Periode: Tahun Akademik <?= htmlspecialchars($tahun_akademik) ?> &bull; Semester <?= htmlspecialchars($semester) ?></div>
                 </div>
 
                 <!-- Filter Periode, Fakultas & Prodi -->

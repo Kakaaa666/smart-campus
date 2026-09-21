@@ -5,12 +5,18 @@
                 
                 <!-- Custom Styling Khusus Modul Keuangan Mahasiswa -->
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+                .page-wrapper {
+                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+
                 .custom-card-white {
                     background-color: #ffffff !important;
                     background: #ffffff !important;
-                    border-radius: 16px !important;
-                    border: 1px solid #edf2f7 !important;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+                    border-radius: 18px !important;
+                    border: 1px solid #e2e8f0 !important;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
                     overflow: hidden !important;
                     margin-bottom: 24px !important;
                     transition: all 0.25s ease-in-out;
@@ -19,36 +25,37 @@
                 .custom-card-header {
                     background-color: #ffffff !important;
                     border-bottom: 1px solid #f1f5f9 !important;
-                    border-top-left-radius: 16px !important;
-                    border-top-right-radius: 16px !important;
-                    padding: 18px 24px !important;
+                    border-top-left-radius: 18px !important;
+                    border-top-right-radius: 18px !important;
+                    padding: 20px 26px !important;
                 }
 
                 .custom-card-header h5 {
                     margin: 0;
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #1565c0;
+                    font-size: 16.5px;
+                    font-weight: 800;
+                    color: #0f172a;
                 }
 
                 /* Metric Stat Card */
                 .fin-stat-card {
-                    padding: 20px 22px;
-                    border-radius: 14px;
-                    border: 1px solid #eef2f6;
+                    padding: 22px 24px;
+                    border-radius: 16px;
+                    border: 1px solid #e2e8f0;
                     background: #ffffff;
                     position: relative;
                     overflow: hidden;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
                     transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
                 .fin-stat-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
                 }
                 .fin-stat-icon {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 14px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -58,7 +65,7 @@
                 /* Nav Tabs Styling */
                 .nav-tabs-keuangan {
                     border-bottom: 2px solid #e2e8f0;
-                    padding: 0 20px;
+                    padding: 0 24px;
                     background: #ffffff;
                 }
                 .nav-tabs-keuangan .nav-link {
@@ -66,7 +73,7 @@
                     color: #64748b;
                     font-weight: 600;
                     font-size: 14px;
-                    padding: 16px 20px;
+                    padding: 18px 22px;
                     margin-bottom: -2px;
                     border-bottom: 3px solid transparent;
                     transition: all 0.2s ease;
@@ -76,19 +83,19 @@
                     font-size: 16px;
                 }
                 .nav-tabs-keuangan .nav-link:hover {
-                    color: #1976d2;
-                    border-bottom-color: #90caf9;
+                    color: #0284c7;
+                    border-bottom-color: #bae6fd;
                 }
                 .nav-tabs-keuangan .nav-link.active {
-                    color: #1565c0;
-                    font-weight: 700;
+                    color: #0284c7;
+                    font-weight: 800;
                     background: transparent;
-                    border-bottom: 3px solid #1976d2;
+                    border-bottom: 3px solid #0284c7;
                 }
 
                 /* Badges Status */
                 .badge-status {
-                    padding: 6px 12px;
+                    padding: 6px 14px;
                     border-radius: 20px;
                     font-size: 11.5px;
                     font-weight: 700;
@@ -123,24 +130,24 @@
 
                 /* Banner Simulasi Biaya */
                 .banner-biaya-simulasi {
-                    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);
-                    border-radius: 16px;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+                    border-radius: 18px;
                     color: #ffffff;
-                    padding: 24px 28px;
+                    padding: 28px 32px;
                     position: relative;
                     overflow: hidden;
-                    box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2);
+                    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
                     margin-bottom: 24px;
                 }
                 .banner-biaya-simulasi::after {
                     content: "";
                     position: absolute;
-                    top: -50px;
-                    right: -50px;
-                    width: 180px;
-                    height: 180px;
+                    top: -60px;
+                    right: -60px;
+                    width: 220px;
+                    height: 220px;
                     border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.08);
+                    background: rgba(255, 255, 255, 0.06);
                     pointer-events: none;
                 }
                 .tag-simulasi {
@@ -158,14 +165,15 @@
                 /* Bank Card Rekening */
                 .bank-rek-box {
                     border: 1.5px dashed #cbd5e1;
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f8fafc;
-                    transition: border-color 0.2s ease, background 0.2s ease;
+                    border-radius: 14px;
+                    padding: 18px;
+                    background: #ffffff;
+                    transition: border-color 0.2s ease, transform 0.2s ease;
                 }
                 .bank-rek-box:hover {
-                    border-color: #1976d2;
-                    background: #f0f7ff;
+                    border-color: #0284c7;
+                    background: #f0f9ff;
+                    transform: translateY(-2px);
                 }
 
                 /* Table Design */
@@ -173,11 +181,11 @@
                     background-color: #f8fafc;
                     color: #475569;
                     font-weight: 700;
-                    font-size: 12.5px;
+                    font-size: 12px;
                     border-top: none;
                     border-bottom: 1.5px solid #e2e8f0;
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.6px;
                     padding: 14px 16px;
                 }
                 .table-keuangan tbody td {
@@ -246,42 +254,139 @@
                     </div>
                 </div>
 
-                <!-- Banner Rincian Biaya Kuliah (Sesuai Permintaan Spesifik User) -->
+                <!-- Banner Rincian Biaya Kuliah & Deskripsi Keuangan (Desain Modern & Menonjol) -->
                 <div class="banner-biaya-simulasi">
                     <div class="row align-items-center">
-                        <div class="col-lg-5 mb-3 mb-lg-0">
+                        <div class="col-lg-6 mb-3 mb-lg-0">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;">DATA SIMULASI</span>
-                                <span style="font-size: 13px; opacity: 0.9;">Semester Ganjil &bull; 2026/2027</span>
+                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">DATA SIMULASI KAMPUS</span>
+                                <span style="font-size: 13.5px; opacity: 0.9; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
                             </div>
-                            <div style="font-size: 14px; opacity: 0.85; font-weight: 500;">Total Biaya Semester</div>
-                            <h2 style="font-weight: 800; font-size: 32px; margin: 4px 0 6px; letter-spacing: -0.5px;">
+                            <div style="font-size: 15px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Total Biaya Perkuliahan Semester
+                            </div>
+                            <h1 style="font-weight: 800; font-size: 38px; margin: 6px 0 8px; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
                                 Rp 4.500.000
-                            </h2>
-                            <div style="font-size: 13.5px; opacity: 0.95;">
-                                <i class="fa fa-graduation-cap mr-1"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> (Semester <?= htmlspecialchars($mahasiswa_info['semester']) ?>)
+                            </h1>
+                            <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
+                                <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                             </div>
+                            <!-- Status Akses Tugas Akhir Mahasiswa -->
+                            <?php if ($is_semester_akhir): ?>
+                                <div class="mt-3">
+                                    <?php if ($akses_ta_mahasiswa): ?>
+                                        <span class="badge badge-success px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                                            <i class="fa fa-unlock mr-1"></i> Akses Biaya Semester Akhir: DIBUKA OLEH ADMIN KEUANGAN
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge badge-secondary px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; background: rgba(255,255,255,0.25); color: #fff;">
+                                            <i class="fa fa-lock mr-1"></i> Akses Biaya Semester Akhir: DITUTUP (TIDAK DITAGIHKAN)
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <div class="col-lg-7" style="border-left: 1px solid rgba(255,255,255,0.2); padding-left: 24px;">
-                            <div class="font-weight-bold mb-2" style="font-size: 13.5px; letter-spacing: 0.5px; text-transform: uppercase;">
-                                <i class="fa fa-list-ul mr-1"></i> Rincian Komponen Biaya Semester
+                        <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.25); padding-left: 28px;">
+                            <div class="font-weight-bold mb-3" style="font-size: 14.5px; letter-spacing: 0.5px; text-transform: uppercase;">
+                                <i class="fa fa-list-ul mr-1 text-warning"></i> Rincian Transparansi Biaya Pokok
                             </div>
-                            <div class="row" style="font-size: 13px;">
-                                <div class="col-sm-6 mb-1">
+                            <div class="row" style="font-size: 13.5px; line-height: 1.8;">
+                                <div class="col-sm-6 mb-2">
+                                    <div style="opacity: 0.85; font-size: 12px;">Kewajiban Pokok Kuliah</div>
                                     <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp 3.500.000</strong>
                                 </div>
-                                <div class="col-sm-6 mb-1">
+                                <div class="col-sm-6 mb-2">
+                                    <div style="opacity: 0.85; font-size: 12px;">Akademik &amp; Laboratorium</div>
                                     <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp 500.000</strong>
                                 </div>
-                                <div class="col-sm-6 mb-1">
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas Akademik: <strong>Rp 300.000</strong>
+                                <div class="col-sm-6 mb-2">
+                                    <div style="opacity: 0.85; font-size: 12px;">Sarana Kampus</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp 300.000</strong>
                                 </div>
-                                <div class="col-sm-6 mb-1">
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Administrasi: <strong>Rp 200.000</strong>
+                                <div class="col-sm-6 mb-2">
+                                    <div style="opacity: 0.85; font-size: 12px;">Layanan Digital</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp 200.000</strong>
                                 </div>
                             </div>
-                            <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.2); font-size: 11.5px; opacity: 0.85;">
-                                <i class="fa fa-info-circle mr-1"></i> <em>Catatan: Biaya tambahan seperti tugas akhir, ujian tugas akhir, dan wisuda tidak termasuk dalam tagihan semester reguler. Angka ini adalah <strong>Data Simulasi</strong> sistem kampus.</em>
+                            <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
+                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir (tugas akhir/skripsi) bersifat kondisional dan hanya muncul jika akses telah disetujui serta dibuka oleh Bagian Keuangan.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
+                <div class="card custom-card-white" style="border-left: 5px solid #0284c7;">
+                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="d-flex align-items-center">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
+                                <i class="bi bi-credit-card-2-front"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
+                                    Rekening Resmi Pembayaran Kampus
+                                </h5>
+                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                            </div>
+                        </div>
+                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
+                            <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
+                        </span>
+                    </div>
+                    <div class="card-block" style="padding: 24px;">
+                        <div class="alert alert-warning mb-3 py-2 px-3" style="border-radius: 10px; font-size: 12.5px; border-left: 4px solid #f59e0b; background:#fffbeb;">
+                            <i class="fa fa-exclamation-circle mr-1 text-warning"></i> <strong>Perhatian:</strong> Pastikan Anda mentransfer ke nomor rekening / Virtual Account resmi di bawah ini. Simpan bukti transfer untuk diunggah pada form pembayaran.
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="bank-rek-box h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <strong style="color: #0f172a; font-size: 15px;">BANK BNI</strong>
+                                        <span class="badge badge-primary px-2 py-1" style="border-radius: 6px;">Virtual Account</span>
+                                    </div>
+                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Virtual Account Mahasiswa:</p>
+                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                                        <h5 class="mb-0 font-weight-bold text-primary" style="letter-spacing: 0.5px;">8808-<?= htmlspecialchars($mahasiswa_info['nim']) ?></h5>
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 btn-copy-rek" data-copy="8808<?= htmlspecialchars($mahasiswa_info['nim']) ?>" title="Salin VA">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">a.n. Smart Campus - <?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <div class="bank-rek-box h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <strong style="color: #0f172a; font-size: 15px;">BANK MANDIRI</strong>
+                                        <span class="badge badge-info px-2 py-1" style="border-radius: 6px;">Transfer Bank</span>
+                                    </div>
+                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Kampus:</p>
+                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                                        <h5 class="mb-0 font-weight-bold" style="color:#0f172a; letter-spacing: 0.5px;">137-00-1928374-1</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="1370019283741" title="Salin No. Rekening">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">a.n. Yayasan Smart Campus Indonesia</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <div class="bank-rek-box h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <strong style="color: #0f172a; font-size: 15px;">BANK BCA</strong>
+                                        <span class="badge badge-success px-2 py-1" style="border-radius: 6px;">Transfer Giro</span>
+                                    </div>
+                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Giro Kampus:</p>
+                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                                        <h5 class="mb-0 font-weight-bold" style="color:#0f172a; letter-spacing: 0.5px;">829-501-8890</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="8295018890" title="Salin No. Rekening">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">a.n. Smart Campus Operasional</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -343,14 +448,14 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- 2. Ringkasan Finansial Mahasiswa (4 Stat Cards) -->
+                <!-- Ringkasan Finansial Mahasiswa (4 Stat Cards) -->
                 <div class="row mb-3">
                     <div class="col-xl-3 col-md-6 mb-3">
                         <div class="fin-stat-card">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Tagihan Semester</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #1e293b; font-size: 19px;">
+                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Tagihan Aktif</span>
+                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #0f172a; font-size: 20px;">
                                         Rp <?= number_format($ringkasan['total_tagihan'], 0, ',', '.') ?>
                                     </h4>
                                     <small class="text-muted"><?= count($daftar_tagihan) ?> Item Kewajiban</small>
@@ -367,7 +472,7 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <span class="text-muted" style="font-size: 13px; font-weight: 600;">Sisa Belum Dibayar</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #dc2626; font-size: 19px;" id="statBelumNominal">
+                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #dc2626; font-size: 20px;" id="statBelumNominal">
                                         Rp <?= number_format($ringkasan['total_belum_bayar'], 0, ',', '.') ?>
                                     </h4>
                                     <small class="text-danger font-weight-bold" id="statBelumCount"><?= $ringkasan['count_belum_bayar'] ?> Tagihan Menunggu</small>
@@ -384,7 +489,7 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Lunas</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #059669; font-size: 19px;" id="statLunasNominal">
+                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #059669; font-size: 20px;" id="statLunasNominal">
                                         Rp <?= number_format($ringkasan['total_terbayar'], 0, ',', '.') ?>
                                     </h4>
                                     <small class="text-success font-weight-bold" id="statLunasCount"><?= $ringkasan['count_lunas'] ?> Tagihan Terverifikasi</small>
@@ -401,92 +506,13 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
                                     <span class="text-muted" style="font-size: 13px; font-weight: 600;">Dalam Verifikasi</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #d97706; font-size: 19px;" id="statPendingCount">
+                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #d97706; font-size: 20px;" id="statPendingCount">
                                         <?= $ringkasan['count_pending'] ?> Tagihan
                                     </h4>
                                     <small class="text-warning font-weight-bold">Menunggu Verifikasi Admin</small>
                                 </div>
                                 <div class="fin-stat-icon" style="background-color: #fffbeb; color: #d97706;">
                                     <i class="bi bi-hourglass-split"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Status Pembayaran Semester & Widget Akses KRS (Real-time Sync) -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <?php 
-                            $krs_bg = '#f8fafc';
-                            $krs_border = '#e2e8f0';
-                            $krs_badge_class = 'badge-belum-bayar';
-                            $krs_icon = 'bi-exclamation-octagon-fill';
-                            $krs_color = '#dc2626';
-
-                            if ($status_krs['status'] === 'LUNAS') {
-                                $krs_bg = '#f0fdf4';
-                                $krs_border = '#86efac';
-                                $krs_badge_class = 'badge-lunas';
-                                $krs_icon = 'bi-check-circle-fill';
-                                $krs_color = '#15803d';
-                            } elseif ($status_krs['status'] === 'PENDING') {
-                                $krs_bg = '#fffbeb';
-                                $krs_border = '#fde68a';
-                                $krs_badge_class = 'badge-pending';
-                                $krs_icon = 'bi-hourglass-split';
-                                $krs_color = '#b45309';
-                            } elseif ($status_krs['status'] === 'DITOLAK') {
-                                $krs_bg = '#fff1f2';
-                                $krs_border = '#fecdd3';
-                                $krs_badge_class = 'badge-ditolak';
-                                $krs_icon = 'bi-x-circle-fill';
-                                $krs_color = '#be123c';
-                            }
-                        ?>
-
-                        <div class="card custom-card-white" id="cardStatusKRS" style="border-left: 6px solid <?= $krs_color ?> !important; background: <?= $krs_bg ?> !important; border-color: <?= $krs_border ?> !important;">
-                            <div class="card-block" style="padding: 22px 26px;">
-                                <div class="row align-items-center">
-                                    <div class="col-lg-8 mb-3 mb-lg-0">
-                                        <div class="d-flex align-items-start">
-                                            <div class="mr-3 mt-1" style="font-size: 32px; color: <?= $krs_color ?>;" id="krsIconContainer">
-                                                <i class="bi <?= $krs_icon ?>" id="krsIcon"></i>
-                                            </div>
-                                            <div>
-                                                <div class="d-flex align-items-center mb-1 flex-wrap">
-                                                    <h5 class="mb-0 font-weight-bold mr-2" style="color: #1e293b; font-size: 17px;">
-                                                        Status Akses Kartu Rencana Studi (KRS)
-                                                    </h5>
-                                                    <span class="badge-status <?= $krs_badge_class ?>" id="badgeStatusKRS">
-                                                        <i class="bi <?= $krs_icon ?>"></i> <span id="textStatusKRS"><?= $status_krs['status'] ?></span>
-                                                    </span>
-                                                </div>
-                                                <p class="mb-1 font-weight-bold" id="pesanKRS" style="color: <?= $krs_color ?>; font-size: 14.5px;">
-                                                    <?= $status_krs['pesan'] ?>
-                                                </p>
-                                                <?php if ($status_krs['status'] === 'DITOLAK' && !empty($status_krs['alasan_penolakan'])): ?>
-                                                    <div class="mt-2 p-2 bg-white rounded border border-danger text-danger" id="boxRejectReason" style="font-size: 13px;">
-                                                        <i class="bi bi-info-circle mr-1"></i> <strong>Alasan Penolakan:</strong> <?= htmlspecialchars($status_krs['alasan_penolakan']) ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                                <small class="text-muted d-block mt-1">
-                                                    Syarat Pengisian KRS: Pembayaran SPP / UKT telah diverifikasi (LUNAS). Perubahan dari admin otomatis sinkron tanpa perlu refresh manual.
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 text-lg-right" id="containerBtnKRS">
-                                        <?php if ($status_krs['buka_krs']): ?>
-                                            <a href="<?= base_url('perwalian/ambil-matakuliah') ?>" class="btn btn-success btn-lg px-4 shadow" style="border-radius: 10px; font-weight: 700; font-size: 15px;">
-                                                <i class="bi bi-unlock-fill mr-2"></i> Buka KRS Sekarang
-                                            </a>
-                                        <?php else: ?>
-                                            <button type="button" class="btn btn-secondary btn-lg px-4" disabled style="border-radius: 10px; font-weight: 600; font-size: 14.5px; opacity: 0.7; cursor: not-allowed;">
-                                                <i class="bi bi-lock-fill mr-2"></i> Akses KRS Terkunci
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -813,6 +839,36 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- Kartu Total Pengeluaran Resmi Mahasiswa (Sesuai Revisi) -->
+                            <div class="mt-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1565c0 100%); border-radius: 14px; color: #fff; padding: 24px 28px;">
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
+                                        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 4px;">
+                                            <i class="bi bi-receipt-cutoff mr-1"></i> Total Pengeluaran Resmi Terverifikasi
+                                        </div>
+                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                            Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?>
+                                        </h2>
+                                        <p style="font-size: 13px; opacity: 0.85; margin-bottom: 0;">
+                                            Akumulasi total pembayaran dengan status <strong>LUNAS</strong> yang telah diverifikasi oleh Admin Keuangan.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-5 text-md-right mt-3 mt-md-0">
+                                        <div style="background: rgba(255,255,255,0.12); border-radius: 12px; padding: 16px 20px; display: inline-block; border: 1px solid rgba(255,255,255,0.2);">
+                                            <?php
+                                                $jumlah_lunas = 0;
+                                                foreach ($riwayat_pembayaran as $rp) {
+                                                    if ($rp->status === 'LUNAS') $jumlah_lunas++;
+                                                }
+                                            ?>
+                                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Jumlah Transaksi Lunas</div>
+                                            <div style="font-size: 28px; font-weight: 800;"><?= $jumlah_lunas ?></div>
+                                            <div style="font-size: 11.5px; opacity: 0.75; margin-top: 2px;">Dari <?= count($riwayat_pembayaran) ?> total transaksi</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- TAB KHUSUS MAHASISWA SEMESTER AKHIR: PEMBAYARAN TUGAS AKHIR -->
@@ -977,73 +1033,8 @@
                     </div>
                 </div>
 
-                <!-- 5. Informasi Rekening Bank Resmi -->
-                <div class="card custom-card-white">
-                    <div class="card-header custom-card-header">
-                        <h5>
-                            <i class="bi bi-credit-card-2-front mr-2"></i> Rekening Resmi Kampus &amp; Panduan Transfer
-                        </h5>
-                    </div>
-                    <div class="card-block" style="padding: 24px;">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="bank-rek-box">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong class="text-primary font-weight-bold">BANK BNI</strong>
-                                        <span class="badge badge-primary px-2 py-1">Virtual Account</span>
-                                    </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Virtual Account Mahasiswa:</p>
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0 font-weight-bold text-dark">8808-<?= htmlspecialchars($mahasiswa_info['nim']) ?></h5>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="8808<?= htmlspecialchars($mahasiswa_info['nim']) ?>">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
-                                    </div>
-                                    <small class="text-muted d-block mt-2">a.n. Smart Campus - <?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></small>
-                                </div>
-                            </div>
 
-                            <div class="col-md-4 mb-3">
-                                <div class="bank-rek-box">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong class="text-primary font-weight-bold">BANK MANDIRI</strong>
-                                        <span class="badge badge-info px-2 py-1">Transfer Bank</span>
-                                    </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Kampus:</p>
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0 font-weight-bold text-dark">137-00-1928374-1</h5>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="1370019283741">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
-                                    </div>
-                                    <small class="text-muted d-block mt-2">a.n. Yayasan Smart Campus Indonesia</small>
-                                </div>
-                            </div>
 
-                            <div class="col-md-4 mb-3">
-                                <div class="bank-rek-box">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong class="text-primary font-weight-bold">BANK BCA</strong>
-                                        <span class="badge badge-success px-2 py-1">Transfer Bank</span>
-                                    </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Giro Kampus:</p>
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0 font-weight-bold text-dark">829-501-8890</h5>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="8295018890">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
-                                    </div>
-                                    <small class="text-muted d-block mt-2">a.n. Smart Campus Operasional</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- =======================================================
      MODAL KONFIRMASI PEMBAYARAN & UPLOAD BUKTI (BARU)
