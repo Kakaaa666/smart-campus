@@ -265,7 +265,7 @@
                                                     <th>Fakultas &amp; Program Studi</th>
                                                     <th>Kewajiban Tagihan</th>
                                                     <th>Nominal</th>
-                                                    <th>Metode &amp; Ref</th>
+                                                    <th>Metode &amp; Rekening</th>
                                                     <th>Bukti Transfer</th>
                                                     <th class="text-center" style="width: 190px;">Aksi Verifikasi</th>
                                                 </tr>
@@ -294,7 +294,8 @@
                                                         </td>
                                                         <td style="font-size: 12.5px;">
                                                             <div style="font-weight: 600; color: #334155;"><?= htmlspecialchars($p->metode_pembayaran) ?></div>
-                                                            <small class="text-muted" style="font-family: monospace;"><?= $p->nomor_referensi ?: '-' ?></small>
+                                                            <small style="font-family: monospace;">No: <?= htmlspecialchars($p->nomor_rekening ?: $p->nomor_referensi ?: '-') ?></small><br>
+                                                            <small class="text-muted">Nama: <?= htmlspecialchars($p->nama_rekening ?: '-') ?></small>
                                                         </td>
                                                         <td>
                                                             <a href="<?= base_url('keuangan/lihat_bukti/' . $p->id) ?>" target="_blank"
@@ -341,6 +342,7 @@
                                                     <th>Program Studi</th>
                                                     <th>Kewajiban Tagihan</th>
                                                     <th>Nominal</th>
+                                                    <th>Rekening Pengirim</th>
                                                     <th>Status</th>
                                                     <th>Verifikator</th>
                                                     <th>Bukti</th>
@@ -366,6 +368,10 @@
                                                         </td>
                                                         <td style="font-weight:700; color:#1e293b;">
                                                             Rp <?= number_format($ps->nominal_pembayaran, 0, ',', '.') ?>
+                                                        </td>
+                                                        <td style="font-size:12px;">
+                                                            <div style="font-family:monospace;">No: <?= htmlspecialchars($ps->nomor_rekening ?: $ps->nomor_referensi ?: '-') ?></div>
+                                                            <small class="text-muted">Nama: <?= htmlspecialchars($ps->nama_rekening ?: '-') ?></small>
                                                         </td>
                                                         <td>
                                                             <?php if ($ps->status === 'LUNAS'): ?>

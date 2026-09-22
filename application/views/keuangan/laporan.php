@@ -323,8 +323,8 @@
                                     <th>Jenis Tagihan</th>
                                     <th>Nominal</th>
                                     <th>Metode</th>
+                                    <th>Rekening Pengirim</th>
                                     <th>Tgl Bayar</th>
-                                    <th>No. Ref</th>
                                     <th>Status</th>
                                     <th>Verifikator</th>
                                 </tr>
@@ -344,8 +344,11 @@
                                         <td style="font-size:13px;"><?= htmlspecialchars($p->jenis_tagihan) ?></td>
                                         <td style="font-weight:700;color:#1e293b;">Rp <?= number_format($p->nominal_pembayaran, 0, ',', '.') ?></td>
                                         <td style="font-size:13px;"><?= htmlspecialchars($p->metode_pembayaran) ?></td>
+                                        <td style="font-size:12px;background:#f8fafc;">
+                                            <div style="font-family:monospace;">No: <?= htmlspecialchars($p->nomor_rekening ?: $p->nomor_referensi ?: '-') ?></div>
+                                            <small class="text-muted">Nama: <?= htmlspecialchars($p->nama_rekening ?: '-') ?></small>
+                                        </td>
                                         <td style="font-size:13px;white-space:nowrap;"><?= date('d M Y', strtotime($p->tanggal_pembayaran)) ?></td>
-                                        <td style="font-family:monospace;font-size:12px;background:#f8fafc;"><?= $p->nomor_referensi ?: '-' ?></td>
                                         <td>
                                             <?php if ($p->status === 'LUNAS'): ?>
                                                 <span class="badge-st badge-lunas-st"><i class="fa fa-check-circle"></i>LUNAS</span>

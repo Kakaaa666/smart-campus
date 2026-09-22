@@ -761,7 +761,10 @@
                                                         </strong>
                                                     </td>
                                                     <td>
-                                                        <?php if (!empty($r->nomor_referensi)): ?>
+                                                        <?php if (!empty($r->nomor_rekening)): ?>
+                                                            <code><?= htmlspecialchars($r->nomor_rekening) ?></code><br>
+                                                            <small><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
+                                                        <?php elseif (!empty($r->nomor_referensi)): ?>
                                                             <code><?= htmlspecialchars($r->nomor_referensi) ?></code>
                                                         <?php else: ?>
                                                             <span class="text-muted">-</span>
@@ -802,7 +805,8 @@
                                                                         data-nominal="Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>"
                                                                         data-metode="<?= htmlspecialchars($r->metode_pembayaran) ?>"
                                                                         data-tanggal="<?= $r->tanggal_pembayaran ?>"
-                                                                        data-referensi="<?= htmlspecialchars($r->nomor_referensi) ?>"
+                                                                        data-rekening="<?= htmlspecialchars($r->nomor_rekening ?: $r->nomor_referensi) ?>"
+                                                                        data-nama-rekening="<?= htmlspecialchars($r->nama_rekening) ?>"
                                                                         style="border-radius: 6px 0 0 6px;"
                                                                         title="Edit Data / Bukti Pembayaran">
                                                                     <i class="bi bi-pencil-square mr-1"></i> Edit
@@ -1118,10 +1122,17 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="nomor_referensi" class="font-weight-bold" style="font-size: 13.5px;">
-                            Nomor Referensi Transaksi / Kode Jurnal <small class="text-muted">(Opsional)</small>
+                        <label for="nomor_rekening" class="font-weight-bold" style="font-size: 13.5px;">
+                            Nomor Rekening <span class="text-danger">*</span>
                         </label>
-                        <input type="text" name="nomor_referensi" id="nomor_referensi" class="form-control" placeholder="Contoh: TRX-20260921-987123 atau No. Resi Bank" style="height: 44px; border-radius: 8px; font-size: 14px;">
+                        <input type="text" name="nomor_rekening" id="nomor_rekening" class="form-control" placeholder="Masukkan nomor rekening pengirim" required style="height: 44px; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="nama_rekening" class="font-weight-bold" style="font-size: 13.5px;">
+                            Nama Pemilik Rekening <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="nama_rekening" id="nama_rekening" class="form-control" placeholder="Masukkan nama pemilik rekening" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                     </div>
 
                     <div class="form-group mb-2">
@@ -1173,7 +1184,7 @@
                     
                     <div class="alert alert-warning mb-4" style="border-radius: 10px; font-size: 13px; border-left: 4px solid #f59e0b;">
                         <i class="bi bi-info-circle-fill mr-1"></i>
-                        Anda sedang mengoreksi pembayaran yang berstatus <strong>Menunggu Verifikasi (PENDING)</strong>. Anda dapat mengganti metode transfer, tanggal bayar, nomor referensi, atau mengunggah ulang bukti transfer baru.
+                        Anda sedang mengoreksi pembayaran yang berstatus <strong>Menunggu Verifikasi (PENDING)</strong>. Anda dapat mengganti metode transfer, tanggal bayar, nomor rekening, nama pemilik rekening, atau mengunggah ulang bukti transfer baru.
                     </div>
 
                     <div class="p-3 mb-4 rounded" style="background-color: #fefce8; border: 1.5px solid #fde047;">
@@ -1212,10 +1223,17 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="edit_nomor_referensi" class="font-weight-bold" style="font-size: 13.5px;">
-                            Nomor Referensi Transaksi / Kode Jurnal
+                        <label for="edit_nomor_rekening" class="font-weight-bold" style="font-size: 13.5px;">
+                            Nomor Rekening <span class="text-danger">*</span>
                         </label>
-                        <input type="text" name="nomor_referensi" id="edit_nomor_referensi" class="form-control" placeholder="Nomor Resi / Bukti Transfer" style="height: 44px; border-radius: 8px;">
+                        <input type="text" name="nomor_rekening" id="edit_nomor_rekening" class="form-control" placeholder="Masukkan nomor rekening pengirim" required style="height: 44px; border-radius: 8px;">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="edit_nama_rekening" class="font-weight-bold" style="font-size: 13.5px;">
+                            Nama Pemilik Rekening <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="nama_rekening" id="edit_nama_rekening" class="form-control" placeholder="Masukkan nama pemilik rekening" required style="height: 44px; border-radius: 8px;">
                     </div>
 
                     <div class="form-group mb-2">
@@ -1343,14 +1361,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const nominal = this.getAttribute('data-nominal');
             const metode  = this.getAttribute('data-metode');
             const tgl     = this.getAttribute('data-tanggal');
-            const ref     = this.getAttribute('data-referensi');
+            const rekening = this.getAttribute('data-rekening');
+            const namaRekening = this.getAttribute('data-nama-rekening');
 
             document.getElementById('edit_pembayaran_id').value = id;
             document.getElementById('editTagihanJudul').textContent = tagihan;
             document.getElementById('editTagihanNominal').textContent = nominal;
             document.getElementById('edit_metode_pembayaran').value = metode;
             document.getElementById('edit_tanggal_pembayaran').value = tgl;
-            document.getElementById('edit_nomor_referensi').value = ref;
+            document.getElementById('edit_nomor_rekening').value = rekening;
+            document.getElementById('edit_nama_rekening').value = namaRekening;
 
             $('#modalEditPembayaran').modal('show');
         });

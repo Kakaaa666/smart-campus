@@ -150,7 +150,6 @@ class Keuangan extends CI_Controller {
         $this->load->view('keuangan/index', $data);
         $this->load->view('templates/footer', $data);
     }
-
     /**
      * =====================================================
      * 1. MENU ADMIN: DASHBOARD KEUANGAN EKSEKUTIF
@@ -1002,6 +1001,14 @@ class Keuangan extends CI_Controller {
         $this->form_validation->set_rules('tanggal_pembayaran', 'Tanggal Pembayaran', 'trim|required', [
             'required' => 'Tanggal pembayaran wajib diisi.'
         ]);
+        $this->form_validation->set_rules('nomor_rekening', 'Nomor Rekening', 'trim|required|max_length[100]', [
+            'required' => 'Nomor rekening wajib diisi.',
+            'max_length' => 'Nomor rekening maksimal 100 karakter.'
+        ]);
+        $this->form_validation->set_rules('nama_rekening', 'Nama Pemilik Rekening', 'trim|required|max_length[150]', [
+            'required' => 'Nama pemilik rekening wajib diisi.',
+            'max_length' => 'Nama pemilik rekening maksimal 150 karakter.'
+        ]);
 
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors('<div>• ', '</div>'));
@@ -1012,7 +1019,8 @@ class Keuangan extends CI_Controller {
         $update_data = [
             'metode_pembayaran'  => $this->input->post('metode_pembayaran', true),
             'tanggal_pembayaran' => $this->input->post('tanggal_pembayaran', true),
-            'nomor_referensi'    => $this->input->post('nomor_referensi', true)
+            'nomor_rekening'     => $this->input->post('nomor_rekening', true),
+            'nama_rekening'      => $this->input->post('nama_rekening', true)
         ];
 
         // Cek berkas bukti baru
@@ -1155,6 +1163,14 @@ class Keuangan extends CI_Controller {
         $this->form_validation->set_rules('tanggal_pembayaran', 'Tanggal Pembayaran', 'trim|required', [
             'required' => 'Tanggal pembayaran wajib diisi.'
         ]);
+        $this->form_validation->set_rules('nomor_rekening', 'Nomor Rekening', 'trim|required|max_length[100]', [
+            'required' => 'Nomor rekening wajib diisi.',
+            'max_length' => 'Nomor rekening maksimal 100 karakter.'
+        ]);
+        $this->form_validation->set_rules('nama_rekening', 'Nama Pemilik Rekening', 'trim|required|max_length[150]', [
+            'required' => 'Nama pemilik rekening wajib diisi.',
+            'max_length' => 'Nama pemilik rekening maksimal 150 karakter.'
+        ]);
 
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors('<div>• ', '</div>'));
@@ -1236,7 +1252,8 @@ class Keuangan extends CI_Controller {
             'metode_pembayaran'  => $this->input->post('metode_pembayaran', true),
             'tanggal_pembayaran' => $this->input->post('tanggal_pembayaran', true),
             'nominal_pembayaran' => $tagihan->nominal,
-            'nomor_referensi'    => $this->input->post('nomor_referensi', true),
+            'nomor_rekening'     => $this->input->post('nomor_rekening', true),
+            'nama_rekening'      => $this->input->post('nama_rekening', true),
             'bukti_pembayaran'   => $file_saved,
             'status'             => 'PENDING',
             'alasan_penolakan'   => null,

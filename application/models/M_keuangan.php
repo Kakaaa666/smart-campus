@@ -76,6 +76,8 @@ class M_keuangan extends CI_Model {
                 `tanggal_pembayaran` DATE NOT NULL,
                 `nominal_pembayaran` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
                 `nomor_referensi` VARCHAR(100) NULL,
+                `nomor_rekening` VARCHAR(100) NULL,
+                `nama_rekening` VARCHAR(150) NULL,
                 `bukti_pembayaran` VARCHAR(255) NULL,
                 `status` ENUM('PENDING','LUNAS','DITOLAK') NOT NULL DEFAULT 'PENDING',
                 `alasan_penolakan` TEXT NULL,
@@ -89,6 +91,14 @@ class M_keuangan extends CI_Model {
                 KEY `idx_pay_status` (`status`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
             $this->db->query($sql_pembayaran);
+        } else {
+            $fields_pembayaran = $this->db->list_fields($this->table_pembayaran);
+            if (!in_array('nomor_rekening', $fields_pembayaran)) {
+                $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nomor_rekening` VARCHAR(100) NULL AFTER `nomor_referensi`");
+            }
+            if (!in_array('nama_rekening', $fields_pembayaran)) {
+                $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nama_rekening` VARCHAR(150) NULL AFTER `nomor_rekening`");
+            }
         }
 
         // Pastikan folder uploads/bukti_pembayaran tersedia
@@ -175,7 +185,6 @@ class M_keuangan extends CI_Model {
             $this->seed_initial_data();
         }
     }
-
     /**
      * Inisialisasi data seed tagihan & pembayaran awal untuk simulasi interaktif
      */
