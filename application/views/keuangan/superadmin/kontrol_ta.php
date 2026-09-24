@@ -134,6 +134,39 @@
                     background: #fee2e2;
                     color: #b91c1c;
                 }
+
+                .ta-toast {
+                    position: fixed;
+                    top: 86px;
+                    right: 24px;
+                    z-index: 1060;
+                    min-width: 320px;
+                    max-width: 420px;
+                    padding: 15px 18px;
+                    border-radius: 12px;
+                    color: #fff;
+                    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+                    display: none;
+                }
+
+                .ta-confirm-backdrop {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 1050;
+                    background: rgba(15, 23, 42, 0.45);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+
+                .ta-confirm-dialog {
+                    width: min(420px, 100%);
+                    background: #fff;
+                    border-radius: 16px;
+                    padding: 24px;
+                    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.25);
+                }
                 </style>
 
                 <div class="ta-container">
@@ -175,14 +208,14 @@
                                 <div class="col-lg-5 text-lg-right mt-3 mt-lg-0">
                                     <!-- Aksi Massal (Bulk Actions) -->
                                     <div class="btn-group" role="group">
-                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" onsubmit="return confirm('Buka akses Semester Akhir untuk semua mahasiswa tingkat akhir (semester 5+)?');">
+                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" data-ta-confirm="Buka akses Semester Akhir untuk semua mahasiswa tingkat akhir (semester 5+)?">
                                             <input type="hidden" name="status" value="1">
                                             <input type="hidden" name="semester_min" value="5">
                                             <button type="submit" class="btn btn-sm btn-success mr-2" style="border-radius: 8px; font-weight: 700; padding: 9px 15px;">
                                                 <i class="fa fa-unlock mr-1"></i>Buka Semua Sem. Akhir
                                             </button>
                                         </form>
-                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" onsubmit="return confirm('Tutup akses Semester Akhir untuk semua mahasiswa tingkat akhir?');">
+                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" data-ta-confirm="Tutup akses Semester Akhir untuk semua mahasiswa tingkat akhir?">
                                             <input type="hidden" name="status" value="0">
                                             <input type="hidden" name="semester_min" value="5">
                                             <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-weight: 600; padding: 9px 15px;">
@@ -355,10 +388,10 @@
                                                         <i class="fa <?= $is_open ? 'fa-lock' : 'fa-unlock' ?> mr-1"></i>
                                                         <span id="btn-text-<?= $m->id ?>"><?= $is_open ? 'Tutup Akses' : 'Buka Akses' ?></span>
                                                     </button>
-                                                    <form method="POST" action="<?= base_url('keuangan/toggle_semester_pendek_mhs') ?>" class="mt-2">
+                                                    <form method="POST" action="<?= base_url('keuangan/toggle_semester_pendek_mhs') ?>" class="mt-2" data-ta-confirm="<?= $is_sem_pendek ? 'Nonaktifkan' : 'Aktifkan' ?> tagihan Semester Pendek untuk mahasiswa ini?">
                                                         <input type="hidden" name="akun_id" value="<?= (int)$m->id ?>">
                                                         <input type="hidden" name="status" value="<?= $is_sem_pendek ? 0 : 1 ?>">
-                                                        <button type="submit" class="btn btn-sm <?= $is_sem_pendek ? 'btn-success' : 'btn-outline-secondary' ?>" style="border-radius: 7px; width: 100%;" onclick="return confirm('<?= $is_sem_pendek ? 'Nonaktifkan' : 'Aktifkan' ?> tagihan Semester Pendek untuk mahasiswa ini?');">
+                                                        <button type="submit" class="btn btn-sm <?= $is_sem_pendek ? 'btn-success' : 'btn-outline-secondary' ?>" style="border-radius: 7px; width: 100%;">
                                                             <i class="fa <?= $is_sem_pendek ? 'fa-check' : 'fa-calendar' ?> mr-1"></i><?= $is_sem_pendek ? 'Sem. Pendek Aktif' : 'Aktifkan Sem. Pendek' ?>
                                                         </button>
                                                     </form>
@@ -378,8 +411,72 @@
     </div>
 </div>
 
+<div id="taToast" class="ta-toast" role="status" aria-live="polite">
+    <div class="font-weight-bold" id="taToastTitle"></div>
+    <div id="taToastMessage"></div>
+</div>
+
+<div id="taConfirmBackdrop" class="ta-confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="taConfirmTitle">
+    <div class="ta-confirm-dialog">
+        <h5 id="taConfirmTitle" class="font-weight-bold mb-2" style="color:#0f172a;">Konfirmasi Perubahan Akses</h5>
+        <p id="taConfirmMessage" class="mb-4" style="color:#64748b;"></p>
+        <div class="text-right">
+            <button type="button" id="taConfirmCancel" class="btn btn-light mr-2" style="border-radius:8px;">Batal</button>
+            <button type="button" id="taConfirmSubmit" class="btn btn-primary" style="border-radius:8px;">Lanjutkan</button>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript Toggle Akses TA Real-time -->
 <script>
+var taPendingForm = null;
+var taToastTimer = null;
+
+function showTaToast(message, type) {
+    var toast = document.getElementById('taToast');
+    var title = document.getElementById('taToastTitle');
+    var body = document.getElementById('taToastMessage');
+    if (!toast || !title || !body) return;
+    var isError = type === 'error';
+    toast.style.background = isError ? '#dc2626' : '#059669';
+    title.textContent = isError ? 'Gagal' : 'Berhasil';
+    body.textContent = message;
+    toast.style.display = 'block';
+    clearTimeout(taToastTimer);
+    taToastTimer = setTimeout(function() { toast.style.display = 'none'; }, 4500);
+}
+
+function openTaConfirm(form) {
+    taPendingForm = form;
+    document.getElementById('taConfirmMessage').textContent = form.getAttribute('data-ta-confirm');
+    document.getElementById('taConfirmBackdrop').style.display = 'flex';
+}
+
+function closeTaConfirm() {
+    taPendingForm = null;
+    document.getElementById('taConfirmBackdrop').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form[data-ta-confirm]').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (form !== taPendingForm) {
+                event.preventDefault();
+                openTaConfirm(form);
+            }
+        });
+    });
+    document.getElementById('taConfirmCancel').addEventListener('click', closeTaConfirm);
+    document.getElementById('taConfirmSubmit').addEventListener('click', function() {
+        if (taPendingForm) {
+            var form = taPendingForm;
+            taPendingForm = null;
+            form.submit();
+        }
+        document.getElementById('taConfirmBackdrop').style.display = 'none';
+    });
+});
+
 function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
     var btn = document.getElementById('btn-toggle-' + akunId);
     var btnText = document.getElementById('btn-text-' + akunId);
@@ -433,15 +530,13 @@ function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
                 }
             }
 
-            alert(data.message);
+            showTaToast(data.message, 'success');
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan sistem'));
-            window.location.reload();
+            showTaToast(data.message || 'Terjadi kesalahan sistem', 'error');
         }
     })
     .catch(function(err) {
-        alert('Gagal menghubungi server.');
-        window.location.reload();
+        showTaToast('Gagal menghubungi server.', 'error');
     })
     .finally(function() {
         if (btn) btn.disabled = false;
