@@ -317,19 +317,19 @@
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
                 <div class="card custom-card-white" style="border-left: 5px solid #0284c7;">
-                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
+                    <div class="card-header custom-card-header d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between" style="gap: 12px;">
                         <div class="d-flex align-items-center">
-                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; flex-shrink: 0;">
                                 <i class="bi bi-credit-card-2-front"></i>
                             </div>
-                            <div>
-                                <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
+                            <div class="d-flex flex-column justify-content-center">
+                                <h5 class="mb-1" style="color: #0f172a; font-weight: 800; font-size: 16px;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <small class="text-muted" style="font-size: 13px;">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
                             </div>
                         </div>
-                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
+                        <span class="badge badge-primary px-3 py-2" style="border-radius: 8px; font-size: 12.5px; font-weight: 700; white-space: nowrap;">
                             <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
                         </span>
                     </div>
@@ -555,7 +555,7 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-3" style="gap: 16px;">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
                                         Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
@@ -564,7 +564,7 @@
                                         Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel atau gunakan tombol konfirmasi pembayaran.
                                     </p>
                                 </div>
-                                <div class="mt-2 mt-md-0">
+                                <div>
                                     <?php if (!empty($tagihan_pilihan)): ?>
                                         <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
                                             <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
@@ -713,7 +713,7 @@
                                             <th>Kewajiban / Tagihan</th>
                                             <th>Metode Bayar</th>
                                             <th>Nominal</th>
-                                            <th>No. Ref</th>
+                                            <th>Rekening Pengirim</th>
                                             <th>Bukti</th>
                                             <th>Status</th>
                                             <th style="width: 160px;" class="text-center">Aksi / Koreksi</th>
@@ -761,14 +761,12 @@
                                                         </strong>
                                                     </td>
                                                     <td>
-                                                        <?php if (!empty($r->nomor_rekening)): ?>
-                                                            <code><?= htmlspecialchars($r->nomor_rekening) ?></code><br>
-                                                            <small><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
-                                                        <?php elseif (!empty($r->nomor_referensi)): ?>
-                                                            <code><?= htmlspecialchars($r->nomor_referensi) ?></code>
-                                                        <?php else: ?>
-                                                            <span class="text-muted">-</span>
-                                                        <?php endif; ?>
+                                                        <div style="font-family: monospace; font-size: 13px; color: #0284c7; font-weight: 600;">
+                                                            <?= htmlspecialchars($r->nomor_rekening ?: $r->nomor_referensi ?: '-') ?>
+                                                        </div>
+                                                        <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">
+                                                            a.n. <?= htmlspecialchars($r->nama_rekening ?: '-') ?>
+                                                        </small>
                                                     </td>
                                                     <td>
                                                         <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn btn-outline-primary btn-sm px-2" style="border-radius: 6px;">

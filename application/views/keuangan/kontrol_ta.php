@@ -175,17 +175,17 @@
                                 <div class="col-lg-5 text-lg-right mt-3 mt-lg-0">
                                     <!-- Aksi Massal (Bulk Actions) -->
                                     <div class="btn-group" role="group">
-                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" onsubmit="return confirm('Buka akses Tugas Akhir untuk semua mahasiswa tingkat akhir (semester 5+)?');">
+                                        <form id="form-bulk-open" method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;">
                                             <input type="hidden" name="status" value="1">
                                             <input type="hidden" name="semester_min" value="5">
-                                            <button type="submit" class="btn btn-sm btn-success mr-2" style="border-radius: 8px; font-weight: 700; padding: 9px 15px;">
+                                            <button type="button" onclick="konfirmasiBulk('open')" class="btn btn-sm btn-success mr-2" style="border-radius: 8px; font-weight: 700; padding: 9px 15px;">
                                                 <i class="fa fa-unlock mr-1"></i>Buka Semua Sem. Akhir
                                             </button>
                                         </form>
-                                        <form method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;" onsubmit="return confirm('Tutup akses Tugas Akhir untuk semua mahasiswa tingkat akhir?');">
+                                        <form id="form-bulk-close" method="POST" action="<?= base_url('keuangan/toggle_akses_ta_bulk') ?>" style="display:inline;">
                                             <input type="hidden" name="status" value="0">
                                             <input type="hidden" name="semester_min" value="5">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-weight: 600; padding: 9px 15px;">
+                                            <button type="button" onclick="konfirmasiBulk('close')" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-weight: 600; padding: 9px 15px;">
                                                 <i class="fa fa-lock mr-1"></i>Tutup Semua
                                             </button>
                                         </form>
@@ -370,8 +370,117 @@
     </div>
 </div>
 
+<!-- Toast Real-time Notifikasi (Pengganti native alert) -->
+<style>
+@keyframes slideUpFade {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+<div id="realtimeToast" class="alert p-3" role="alert" style="position: fixed; bottom: 28px; right: 28px; z-index: 100000; min-width: 320px; max-width: 420px; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: none; animation: slideUpFade 0.3s ease-out; color: #fff; border: none;">
+    <div class="d-flex align-items-center">
+        <div class="mr-3" style="font-size:26px;"><i id="toastIcon" class="fa fa-check-circle"></i></div>
+        <div>
+            <strong style="font-size:14px; display:block;" id="toastTitle">Judul</strong>
+            <span style="font-size:12.5px; opacity:0.95;" id="toastBody">Pesan...</span>
+        </div>
+    </div>
+    <button type="button" class="close text-white" onclick="document.getElementById('realtimeToast').style.display='none';" style="opacity:0.9; outline: none; border: none; background: transparent; padding: 0; position: absolute; right: 15px; top: 15px; font-size: 20px;">
+        <span>&times;</span>
+    </button>
+</div>
+
+<!-- Modal Konfirmasi Bulk Action -->
+<div class="modal fade" id="modalConfirmBulk" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <div class="modal-body p-4 text-center">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fa fa-exclamation-triangle" style="font-size: 32px; color: #f59e0b;"></i>
+                </div>
+                <h4 style="font-weight: 800; color: #0f172a; margin-bottom: 12px;">Konfirmasi Tindakan</h4>
+                <p style="font-size: 15px; color: #475569; margin-bottom: 24px;" id="modalConfirmMessage">
+                    Apakah Anda yakin ingin melakukan tindakan ini?
+                </p>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-light mr-3" data-dismiss="modal" style="border-radius: 8px; font-weight: 600; padding: 10px 24px; color: #475569; background: #f1f5f9; border: none;">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmAction" style="border-radius: 8px; font-weight: 600; padding: 10px 24px;">Ya, Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript Toggle Akses TA Real-time -->
 <script>
+function konfirmasiBulk(type) {
+    var msg = type === 'open' 
+        ? 'Buka akses Tugas Akhir untuk semua mahasiswa tingkat akhir (semester 5+)?'
+        : 'Tutup akses Tugas Akhir untuk semua mahasiswa tingkat akhir?';
+        
+    document.getElementById('modalConfirmMessage').innerText = msg;
+    var btnConfirm = document.getElementById('btnConfirmAction');
+    
+    if (type === 'open') {
+        btnConfirm.className = 'btn btn-success';
+        btnConfirm.innerHTML = '<i class="fa fa-check mr-1"></i>Ya, Buka Akses';
+        btnConfirm.onclick = function() {
+            btnConfirm.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i>Memproses...';
+            btnConfirm.disabled = true;
+            document.getElementById('form-bulk-open').submit();
+        };
+    } else {
+        btnConfirm.className = 'btn btn-danger';
+        btnConfirm.innerHTML = '<i class="fa fa-check mr-1"></i>Ya, Tutup Akses';
+        btnConfirm.onclick = function() {
+            btnConfirm.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i>Memproses...';
+            btnConfirm.disabled = true;
+            document.getElementById('form-bulk-close').submit();
+        };
+    }
+    
+    if (typeof $ !== 'undefined' && $('#modalConfirmBulk').modal) {
+        $('#modalConfirmBulk').modal('show');
+    } else {
+        if(confirm(msg)) {
+            if(type === 'open') document.getElementById('form-bulk-open').submit();
+            else document.getElementById('form-bulk-close').submit();
+        }
+    }
+}
+function showNotification(type, title, message) {
+    var toast = document.getElementById('realtimeToast');
+    if (!toast) {
+        alert(title + ': ' + message);
+        return;
+    }
+    
+    var icon = document.getElementById('toastIcon');
+    var tTitle = document.getElementById('toastTitle');
+    var tBody = document.getElementById('toastBody');
+    
+    if(type === 'success') {
+        toast.style.background = '#10b981';
+        icon.className = 'fa fa-check-circle';
+    } else if(type === 'error') {
+        toast.style.background = '#ef4444';
+        icon.className = 'fa fa-times-circle';
+    } else if(type === 'warning') {
+        toast.style.background = '#f59e0b';
+        icon.className = 'fa fa-exclamation-circle';
+    }
+    
+    tTitle.textContent = title;
+    tBody.textContent = message;
+    
+    toast.style.display = 'block';
+    
+    // Auto hide
+    setTimeout(function() {
+        toast.style.display = 'none';
+    }, 4500);
+}
+
 function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
     var btn = document.getElementById('btn-toggle-' + akunId);
     var btnText = document.getElementById('btn-text-' + akunId);
@@ -425,15 +534,15 @@ function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
                 }
             }
 
-            alert(data.message);
+            showNotification('success', 'Berhasil', data.message);
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan sistem'));
-            window.location.reload();
+            showNotification('error', 'Gagal', data.message || 'Terjadi kesalahan sistem');
+            setTimeout(function() { window.location.reload(); }, 2500);
         }
     })
     .catch(function(err) {
-        alert('Gagal menghubungi server.');
-        window.location.reload();
+        showNotification('error', 'Koneksi Gagal', 'Gagal menghubungi server.');
+        setTimeout(function() { window.location.reload(); }, 2500);
     })
     .finally(function() {
         if (btn) btn.disabled = false;

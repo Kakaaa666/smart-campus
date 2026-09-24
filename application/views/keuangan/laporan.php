@@ -38,11 +38,13 @@
                 .badge-belum-st  { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
                 .badge-fakultas {
                     background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
-                    padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
+                    padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 700;
+                    display: inline-block; white-space: nowrap;
                 }
                 .badge-prodi {
                     background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
-                    padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600;
+                    padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 600;
+                    display: inline-block; white-space: nowrap;
                 }
                 @media print {
                     .no-print { display: none !important; }
@@ -70,17 +72,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5 text-md-right mt-3 mt-md-0">
-                                <a href="<?= base_url('keuangan/admin') ?>" class="btn btn-sm mr-2"
-                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;">
+                            <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center flex-wrap" style="gap: 8px;">
+                                <a href="<?= base_url('keuangan/admin') ?>" class="btn btn-sm"
+                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;margin:0;">
                                     <i class="fa fa-arrow-left mr-1"></i>Kembali
                                 </a>
-                                <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn btn-sm mr-2"
-                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                                <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn btn-sm"
+                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);margin:0;">
                                     <i class="fa fa-file-word-o mr-1"></i>Ekspor Word (.doc)
                                 </a>
                                 <button onclick="window.print()" class="btn btn-sm"
-                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;">
+                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;margin:0;">
                                     <i class="fa fa-print mr-1"></i>Cetak Rinci
                                 </button>
                             </div>

@@ -293,9 +293,13 @@
                                                             Rp <?= number_format($p->nominal_pembayaran, 0, ',', '.') ?>
                                                         </td>
                                                         <td style="font-size: 12.5px;">
-                                                            <div style="font-weight: 600; color: #334155;"><?= htmlspecialchars($p->metode_pembayaran) ?></div>
-                                                            <small style="font-family: monospace;">No: <?= htmlspecialchars($p->nomor_rekening ?: $p->nomor_referensi ?: '-') ?></small><br>
-                                                            <small class="text-muted">Nama: <?= htmlspecialchars($p->nama_rekening ?: '-') ?></small>
+                                                            <div style="font-weight: 600; color: #334155; margin-bottom: 2px;"><?= htmlspecialchars($p->metode_pembayaran) ?></div>
+                                                            <div style="font-family: monospace; font-size: 12px; color: #0284c7; font-weight: 600;">
+                                                                <?= htmlspecialchars($p->nomor_rekening ?: $p->nomor_referensi ?: '-') ?>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 11px;">
+                                                                a.n. <?= htmlspecialchars($p->nama_rekening ?: '-') ?>
+                                                            </small>
                                                         </td>
                                                         <td>
                                                             <a href="<?= base_url('keuangan/lihat_bukti/' . $p->id) ?>" target="_blank"
@@ -370,8 +374,12 @@
                                                             Rp <?= number_format($ps->nominal_pembayaran, 0, ',', '.') ?>
                                                         </td>
                                                         <td style="font-size:12px;">
-                                                            <div style="font-family:monospace;">No: <?= htmlspecialchars($ps->nomor_rekening ?: $ps->nomor_referensi ?: '-') ?></div>
-                                                            <small class="text-muted">Nama: <?= htmlspecialchars($ps->nama_rekening ?: '-') ?></small>
+                                                            <div style="font-family: monospace; font-size: 12px; color: #0284c7; font-weight: 600;">
+                                                                <?= htmlspecialchars($ps->nomor_rekening ?: $ps->nomor_referensi ?: '-') ?>
+                                                            </div>
+                                                            <small class="text-muted d-block" style="font-size: 11px;">
+                                                                a.n. <?= htmlspecialchars($ps->nama_rekening ?: '-') ?>
+                                                            </small>
                                                         </td>
                                                         <td>
                                                             <?php if ($ps->status === 'LUNAS'): ?>
@@ -511,15 +519,68 @@
     </div>
 </div>
 
+<!-- Toast Real-time Notifikasi (Pengganti native alert) -->
+<style>
+@keyframes slideUpFade {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+<div id="realtimeToast" class="alert p-3" role="alert" style="position: fixed; bottom: 28px; right: 28px; z-index: 100000; min-width: 320px; max-width: 420px; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: none; animation: slideUpFade 0.3s ease-out; color: #fff; border: none;">
+    <div class="d-flex align-items-center">
+        <div class="mr-3" style="font-size:26px;"><i id="toastIcon" class="fa fa-check-circle"></i></div>
+        <div>
+            <strong style="font-size:14px; display:block;" id="toastTitle">Judul</strong>
+            <span style="font-size:12.5px; opacity:0.95;" id="toastBody">Pesan...</span>
+        </div>
+    </div>
+    <button type="button" class="close text-white" onclick="document.getElementById('realtimeToast').style.display='none';" style="opacity:0.9; outline: none; border: none; background: transparent; padding: 0; position: absolute; right: 15px; top: 15px; font-size: 20px;">
+        <span>&times;</span>
+    </button>
+</div>
+
 <!-- =======================================================
      JAVASCRIPT LOGIC DENGAN DUKUNGAN AJAX & FALLBACK LENGKAP
 ======================================================= -->
 <script>
+function showNotification(type, title, message) {
+    var toast = document.getElementById('realtimeToast');
+    if (!toast) {
+        alert(title + ': ' + message);
+        return;
+    }
+    
+    var icon = document.getElementById('toastIcon');
+    var tTitle = document.getElementById('toastTitle');
+    var tBody = document.getElementById('toastBody');
+    
+    if(type === 'success') {
+        toast.style.background = '#10b981';
+        icon.className = 'fa fa-check-circle';
+    } else if(type === 'error') {
+        toast.style.background = '#ef4444';
+        icon.className = 'fa fa-times-circle';
+    } else if(type === 'warning') {
+        toast.style.background = '#f59e0b';
+        icon.className = 'fa fa-exclamation-circle';
+    }
+    
+    tTitle.textContent = title;
+    tBody.textContent = message;
+    
+    toast.style.display = 'block';
+    
+    // Auto hide
+    setTimeout(function() {
+        toast.style.display = 'none';
+    }, 4500);
+}
+
 // Fungsi Buka Modal Verifikasi (Pastikan elemen ID selalu ada)
 function konfirmasiVerifikasi(pembayaranId, namaMhs, jenisTghn, nominal) {
     var inputId = document.getElementById('input-verif-id');
     if (!inputId) {
-        alert('Komponen form verifikasi gagal dimuat.');
+        showNotification('error', 'Kesalahan', 'Komponen form verifikasi gagal dimuat.');
         return;
     }
     inputId.value = pembayaranId;
@@ -542,7 +603,7 @@ function konfirmasiVerifikasi(pembayaranId, namaMhs, jenisTghn, nominal) {
 function bukaModalTolak(pembayaranId, namaMhs, jenisTghn) {
     var inputId = document.getElementById('input-tolak-id');
     if (!inputId) {
-        alert('Komponen form penolakan gagal dimuat.');
+        showNotification('error', 'Kesalahan', 'Komponen form penolakan gagal dimuat.');
         return;
     }
     inputId.value = pembayaranId;
@@ -593,9 +654,9 @@ function eksekusiVerifikasiAjax(pembayaranId) {
             } else {
                 window.location.reload();
             }
-            alert('Sukses: ' + data.message);
+            showNotification('success', 'Berhasil', data.message);
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
+            showNotification('error', 'Gagal', data.message || 'Terjadi kesalahan');
         }
     })
     .catch(function(err) {
@@ -644,9 +705,9 @@ function eksekusiTolakAjax(pembayaranId, alasan) {
             } else {
                 window.location.reload();
             }
-            alert('Sukses: ' + data.message);
+            showNotification('success', 'Berhasil', data.message);
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
+            showNotification('error', 'Gagal', data.message || 'Terjadi kesalahan');
         }
     })
     .catch(function() {
@@ -694,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var id = document.getElementById('input-tolak-id').value;
             var alasan = document.getElementById('input-alasan').value.trim();
             if (!alasan) {
-                alert('Alasan penolakan wajib diisi.');
+                showNotification('warning', 'Perhatian', 'Alasan penolakan wajib diisi.');
                 document.getElementById('input-alasan').focus();
                 return;
             }
