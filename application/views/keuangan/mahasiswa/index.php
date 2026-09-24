@@ -324,8 +324,8 @@
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
                 <div class="card custom-card-white" style="border-left: 5px solid #0284c7; margin-bottom: 24px;">
-                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
-                        <div class="d-flex align-items-center">
+                    <div class="card-header custom-card-header d-flex align-items-start">
+                        <div class="d-flex align-items-start">
                             <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
                                 <i class="bi bi-credit-card-2-front"></i>
                             </div>
@@ -333,12 +333,12 @@
                                 <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <small class="text-muted d-block mt-1">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <span class="badge badge-primary px-3 py-2 mt-2 d-inline-block" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
+                                    <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
+                                </span>
                             </div>
                         </div>
-                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
-                            <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
-                        </span>
                     </div>
                     <div class="card-block" style="padding: 24px;">
                         <div class="alert alert-warning mb-3 py-2 px-3" style="border-radius: 10px; font-size: 12.5px; border-left: 4px solid #f59e0b; background:#fffbeb;">
@@ -562,7 +562,7 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
+                            <div class="d-flex align-items-center justify-content-between mb-3 pb-5 flex-wrap">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
                                         Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
@@ -573,7 +573,7 @@
                                 </div>
                                 <div class="mt-2 mt-md-0">
                                     <?php if (!empty($tagihan_pilihan)): ?>
-                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
+                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600; margin-bottom: 12px;">
                                             <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
                                         </button>
                                     <?php else: ?>
