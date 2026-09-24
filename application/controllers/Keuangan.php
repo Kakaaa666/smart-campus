@@ -511,7 +511,8 @@ class Keuangan extends CI_Controller {
                     'id' => (int)$r->id, 'status' => $r->status,
                     'tanggal' => date('d M Y', strtotime($r->tanggal_pembayaran)),
                     'nominal' => (float)$r->nominal_pembayaran, 'metode' => $r->metode_pembayaran,
-                    'referensi' => $r->nomor_referensi, 'bukti' => $r->bukti_pembayaran,
+                    'nomor_rekening' => $r->nomor_rekening, 'nama_rekening' => $r->nama_rekening,
+                    'bukti' => $r->bukti_pembayaran,
                     'verifikator' => $r->nama_verifikator, 'diverifikasi_at' => $r->diverifikasi_at,
                     'alasan_penolakan' => $r->alasan_penolakan,
                 ];

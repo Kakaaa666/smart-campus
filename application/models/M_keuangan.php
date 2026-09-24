@@ -76,6 +76,7 @@ class M_keuangan extends CI_Model {
             $fields = $this->db->list_fields($this->table_pembayaran);
             if (!in_array('nomor_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nomor_rekening` VARCHAR(100) NULL AFTER `nomor_referensi`");
             if (!in_array('nama_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nama_rekening` VARCHAR(150) NULL AFTER `nomor_rekening`");
+            $this->db->query("UPDATE `{$this->table_pembayaran}` SET `nomor_rekening` = `nomor_referensi` WHERE (`nomor_rekening` IS NULL OR `nomor_rekening` = '') AND `nomor_referensi` IS NOT NULL AND `nomor_referensi` <> ''");
         }
 
         $upload_dir = FCPATH . 'uploads/bukti_pembayaran/';

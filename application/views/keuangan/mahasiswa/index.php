@@ -720,7 +720,7 @@
                                             <th>Kewajiban / Tagihan</th>
                                             <th>Metode Bayar</th>
                                             <th>Nominal</th>
-                                            <th>No. Ref</th>
+                                            <th>Rekening Pengirim</th>
                                             <th>Bukti</th>
                                             <th>Status</th>
                                             <th style="width: 160px;" class="text-center">Aksi / Koreksi</th>
@@ -768,11 +768,11 @@
                                                         </strong>
                                                     </td>
                                                     <td>
-                                                        <?php if (!empty($r->nomor_rekening)): ?>
-                                                            <code><?= htmlspecialchars($r->nomor_rekening) ?></code><br>
+                                                        <?php if (!empty($r->nomor_rekening) || !empty($r->nama_rekening)): ?>
+                                                            <small class="d-block text-muted">No. Rekening</small>
+                                                            <code><?= htmlspecialchars($r->nomor_rekening ?: '-') ?></code><br>
+                                                            <small class="d-block text-muted">Nama Pemilik</small>
                                                             <small><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
-                                                        <?php elseif (!empty($r->nomor_referensi)): ?>
-                                                            <code><?= htmlspecialchars($r->nomor_referensi) ?></code>
                                                         <?php else: ?>
                                                             <span class="text-muted">-</span>
                                                         <?php endif; ?>
@@ -812,7 +812,7 @@
                                                                         data-nominal="Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>"
                                                                         data-metode="<?= htmlspecialchars($r->metode_pembayaran) ?>"
                                                                         data-tanggal="<?= $r->tanggal_pembayaran ?>"
-                                                                        data-rekening="<?= htmlspecialchars($r->nomor_rekening ?: $r->nomor_referensi) ?>"
+                                                                        data-rekening="<?= htmlspecialchars($r->nomor_rekening) ?>"
                                                                         data-nama-rekening="<?= htmlspecialchars($r->nama_rekening) ?>"
                                                                         style="border-radius: 6px 0 0 6px;"
                                                                         title="Edit Data / Bukti Pembayaran">
