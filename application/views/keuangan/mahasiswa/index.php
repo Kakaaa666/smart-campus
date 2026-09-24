@@ -323,7 +323,7 @@
                 </div>
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
-                <div class="card custom-card-white" style="border-left: 5px solid #0284c7;">
+                <div class="card custom-card-white" style="border-left: 5px solid #0284c7; margin-bottom: 24px;">
                     <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
                         <div class="d-flex align-items-center">
                             <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
