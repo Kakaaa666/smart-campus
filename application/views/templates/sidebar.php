@@ -26,6 +26,52 @@ $current_role = (int)$this->session->userdata('role');
                                     </a>
                                 </li>
 
+                                <?php if ($current_role === 1): ?>
+                                <!-- Menu utama Super Admin: satu item untuk setiap biro -->
+                                <li class="<?= ($seg1 == 'beranda') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-shield"></i></span>
+                                        <span class="pcoded-mtext">Pusat Kendali</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-money"></i></span><span class="pcoded-mtext">Biro Keuangan</span><span class="pcoded-mcaret"></span></a>
+                                    <ul class="pcoded-submenu">
+                                        <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
+                                        <li><a href="<?= base_url('keuangan/admin') ?>"><span class="pcoded-mtext">Dashboard Keuangan</span></a></li>
+                                        <li><a href="<?= base_url('keuangan/verifikasi') ?>"><span class="pcoded-mtext">Verifikasi Pembayaran</span></a></li>
+                                        <li><a href="<?= base_url('keuangan/kontrol_ta') ?>"><span class="pcoded-mtext">Kontrol Akses Tagihan</span></a></li>
+                                        <li><a href="<?= base_url('keuangan/laporan') ?>"><span class="pcoded-mtext">Laporan Rektorat</span></a></li>
+                                    </ul>
+                                </li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Biro Akademik</span><span class="pcoded-mcaret"></span></a>
+                                    <ul class="pcoded-submenu">
+                                        <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
+                                        <li><a href="<?= base_url('akademik/jadwal') ?>"><span class="pcoded-mtext">Jadwal</span></a></li>
+                                        <li><a href="<?= base_url('akademik/nilai') ?>"><span class="pcoded-mtext">Nilai</span></a></li>
+                                        <li><a href="<?= base_url('akademik/khs') ?>"><span class="pcoded-mtext">KHS</span></a></li>
+                                        <li><a href="<?= base_url('akademik/transkrip') ?>"><span class="pcoded-mtext">Transkrip</span></a></li>
+                                        <li><a href="<?= base_url('akademik/kurikulum') ?>"><span class="pcoded-mtext">Kurikulum</span></a></li>
+                                        <li><a href="<?= base_url('akademik/matakuliah') ?>"><span class="pcoded-mtext">Mata Kuliah</span></a></li>
+                                        <li><a href="<?= base_url('akademik/kalender') ?>"><span class="pcoded-mtext">Kalender Akademik</span></a></li>
+                                    </ul>
+                                </li>
+                                <li class="<?= ($seg1 == 'perpustakaan') ? 'active' : '' ?>"><a href="<?= base_url('perpustakaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Biro Perpustakaan</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'kemahasiswaan') ? 'pcoded-trigger active' : '' ?>">
+                                    <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Biro Kemahasiswaan</span><span class="pcoded-mcaret"></span></a>
+                                    <ul class="pcoded-submenu">
+                                        <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
+                                        <li><a href="<?= base_url('kemahasiswaan') ?>"><span class="pcoded-mtext">Ringkasan Biro</span></a></li>
+                                        <li><a href="<?= base_url('kuisioner') ?>"><span class="pcoded-mtext">Kuisioner</span></a></li>
+                                        <li><a href="<?= base_url('skpi') ?>"><span class="pcoded-mtext">SKPI</span></a></li>
+                                        <li><a href="<?= base_url('merdeka_belajar') ?>"><span class="pcoded-mtext">Merdeka Belajar</span></a></li>
+                                    </ul>
+                                </li>
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == '') ? 'active' : '' ?>"><a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Mode Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
+                                <?php endif; ?>
+
                                 <?php if ($current_role === 2): ?>
                                 <!-- =============================================
                                      MENU KHUSUS ADMIN KEUANGAN (role 2)
@@ -57,11 +103,11 @@ $current_role = (int)$this->session->userdata('role');
                                     </a>
                                 </li>
 
-                                <!-- Kontrol Akses Tugas Akhir (Menu Tersendiri) -->
+                                <!-- Kontrol Akses Tagihan (Menu Tersendiri) -->
                                 <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'kontrol_ta') ? 'active' : '' ?>">
                                     <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
-                                        <span class="pcoded-mtext">Akses Tugas Akhir</span>
+                                        <span class="pcoded-mtext">Kontrol Akses Tagihan</span>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
@@ -100,9 +146,9 @@ $current_role = (int)$this->session->userdata('role');
                                     </ul>
                                 </li>
 
-                                <?php else: ?>
+                                  <?php elseif ($current_role === 3): ?>
                                 <!-- =============================================
-                                     MENU MAHASISWA & SUPER ADMIN (role 1 & 3)
+                                      MENU KHUSUS MAHASISWA (role 3)
                                 ============================================= -->
 
                                 <li class="<?= ($seg1 == 'ringkasan') ? 'active' : '' ?>">
@@ -169,7 +215,7 @@ $current_role = (int)$this->session->userdata('role');
                                         <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'kontrol_ta') ? 'active' : '' ?>">
                                             <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext">Akses Tugas Akhir</span>
+                                                <span class="pcoded-mtext">Kontrol Akses Tagihan</span>
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>

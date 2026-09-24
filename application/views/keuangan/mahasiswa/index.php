@@ -254,24 +254,31 @@
                     </div>
                 </div>
 
-                <!-- Banner Rincian Biaya Kuliah & Deskripsi Keuangan (Desain Modern & Menonjol) -->
+                <?php
+                    $total_biaya_semester = 0;
+                    foreach ($komponen_biaya as $komponen) {
+                        $total_biaya_semester += (float)$komponen['nominal'];
+                    }
+                ?>
+
+                <!-- Banner Rincian Biaya Kuliah & Deskripsi Keuangan -->
                 <div class="banner-biaya-simulasi">
                     <div class="row align-items-center">
                         <div class="col-lg-6 mb-3 mb-lg-0">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">DATA SIMULASI KAMPUS</span>
+                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">INFORMASI TARIF KAMPUS</span>
                                 <span style="font-size: 13.5px; opacity: 0.9; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
                             </div>
                             <div style="font-size: 15px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                                 Total Biaya Perkuliahan Semester
                             </div>
                             <h1 style="font-weight: 800; font-size: 38px; margin: 6px 0 8px; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-                                Rp 4.500.000
+                                Rp <?= number_format($total_biaya_semester, 0, ',', '.') ?>
                             </h1>
                             <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
                                 <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                             </div>
-                            <!-- Status Akses Tugas Akhir Mahasiswa -->
+                            <!-- Status Akses Semester Akhir Mahasiswa -->
                             <?php if ($is_semester_akhir): ?>
                                 <div class="mt-3">
                                     <?php if ($akses_ta_mahasiswa): ?>
@@ -293,23 +300,23 @@
                             <div class="row" style="font-size: 13.5px; line-height: 1.8;">
                                 <div class="col-sm-6 mb-2">
                                     <div style="opacity: 0.85; font-size: 12px;">Kewajiban Pokok Kuliah</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp 3.500.000</strong>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp <?= number_format($komponen_biaya[0]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
                                     <div style="opacity: 0.85; font-size: 12px;">Akademik &amp; Laboratorium</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp 500.000</strong>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp <?= number_format($komponen_biaya[1]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
                                     <div style="opacity: 0.85; font-size: 12px;">Sarana Kampus</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp 300.000</strong>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp <?= number_format($komponen_biaya[2]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
                                     <div style="opacity: 0.85; font-size: 12px;">Layanan Digital</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp 200.000</strong>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp <?= number_format($komponen_biaya[3]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                             </div>
                             <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
-                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir (tugas akhir/skripsi) bersifat kondisional dan hanya muncul jika akses telah disetujui serta dibuka oleh Bagian Keuangan.
+                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir bersifat kondisional dan hanya muncul setelah akses dibuka oleh Bagian Keuangan.
                             </div>
                         </div>
                     </div>
@@ -317,19 +324,19 @@
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
                 <div class="card custom-card-white" style="border-left: 5px solid #0284c7;">
-                    <div class="card-header custom-card-header d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between" style="gap: 12px;">
+                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
                         <div class="d-flex align-items-center">
-                            <div style="width: 48px; height: 48px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; flex-shrink: 0;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
                                 <i class="bi bi-credit-card-2-front"></i>
                             </div>
-                            <div class="d-flex flex-column justify-content-center">
-                                <h5 class="mb-1" style="color: #0f172a; font-weight: 800; font-size: 16px;">
+                            <div>
+                                <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted" style="font-size: 13px;">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
                             </div>
                         </div>
-                        <span class="badge badge-primary px-3 py-2" style="border-radius: 8px; font-size: 12.5px; font-weight: 700; white-space: nowrap;">
+                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
                             <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
                         </span>
                     </div>
@@ -532,10 +539,10 @@
                                 <i class="bi bi-clock-history"></i> Riwayat Pembayaran (<?= count($riwayat_pembayaran) ?>)
                             </a>
                         </li>
-                        <?php if ($is_semester_akhir): ?>
+                        <?php if ($is_semester_akhir || $akses_tugas_akhir || $ambil_semester_pendek): ?>
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-ta-link" data-toggle="tab" href="#tab-ta" role="tab">
-                                    <i class="bi bi-mortarboard"></i> Pembayaran Tugas Akhir 
+                                    <i class="bi bi-mortarboard"></i> Pembayaran Semester Akhir
                                     <?php if ($akses_tugas_akhir): ?>
                                         <span class="badge badge-success ml-1" style="font-size: 10px;">Buka</span>
                                     <?php else: ?>
@@ -555,7 +562,7 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-3" style="gap: 16px;">
+                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
                                         Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
@@ -564,7 +571,7 @@
                                         Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel atau gunakan tombol konfirmasi pembayaran.
                                     </p>
                                 </div>
-                                <div>
+                                <div class="mt-2 mt-md-0">
                                     <?php if (!empty($tagihan_pilihan)): ?>
                                         <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
                                             <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
@@ -713,7 +720,7 @@
                                             <th>Kewajiban / Tagihan</th>
                                             <th>Metode Bayar</th>
                                             <th>Nominal</th>
-                                            <th>Rekening Pengirim</th>
+                                            <th>No. Ref</th>
                                             <th>Bukti</th>
                                             <th>Status</th>
                                             <th style="width: 160px;" class="text-center">Aksi / Koreksi</th>
@@ -761,12 +768,14 @@
                                                         </strong>
                                                     </td>
                                                     <td>
-                                                        <div style="font-family: monospace; font-size: 13px; color: #0284c7; font-weight: 600;">
-                                                            <?= htmlspecialchars($r->nomor_rekening ?: $r->nomor_referensi ?: '-') ?>
-                                                        </div>
-                                                        <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">
-                                                            a.n. <?= htmlspecialchars($r->nama_rekening ?: '-') ?>
-                                                        </small>
+                                                        <?php if (!empty($r->nomor_rekening)): ?>
+                                                            <code><?= htmlspecialchars($r->nomor_rekening) ?></code><br>
+                                                            <small><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
+                                                        <?php elseif (!empty($r->nomor_referensi)): ?>
+                                                            <code><?= htmlspecialchars($r->nomor_referensi) ?></code>
+                                                        <?php else: ?>
+                                                            <span class="text-muted">-</span>
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td>
                                                         <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn btn-outline-primary btn-sm px-2" style="border-radius: 6px;">
@@ -873,8 +882,8 @@
                             </div>
                         </div>
 
-                        <!-- TAB KHUSUS MAHASISWA SEMESTER AKHIR: PEMBAYARAN TUGAS AKHIR -->
-                        <?php if ($is_semester_akhir): ?>
+                        <!-- TAB KHUSUS MAHASISWA SEMESTER AKHIR -->
+                        <?php if ($is_semester_akhir || $akses_tugas_akhir || $ambil_semester_pendek): ?>
                             <div class="tab-pane fade p-4" id="tab-ta" role="tabpanel">
                                 <div class="p-3 mb-4 rounded" style="background-color: #f8fafc; border: 1.5px solid #e2e8f0;">
                                     <div class="row align-items-center">
@@ -882,7 +891,7 @@
                                             <div class="d-flex align-items-center mb-1">
                                                 <i class="bi bi-mortarboard mr-2 text-primary" style="font-size: 24px;"></i>
                                                 <h5 class="mb-0 font-weight-bold" style="color: #1e293b;">
-                                                    Menu Pembayaran Tugas Akhir &amp; Kelulusan
+                                                    Menu Pembayaran Semester Akhir &amp; Kelulusan
                                                 </h5>
                                             </div>
                                             <p class="text-muted mb-0" style="font-size: 13px;">
@@ -903,23 +912,32 @@
                                     </div>
                                 </div>
 
-                                <?php if (!$akses_tugas_akhir): ?>
+                                <?php if ($is_semester_akhir && !$akses_tugas_akhir): ?>
                                     <div class="alert alert-warning text-center py-5" style="border-radius: 12px; background-color: #fffbeb; border: 1.5px solid #fde68a;">
                                         <i class="bi bi-shield-lock text-warning" style="font-size: 48px;"></i>
-                                        <h5 class="font-weight-bold mt-3 mb-1" style="color: #92400e;">Akses Pembayaran Tugas Akhir Sedang Ditutup</h5>
+                                        <h5 class="font-weight-bold mt-3 mb-1" style="color: #92400e;">Akses Pembayaran Semester Akhir Sedang Ditutup</h5>
                                         <p class="text-muted mb-0" style="font-size: 13.5px; max-width: 540px; margin: 0 auto;">
-                                            Periode pembayaran bimbingan / ujian tugas akhir belum dibuka atau sedang ditutup oleh Bagian Keuangan Kampus. Silakan hubungi admin keuangan jika jadwal pendaftaran tugas akhir Anda sudah dimulai.
+                                            Periode pembayaran semester akhir belum dibuka atau sedang ditutup oleh Bagian Keuangan Kampus. Silakan hubungi admin keuangan jika jadwal pembayaran semester akhir Anda sudah dimulai.
                                         </p>
                                     </div>
-                                <?php else: ?>
+                                <?php endif; ?>
                                     <div class="row">
                                         <?php foreach ($biaya_tambahan as $bt): ?>
+                                            <?php
+                                            $tagihan_biaya = null;
+                                            foreach ($tagihan_pilihan as $tp) {
+                                                if ($tp->jenis_tagihan === $bt['jenis_biaya']) {
+                                                    $tagihan_biaya = $tp;
+                                                    break;
+                                                }
+                                            }
+                                            ?>
                                             <div class="col-md-6 mb-3">
                                                 <div class="card h-100" style="border-radius: 12px; border: 1.5px solid #e2e8f0; background: #ffffff;">
                                                     <div class="card-body p-3 d-flex flex-column justify-content-between">
                                                         <div>
                                                             <div class="d-flex align-items-center justify-content-between mb-1">
-                                                                <strong style="color: #1e293b; font-size: 15px;"><?= htmlspecialchars($bt['jenis_biaya']) ?></strong>
+                                                                <strong style="color: #1e293b; font-size: 15px;"><?= htmlspecialchars(str_replace('Tugas Akhir', 'Semester Akhir', $bt['jenis_biaya'])) ?></strong>
                                                                 <span class="badge badge-info" style="font-size: 11px;"><?= htmlspecialchars($bt['peruntukan']) ?></span>
                                                             </div>
                                                             <h4 class="font-weight-bold text-primary mb-2" style="font-size: 18px;">
@@ -930,7 +948,11 @@
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <button type="button" class="btn btn-outline-primary btn-sm btn-block btn-open-bayar-general" style="border-radius: 6px; font-weight: 600;">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm btn-block btn-open-bayar-general"
+                                                                    data-id="<?= $tagihan_biaya ? (int)$tagihan_biaya->id : '' ?>"
+                                                                    data-jenis="<?= htmlspecialchars($bt['jenis_biaya']) ?>"
+                                                                    <?= $tagihan_biaya ? '' : 'disabled title="Tagihan belum tersedia"' ?>
+                                                                    style="border-radius: 6px; font-weight: 600;">
                                                                 <i class="bi bi-credit-card mr-1"></i> Pilih &amp; Bayar Item Ini
                                                             </button>
                                                         </div>
@@ -939,7 +961,6 @@
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
-                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
@@ -1089,7 +1110,7 @@
                                             data-nominal="Rp <?= number_format($tp->nominal, 0, ',', '.') ?>"
                                             data-semester="<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>"
                                             data-tempo="<?= date('d M Y', strtotime($tp->jatuh_tempo)) ?>">
-                                        <?= htmlspecialchars($tp->jenis_tagihan) ?> - Rp <?= number_format($tp->nominal, 0, ',', '.') ?> (<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>)
+                                        <?= htmlspecialchars(str_replace('Tugas Akhir', 'Semester Akhir', $tp->jenis_tagihan)) ?> - Rp <?= number_format($tp->nominal, 0, ',', '.') ?> (<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -1312,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectTagihan) return;
         const opt = selectTagihan.options[selectTagihan.selectedIndex];
         if (opt && opt.value) {
-            if (modalDetailJenis) modalDetailJenis.textContent = opt.getAttribute('data-jenis') || '-';
+            if (modalDetailJenis) modalDetailJenis.textContent = (opt.getAttribute('data-jenis') || '-').replace(/Tugas Akhir/gi, 'Semester Akhir');
             if (modalDetailNominal) modalDetailNominal.textContent = opt.getAttribute('data-nominal') || '-';
             if (modalDetailSemester) modalDetailSemester.textContent = opt.getAttribute('data-semester') || '-';
             if (modalDetailTempo) modalDetailTempo.textContent = opt.getAttribute('data-tempo') || '-';
@@ -1333,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const tempo     = this.getAttribute('data-tempo');
 
             if (selectTagihan) selectTagihan.value = tagihanId;
-            if (modalDetailJenis) modalDetailJenis.textContent = jenis;
+            if (modalDetailJenis) modalDetailJenis.textContent = (jenis || '-').replace(/Tugas Akhir/gi, 'Semester Akhir');
             if (modalDetailNominal) modalDetailNominal.textContent = nominal;
             if (modalDetailSemester) modalDetailSemester.textContent = semester;
             if (modalDetailTempo) modalDetailTempo.textContent = tempo;
@@ -1342,14 +1363,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 3. Tombol General Konfirmasi Bayar
-    const btnOpenGeneral = document.querySelector('.btn-open-bayar-general');
-    if (btnOpenGeneral) {
-        btnOpenGeneral.addEventListener('click', function() {
+    // 3. Tombol General Konfirmasi Bayar dan Pilih & Bayar Item Tugas Akhir
+    document.querySelectorAll('.btn-open-bayar-general').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tagihanId = this.getAttribute('data-id');
+            const jenisItem = this.getAttribute('data-jenis');
+            if (!selectTagihan) {
+                return;
+            }
+
+            if (tagihanId) {
+                selectTagihan.value = tagihanId;
+            } else if (jenisItem) {
+                const opsiItem = Array.from(selectTagihan.options).find(function(option) {
+                    return option.getAttribute('data-jenis') === jenisItem;
+                });
+                if (opsiItem) selectTagihan.value = opsiItem.value;
+            }
             updateModalDetailFromSelect();
             $('#modalKonfirmasiBayar').modal('show');
         });
-    }
+    });
 
     // 4. Modal Edit Pembayaran Mahasiswa
     document.querySelectorAll('.btn-edit-pembayaran').forEach(btn => {

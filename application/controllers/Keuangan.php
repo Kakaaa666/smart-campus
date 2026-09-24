@@ -3,6 +3,34 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Keuangan extends CI_Controller {
 
+    private function current_role()
+    {
+        return (int)$this->session->userdata('role');
+    }
+
+    /**
+     * Memastikan endpoint hanya dapat dipakai role yang ditentukan.
+     * Guard ini dipakai di controller, bukan di sidebar atau view.
+     */
+    private function require_roles(array $allowed_roles, $redirect_to = 'keuangan')
+    {
+        if (in_array($this->current_role(), $allowed_roles, true)) {
+            return true;
+        }
+
+        $message = 'Anda tidak memiliki akses ke fitur keuangan ini.';
+        if ($this->input->is_ajax_request()) {
+            $this->output->set_status_header(403)
+                         ->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => $message]));
+            return false;
+        }
+
+        $this->session->set_flashdata('error', $message);
+        redirect($redirect_to);
+        return false;
+    }
+
     public function __construct()
     {
         parent::__construct();
@@ -40,6 +68,8 @@ class Keuangan extends CI_Controller {
             return;
         }
 
+        if (!$this->require_roles([1, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
 
         // Super Admin (role 1) bisa pratinjau data mahasiswa
@@ -48,7 +78,17 @@ class Keuangan extends CI_Controller {
             if ($target_akun_id <= 0) {
                 $target_akun_id = 3; // Default: Muhammad Eka
             }
-            $target_mhs = $this->db->get_where('akun', ['id' => $target_akun_id])->row();
+            $target_mhs = $this->db->where('id', $target_akun_id)
+                                   ->where('role', 3)
+                                   ->where('deleted_at IS NULL', null, false)
+                                   ->get('akun')->row();
+            if (!$target_mhs) {
+                $target_mhs = $this->db->where('role', 3)
+                                       ->where('deleted_at IS NULL', null, false)
+                                       ->order_by('id', 'ASC')
+                                       ->get('akun')->row();
+                $target_akun_id = $target_mhs ? (int)$target_mhs->id : 0;
+            }
             $data['is_admin_preview'] = true;
             $data['target_mahasiswa'] = $target_mhs;
             $data['daftar_mahasiswa'] = $this->db->get_where('akun', ['role' => 3, 'deleted_at' => null])->result();
@@ -61,6 +101,9 @@ class Keuangan extends CI_Controller {
             $data['daftar_mahasiswa'] = [];
             $akun_id = $current_user_id;
         }
+
+        $this->M_keuangan->ensure_tagihan_semester_aktif($akun_id);
+        $data['ambil_semester_pendek'] = $target_mhs ? (bool)$target_mhs->ambil_semester_pendek : false;
 
         // Data Akun Pengguna yang Sedang Login
         $data['user'] = [
@@ -87,10 +130,18 @@ class Keuangan extends CI_Controller {
         $is_semester_akhir = ($data['mahasiswa_info']['semester'] >= 5);
         $data['is_semester_akhir'] = $is_semester_akhir;
 
+        if ($is_semester_akhir) {
+            $this->M_keuangan->sinkronkan_tagihan_kelulusan($akun_id);
+        }
+
         // Ambil Pengaturan Akses Pembayaran Tugas Akhir Spesifik Mahasiswa Ini
         $akses_ta_mahasiswa = $this->M_keuangan->get_status_akses_ta_mahasiswa($akun_id);
         $data['akses_ta_mahasiswa'] = $akses_ta_mahasiswa;
         $data['akses_tugas_akhir']  = $akses_ta_mahasiswa;
+
+        if ($akses_ta_mahasiswa) {
+            $this->M_keuangan->sinkronkan_tagihan_ta($akun_id, true);
+        }
 
         // Ambil Data Tagihan & Pembayaran Milik Mahasiswa Terpilih (Otomatis filter TA jika akses ditutup)
         $daftar_tagihan      = $this->M_keuangan->get_tagihan_by_akun($akun_id);
@@ -147,7 +198,8 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/index', $data);
+        $view = $user_role === 1 ? 'keuangan/superadmin/mahasiswa' : 'keuangan/mahasiswa/index';
+        $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
     }
     /**
@@ -159,13 +211,8 @@ class Keuangan extends CI_Controller {
      */
     public function admin()
     {
-        $user_role = (int)$this->session->userdata('role');
-
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Anda tidak memiliki akses ke halaman Admin Keuangan.');
-            redirect('keuangan');
-            return;
-        }
+        $user_role = $this->current_role();
+        if (!$this->require_roles([1, 2])) return;
 
         $current_user_id = (int)$this->session->userdata('id');
 
@@ -219,7 +266,8 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/admin', $data);
+        $view = $user_role === 1 ? 'keuangan/superadmin/dashboard' : 'keuangan/admin/dashboard';
+        $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
     }
 
@@ -232,13 +280,8 @@ class Keuangan extends CI_Controller {
      */
     public function verifikasi()
     {
-        $user_role = (int)$this->session->userdata('role');
-
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Akses ditolak.');
-            redirect('keuangan');
-            return;
-        }
+        $user_role = $this->current_role();
+        if (!$this->require_roles([1, 2])) return;
 
         $current_user_id = (int)$this->session->userdata('id');
 
@@ -275,7 +318,8 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/verifikasi', $data);
+        $view = $user_role === 1 ? 'keuangan/superadmin/verifikasi' : 'keuangan/admin/verifikasi';
+        $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
     }
 
@@ -288,13 +332,8 @@ class Keuangan extends CI_Controller {
      */
     public function kontrol_ta()
     {
-        $user_role = (int)$this->session->userdata('role');
-
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Akses ditolak.');
-            redirect('keuangan');
-            return;
-        }
+        $user_role = $this->current_role();
+        if (!$this->require_roles([1, 2])) return;
 
         $current_user_id = (int)$this->session->userdata('id');
 
@@ -323,14 +362,15 @@ class Keuangan extends CI_Controller {
         // Ambil daftar mahasiswa beserta status akses TA masing-masing
         $data['daftar_mahasiswa_ta'] = $this->M_keuangan->get_daftar_mahasiswa_ta($filter_fakultas, $filter_prodi, $keyword);
 
-        $data['title']      = 'Kontrol Akses Tugas Akhir - Smart Campus';
-        $data['page_title'] = 'Kontrol Akses Tugas Akhir Mahasiswa';
-        $data['page_desc']  = 'Pengelolaan izin pembayaran biaya semester akhir & tugas akhir secara perorangan (per-mahasiswa)';
+        $data['title']      = 'Kontrol Akses Tagihan - Smart Campus';
+        $data['page_title'] = 'Kontrol Akses Tagihan Mahasiswa';
+        $data['page_desc']  = 'Pengelolaan akses tagihan Semester Akhir dan Semester Pendek secara per mahasiswa';
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/kontrol_ta', $data);
+        $view = $user_role === 1 ? 'keuangan/superadmin/kontrol_ta' : 'keuangan/admin/kontrol_ta';
+        $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
     }
 
@@ -344,12 +384,7 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            $this->output->set_status_header(403)->set_content_type('application/json')
-                         ->set_output(json_encode(['success' => false, 'message' => 'Akses ditolak']));
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $akun_id = (int)$this->input->post('akun_id', true);
         $target  = $this->db->get_where('akun', ['id' => $akun_id, 'role' => 3])->row();
@@ -368,7 +403,15 @@ class Keuangan extends CI_Controller {
             $new_status = (int)$req_status ? 1 : 0;
         }
 
-        $this->M_keuangan->set_status_akses_ta_mahasiswa($akun_id, $new_status);
+        $updated = $this->M_keuangan->set_status_akses_ta_mahasiswa($akun_id, $new_status);
+
+        if (!$updated) {
+            $message = 'Akses Tugas Akhir hanya dapat dibuka untuk mahasiswa yang sudah berada di semester akhir.';
+            $this->output->set_status_header(422)
+                         ->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => $message]));
+            return;
+        }
 
         $label = $new_status ? 'DIBUKA' : 'DITUTUP';
         $msg = "Akses Pembayaran Tugas Akhir untuk {$target->nama_lengkap} (NIM: {$target->nim}) berhasil {$label}.";
@@ -389,9 +432,110 @@ class Keuangan extends CI_Controller {
         redirect('keuangan/kontrol_ta');
     }
 
+    public function toggle_semester_pendek_mhs()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/kontrol_ta');
+            return;
+        }
+
+        if (!$this->require_roles([1, 2])) return;
+
+        $akun_id = (int)$this->input->post('akun_id', true);
+        $status = (int)$this->input->post('status', true) ? 1 : 0;
+        $target = $this->db->get_where('akun', ['id' => $akun_id, 'role' => 3])->row();
+        if (!$target || !$this->M_keuangan->set_status_semester_pendek($akun_id, $status)) {
+            $this->session->set_flashdata('error', 'Status Semester Pendek tidak dapat diperbarui.');
+            redirect('keuangan/kontrol_ta');
+            return;
+        }
+
+        $label = $status ? 'diaktifkan' : 'dinonaktifkan';
+        $this->session->set_flashdata('success', "Semester Pendek untuk {$target->nama_lengkap} berhasil {$label}.");
+        redirect('keuangan/kontrol_ta');
+    }
+
     /**
-     * AJAX/POST: Buka / Tutup Akses TA Massal (Bulk Toggle)
+     * AJAX: Ambil rinci tagihan + pembayaran SATU mahasiswa (untuk modal di dashboard admin).
+     * Selalu kembalikan JSON.
      */
+    public function detail_tagihan_mahasiswa()
+    {
+        if (!$this->require_roles([1, 2])) return;
+
+        $akun_id = (int)$this->input->get('mahasiswa_id');
+        if ($akun_id <= 0) {
+            $this->output->set_status_header(400)->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => 'mahasiswa_id diperlukan']));
+            return;
+        }
+        $mhs = $this->db->where('id', $akun_id)
+                ->where('role', 3)
+                ->where('deleted_at IS NULL', null, false)
+                ->get('akun')
+                ->row();
+        if (!$mhs) {
+            $this->output->set_status_header(404)->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => 'Mahasiswa tidak ditemukan']));
+            return;
+        }
+
+        $tagihan = $this->M_keuangan->get_tagihan_by_akun($akun_id, false, true);
+        $riwayat = $this->M_keuangan->get_riwayat_pembayaran($akun_id);
+        $total_tagihan = 0; $total_lunas = 0; $total_pending = 0; $total_belum = 0;
+        $count_lunas = 0; $count_pending = 0; $count_belum = 0;
+        foreach ($tagihan as $t) {
+            $total_tagihan += (float)$t->nominal;
+            if ($t->status === 'LUNAS') { $total_lunas += (float)$t->nominal; $count_lunas++; }
+            elseif ($t->status === 'PENDING') { $total_pending += (float)$t->nominal; $count_pending++; }
+            else { $total_belum += (float)$t->nominal; $count_belum++; }
+        }
+        $total_pengeluaran = $this->M_keuangan->get_total_pengeluaran_mahasiswa($akun_id);
+        $detail_by_tagihan = [];
+        foreach ($tagihan as $t) {
+            $detail_by_tagihan[$t->id] = [
+                'id_tagihan'   => (int)$t->id,
+                'status_tagihan' => $t->status,
+                'nominal'      => (float)$t->nominal,
+                'jenis'        => $t->jenis_tagihan,
+                'tahun'        => $t->tahun_akademik,
+                'semester'     => $t->semester,
+                'jatuh_tempo'  => $t->jatuh_tempo,
+                'pembayaran'   => null,
+            ];
+        }
+        foreach ($riwayat as $r) {
+            $tid = (int)$r->tagihan_id;
+            if (isset($detail_by_tagihan[$tid])) {
+                $detail_by_tagihan[$tid]['pembayaran'] = [
+                    'id' => (int)$r->id, 'status' => $r->status,
+                    'tanggal' => date('d M Y', strtotime($r->tanggal_pembayaran)),
+                    'nominal' => (float)$r->nominal_pembayaran, 'metode' => $r->metode_pembayaran,
+                    'referensi' => $r->nomor_referensi, 'bukti' => $r->bukti_pembayaran,
+                    'verifikator' => $r->nama_verifikator, 'diverifikasi_at' => $r->diverifikasi_at,
+                    'alasan_penolakan' => $r->alasan_penolakan,
+                ];
+            }
+        }
+
+        $this->output->set_content_type('application/json')
+                     ->set_output(json_encode([
+                         'success' => true,
+                         'mahasiswa' => [
+                             'id' => (int)$mhs->id, 'nim' => $mhs->nim, 'nama' => $mhs->nama_lengkap,
+                             'fakultas' => $mhs->fakultas, 'prodi' => $mhs->prodi,
+                             'semester' => (int)$mhs->semester, 'email' => $mhs->email,
+                             'akses_ta' => (bool)($mhs->akses_ta ?: 1), 'foto' => $mhs->foto,
+                         ],
+                         'ringkasan' => [
+                             'total_tagihan' => $total_tagihan, 'total_lunas' => $total_lunas,
+                             'total_pending' => $total_pending, 'total_belum' => $total_belum,
+                             'count_lunas' => $count_lunas, 'count_pending' => $count_pending,
+                             'count_belum' => $count_belum, 'total_pengeluaran' => (float)$total_pengeluaran,
+                         ],
+                         'tagihan' => array_values($detail_by_tagihan),
+                     ]));
+    }
     public function toggle_akses_ta_bulk()
     {
         if ($this->input->server('REQUEST_METHOD') !== 'POST') {
@@ -399,11 +543,7 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            show_error('Akses ditolak', 403);
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $status = (int)$this->input->post('status') ? 1 : 0;
         $semester_min = (int)$this->input->post('semester_min') ?: 5;
@@ -446,18 +586,17 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Akses ditolak.');
-            redirect('keuangan');
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $pembayaran_id = (int)$this->input->post('pembayaran_id', true);
         $admin_id      = (int)$this->session->userdata('id');
 
         // Ambil data pembayaran
-        $pembayaran = $this->db->get_where('pembayaran', ['id' => $pembayaran_id])->row();
+        $pembayaran = $this->db->select('pembayaran.*, tagihan.akun_id as tagihan_akun_id')
+                       ->from('pembayaran')
+                       ->join('tagihan', 'tagihan.id = pembayaran.tagihan_id', 'inner')
+                       ->where('pembayaran.id', $pembayaran_id)
+                       ->get()->row();
         if (!$pembayaran) {
             if ($this->input->is_ajax_request()) {
                 $this->output->set_content_type('application/json')
@@ -469,7 +608,7 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        if ($pembayaran->status !== 'PENDING') {
+        if ($pembayaran->status !== 'PENDING' || (int)$pembayaran->akun_id !== (int)$pembayaran->tagihan_akun_id) {
             if ($this->input->is_ajax_request()) {
                 $this->output->set_content_type('application/json')
                              ->set_output(json_encode(['success' => false, 'message' => 'Pembayaran sudah diproses sebelumnya (status: ' . $pembayaran->status . ').']));
@@ -481,13 +620,21 @@ class Keuangan extends CI_Controller {
         }
 
         // Update pembayaran menjadi LUNAS
-        $this->db->where('id', $pembayaran_id)->update('pembayaran', [
+        $this->db->where('id', $pembayaran_id)
+             ->where('status', 'PENDING')
+             ->update('pembayaran', [
             'status'            => 'LUNAS',
             'alasan_penolakan'  => null,
             'diverifikasi_oleh' => $admin_id,
             'diverifikasi_at'   => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
+
+        if ($this->db->affected_rows() !== 1) {
+            $this->session->set_flashdata('error', 'Pembayaran sudah diproses oleh Admin lain.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
 
         // Update tagihan terkait menjadi LUNAS
         $this->M_keuangan->update_status_tagihan($pembayaran->tagihan_id, 'LUNAS');
@@ -521,12 +668,7 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Akses ditolak.');
-            redirect('keuangan');
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $pembayaran_id = (int)$this->input->post('pembayaran_id', true);
         $alasan        = $this->input->post('alasan_penolakan', true);
@@ -543,8 +685,12 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $pembayaran = $this->db->get_where('pembayaran', ['id' => $pembayaran_id])->row();
-        if (!$pembayaran || $pembayaran->status !== 'PENDING') {
+        $pembayaran = $this->db->select('pembayaran.*, tagihan.akun_id as tagihan_akun_id')
+                       ->from('pembayaran')
+                       ->join('tagihan', 'tagihan.id = pembayaran.tagihan_id', 'inner')
+                       ->where('pembayaran.id', $pembayaran_id)
+                       ->get()->row();
+        if (!$pembayaran || $pembayaran->status !== 'PENDING' || (int)$pembayaran->akun_id !== (int)$pembayaran->tagihan_akun_id) {
             if ($this->input->is_ajax_request()) {
                 $this->output->set_content_type('application/json')
                              ->set_output(json_encode(['success' => false, 'message' => 'Pembayaran tidak ditemukan atau sudah diproses.']));
@@ -556,13 +702,21 @@ class Keuangan extends CI_Controller {
         }
 
         // Update pembayaran menjadi DITOLAK
-        $this->db->where('id', $pembayaran_id)->update('pembayaran', [
+        $this->db->where('id', $pembayaran_id)
+             ->where('status', 'PENDING')
+             ->update('pembayaran', [
             'status'            => 'DITOLAK',
             'alasan_penolakan'  => trim($alasan),
             'diverifikasi_oleh' => $admin_id,
             'diverifikasi_at'   => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
+
+        if ($this->db->affected_rows() !== 1) {
+            $this->session->set_flashdata('error', 'Pembayaran sudah diproses oleh Admin lain.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
 
         // Kembalikan tagihan menjadi DITOLAK agar mahasiswa dapat bayar/upload ulang
         $this->M_keuangan->update_status_tagihan($pembayaran->tagihan_id, 'DITOLAK');
@@ -590,12 +744,8 @@ class Keuangan extends CI_Controller {
      */
     public function laporan()
     {
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            $this->session->set_flashdata('error', 'Anda tidak memiliki akses ke halaman Laporan Keuangan.');
-            redirect('keuangan');
-            return;
-        }
+        $user_role = $this->current_role();
+        if (!$this->require_roles([1, 2])) return;
 
         $current_user_id = (int)$this->session->userdata('id');
 
@@ -634,7 +784,8 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/laporan', $data);
+        $view = $user_role === 1 ? 'keuangan/superadmin/laporan' : 'keuangan/admin/laporan';
+        $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
     }
 
@@ -646,11 +797,7 @@ class Keuangan extends CI_Controller {
      */
     public function export_word()
     {
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            show_error('Akses ditolak', 403);
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $tahun_akademik = $this->input->get('tahun_akademik') ?: '2026/2027';
         $semester       = $this->input->get('semester') ?: 'Ganjil';
@@ -915,13 +1062,26 @@ class Keuangan extends CI_Controller {
      */
     public function status_realtime()
     {
-        $user_role       = (int)$this->session->userdata('role');
+        if (!$this->require_roles([1, 3])) return;
+
+        $user_role       = $this->current_role();
         $current_user_id = (int)$this->session->userdata('id');
 
         if ($user_role === 1) {
             $akun_id = (int)$this->input->get('mahasiswa_id') ?: 3;
         } else {
             $akun_id = $current_user_id;
+        }
+
+        $target = $this->db->where('id', $akun_id)
+                           ->where('role', 3)
+                           ->where('deleted_at IS NULL', null, false)
+                           ->get('akun')->row();
+        if (!$target) {
+            $this->output->set_status_header(404)
+                         ->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => 'Mahasiswa tidak ditemukan.']));
+            return;
         }
 
         $realtime = $this->M_keuangan->get_status_realtime_mahasiswa($akun_id);
@@ -940,8 +1100,10 @@ class Keuangan extends CI_Controller {
      */
     public function get_detail_pembayaran_edit($pembayaran_id)
     {
+        if (!$this->require_roles([1, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $user_role       = $this->current_role();
 
         if ($user_role !== 3) {
             $pembayaran = $this->db->select('pembayaran.*, tagihan.jenis_tagihan, tagihan.nominal as nominal_tagihan, tagihan.semester, tagihan.tahun_akademik')
@@ -973,8 +1135,10 @@ class Keuangan extends CI_Controller {
             return;
         }
 
+        if (!$this->require_roles([1, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $user_role       = $this->current_role();
         $pembayaran_id   = (int)$this->input->post('pembayaran_id', true);
 
         if ($user_role !== 3) {
@@ -1012,6 +1176,14 @@ class Keuangan extends CI_Controller {
 
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors('<div>• ', '</div>'));
+            redirect('keuangan');
+            return;
+        }
+
+        $tanggal_pembayaran = $this->input->post('tanggal_pembayaran', true);
+        $tanggal_valid = DateTime::createFromFormat('Y-m-d', $tanggal_pembayaran);
+        if (!$tanggal_valid || $tanggal_valid->format('Y-m-d') !== $tanggal_pembayaran || $tanggal_pembayaran > date('Y-m-d')) {
+            $this->session->set_flashdata('error', 'Tanggal pembayaran tidak valid atau melebihi tanggal hari ini.');
             redirect('keuangan');
             return;
         }
@@ -1084,8 +1256,10 @@ class Keuangan extends CI_Controller {
             return;
         }
 
+        if (!$this->require_roles([1, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $user_role       = $this->current_role();
         $pembayaran_id   = (int)$this->input->post('pembayaran_id', true);
 
         if ($user_role !== 3) {
@@ -1123,11 +1297,7 @@ class Keuangan extends CI_Controller {
      */
     public function detail_pembayaran($pembayaran_id)
     {
-        $user_role = (int)$this->session->userdata('role');
-        if ($user_role === 3) {
-            show_404();
-            return;
-        }
+        if (!$this->require_roles([1, 2])) return;
 
         $pembayaran = $this->M_keuangan->get_detail_pembayaran_admin($pembayaran_id);
         if (!$pembayaran) {
@@ -1150,8 +1320,10 @@ class Keuangan extends CI_Controller {
             return;
         }
 
+        if (!$this->require_roles([1, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $user_role       = $this->current_role();
         $tagihan_id      = (int)$this->input->post('tagihan_id', true);
 
         $this->form_validation->set_rules('tagihan_id', 'Pilihan Tagihan', 'required|numeric', [
@@ -1178,6 +1350,14 @@ class Keuangan extends CI_Controller {
             return;
         }
 
+        $tanggal_pembayaran = $this->input->post('tanggal_pembayaran', true);
+        $tanggal_valid = DateTime::createFromFormat('Y-m-d', $tanggal_pembayaran);
+        if (!$tanggal_valid || $tanggal_valid->format('Y-m-d') !== $tanggal_pembayaran || $tanggal_pembayaran > date('Y-m-d')) {
+            $this->session->set_flashdata('error', 'Tanggal pembayaran tidak valid atau melebihi tanggal hari ini.');
+            redirect('keuangan');
+            return;
+        }
+
         if ($user_role !== 3) {
             $tagihan = $this->db->get_where('tagihan', ['id' => $tagihan_id])->row();
             $akun_id = $tagihan ? (int)$tagihan->akun_id : 0;
@@ -1188,6 +1368,18 @@ class Keuangan extends CI_Controller {
 
         if (!$tagihan) {
             $this->session->set_flashdata('error', 'Akses ditolak: Tagihan tidak ditemukan atau Anda tidak memiliki hak akses.');
+            redirect('keuangan');
+            return;
+        }
+
+        if ($tagihan->status === 'PENDING') {
+            $this->session->set_flashdata('error', 'Tagihan ini sedang menunggu verifikasi Admin Keuangan.');
+            redirect('keuangan');
+            return;
+        }
+
+        if ($tagihan->jenis_tagihan === 'Semester Pendek' && !$this->M_keuangan->get_status_semester_pendek($akun_id)) {
+            $this->session->set_flashdata('error', 'Mahasiswa tersebut belum ditandai mengambil Semester Pendek.');
             redirect('keuangan');
             return;
         }
@@ -1250,7 +1442,7 @@ class Keuangan extends CI_Controller {
             'tagihan_id'         => $tagihan->id,
             'akun_id'            => $akun_id,
             'metode_pembayaran'  => $this->input->post('metode_pembayaran', true),
-            'tanggal_pembayaran' => $this->input->post('tanggal_pembayaran', true),
+            'tanggal_pembayaran' => $tanggal_pembayaran,
             'nominal_pembayaran' => $tagihan->nominal,
             'nomor_rekening'     => $this->input->post('nomor_rekening', true),
             'nama_rekening'      => $this->input->post('nama_rekening', true),
@@ -1273,8 +1465,10 @@ class Keuangan extends CI_Controller {
      */
     public function lihat_bukti($pembayaran_id)
     {
+        if (!$this->require_roles([1, 2, 3])) return;
+
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $user_role       = $this->current_role();
 
         if ($user_role !== 3) {
             $pembayaran = $this->db->get_where('pembayaran', ['id' => (int)$pembayaran_id])->row();
@@ -1287,9 +1481,11 @@ class Keuangan extends CI_Controller {
             return;
         }
 
-        $file_path = FCPATH . 'uploads/bukti_pembayaran/' . $pembayaran->bukti_pembayaran;
+        $upload_dir = realpath(FCPATH . 'uploads/bukti_pembayaran');
+        $file_name = basename((string)$pembayaran->bukti_pembayaran);
+        $file_path = $upload_dir ? realpath($upload_dir . DIRECTORY_SEPARATOR . $file_name) : false;
 
-        if (!file_exists($file_path)) {
+        if (!$upload_dir || !$file_path || strpos($file_path, $upload_dir . DIRECTORY_SEPARATOR) !== 0 || !is_file($file_path)) {
             $this->session->set_flashdata('error', 'Berkas bukti pembayaran tidak ditemukan di server.');
             redirect('keuangan');
             return;
@@ -1302,7 +1498,7 @@ class Keuangan extends CI_Controller {
 
         header('Content-Type: ' . $mime_type);
         header('Content-Length: ' . filesize($file_path));
-        header('Content-Disposition: inline; filename="' . basename($file_path) . '"');
+        header('Content-Disposition: inline; filename="' . $file_name . '"');
         readfile($file_path);
         exit;
     }

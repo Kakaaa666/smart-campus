@@ -16,32 +16,11 @@ class M_keuangan extends CI_Model {
         $this->ensure_schema();
     }
 
-    /**
-     * Memastikan skema database (tabel tagihan, pembayaran, kolom fakultas, prodi, semester, akses_ta)
-     * otomatis siap digunakan dan diisi data seed bila kosong.
-     */
+    /** Pastikan struktur tabel tersedia tanpa membuat data simulasi. */
     public function ensure_schema()
     {
-        // 1. Cek & lengkapi kolom tabel akun
-        if ($this->db->table_exists($this->table_akun)) {
-            $fields = $this->db->list_fields($this->table_akun);
-            if (!in_array('fakultas', $fields)) {
-                $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `fakultas` VARCHAR(100) NULL DEFAULT 'Fakultas Ilmu Komputer' AFTER `foto`");
-            }
-            if (!in_array('prodi', $fields)) {
-                $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `prodi` VARCHAR(100) NULL DEFAULT 'D3 Sistem Informasi' AFTER `fakultas`");
-            }
-            if (!in_array('semester', $fields)) {
-                $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `semester` INT(11) NULL DEFAULT 5 AFTER `prodi`");
-            }
-            if (!in_array('akses_ta', $fields)) {
-                $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `akses_ta` TINYINT(1) NOT NULL DEFAULT 0 AFTER `semester`");
-            }
-        }
-
-        // 2. Cek & buat tabel tagihan
         if (!$this->db->table_exists($this->table_tagihan)) {
-            $sql_tagihan = "CREATE TABLE IF NOT EXISTS `{$this->table_tagihan}` (
+            $this->db->query("CREATE TABLE `{$this->table_tagihan}` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `akun_id` INT(11) NOT NULL,
                 `jenis_tagihan` VARCHAR(150) NOT NULL,
@@ -53,22 +32,12 @@ class M_keuangan extends CI_Model {
                 `is_semester_akhir` TINYINT(1) NOT NULL DEFAULT 0,
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                KEY `idx_tagihan_akun` (`akun_id`),
-                KEY `idx_tagihan_status` (`status`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-            $this->db->query($sql_tagihan);
-        } else {
-            // Pastikan kolom is_semester_akhir ada
-            $fields_tagihan = $this->db->list_fields($this->table_tagihan);
-            if (!in_array('is_semester_akhir', $fields_tagihan)) {
-                $this->db->query("ALTER TABLE `{$this->table_tagihan}` ADD COLUMN `is_semester_akhir` TINYINT(1) NOT NULL DEFAULT 0 AFTER `status`");
-            }
+                PRIMARY KEY (`id`), KEY `idx_tagihan_akun` (`akun_id`), KEY `idx_tagihan_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         }
 
-        // 3. Cek & buat tabel pembayaran
         if (!$this->db->table_exists($this->table_pembayaran)) {
-            $sql_pembayaran = "CREATE TABLE IF NOT EXISTS `{$this->table_pembayaran}` (
+            $this->db->query("CREATE TABLE `{$this->table_pembayaran}` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `tagihan_id` INT(11) NOT NULL,
                 `akun_id` INT(11) NOT NULL,
@@ -85,111 +54,103 @@ class M_keuangan extends CI_Model {
                 `diverifikasi_at` DATETIME NULL,
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                KEY `idx_pay_tagihan` (`tagihan_id`),
-                KEY `idx_pay_akun` (`akun_id`),
-                KEY `idx_pay_status` (`status`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-            $this->db->query($sql_pembayaran);
-        } else {
-            $fields_pembayaran = $this->db->list_fields($this->table_pembayaran);
-            if (!in_array('nomor_rekening', $fields_pembayaran)) {
-                $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nomor_rekening` VARCHAR(100) NULL AFTER `nomor_referensi`");
-            }
-            if (!in_array('nama_rekening', $fields_pembayaran)) {
-                $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nama_rekening` VARCHAR(150) NULL AFTER `nomor_rekening`");
-            }
+                PRIMARY KEY (`id`), KEY `idx_pay_tagihan` (`tagihan_id`), KEY `idx_pay_akun` (`akun_id`), KEY `idx_pay_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         }
 
-        // Pastikan folder uploads/bukti_pembayaran tersedia
+        if ($this->db->table_exists($this->table_akun)) {
+            $fields = $this->db->list_fields($this->table_akun);
+            if (!in_array('fakultas', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `fakultas` VARCHAR(100) NULL DEFAULT 'Fakultas Ilmu Komputer' AFTER `foto`");
+            if (!in_array('prodi', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `prodi` VARCHAR(100) NULL DEFAULT 'D3 Sistem Informasi' AFTER `fakultas`");
+            if (!in_array('semester', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `semester` INT(11) NULL DEFAULT 5 AFTER `prodi`");
+            if (!in_array('akses_ta', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `akses_ta` TINYINT(1) NOT NULL DEFAULT 0 AFTER `semester`");
+            if (!in_array('ambil_semester_pendek', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `ambil_semester_pendek` TINYINT(1) NOT NULL DEFAULT 0 AFTER `akses_ta`");
+        }
+
+        if ($this->db->table_exists($this->table_tagihan)) {
+            $fields = $this->db->list_fields($this->table_tagihan);
+            if (!in_array('is_semester_akhir', $fields)) $this->db->query("ALTER TABLE `{$this->table_tagihan}` ADD COLUMN `is_semester_akhir` TINYINT(1) NOT NULL DEFAULT 0 AFTER `status`");
+        }
+
+        if ($this->db->table_exists($this->table_pembayaran)) {
+            $fields = $this->db->list_fields($this->table_pembayaran);
+            if (!in_array('nomor_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nomor_rekening` VARCHAR(100) NULL AFTER `nomor_referensi`");
+            if (!in_array('nama_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nama_rekening` VARCHAR(150) NULL AFTER `nomor_rekening`");
+        }
+
         $upload_dir = FCPATH . 'uploads/bukti_pembayaran/';
-        if (!is_dir($upload_dir)) {
-            @mkdir($upload_dir, 0755, true);
+        if (!is_dir($upload_dir)) @mkdir($upload_dir, 0755, true);
+    }
+
+    public function ensure_tagihan_semester_aktif($akun_id)
+    {
+        $akun = $this->db->select('semester, prodi')
+                         ->where('id', (int)$akun_id)
+                         ->where('role', 3)
+                         ->where('deleted_at IS NULL', null, false)
+                         ->get($this->table_akun)
+                         ->row();
+
+        if (!$akun) {
+            return false;
         }
 
-        // 4. Update data profil akun mahasiswa yang ada (id 3: Muhammad Eka)
-        $mhs = $this->db->get_where($this->table_akun, ['id' => 3])->row();
-        if ($mhs && empty($mhs->fakultas)) {
-            $this->db->where('id', 3)->update($this->table_akun, [
-                'fakultas' => 'Fakultas Ilmu Komputer',
-                'prodi'    => 'D3 Sistem Informasi',
-                'semester' => 5,
-                'akses_ta' => 0
-            ]);
-        }
+        $bulan = (int)date('n');
+        $tahun = (int)date('Y');
+        $semester = ($bulan >= 7 && $bulan <= 12) ? 'Ganjil' : 'Genap';
+        $tahun_akademik = $semester === 'Ganjil'
+            ? $tahun . '/' . ($tahun + 1)
+            : ($tahun - 1) . '/' . $tahun;
+        $jatuh_tempo = $semester === 'Ganjil'
+            ? $tahun . '-10-15'
+            : $tahun . '-03-15';
 
-        // Tambah mahasiswa sampel lain jika mahasiswa di database hanya <= 1 agar filter & kontrol TA variatif
-        $count_mhs = $this->db->where('role', 3)->count_all_results($this->table_akun);
-        if ($count_mhs <= 1) {
-            $sample_mhs = [
-                [
-                    'nim'          => '2005',
-                    'nama_lengkap' => 'Siti Rahmawati',
-                    'email'        => 'siti@student.smartcampus.ac.id',
-                    'password'     => password_hash('user123', PASSWORD_BCRYPT),
-                    'role'         => 3,
-                    'foto'         => 'avatar-1.png',
-                    'fakultas'     => 'Fakultas Ilmu Komputer',
-                    'prodi'        => 'S1 Teknik Informatika',
-                    'semester'     => 7,
-                    'akses_ta'     => 1
-                ],
-                [
-                    'nim'          => '2006',
-                    'nama_lengkap' => 'Budi Santoso',
-                    'email'        => 'budi@student.smartcampus.ac.id',
-                    'password'     => password_hash('user123', PASSWORD_BCRYPT),
-                    'role'         => 3,
-                    'foto'         => 'avatar-2.png',
-                    'fakultas'     => 'Fakultas Ilmu Komputer',
-                    'prodi'        => 'S1 Sistem Informasi',
-                    'semester'     => 3,
-                    'akses_ta'     => 0
-                ],
-                [
-                    'nim'          => '2007',
-                    'nama_lengkap' => 'Dewi Anggraini',
-                    'email'        => 'dewi@student.smartcampus.ac.id',
-                    'password'     => password_hash('user123', PASSWORD_BCRYPT),
-                    'role'         => 3,
-                    'foto'         => 'avatar-3.png',
-                    'fakultas'     => 'Fakultas Ekonomi & Bisnis',
-                    'prodi'        => 'S1 Akuntansi',
-                    'semester'     => 8,
-                    'akses_ta'     => 1
-                ],
-                [
-                    'nim'          => '2008',
-                    'nama_lengkap' => 'Ahmad Fauzi',
-                    'email'        => 'fauzi@student.smartcampus.ac.id',
-                    'password'     => password_hash('user123', PASSWORD_BCRYPT),
-                    'role'         => 3,
-                    'foto'         => 'avatar-5.png',
-                    'fakultas'     => 'Fakultas Ekonomi & Bisnis',
-                    'prodi'        => 'S1 Manajemen',
-                    'semester'     => 6,
-                    'akses_ta'     => 0
-                ]
-            ];
-            foreach ($sample_mhs as $sm) {
-                $exists = $this->db->get_where($this->table_akun, ['nim' => $sm['nim']])->row();
-                if (!$exists) {
-                    $this->db->insert($this->table_akun, $sm);
-                }
+        foreach ($this->get_informasi_komponen_semester() as $komponen) {
+            $exists = $this->db->where('akun_id', (int)$akun_id)
+                               ->where('jenis_tagihan', $komponen['komponen'])
+                               ->where('tahun_akademik', $tahun_akademik)
+                               ->where('semester', $semester)
+                               ->count_all_results($this->table_tagihan);
+
+            if ($exists === 0) {
+                $this->db->insert($this->table_tagihan, [
+                    'akun_id'           => (int)$akun_id,
+                    'jenis_tagihan'     => $komponen['komponen'],
+                    'tahun_akademik'    => $tahun_akademik,
+                    'semester'          => $semester,
+                    'nominal'           => $komponen['nominal'],
+                    'jatuh_tempo'       => $jatuh_tempo,
+                    'status'            => 'BELUM_BAYAR',
+                    'is_semester_akhir' => 0,
+                    'created_at'        => date('Y-m-d H:i:s'),
+                    'updated_at'        => date('Y-m-d H:i:s')
+                ]);
             }
         }
 
-        // 5. Seed tagihan & pembayaran jika tabel tagihan masih kosong
-        $count_tagihan = $this->db->count_all($this->table_tagihan);
-        if ($count_tagihan == 0) {
-            $this->seed_initial_data();
-        }
+        return true;
     }
+
+    private function mahasiswa_semester_akhir($akun)
+    {
+        $prodi = strtoupper((string)$akun->prodi);
+        $batas = strpos($prodi, 'D3') !== false ? 5 : 7;
+        return (int)$akun->semester >= $batas;
+    }
+
+/* Legacy seed block removed; the application must start with empty transactions.
+
+        // Data tagihan dan pembayaran tidak di-seed otomatis.
+        // Akun tetap tersedia, sedangkan transaksi dibuat melalui alur aplikasi.
+    }
+
     /**
      * Inisialisasi data seed tagihan & pembayaran awal untuk simulasi interaktif
      */
-    protected function seed_initial_data()
+    protected function seed_initial_data_disabled()
     {
+        return;
+
         $now = date('Y-m-d H:i:s');
         $tempo = date('Y-m-d', strtotime('+30 days'));
 
@@ -288,51 +249,12 @@ class M_keuangan extends CI_Model {
             }
         }
 
-        // Buat tagihan & pembayaran pending untuk mahasiswa lain agar antrian verifikasi admin kaya data
-        $other_mhs = $this->db->where('role', 3)->where('id !=', 3)->get($this->table_akun)->result();
-        foreach ($other_mhs as $om) {
-            // Tagihan SPP
-            $this->db->insert($this->table_tagihan, [
-                'akun_id'           => $om->id,
-                'jenis_tagihan'     => 'SPP / UKT',
-                'tahun_akademik'    => '2026/2027',
-                'semester'          => 'Ganjil',
-                'nominal'           => 3500000,
-                'jatuh_tempo'       => '2026-10-15',
-                'status'            => ($om->nim === '2005') ? 'PENDING' : 'BELUM_BAYAR',
-                'is_semester_akhir' => 0,
-                'created_at'        => $now,
-                'updated_at'        => $now
-            ]);
-            $om_tid = $this->db->insert_id();
-
-            if ($om->nim === '2005') {
-                $this->db->insert($this->table_pembayaran, [
-                    'tagihan_id'         => $om_tid,
-                    'akun_id'            => $om->id,
-                    'metode_pembayaran'  => 'Transfer Bank BNI',
-                    'tanggal_pembayaran' => date('Y-m-d'),
-                    'nominal_pembayaran' => 3500000,
-                    'nomor_referensi'    => 'BNI-TRX-' . rand(100000, 999999),
-                    'bukti_pembayaran'   => 'bukti_sample_pending.png',
-                    'status'             => 'PENDING',
-                    'alasan_penolakan'   => null,
-                    'diverifikasi_oleh'  => null,
-                    'diverifikasi_at'    => null,
-                    'created_at'         => $now,
-                    'updated_at'         => $now
-                ]);
-            }
-
-            // Jika mahasiswa memiliki akses TA = 1, sinkronkan tagihan TA
-            if ((int)$om->akses_ta === 1) {
-                $this->sinkronkan_tagihan_ta($om->id, 1);
-            }
-        }
     }
 
+
     // ======================================================
-    // LOGIKA KONTROL AKSES TUGAS AKHIR PER MAHASISWA
+    // SHARED: KONTROL AKSES TUGAS AKHIR PER MAHASISWA
+    // Dipanggil controller admin/superadmin, hasilnya dipakai view mahasiswa.
     // ======================================================
 
     /**
@@ -379,48 +301,103 @@ class M_keuangan extends CI_Model {
     public function set_status_akses_ta_mahasiswa($akun_id, $status)
     {
         $status_int = $status ? 1 : 0;
+        $akun = $this->db->select('semester, prodi')
+                         ->where('id', (int)$akun_id)
+                         ->where('role', 3)
+                         ->where('deleted_at IS NULL', null, false)
+                         ->get($this->table_akun)
+                         ->row();
+
+        if (!$akun || ($status_int === 1 && !$this->mahasiswa_semester_akhir($akun))) {
+            return false;
+        }
+
         $this->db->where('id', (int)$akun_id)->update($this->table_akun, [
             'akses_ta'   => $status_int,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
-        // Sinkronkan tagihan semester akhir
+        // Sinkronkan hanya tagihan Bimbingan & Ujian Tugas Akhir.
         $this->sinkronkan_tagihan_ta($akun_id, $status_int);
+        if ($status_int) {
+            $this->sinkronkan_tagihan_kelulusan($akun_id);
+        }
 
         return true;
     }
 
-    /**
-     * Sinkronisasi tagihan semester akhir ketika akses dibuka / ditutup:
-     * - BUKA: Jika tagihan Tugas Akhir belum ada, otomatis generate ke database mahasiswa
-     * - TUTUP: Tagihan Tugas Akhir yang berstatus BELUM_BAYAR tidak ditagihkan
-     */
+    /** Sinkronisasi tagihan Bimbingan & Ujian Tugas Akhir. */
     public function sinkronkan_tagihan_ta($akun_id, $status_buka)
     {
         $akun_id = (int)$akun_id;
 
         if ($status_buka) {
-            // Cek apakah mahasiswa sudah memiliki tagihan Tugas Akhir
-            $this->db->where('akun_id', $akun_id);
-            $this->db->where('is_semester_akhir', 1);
-            $existing = $this->db->get($this->table_tagihan)->row();
-
-            if (!$existing) {
-                // Buat tagihan baru bimbingan & ujian tugas akhir
-                $this->db->insert($this->table_tagihan, [
-                    'akun_id'           => $akun_id,
-                    'jenis_tagihan'     => 'Bimbingan & Ujian Tugas Akhir',
-                    'tahun_akademik'    => '2026/2027',
-                    'semester'          => 'Ganjil',
-                    'nominal'           => 1250000,
-                    'jatuh_tempo'       => date('Y-m-d', strtotime('+30 days')),
-                    'status'            => 'BELUM_BAYAR',
-                    'is_semester_akhir' => 1,
-                    'created_at'        => date('Y-m-d H:i:s'),
-                    'updated_at'        => date('Y-m-d H:i:s')
-                ]);
-            }
+            $this->buat_tagihan_tambahan($akun_id, 'Bimbingan & Ujian Tugas Akhir', 1250000, 1);
         }
+    }
+
+    public function sinkronkan_tagihan_kelulusan($akun_id)
+    {
+        $this->buat_tagihan_tambahan($akun_id, 'Cetak & Administrasi Dokumen Akademik', 100000, 1);
+        $this->buat_tagihan_tambahan($akun_id, 'Wisuda', 1500000, 1);
+    }
+
+    public function set_status_semester_pendek($akun_id, $status)
+    {
+        $akun_id = (int)$akun_id;
+        $akun = $this->db->where('id', $akun_id)
+                         ->where('role', 3)
+                         ->where('deleted_at IS NULL', null, false)
+                         ->get($this->table_akun)
+                         ->row();
+        if (!$akun) {
+            return false;
+        }
+
+        $status_int = $status ? 1 : 0;
+        $this->db->where('id', $akun_id)->update($this->table_akun, [
+            'ambil_semester_pendek' => $status_int,
+            'updated_at'            => date('Y-m-d H:i:s')
+        ]);
+
+        if ($status_int) {
+            $this->buat_tagihan_tambahan($akun_id, 'Semester Pendek', 750000, 0);
+        }
+
+        return true;
+    }
+
+    public function get_status_semester_pendek($akun_id)
+    {
+        $akun = $this->db->select('ambil_semester_pendek')
+                         ->where('id', (int)$akun_id)
+                         ->get($this->table_akun)
+                         ->row();
+        return $akun ? (bool)$akun->ambil_semester_pendek : false;
+    }
+
+    private function buat_tagihan_tambahan($akun_id, $jenis, $nominal, $is_semester_akhir)
+    {
+        $existing = $this->db->where('akun_id', (int)$akun_id)
+                             ->where('jenis_tagihan', $jenis)
+                             ->get($this->table_tagihan)
+                             ->row();
+        if ($existing) {
+            return;
+        }
+
+        $this->db->insert($this->table_tagihan, [
+            'akun_id'           => (int)$akun_id,
+            'jenis_tagihan'     => $jenis,
+            'tahun_akademik'    => '2026/2027',
+            'semester'          => 'Ganjil',
+            'nominal'           => $nominal,
+            'jatuh_tempo'       => date('Y-m-d', strtotime('+30 days')),
+            'status'            => 'BELUM_BAYAR',
+            'is_semester_akhir' => (int)$is_semester_akhir,
+            'created_at'        => date('Y-m-d H:i:s'),
+            'updated_at'        => date('Y-m-d H:i:s')
+        ]);
     }
 
     /**
@@ -433,8 +410,8 @@ class M_keuangan extends CI_Model {
                            tagihan_ta.status as ta_tagihan_status, 
                            tagihan_ta.nominal as ta_tagihan_nominal');
         $this->db->from($this->table_akun . ' as akun');
-        $this->db->join($this->table_tagihan . ' as tagihan_ta', 
-                        'akun.id = tagihan_ta.akun_id AND tagihan_ta.is_semester_akhir = 1', 
+        $this->db->join($this->table_tagihan . ' as tagihan_ta',
+                        "akun.id = tagihan_ta.akun_id AND tagihan_ta.jenis_tagihan = 'Bimbingan & Ujian Tugas Akhir'",
                         'left');
         $this->db->where('akun.role', 3);
         $this->db->where('akun.deleted_at IS NULL');
@@ -459,18 +436,18 @@ class M_keuangan extends CI_Model {
     }
 
     // ======================================================
-    // QUERY TAGIHAN & PEMBAYARAN MAHASISWA
+    // MAHASISWA: QUERY TAGIHAN & PEMBAYARAN MILIK AKUN
     // ======================================================
 
     /**
      * Ambil seluruh tagihan milik akun mahasiswa tertentu.
      * Sesuai Revisi: Jika akses pembayaran semester akhir ditutup,
-     * maka tagihan biaya semester akhir TIDAK ditagihkan (dikecualikan dari daftar).
+    * maka seluruh tagihan biaya semester akhir tidak ditampilkan pada daftar tagihan.
      *
      * CATATAN: get_status_akses_ta_mahasiswa() dipanggil SEBELUM db->where() agar
      * Active Record CI3 tidak mewarisi kondisi WHERE yang tertinggal dari sub-query.
      */
-    public function get_tagihan_by_akun($akun_id, $ignore_ta_filter = false)
+    public function get_tagihan_by_akun($akun_id, $ignore_ta_filter = false, $include_optional = false)
     {
         $akun_id = (int)$akun_id;
 
@@ -479,13 +456,26 @@ class M_keuangan extends CI_Model {
         if (!$ignore_ta_filter) {
             $akses_ta = $this->get_status_akses_ta_mahasiswa($akun_id);
         }
+        $ambil_semester_pendek = $this->get_status_semester_pendek($akun_id);
 
         // Baru bangun kondisi Active Record
         $this->db->where('akun_id', $akun_id);
 
-        if (!$ignore_ta_filter && !$akses_ta) {
-            // Jika akses TA ditutup, jangan tampilkan tagihan semester akhir kecuali sudah lunas/pending
-            $this->db->where('(is_semester_akhir = 0 OR is_semester_akhir IS NULL OR status IN ("LUNAS", "PENDING"))');
+        if (!$include_optional) {
+            $tagihan_semester_akhir = [
+                'Bimbingan & Ujian Tugas Akhir',
+                'Cetak & Administrasi Dokumen Akademik',
+                'Wisuda'
+            ];
+            $this->db->group_start();
+            $this->db->where_not_in('jenis_tagihan', array_merge($tagihan_semester_akhir, ['Semester Pendek']));
+            if (!$ignore_ta_filter && $akses_ta) {
+                $this->db->or_where_in('jenis_tagihan', $tagihan_semester_akhir);
+            }
+            if (!$ignore_ta_filter && $ambil_semester_pendek) {
+                $this->db->or_where('jenis_tagihan', 'Semester Pendek');
+            }
+            $this->db->group_end();
         }
 
         $this->db->order_by('jatuh_tempo', 'ASC');
@@ -507,14 +497,26 @@ class M_keuangan extends CI_Model {
 
         // Tentukan status akses TA SEBELUM memanggil query builder apa pun
         $akses_ta = $this->get_status_akses_ta_mahasiswa($akun_id);
+        $ambil_semester_pendek = $this->get_status_semester_pendek($akun_id);
 
         // Baru bangun kondisi Active Record
         $this->db->where('akun_id', $akun_id);
         $this->db->where_in('status', ['BELUM_BAYAR', 'DITOLAK']);
 
-        if (!$akses_ta) {
-            $this->db->where('(is_semester_akhir = 0 OR is_semester_akhir IS NULL)');
+        $tagihan_semester_akhir = [
+            'Bimbingan & Ujian Tugas Akhir',
+            'Cetak & Administrasi Dokumen Akademik',
+            'Wisuda'
+        ];
+        $this->db->group_start();
+        $this->db->where_not_in('jenis_tagihan', array_merge($tagihan_semester_akhir, ['Semester Pendek']));
+        if ($akses_ta) {
+            $this->db->or_where_in('jenis_tagihan', $tagihan_semester_akhir);
         }
+        if ($ambil_semester_pendek) {
+            $this->db->or_where('jenis_tagihan', 'Semester Pendek');
+        }
+        $this->db->group_end();
 
         $this->db->order_by('id', 'ASC');
         return $this->db->get($this->table_tagihan)->result();
@@ -664,13 +666,19 @@ class M_keuangan extends CI_Model {
      */
     public function cek_status_krs($akun_id)
     {
-        $this->db->where('akun_id', (int)$akun_id);
-        $this->db->like('jenis_tagihan', 'SPP', 'after');
-        $tagihan_spp = $this->db->get($this->table_tagihan)->row();
+        $bulan = (int)date('n');
+        $tahun = (int)date('Y');
+        $semester_aktif = ($bulan >= 7 && $bulan <= 12) ? 'Ganjil' : 'Genap';
+        $tahun_akademik_aktif = $semester_aktif === 'Ganjil'
+            ? $tahun . '/' . ($tahun + 1)
+            : ($tahun - 1) . '/' . $tahun;
 
-        if (!$tagihan_spp) {
-            $tagihan_spp = $this->get_tagihan_aktif($akun_id);
-        }
+        $this->db->where('akun_id', (int)$akun_id)
+                 ->like('jenis_tagihan', 'SPP', 'after')
+                 ->where('tahun_akademik', $tahun_akademik_aktif)
+                 ->where('semester', $semester_aktif)
+                 ->order_by('id', 'DESC');
+        $tagihan_spp = $this->db->get($this->table_tagihan)->row();
 
         if (!$tagihan_spp) {
             return [
@@ -764,7 +772,7 @@ class M_keuangan extends CI_Model {
     }
 
     // ======================================================
-    // METHODS KHUSUS ADMIN KEUANGAN
+    // METHODS KHUSUS ADMIN DAN SUPERADMIN
     // ======================================================
 
     /**
@@ -780,7 +788,9 @@ class M_keuangan extends CI_Model {
      */
     public function count_mahasiswa_aktif()
     {
-        return $this->db->where('role', 3)->where('deleted_at IS NULL')->count_all_results($this->table_akun);
+        return $this->db->where('role', 3)
+                        ->where('deleted_at IS NULL')
+                        ->count_all_results($this->table_akun);
     }
 
     /**
@@ -1086,6 +1096,13 @@ class M_keuangan extends CI_Model {
                 'nominal'     => 1500000,
                 'keterangan'  => 'Prosesi wisuda sarjana/diploma, toga wisuda, ijazah digital & cetak berhologram, serta dokumentasi.',
                 'peruntukan'  => 'Calon Wisudawan'
+            ],
+            [
+                'no'          => 4,
+                'jenis_biaya' => 'Semester Pendek',
+                'nominal'     => 750000,
+                'keterangan'  => 'Biaya pengambilan mata kuliah pada semester pendek sesuai ketentuan akademik kampus.',
+                'peruntukan'  => 'Mahasiswa yang Mengambil Semester Pendek'
             ]
         ];
     }

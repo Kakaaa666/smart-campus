@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /Smart-Campus/
+    RewriteBase /smart-campus/
 
     # Direct requests to index.php if not a real file or directory
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -8,5 +8,5 @@
     RewriteRule ^(.*)$ index.php/$1 [L,QSA]
 </IfModule>
 <IfModule !mod_rewrite.c>
-    ErrorDocument 404 /Smart-Campus/index.php
+    ErrorDocument 404 /smart-campus/index.php
 </IfModule>

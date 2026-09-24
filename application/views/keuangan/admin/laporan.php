@@ -38,18 +38,59 @@
                 .badge-belum-st  { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
                 .badge-fakultas {
                     background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
-                    padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 700;
-                    display: inline-block; white-space: nowrap;
+                    padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
                 }
                 .badge-prodi {
                     background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
-                    padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 600;
-                    display: inline-block; white-space: nowrap;
+                    padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600;
+                }
+                .laporan-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .laporan-actions .btn {
+                    margin: 0 !important;
+                    white-space: nowrap;
+                }
+                @media (max-width: 767.98px) {
+                    .laporan-actions { justify-content: flex-start; }
+                    .laporan-actions .btn { flex: 1 1 auto; }
                 }
                 @media print {
+                    @page { size: A4 landscape; margin: 12mm; }
+                    html, body { width: 100% !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+                    .pcoded-header, .pcoded-navbar, .pcoded-main-container { display: none !important; margin-left: 0 !important; }
+                    .pcoded-content, .pcoded-inner-content, .main-body, .page-wrapper {
+                        width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important;
+                    }
                     .no-print { display: none !important; }
-                    .laporan-card { box-shadow: none !important; border: 1px solid #ddd !important; }
-                    body { background: white !important; }
+                    .print-letterhead { display: block !important; }
+                    .laporan-card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; border-radius: 0 !important; margin-bottom: 12px !important; overflow: visible !important; }
+                    .laporan-card-header { padding: 8px 10px !important; }
+                    .laporan-card-header h5 { font-size: 12px !important; }
+                    .summary-box { padding: 8px 10px !important; border-radius: 0 !important; }
+                    .summary-box div:last-child { font-size: 14px !important; margin-top: 4px !important; }
+                    .table-responsive { width: 100% !important; overflow: visible !important; }
+                    .table-laporan { width: 100% !important; table-layout: fixed !important; margin: 0 !important; font-size: 8px !important; }
+                    .table-laporan thead th { padding: 6px 4px !important; font-size: 8px !important; white-space: normal !important; }
+                    .table-laporan tbody td { padding: 5px 4px !important; font-size: 8px !important; line-height: 1.25 !important; overflow-wrap: anywhere; }
+                    .table-laporan tr { page-break-inside: avoid; }
+                    .table-laporan th:nth-child(1), .table-laporan td:nth-child(1) { width: 4%; }
+                    .table-laporan th:nth-child(2), .table-laporan td:nth-child(2) { width: 16%; }
+                    .table-laporan th:nth-child(3), .table-laporan td:nth-child(3) { width: 11%; }
+                    .table-laporan th:nth-child(4), .table-laporan td:nth-child(4) { width: 13%; }
+                    .table-laporan th:nth-child(5), .table-laporan td:nth-child(5) { width: 11%; }
+                    .table-laporan th:nth-child(6), .table-laporan td:nth-child(6) { width: 10%; }
+                    .table-laporan th:nth-child(7), .table-laporan td:nth-child(7) { width: 12%; }
+                    .table-laporan th:nth-child(8), .table-laporan td:nth-child(8) { width: 9%; }
+                    .table-laporan th:nth-child(9), .table-laporan td:nth-child(9) { width: 7%; }
+                    .table-laporan th:nth-child(10), .table-laporan td:nth-child(10) { width: 7%; }
+                    .badge-st, .badge-fakultas, .badge-prodi { padding: 2px 4px !important; font-size: 7px !important; border-radius: 3px !important; }
+                    .progress { height: 4px !important; }
+                    .print-only-header { display: none !important; }
                 }
                 </style>
 
@@ -57,7 +98,7 @@
                 <div class="laporan-card no-print" style="border-left:4px solid #6366f1;">
                     <div style="padding:20px 28px;">
                         <div class="row align-items-center">
-                            <div class="col-md-8">
+                            <div class="col-md-7">
                                 <div style="display:flex;align-items:center;gap:14px;">
                                     <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#4338ca);display:flex;align-items:center;justify-content:center;">
                                         <i class="fa fa-bar-chart" style="font-size:22px;color:#fff;"></i>
@@ -72,26 +113,28 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center flex-wrap" style="gap: 8px;">
+                            <div class="col-md-5 mt-3 mt-md-0">
+                                <div class="laporan-actions">
                                 <a href="<?= base_url('keuangan/admin') ?>" class="btn btn-sm"
-                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;margin:0;">
+                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;">
                                     <i class="fa fa-arrow-left mr-1"></i>Kembali
                                 </a>
                                 <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn btn-sm"
-                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);margin:0;">
+                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
                                     <i class="fa fa-file-word-o mr-1"></i>Ekspor Word (.doc)
                                 </a>
                                 <button onclick="window.print()" class="btn btn-sm"
-                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;margin:0;">
+                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;">
                                     <i class="fa fa-print mr-1"></i>Cetak Rinci
                                 </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Kop Surat Resmi (Hanya Muncul Saat Dicetak / Mode Print) -->
-                <div class="d-none d-print-block mb-4" style="text-align:center; border-bottom:3px double #0f172a; padding-bottom:12px;">
+                <div class="print-letterhead mb-4" style="display:none;text-align:center; border-bottom:3px double #0f172a; padding-bottom:12px;">
                     <h3 style="margin:0; font-size:20px; font-weight:800; color:#1e3a8a;">UNIVERSITAS SMART CAMPUS</h3>
                     <h5 style="margin:4px 0; font-size:14px; font-weight:700; color:#334155;">BIRO ADMINISTRASI KEUANGAN DAN AKADEMIK</h5>
                     <p style="margin:0; font-size:11px; color:#64748b;">Jl. Kampus Terpadu No. 123 | Telp: (021) 789-0123 | Email: keuangan@smartcampus.ac.id</p>
@@ -161,7 +204,7 @@
                 </div>
 
                 <!-- Header Laporan (versi print) -->
-                <div style="text-align:center;margin-bottom:20px;display:none;" class="print-only-header">
+                <div style="text-align:center;margin-bottom:20px;display:none;" class="print-only-header no-print">
                     <h3 style="font-weight:800;color:#1e293b;margin-bottom:4px;">LAPORAN KEUANGAN MAHASISWA &bull; REKTORAT</h3>
                     <p style="color:#475569;margin-bottom:4px;">Smart Campus &bull; Tahun Akademik <?= $tahun_akademik ?> Semester <?= $semester ?></p>
                     <?php if (!empty($filter_fakultas) || !empty($filter_prodi)): ?>

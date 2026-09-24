@@ -253,7 +253,7 @@
                                         <i class="fa fa-graduation-cap" style="font-size: 20px;"></i>
                                     </div>
                                     <div>
-                                        <div style="font-weight: 700; font-size: 15px;">Buka Kontrol Akses Tugas Akhir</div>
+                                        <div style="font-weight: 700; font-size: 15px;">Buka Kontrol Akses Tagihan</div>
                                         <div style="font-size: 12.5px; opacity: 0.9;">Buka / tutup izin tagihan semester akhir per-mahasiswa</div>
                                     </div>
                                 </div>
@@ -386,10 +386,12 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="<?= base_url('keuangan?mahasiswa_id=' . $m->id) ?>" target="_blank"
-                                                       class="btn btn-sm" style="background:#eff6ff; color:#1d4ed8; border-radius:8px; font-size:12px; font-weight:600; padding:6px 14px; border:1px solid #bfdbfe;">
-                                                        <i class="fa fa-eye mr-1"></i>Pratinjau
-                                                    </a>
+                                                    <button type="button"
+                                                            class="btn btn-sm"
+                                                            style="background:#eff6ff; color:#1d4ed8; border-radius:8px; font-size:12px; font-weight:600; padding:6px 14px; border:1px solid #bfdbfe;"
+                                                            onclick="bukaDetailTagihan(<?= (int)$m->id ?>)">
+                                                        <i class="fa fa-receipt mr-1"></i>Rincian Tagihan
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -407,6 +409,105 @@
 </div>
 
 <script>
+function bukaDetailTagihan(mahasiswaId) {
+    var url = '<?= base_url("keuangan/detail_tagihan_mahasiswa") ?>?mahasiswa_id=' + encodeURIComponent(mahasiswaId);
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        cache: false,
+        xhrFields: { withCredentials: true },
+        success: function(resp) {
+            if (!resp || !resp.success) {
+                alert(resp ? (resp.message || 'Data tidak valid.') : 'Respons tidak valid.');
+                return;
+            }
+
+            var mhs = resp.mahasiswa, rs = resp.ringkasan, tagihan = resp.tagihan;
+            var rows = '';
+            tagihan.forEach(function(t, i) {
+                var badgeCls = 'badge-biru', badgeLabel = t.status_tagihan, badgeIcon = 'fa-circle';
+                if (t.status_tagihan === 'LUNAS') {
+                    badgeCls = 'badge-hijau'; badgeLabel = 'LUNAS'; badgeIcon = 'fa-check-circle';
+                } else if (t.status_tagihan === 'PENDING') {
+                    badgeCls = 'badge-kuning'; badgeLabel = 'Menunggu Verifikasi'; badgeIcon = 'fa-clock';
+                } else {
+                    badgeCls = 'badge-abu'; badgeLabel = 'Belum Bayar'; badgeIcon = 'fa-circle-o';
+                }
+
+                var pembayaranHtml = t.pembayaran
+                    ? '<span class="badge ' + (t.pembayaran.status === 'LUNAS' ? 'badge-hijau' : 'badge-kuning') + '" style="font-size:10.5px;padding:2px 8px;border-radius:12px;font-weight:700;">' + t.pembayaran.status + '</span> '
+                      + t.pembayaran.tanggal + ' &bull; ' + t.pembayaran.metode
+                      + (t.pembayaran.verifikator ? ' <small class="text-muted">oleh ' + t.pembayaran.verifikator + '</small>' : '')
+                      + '<br><a href="<?= base_url("keuangan/lihat_bukti/") ?>' + t.pembayaran.id + '" target="_blank" class="btn btn-xs btn-outline-primary" style="padding:2px 8px;font-size:10px;margin-top:4px;"><i class="fa fa-eye"></i> Bukti</a>'
+                    : '<span class="text-muted" style="font-size:11px;">Belum ada pembayaran</span>';
+
+                rows += '<tr>'
+                    + '<td style="font-weight:600;color:#94a3b8;width:30px;">' + (i + 1) + '</td>'
+                    + '<td style="font-size:13px;"><strong>' + t.jenis + '</strong><div style="font-size:11px;color:#94a3b8;">' + t.tahun + ' &bull; ' + t.semester + '</div></td>'
+                    + '<td style="font-weight:700;color:#1e293b;">Rp ' + Number(t.nominal).toLocaleString('id-ID') + '</td>'
+                    + '<td><span class="badge ' + badgeCls + '" style="font-weight:700;padding:4px 10px;border-radius:12px;font-size:11px;"><i class="fa ' + badgeIcon + ' mr-1"></i>' + badgeLabel + '</span></td>'
+                    + '<td style="font-size:12px;">' + pembayaranHtml + '</td>'
+                    + '</tr>';
+            });
+
+            var html = '<div style="padding:24px 28px;">'
+                + '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #e2e8f0;">'
+                + '<div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#1976d2,#1565c0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;">' + mhs.nama.split(" ").map(function(w){return w[0];}).join("").substring(0,2) + '</div>'
+                + '<div><div style="font-size:18px;font-weight:800;color:#0f172a;">' + mhs.nama + '</div>'
+                + '<div style="font-size:13px;color:#64748b;">NIM: ' + mhs.nim + ' &bull; ' + mhs.prodi + ' &bull; Semester ' + mhs.semester + '</div></div></div>'
+                + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">'
+                + '<div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px;text-align:center;"><div style="font-size:11px;color:#1d4ed8;font-weight:700;text-transform:uppercase;">Total Tagihan</div><div style="font-size:18px;font-weight:800;color:#1e293b;margin-top:4px;">Rp ' + Number(rs.total_tagihan).toLocaleString('id-ID') + '</div></div>'
+                + '<div style="background:#f0fdf4;border:1px solid #6ee7b7;border-radius:12px;padding:14px;text-align:center;"><div style="font-size:11px;color:#047857;font-weight:700;text-transform:uppercase;">Lunas</div><div style="font-size:18px;font-weight:800;color:#047857;margin-top:4px;">Rp ' + Number(rs.total_lunas).toLocaleString('id-ID') + '</div></div>'
+                + '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px;text-align:center;"><div style="font-size:11px;color:#b45309;font-weight:700;text-transform:uppercase;">Pending</div><div style="font-size:18px;font-weight:800;color:#b45309;margin-top:4px;">Rp ' + Number(rs.total_pending).toLocaleString('id-ID') + '</div></div>'
+                + '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-align:center;"><div style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;">Belum Bayar</div><div style="font-size:18px;font-weight:800;color:#dc2626;margin-top:4px;">Rp ' + Number(rs.total_belum).toLocaleString('id-ID') + '</div></div>'
+                + '</div>'
+                + '<h6 style="font-weight:700;color:#0f172a;margin-bottom:10px;font-size:14px;"><i class="fa fa-receipt mr-2" style="color:#1976d2;"></i>Daftar Tagihan Detail</h6>'
+                + '<div class="table-responsive"><table class="table table-bordered" style="font-size:13px;margin-bottom:0;"><thead><tr style="background:#f8fafc;"><th style="width:30px;">No</th><th>Jenis Tagihan</th><th>Nominal</th><th style="width:130px;">Status</th><th>Riwayat Pembayaran</th></tr></thead>'
+                + '<tbody>' + rows + '</tbody></table></div>'
+                + '<div style="margin-top:20px;padding:16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">'
+                + '<div><strong style="color:#475569;font-size:13px;">Total Pengeluaran Resmi (Lunas):</strong></div>'
+                + '<div style="font-size:20px;font-weight:800;color:#047857;">Rp ' + Number(rs.total_pengeluaran).toLocaleString('id-ID') + '</div></div>'
+                + '</div>';
+
+            var modal = document.getElementById('modalDetailTagihan');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalDetailTagihan';
+                modal.className = 'modal fade';
+                modal.tabIndex = '-1';
+                modal.setAttribute('role', 'dialog');
+                modal.innerHTML = '<div class="modal-dialog modal-dialog-centered modal-lg" role="document"><div class="modal-content" style="border-radius:16px;border:none;"><div class="modal-header" style="background:linear-gradient(135deg,#1976d2,#1565c0);color:#fff;border-radius:16px 16px 0 0;padding:20px 24px;"><h5 class="modal-title font-weight-bold" style="font-size:16px;"><i class="fa fa-receipt mr-2"></i>Rincian Tagihan Mahasiswa</h5><button type="button" class="close text-white" data-dismiss="modal" style="opacity:0.9;"><span>&times;</span></button></div><div id="modalDetailTagihanBody" style="padding:0;max-height:70vh;overflow-y:auto;"></div></div></div>';
+                document.body.appendChild(modal);
+                $(modal).on('hidden.bs.modal', function() {
+                    $('#modalDetailTagihanBody').html('');
+                });
+            }
+
+            $('#modalDetailTagihanBody').html(html);
+            $('#modalDetailTagihan').modal('show');
+        },
+        error: function(xhr, status, err) {
+            console.error('AJAX error:', status, err);
+            console.log('Response text:', xhr.responseText || '(empty)');
+
+            var message = 'Gagal memuat data rinci. Periksa konsol browser (F12) untuk detail error.';
+            try {
+                var json = JSON.parse(xhr.responseText || '{}');
+                if (json && json.message) {
+                    message = json.message;
+                }
+            } catch (e) {
+                if (typeof xhr.responseText === 'string' && xhr.responseText.toLowerCase().indexOf('<html') !== -1) {
+                    message = 'Endpoint detail tagihan mengembalikan halaman HTML, kemungkinan URL salah atau sesi login tidak valid.';
+                }
+            }
+
+            alert(message + ' Status: ' + (xhr.status || 'none') + '. Apakah Anda sudah login sebagai Admin/Super Admin?');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var searchInput = document.getElementById('liveSearchDashboard');
     if (searchInput) {

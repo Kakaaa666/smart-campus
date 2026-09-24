@@ -5,6 +5,61 @@
                                 <div class="page-wrapper">
                                     <!-- Page-body start -->
                                     <div class="page-body">
+                                        <?php if ((int)$this->session->userdata('role') === 1): ?>
+                                            <style>
+                                                .superadmin-hub { border: 1px solid #dbe4f0; border-radius: 14px; background: #fff; box-shadow: 0 5px 20px rgba(15, 23, 42, .06); margin-bottom: 24px; }
+                                                .superadmin-hub .hub-head { padding: 22px 24px; border-bottom: 1px solid #edf2f7; }
+                                                .superadmin-hub .hub-head h4 { margin: 0 0 5px; color: #0f172a; font-weight: 800; }
+                                                .superadmin-hub .hub-head p { margin: 0; color: #64748b; font-size: 13px; }
+                                                .superadmin-hub .hub-body { padding: 18px; }
+                                                .superadmin-mode { display: flex; align-items: center; min-height: 92px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 10px; color: #0f172a; background: #fff; transition: transform .15s ease, box-shadow .15s ease; }
+                                                .superadmin-mode:hover { color: #0f172a; text-decoration: none; transform: translateY(-2px); box-shadow: 0 7px 18px rgba(15, 23, 42, .09); }
+                                                .superadmin-mode .mode-icon { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-right: 12px; border-radius: 10px; color: #fff; font-size: 18px; }
+                                                .superadmin-mode strong { display: block; font-size: 14px; }
+                                                .superadmin-mode small { display: block; margin-top: 3px; color: #64748b; font-size: 11.5px; }
+                                            </style>
+                                            <section class="superadmin-hub" aria-label="Pusat Kendali Super Admin">
+                                                <div class="hub-head">
+                                                    <h4><i class="fa fa-shield mr-2" style="color:#2563eb;"></i>Pusat Kendali Super Admin</h4>
+                                                    <p>Masuk ke mode mahasiswa atau dashboard biro untuk memeriksa data, alur, dan pembaruan sistem.</p>
+                                                </div>
+                                                <div class="hub-body">
+                                                    <div class="row">
+                                                        <div class="col-xl-4 col-md-6 mb-3">
+                                                            <a class="superadmin-mode" href="<?= base_url('keuangan') ?>">
+                                                                <span class="mode-icon" style="background:#2563eb;"><i class="fa fa-user"></i></span>
+                                                                <span><strong>Mode Mahasiswa</strong><small>Periksa profil, keuangan, KRS, dan perwalian mahasiswa</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3">
+                                                            <a class="superadmin-mode" href="<?= base_url('keuangan/admin') ?>">
+                                                                <span class="mode-icon" style="background:#059669;"><i class="fa fa-money"></i></span>
+                                                                <span><strong>Biro Keuangan</strong><small>Dashboard, verifikasi, kontrol tagihan, dan laporan</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3">
+                                                            <a class="superadmin-mode" href="<?= base_url('akademik/jadwal') ?>">
+                                                                <span class="mode-icon" style="background:#7c3aed;"><i class="fa fa-graduation-cap"></i></span>
+                                                                <span><strong>Biro Akademik</strong><small>Jadwal, nilai, KHS, kurikulum, dan kalender</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
+                                                            <a class="superadmin-mode" href="<?= base_url('perpustakaan') ?>">
+                                                                <span class="mode-icon" style="background:#d97706;"><i class="fa fa-book"></i></span>
+                                                                <span><strong>Biro Perpustakaan</strong><small>Area kendali dan integrasi layanan perpustakaan</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
+                                                            <a class="superadmin-mode" href="<?= base_url('kemahasiswaan') ?>">
+                                                                <span class="mode-icon" style="background:#dc2626;"><i class="fa fa-users"></i></span>
+                                                                <span><strong>Biro Kemahasiswaan</strong><small>Beasiswa, kegiatan, kuisioner, SKPI, dan layanan mahasiswa</small></span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        <?php endif; ?>
+
                                         <div class="row">
                                             <!-- Material statustic card start -->
                                             <div class="col-xl-4 col-md-12">
