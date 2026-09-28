@@ -1,7 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Kehadiran extends CI_Controller {
+require_once APPPATH . 'core/MY_Role_Controller.php';
+
+class Kehadiran extends MY_Role_Controller {
+    protected $allowed_roles = [3];
+
+    public function __construct() {
+        parent::__construct();
+        $this->load->model('mahasiswa/M_akademik_mahasiswa', 'M_akademik');
+    }
     public function index() {
         $data['title'] = 'Kehadiran Kuliah - Smart Campus';
         $data['page_title'] = 'Presensi & Kehadiran Kuliah';

@@ -32,27 +32,39 @@
                                                             </a>
                                                         </div>
                                                         <div class="col-xl-4 col-md-6 mb-3">
-                                                            <a class="superadmin-mode" href="<?= base_url('keuangan/admin') ?>">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/keuangan/admin') ?>">
                                                                 <span class="mode-icon" style="background:#059669;"><i class="fa fa-money"></i></span>
                                                                 <span><strong>Biro Keuangan</strong><small>Dashboard, verifikasi, kontrol tagihan, dan laporan</small></span>
                                                             </a>
                                                         </div>
                                                         <div class="col-xl-4 col-md-6 mb-3">
-                                                            <a class="superadmin-mode" href="<?= base_url('akademik/jadwal') ?>">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/akademik/jadwal') ?>">
                                                                 <span class="mode-icon" style="background:#7c3aed;"><i class="fa fa-graduation-cap"></i></span>
                                                                 <span><strong>Biro Akademik</strong><small>Jadwal, nilai, KHS, kurikulum, dan kalender</small></span>
                                                             </a>
                                                         </div>
                                                         <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
-                                                            <a class="superadmin-mode" href="<?= base_url('perpustakaan') ?>">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/perpustakaan') ?>">
                                                                 <span class="mode-icon" style="background:#d97706;"><i class="fa fa-book"></i></span>
                                                                 <span><strong>Biro Perpustakaan</strong><small>Area kendali dan integrasi layanan perpustakaan</small></span>
                                                             </a>
                                                         </div>
                                                         <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
-                                                            <a class="superadmin-mode" href="<?= base_url('kemahasiswaan') ?>">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/kemahasiswaan') ?>">
                                                                 <span class="mode-icon" style="background:#dc2626;"><i class="fa fa-users"></i></span>
                                                                 <span><strong>Biro Kemahasiswaan</strong><small>Beasiswa, kegiatan, kuisioner, SKPI, dan layanan mahasiswa</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/sarana-prasarana') ?>">
+                                                                <span class="mode-icon" style="background:#0f766e;"><i class="fa fa-building"></i></span>
+                                                                <span><strong>Biro Sarana Prasarana</strong><small>Fasilitas, inventaris, ruang, dan pemeliharaan kampus</small></span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
+                                                            <a class="superadmin-mode" href="<?= base_url('superadmin/penjaminan-mutu') ?>">
+                                                                <span class="mode-icon" style="background:#be123c;"><i class="fa fa-check-square-o"></i></span>
+                                                                <span><strong>Biro Penjaminan Mutu</strong><small>Standar, audit, evaluasi, dan tindak lanjut mutu</small></span>
                                                             </a>
                                                         </div>
                                                     </div>

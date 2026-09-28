@@ -8,7 +8,7 @@ class Perwalian extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
         $this->load->helper('url');
-        $this->load->model('M_keuangan');
+        $this->load->model('mahasiswa/M_keuangan_mahasiswa', 'M_keuangan');
 
         // Wajib login untuk mengakses menu perwalian
         if (!$this->session->userdata('is_logged_in')) {

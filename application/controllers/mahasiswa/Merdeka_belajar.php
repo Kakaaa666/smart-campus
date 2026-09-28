@@ -1,7 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Merdeka_belajar extends CI_Controller {
+require_once APPPATH . 'core/MY_Role_Controller.php';
+
+class Merdeka_belajar extends MY_Role_Controller {
+    protected $allowed_roles = [3];
+
+    public function __construct() {
+        parent::__construct();
+        $this->load->model('mahasiswa/M_kemahasiswaan_mahasiswa', 'M_kemahasiswaan');
+    }
     public function index() {
         $data['title'] = 'Merdeka Belajar - Smart Campus';
         $data['page_title'] = 'Program Merdeka Belajar (MBKM)';
