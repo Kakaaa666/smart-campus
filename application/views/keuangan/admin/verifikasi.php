@@ -171,7 +171,7 @@
                                                 Verifikasi Pembayaran Mahasiswa
                                             </h4>
                                             <p style="margin: 0; font-size: 13.5px; color: #64748b;">
-                                                Periksa bukti transfer perbankan, validasi nomor referensi, dan setujui status tagihan menjadi <strong>LUNAS</strong>.
+                                                Periksa bukti transfer perbankan, validasi nomor rekening dan nama pemiliknya, lalu setujui status tagihan menjadi <strong>LUNAS</strong>.
                                             </p>
                                         </div>
                                     </div>
@@ -294,8 +294,8 @@
                                                         </td>
                                                         <td style="font-size: 12.5px;">
                                                             <div style="font-weight: 600; color: #334155;"><?= htmlspecialchars($p->metode_pembayaran) ?></div>
-                                                            <small style="font-family: monospace;">No: <?= htmlspecialchars($p->nomor_rekening ?: $p->nomor_referensi ?: '-') ?></small><br>
-                                                            <small class="text-muted">Nama: <?= htmlspecialchars($p->nama_rekening ?: '-') ?></small>
+                                                            <small style="font-family: monospace;">No. Rekening: <?= htmlspecialchars($p->nomor_rekening ?: '-') ?></small><br>
+                                                            <small class="text-muted">Nama Pemilik: <?= htmlspecialchars($p->nama_rekening ?: '-') ?></small>
                                                         </td>
                                                         <td>
                                                             <a href="<?= base_url('keuangan/lihat_bukti/' . $p->id) ?>" target="_blank"
@@ -370,8 +370,8 @@
                                                             Rp <?= number_format($ps->nominal_pembayaran, 0, ',', '.') ?>
                                                         </td>
                                                         <td style="font-size:12px;">
-                                                            <div style="font-family:monospace;">No: <?= htmlspecialchars($ps->nomor_rekening ?: $ps->nomor_referensi ?: '-') ?></div>
-                                                            <small class="text-muted">Nama: <?= htmlspecialchars($ps->nama_rekening ?: '-') ?></small>
+                                                            <div style="font-family:monospace;">No. Rekening: <?= htmlspecialchars($ps->nomor_rekening ?: '-') ?></div>
+                                                            <small class="text-muted">Nama Pemilik: <?= htmlspecialchars($ps->nama_rekening ?: '-') ?></small>
                                                         </td>
                                                         <td>
                                                             <?php if ($ps->status === 'LUNAS'): ?>
