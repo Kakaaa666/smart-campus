@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Keuangan extends CI_Controller {
+class Keuangan_core extends CI_Controller {
 
     private function current_role()
     {
@@ -36,9 +36,8 @@ class Keuangan extends CI_Controller {
         parent::__construct();
         $this->load->library(['session', 'form_validation', 'upload']);
         $this->load->helper(['url', 'form', 'file', 'html']);
-        $this->load->model('M_keuangan');
 
-        // Wajib login untuk mengakses seluruh fitur keuangan
+        // Wajib login sebelum memilih model berdasarkan role.
         if (!$this->session->userdata('is_logged_in')) {
             if ($this->input->is_ajax_request()) {
                 $this->output->set_status_header(401)->set_content_type('application/json')
@@ -47,7 +46,28 @@ class Keuangan extends CI_Controller {
             }
             $this->session->set_flashdata('error', 'Silakan login terlebih dahulu untuk mengakses menu keuangan.');
             redirect('auth');
+            exit;
         }
+
+        $role_models = [
+            1 => 'superadmin/M_keuangan_superadmin',
+            2 => 'admin/M_keuangan_admin',
+            3 => 'mahasiswa/M_keuangan_mahasiswa'
+        ];
+        $role = (int)$this->session->userdata('role');
+        if (!isset($role_models[$role])) {
+            show_error('Role pengguna tidak valid untuk modul keuangan.', 403);
+            return;
+        }
+
+        $biro = strtolower((string)$this->session->userdata('biro')) ?: 'keuangan';
+        if ($role === 2 && $biro !== 'keuangan') {
+            show_error('Admin ini tidak memiliki kewenangan untuk biro keuangan.', 403);
+            return;
+        }
+
+        $model = $role_models[$role];
+        $this->load->model($model, 'M_keuangan');
     }
 
     /**
@@ -323,6 +343,10 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/footer', $data);
     }
 
+    // =====================================================
+    // CONTROLLER: KONTROL AKSES TUGAS AKHIR - HALAMAN
+    // View: keuangan/{admin|superadmin}/kontrol_ta
+    // =====================================================
     /**
      * =====================================================
      * 3. MENU ADMIN: KONTROL AKSES TUGAS AKHIR (PER-MAHASISWA)
@@ -374,6 +398,10 @@ class Keuangan extends CI_Controller {
         $this->load->view('templates/footer', $data);
     }
 
+    // =====================================================
+    // CONTROLLER: KONTROL AKSES TUGAS AKHIR - PER MAHASISWA
+    // Endpoint: POST keuangan/toggle_akses_ta_mhs
+    // =====================================================
     /**
      * AJAX/POST: Toggle Buka/Tutup Akses Tugas Akhir untuk SATU MAHASISWA
      */
@@ -537,6 +565,10 @@ class Keuangan extends CI_Controller {
                          'tagihan' => array_values($detail_by_tagihan),
                      ]));
     }
+    // =====================================================
+    // CONTROLLER: KONTROL AKSES TUGAS AKHIR - MASSAL
+    // Endpoint: POST keuangan/toggle_akses_ta_bulk
+    // =====================================================
     public function toggle_akses_ta_bulk()
     {
         if ($this->input->server('REQUEST_METHOD') !== 'POST') {

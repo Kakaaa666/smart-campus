@@ -268,9 +268,14 @@
             color: #1976d2 !important;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-themes.css?v=' . time()) ?>">
 </head>
 
-<body>
+<?php
+    $theme_role = (int)$this->session->userdata('role');
+    $theme_class = $theme_role === 1 ? 'theme-superadmin' : ($theme_role === 2 ? 'theme-admin' : 'theme-mahasiswa');
+?>
+<body class="<?= $theme_class ?>">
     <!-- Pre-loader start -->
     <div class="theme-loader">
         <div class="loader-track">

@@ -9,6 +9,41 @@ class M_auth extends CI_Model {
     {
         parent::__construct();
         $this->load->database();
+        $this->ensure_biro_column();
+    }
+
+    private function ensure_biro_column()
+    {
+        if (!$this->db->table_exists($this->table)) {
+            return;
+        }
+
+        $fields = $this->db->list_fields($this->table);
+        if (!in_array('biro', $fields, true)) {
+            $this->db->query("ALTER TABLE `{$this->table}` ADD COLUMN `biro` VARCHAR(50) NOT NULL DEFAULT 'keuangan' AFTER `role`");
+        }
+    }
+
+    public static function normalize_biro($biro)
+    {
+        $biro = strtolower(trim((string)$biro));
+        $allowed = ['keuangan', 'akademik', 'kemahasiswaan', 'perpustakaan', 'sarana_prasarana', 'penjaminan_mutu'];
+        return in_array($biro, $allowed, true) ? $biro : 'keuangan';
+    }
+
+    public static function biro_label($biro)
+    {
+        $labels = [
+            'keuangan' => 'Admin Keuangan',
+            'akademik' => 'Admin Akademik',
+            'kemahasiswaan' => 'Admin Kemahasiswaan',
+            'perpustakaan' => 'Admin Perpustakaan',
+            'sarana_prasarana' => 'Admin Sarana Prasarana',
+            'penjaminan_mutu' => 'Admin Penjaminan Mutu'
+        ];
+
+        $biro = self::normalize_biro($biro);
+        return $labels[$biro];
     }
 
     /**
@@ -86,6 +121,9 @@ class M_auth extends CI_Model {
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['updated_at'] = date('Y-m-d H:i:s');
         $data['deleted_at'] = null;
+        $data['biro'] = ((int)($data['role'] ?? 3) === 2)
+            ? self::normalize_biro($data['biro'] ?? 'keuangan')
+            : (((int)($data['role'] ?? 3) === 1) ? 'semua' : 'mahasiswa');
         return $this->db->insert($this->table, $data);
     }
 

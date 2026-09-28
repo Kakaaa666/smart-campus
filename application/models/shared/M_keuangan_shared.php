@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_keuangan extends CI_Model {
+class M_keuangan_shared extends CI_Model {
 
     protected $table_tagihan    = 'tagihan';
     protected $table_pembayaran = 'pembayaran';
@@ -254,8 +254,9 @@ class M_keuangan extends CI_Model {
 
 
     // ======================================================
-    // SHARED: KONTROL AKSES TUGAS AKHIR PER MAHASISWA
-    // Dipanggil controller admin/superadmin, hasilnya dipakai view mahasiswa.
+    // MODEL: KONTROL AKSES TUGAS AKHIR
+    // Pengaturan global, status per mahasiswa, sinkronisasi tagihan,
+    // dan query daftar mahasiswa untuk controller kontrol_ta.
     // ======================================================
 
     /**

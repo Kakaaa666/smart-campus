@@ -1,7 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Ringkasan extends CI_Controller {
+require_once APPPATH . 'core/MY_Role_Controller.php';
+
+class Ringkasan extends MY_Role_Controller {
+    protected $allowed_roles = [3];
+
+    public function __construct() {
+        parent::__construct();
+        $this->load->model('mahasiswa/M_akademik_mahasiswa', 'M_akademik');
+    }
     public function index() {
         $data['title'] = 'Ringkasan - Smart Campus';
         $data['page_title'] = 'Ringkasan Aktivitas';
