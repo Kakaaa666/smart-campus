@@ -37,6 +37,20 @@
                     color: #0f172a;
                 }
 
+                .billing-intro {
+                    padding-bottom: 24px;
+                }
+
+                @media (max-width: 767.98px) {
+                    .billing-intro {
+                        padding-bottom: 16px;
+                        margin-bottom: 16px !important;
+                    }
+                    .billing-intro .btn-open-bayar-general {
+                        margin-bottom: 0 !important;
+                    }
+                }
+
                 /* Metric Stat Card */
                 .fin-stat-card {
                     padding: 22px 24px;
@@ -562,7 +576,7 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 pb-5 flex-wrap">
+                            <div class="billing-intro d-flex align-items-center justify-content-between mb-3 flex-wrap">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
                                         Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
@@ -573,7 +587,7 @@
                                 </div>
                                 <div class="mt-2 mt-md-0">
                                     <?php if (!empty($tagihan_pilihan)): ?>
-                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600; margin-bottom: 12px;">
+                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
                                             <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
                                         </button>
                                     <?php else: ?>

@@ -39,10 +39,14 @@
                 .badge-fakultas {
                     background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
                     padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
+                    display: inline-block; width: max-content; max-width: 100%; white-space: normal;
+                    overflow-wrap: break-word; line-height: 1.35;
                 }
                 .badge-prodi {
                     background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
                     padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600;
+                    display: inline-block; width: max-content; max-width: 100%; white-space: normal;
+                    overflow-wrap: break-word; line-height: 1.35;
                 }
                 .laporan-actions {
                     display: flex;
