@@ -6,6 +6,28 @@ $current_bureau = strtolower((string)$this->session->userdata('biro'));
 if ($current_role === 2 && $current_bureau === '') {
     $current_bureau = 'keuangan';
 }
+$dashboard_route = 'beranda';
+$dashboard_label = 'Pusat Kendali';
+if ($current_role === 2) {
+    $dashboard_routes = [
+        'keuangan' => ['keuangan/admin', 'Dashboard Keuangan'],
+        'akademik' => ['admin/akademik', 'Dashboard Akademik'],
+        'kemahasiswaan' => ['admin/kemahasiswaan', 'Dashboard Kemahasiswaan'],
+        'perpustakaan' => ['admin/perpustakaan', 'Dashboard Perpustakaan'],
+        'sarana_prasarana' => ['admin/sarana-prasarana', 'Dashboard Sarana Prasarana'],
+        'penjaminan_mutu' => ['admin/penjaminan-mutu', 'Dashboard Penjaminan Mutu'],
+    ];
+    if (isset($dashboard_routes[$current_bureau])) {
+        $dashboard_route = $dashboard_routes[$current_bureau][0];
+        $dashboard_label = $dashboard_routes[$current_bureau][1];
+    }
+} elseif ($current_role === 3) {
+    $dashboard_route = 'ringkasan';
+    $dashboard_label = 'Ringkasan';
+} elseif ($current_role === 4) {
+    $dashboard_route = 'dosen';
+    $dashboard_label = 'Dashboard';
+}
 ?>
                     <style>
                         /* Memperbaiki teks menu yang terpotong di sidebar */
@@ -21,24 +43,16 @@ if ($current_role === 2 && $current_bureau === '') {
                         <div class="pcoded-inner-navbar main-menu">
                             <ul class="pcoded-item pcoded-left-item">
 
-                                <!-- Beranda: tampil untuk semua role -->
-                                <li class="<?= ($seg1 == '' || $seg1 == 'beranda') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
+                                <li class="<?= ($this->uri->uri_string() === $dashboard_route) ? 'active' : '' ?>">
+                                    <a href="<?= base_url($dashboard_route) ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-home icon-blue"></i></span>
-                                        <span class="pcoded-mtext">Beranda</span>
+                                        <span class="pcoded-mtext"><?= html_escape($dashboard_label) ?></span>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
 
                                 <?php if ($current_role === 1): ?>
                                 <!-- Menu utama Super Admin: satu item untuk setiap biro -->
-                                <li class="<?= ($seg1 == 'beranda') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-shield"></i></span>
-                                        <span class="pcoded-mtext">Pusat Kendali</span>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                </li>
                                 <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan') ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-money"></i></span><span class="pcoded-mtext">Biro Keuangan</span><span class="pcoded-mcaret"></span></a>
                                     <ul class="pcoded-submenu">
@@ -87,16 +101,9 @@ if ($current_role === 2 && $current_bureau === '') {
                                     $ci =& get_instance();
                                     $ci->load->model('admin/M_keuangan_admin', 'M_keuangan');
                                     $pending_verif_count = $ci->M_keuangan->count_pembayaran_by_status('PENDING');
+                                    $pending_dispensasi_count = $ci->M_keuangan->count_dispensasi_menunggu();
+                                    $pending_validasi_ta_count = $ci->M_keuangan->count_antrian_tagihan_akhir('MENUNGGU');
                                 ?>
-
-                                <!-- Dashboard Admin Keuangan -->
-                                <li class="<?= ($seg1 == 'keuangan' && ($seg2 == 'admin' || $seg2 == 'dashboard' || $seg2 == '')) ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/admin') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-tachometer"></i></span>
-                                        <span class="pcoded-mtext">Dashboard Keuangan</span>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                </li>
 
                                 <!-- Verifikasi Pembayaran (Menu Tersendiri) -->
                                 <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'verifikasi') ? 'active' : '' ?>">
@@ -106,6 +113,24 @@ if ($current_role === 2 && $current_bureau === '') {
                                         <?php if ($pending_verif_count > 0): ?>
                                             <span class="badge badge-warning text-dark ml-2" style="font-size:11px;padding:3px 8px;border-radius:12px;font-weight:700;"><?= $pending_verif_count ?></span>
                                         <?php endif; ?>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'dispensasi') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/dispensasi') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-calendar-plus-o"></i></span>
+                                        <span class="pcoded-mtext">Verifikasi Dispensasi Tagihan</span>
+                                        <?php if ($pending_dispensasi_count > 0): ?><span class="badge badge-warning ml-2"><?= (int)$pending_dispensasi_count ?></span><?php endif; ?>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+
+                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'validasi_tagihan_akhir') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('keuangan/validasi_tagihan_akhir') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
+                                        <span class="pcoded-mtext">Validasi Tagihan Semester Akhir</span>
+                                        <?php if ($pending_validasi_ta_count > 0): ?><span class="badge badge-warning ml-2"><?= (int)$pending_validasi_ta_count ?></span><?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
@@ -154,35 +179,34 @@ if ($current_role === 2 && $current_bureau === '') {
                                 </li>
 
                                                                 <?php elseif ($current_bureau === 'akademik'): ?>
-                                                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Dashboard Akademik</span><span class="pcoded-mcaret"></span></a></li>
                                                                 <li><a href="<?= base_url('admin/pengguna') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Data Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
 
                                                                 <?php elseif ($current_bureau === 'perpustakaan'): ?>
-                                                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'perpustakaan') ? 'active' : '' ?>"><a href="<?= base_url('admin/perpustakaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Dashboard Perpustakaan</span><span class="pcoded-mcaret"></span></a></li>
                                                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
 
                                                                 <?php elseif ($current_bureau === 'sarana_prasarana'): ?>
-                                                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'sarana-prasarana') ? 'active' : '' ?>"><a href="<?= base_url('admin/sarana-prasarana') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-building"></i></span><span class="pcoded-mtext">Dashboard Sarana Prasarana</span><span class="pcoded-mcaret"></span></a></li>
                                                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
 
                                                                 <?php elseif ($current_bureau === 'penjaminan_mutu'): ?>
-                                                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu') ? 'active' : '' ?>"><a href="<?= base_url('admin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Dashboard Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <?php elseif ($current_bureau === 'kemahasiswaan'): ?>
                                                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
                                                                 <?php endif; ?>
+
+                                                                    <?php elseif ($current_role === 4): ?>
+                                                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'isi-nilai') ? 'active' : '' ?>"><a href="<?= base_url('dosen/isi-nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-pencil-square-o"></i></span><span class="pcoded-mtext">Isi Nilai</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'revisi-nilai') ? 'active' : '' ?>"><a href="<?= base_url('dosen/revisi-nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-refresh"></i></span><span class="pcoded-mtext">Revisi Nilai</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'mahasiswa-bimbingan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/mahasiswa-bimbingan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Mahasiswa Bimbingan</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'akademik') ? 'active' : '' ?>"><a href="<?= base_url('dosen/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Akademik</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'perkuliahan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/perkuliahan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Perkuliahan</span><span class="pcoded-mcaret"></span></a></li>
+                                                                <li class="<?= (($seg1 === 'dosen' && $seg2 === 'profil') || $seg1 === 'profil') ? 'active' : '' ?>"><a href="<?= base_url('dosen/profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Profile</span><span class="pcoded-mcaret"></span></a></li>
 
                                   <?php elseif ($current_role === 3): ?>
                                 <!-- =============================================
                                       MENU KHUSUS MAHASISWA (role 3)
                                 ============================================= -->
 
-                                <li class="<?= ($seg1 == 'ringkasan') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('ringkasan') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-line-chart"></i></span>
-                                        <span class="pcoded-mtext">Ringkasan</span>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                </li>
                                 <li class="<?= ($seg1 == 'kuisioner') ? 'active' : '' ?>">
                                     <a href="<?= base_url('kuisioner') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon">

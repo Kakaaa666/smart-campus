@@ -310,9 +310,17 @@
                                         <span class="badge badge-success px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
                                             <i class="fa fa-unlock mr-1"></i> Akses Biaya Semester Akhir: DIBUKA OLEH ADMIN KEUANGAN
                                         </span>
+                                    <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'MENUNGGU'): ?>
+                                        <span class="badge badge-warning px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700;">
+                                            <i class="fa fa-clock-o mr-1"></i> Kelayakan Semester Akhir sedang divalidasi Biro Keuangan
+                                        </span>
+                                    <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'DITOLAK'): ?>
+                                        <span class="badge badge-danger px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700;">
+                                            <i class="fa fa-times-circle mr-1"></i> Validasi semester akhir belum disetujui Biro Keuangan
+                                        </span>
                                     <?php else: ?>
                                         <span class="badge badge-secondary px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; background: rgba(255,255,255,0.25); color: #fff;">
-                                            <i class="fa fa-lock mr-1"></i> Akses Biaya Semester Akhir: DITUTUP (TIDAK DITAGIHKAN)
+                                            <i class="fa fa-lock mr-1"></i> Akses tagihan semester akhir menunggu persetujuan keuangan
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -605,6 +613,11 @@
                                         <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 13px;">
                                             <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas / Sedang Diproses
                                         </span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($bisa_ajukan_dispensasi) && !empty($tagihan_pilihan)): ?>
+                                        <button type="button" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#modalDispensasi">
+                                            <i class="fa fa-calendar-plus-o mr-1"></i>Ajukan Perpanjangan
+                                        </button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -1087,6 +1100,77 @@
 <!-- =======================================================
      MODAL KONFIRMASI PEMBAYARAN & UPLOAD BUKTI (BARU)
      ======================================================= -->
+<?php if (!empty($bisa_ajukan_dispensasi)): ?>
+    <div class="card custom-card-white mt-3 mb-4">
+        <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
+            <div>
+                <h5 class="mb-1"><i class="fa fa-calendar-plus-o mr-2 text-primary"></i>Dispensasi Perpanjangan Tagihan</h5>
+                <small class="text-muted">Permohonan akan ditinjau oleh Admin Keuangan. Jatuh tempo berubah hanya setelah disetujui.</small>
+            </div>
+        </div>
+        <div class="card-block table-responsive">
+            <?php if ($this->session->flashdata('success')): ?>
+                <div class="alert alert-success"><?= html_escape($this->session->flashdata('success')) ?></div>
+            <?php endif; ?>
+            <?php if ($this->session->flashdata('error')): ?>
+                <div class="alert alert-danger"><?= html_escape($this->session->flashdata('error')) ?></div>
+            <?php endif; ?>
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Tagihan</th><th>Jatuh Tempo Diminta</th><th>Status</th><th>Catatan Admin</th></tr></thead>
+                <tbody>
+                <?php if (empty($dispensasi_requests)): ?>
+                    <tr><td colspan="4" class="text-center text-muted">Belum ada permohonan dispensasi.</td></tr>
+                <?php else: foreach ($dispensasi_requests as $request): ?>
+                    <tr>
+                        <td><?= html_escape($request->jenis_tagihan) ?></td>
+                        <td><?= html_escape($request->tanggal_jatuh_tempo_diminta) ?></td>
+                        <td><span class="badge <?= $request->status === 'DISETUJUI' ? 'badge-success' : ($request->status === 'DITOLAK' ? 'badge-danger' : 'badge-warning') ?>"><?= html_escape($request->status) ?></span></td>
+                        <td><?= html_escape($request->catatan_admin ?: '-') ?></td>
+                    </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDispensasi" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajukan Perpanjangan Tagihan</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <?= form_open('keuangan/ajukan_dispensasi') ?>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="dispensasiTagihan">Tagihan</label>
+                            <select id="dispensasiTagihan" name="tagihan_id" class="form-control" required>
+                                <?php foreach ($tagihan_pilihan as $tagihan): ?>
+                                    <option value="<?= (int)$tagihan->id ?>">
+                                        <?= html_escape($tagihan->jenis_tagihan) ?> · Rp <?= number_format((float)$tagihan->nominal, 0, ',', '.') ?> · jatuh tempo <?= html_escape($tagihan->jatuh_tempo) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tanggalPerpanjangan">Tanggal jatuh tempo yang diminta</label>
+                            <input id="tanggalPerpanjangan" type="date" name="tanggal_jatuh_tempo_diminta" class="form-control" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="alasanDispensasi">Alasan permohonan</label>
+                            <textarea id="alasanDispensasi" name="alasan" class="form-control" rows="4" minlength="10" maxlength="2000" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" <?= empty($tagihan_pilihan) ? 'disabled' : '' ?>>Kirim Permohonan</button>
+                    </div>
+                <?= form_close() ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="modal fade" id="modalKonfirmasiBayar" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">

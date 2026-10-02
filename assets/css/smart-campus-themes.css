@@ -33,6 +33,17 @@ body.theme-superadmin {
     background: #f5f5f2 !important;
 }
 
+body.theme-dosen {
+    --sc-ink: #3c2632;
+    --sc-muted: #78616b;
+    --sc-accent: #c46b42;
+    --sc-accent-strong: #914321;
+    --sc-surface: #fffdfb;
+    --sc-canvas: #f6eee9;
+    --sc-line: #e8d8ce;
+    background: linear-gradient(145deg, #fbf3ed 0%, #f0e3dc 52%, #fffbf7 100%) !important;
+}
+
 body,
 body a,
 body button,
@@ -282,6 +293,40 @@ body.theme-superadmin .user-role {
 
 body.theme-superadmin .brand-icon {
     color: #ffffff !important;
+}
+
+body.theme-dosen .pcoded-header {
+    background: #3c2632 !important;
+    border-bottom-color: #c46b42 !important;
+}
+
+body.theme-dosen .header-brand-link,
+body.theme-dosen .header-navbar .nav-left > li > a,
+body.theme-dosen .header-navbar .nav-right > li > a,
+body.theme-dosen .user-name {
+    color: #fffaf6 !important;
+}
+
+body.theme-dosen .user-role {
+    color: #f0c39f !important;
+}
+
+body.theme-dosen .brand-icon {
+    color: #f1ad79 !important;
+}
+
+body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li > a:hover,
+body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li:hover > a {
+    color: #3c2632 !important;
+    background: #f5e7dc !important;
+    border-color: #e8cbb7 !important;
+}
+
+body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li.active > a,
+body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a {
+    color: #ffffff !important;
+    background: #914321 !important;
+    border-color: #914321 !important;
 }
 
 body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li > a:hover,

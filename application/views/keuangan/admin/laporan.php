@@ -127,6 +127,15 @@
                                    style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
                                     <i class="fa fa-file-word-o mr-1"></i>Ekspor Word (.doc)
                                 </a>
+                                <?php if ((int)$this->session->userdata('role') === 2): ?>
+                                    <?= form_open('keuangan/kirim_progres_penagihan', ['class' => 'd-inline-flex']) ?>
+                                        <input type="hidden" name="tahun_akademik" value="<?= html_escape($tahun_akademik) ?>">
+                                        <input type="hidden" name="semester" value="<?= html_escape($semester) ?>">
+                                        <button type="submit" class="btn btn-sm" style="background:#17613c;color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 16px;">
+                                            <i class="fa fa-send mr-1"></i>Kirim Progres ke Pimpinan
+                                        </button>
+                                    <?= form_close() ?>
+                                <?php endif; ?>
                                 <button onclick="window.print()" class="btn btn-sm"
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;">
                                     <i class="fa fa-print mr-1"></i>Cetak Rinci

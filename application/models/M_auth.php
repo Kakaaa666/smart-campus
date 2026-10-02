@@ -123,7 +123,7 @@ class M_auth extends CI_Model {
         $data['deleted_at'] = null;
         $data['biro'] = ((int)($data['role'] ?? 3) === 2)
             ? self::normalize_biro($data['biro'] ?? 'keuangan')
-            : (((int)($data['role'] ?? 3) === 1) ? 'semua' : 'mahasiswa');
+            : (((int)($data['role'] ?? 3) === 1) ? 'semua' : (((int)($data['role'] ?? 3) === 4) ? 'dosen' : 'mahasiswa'));
         return $this->db->insert($this->table, $data);
     }
 
@@ -162,7 +162,9 @@ class M_auth extends CI_Model {
             case 2:
                 return 'Admin';
             case 3:
-                return 'User';
+                return 'Mahasiswa';
+            case 4:
+                return 'Dosen';
             default:
                 return 'User';
         }

@@ -273,7 +273,7 @@
 
 <?php
     $theme_role = (int)$this->session->userdata('role');
-    $theme_class = $theme_role === 1 ? 'theme-superadmin' : ($theme_role === 2 ? 'theme-admin' : 'theme-mahasiswa');
+    $theme_class = $theme_role === 1 ? 'theme-superadmin' : ($theme_role === 2 ? 'theme-admin' : ($theme_role === 4 ? 'theme-dosen' : 'theme-mahasiswa'));
 ?>
 <body class="<?= $theme_class ?>">
     <!-- Pre-loader start -->

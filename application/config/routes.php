@@ -57,6 +57,8 @@ $route['login'] = 'auth';
 $route['logout'] = 'auth/logout';
 $route['pengaturan/profil'] = 'profil';
 $route['pengaturan/ubah-password'] = 'profil';
+$route['dosen'] = 'dosen';
+$route['dosen/(:any)'] = 'dosen/$1';
 
 // Alias URL lama ke controller yang sudah dipisah berdasarkan role.
 $route['keuangan'] = 'shared/keuangan_core';

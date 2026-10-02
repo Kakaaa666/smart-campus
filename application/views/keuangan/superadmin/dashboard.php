@@ -159,6 +159,35 @@
                         </div>
                     </div>
 
+                    <div class="admin-card mb-3">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h5 class="mb-0"><i class="fa fa-inbox mr-2 text-primary"></i>Progres Penagihan dari Biro Keuangan</h5>
+                            <span class="text-muted small">Snapshot terbaru yang dikirim Admin Keuangan</span>
+                        </div>
+                        <div class="card-block table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead><tr><th>Dikirim</th><th>Periode</th><th>Jumlah Tagihan</th><th>Lunas</th><th>Menunggu</th><th>Tunggakan</th><th>Nominal Tertagih</th><th>Nominal Lunas</th><th>Sisa Tunggakan</th></tr></thead>
+                                <tbody>
+                                <?php if (empty($laporan_progres_pimpinan)): ?>
+                                    <tr><td colspan="9" class="text-center text-muted py-4">Belum ada laporan progres yang dikirim Biro Keuangan.</td></tr>
+                                <?php else: foreach ($laporan_progres_pimpinan as $laporan): ?>
+                                    <tr>
+                                        <td><?= html_escape($laporan->dikirim_at) ?><br><small><?= html_escape($laporan->nama_pengirim ?: 'Admin Keuangan') ?></small></td>
+                                        <td><?= html_escape($laporan->semester) ?> <?= html_escape($laporan->tahun_akademik) ?></td>
+                                        <td><?= number_format((int)$laporan->jumlah_tagihan) ?></td>
+                                        <td><?= number_format((int)$laporan->jumlah_lunas) ?></td>
+                                        <td><?= number_format((int)$laporan->jumlah_pending) ?></td>
+                                        <td><?= number_format((int)$laporan->jumlah_tunggakan) ?></td>
+                                        <td>Rp <?= number_format((float)$laporan->nominal_total, 0, ',', '.') ?></td>
+                                        <td class="text-success font-weight-bold">Rp <?= number_format((float)$laporan->nominal_lunas, 0, ',', '.') ?></td>
+                                        <td class="text-danger font-weight-bold">Rp <?= number_format((float)$laporan->nominal_tunggakan, 0, ',', '.') ?></td>
+                                    </tr>
+                                <?php endforeach; endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- 4 Kartu KPI Keuangan Utama -->
                     <div class="row mb-3">
                         <div class="col-xl-3 col-md-6 mb-3">
