@@ -11,17 +11,21 @@
                     <div class="navbar-container container-fluid">
                         <ul class="nav-left">
                             <li>
-                                <div class="sidebar_toggle"><a href="javascript:void(0)" id="mobile-collapse"><i class="ti-menu"></i></a></div>
+                                <div class="sidebar_toggle">
+                                    <a href="javascript:void(0)" id="mobile-collapse" class="header-icon-btn waves-effect waves-light" title="Buka/Tutup Menu">
+                                        <i class="ti-menu"></i>
+                                    </a>
+                                </div>
                             </li>
                             <li>
-                                <a href="#!" onclick="javascript:toggleFullScreen()" class="waves-effect waves-light">
+                                <a href="#!" onclick="javascript:toggleFullScreen()" class="header-icon-btn waves-effect waves-light" title="Mode Layar Penuh">
                                     <i class="ti-fullscreen"></i>
                                 </a>
                             </li>
                         </ul>
                         <ul class="nav-right">
                             <li class="header-notification nav-item-bell">
-                                <a href="#!" class="bell-btn waves-effect waves-light">
+                                <a href="#!" class="bell-btn waves-effect waves-light" title="Notifikasi">
                                     <i class="ti-bell"></i>
                                     <span class="badge bg-c-red"></span>
                                 </a>
@@ -43,10 +47,29 @@
                                 </ul>
                             </li>
                             <?php
-                                $userName = $this->session->userdata('nama_lengkap') ? $this->session->userdata('nama_lengkap') : 'Muhammad Eka';
-                                $userNim  = $this->session->userdata('nim') ? $this->session->userdata('nim') : '210101001';
-                                $userRole = $this->session->userdata('role_name') ? $this->session->userdata('role_name') : 'Mahasiswa';
+                                $current_role_id = (int)$this->session->userdata('role');
+                                $userName = $this->session->userdata('nama_lengkap') ? $this->session->userdata('nama_lengkap') : ($current_role_id === 3 ? 'Muhammad Eka' : 'Admin Smart Campus');
+                                $userNim  = $this->session->userdata('nim');
+                                $userRole = $this->session->userdata('role_name');
+                                $userBiro = $this->session->userdata('biro');
                                 $userFoto = $this->session->userdata('foto') ? $this->session->userdata('foto') : 'avatar-4.png';
+
+                                if ($current_role_id === 3) {
+                                    $subTitle = $userNim ? 'NIM: ' . $userNim : 'Mahasiswa Aktif';
+                                    $roleBadgeName = 'Mahasiswa';
+                                } elseif ($current_role_id === 2) {
+                                    $subTitle = $userRole ? $userRole : ($userBiro ? 'Admin ' . ucfirst($userBiro) : 'Admin Biro');
+                                    $roleBadgeName = $subTitle;
+                                } elseif ($current_role_id === 1) {
+                                    $subTitle = 'Super Administrator';
+                                    $roleBadgeName = 'Super Admin';
+                                } elseif ($current_role_id === 4) {
+                                    $subTitle = 'Dosen Pengampu';
+                                    $roleBadgeName = 'Dosen';
+                                } else {
+                                    $subTitle = $userRole ? $userRole : 'Pengguna';
+                                    $roleBadgeName = $subTitle;
+                                }
                             ?>
                             <li class="user-profile header-notification">
                                 <a href="#!" class="user-profile-badge waves-effect waves-light">
@@ -55,15 +78,15 @@
                                         <span class="user-status-dot"></span>
                                     </div>
                                     <div class="user-info-wrapper">
-                                        <span class="user-name"><?= htmlspecialchars($userName) ?></span>
-                                        <span class="user-role"><?= htmlspecialchars($userNim) ?></span>
+                                        <span class="user-name" title="<?= htmlspecialchars($userName) ?>"><?= htmlspecialchars($userName) ?></span>
+                                        <span class="user-role" title="<?= htmlspecialchars($subTitle) ?>"><?= htmlspecialchars($subTitle) ?></span>
                                     </div>
                                     <i class="ti-angle-down profile-arrow"></i>
                                 </a>
                                 <ul class="show-notification profile-notification">
                                     <li class="waves-effect waves-light">
                                         <a href="<?= base_url('profil') ?>">
-                                            <i class="ti-user"></i> Profil (<?= htmlspecialchars($userRole) ?>)
+                                            <i class="ti-user"></i> Profil (<?= htmlspecialchars($roleBadgeName) ?>)
                                         </a>
                                     </li>
                                     <li class="waves-effect waves-light">

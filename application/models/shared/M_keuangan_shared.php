@@ -79,6 +79,57 @@ class M_keuangan_shared extends CI_Model {
             $this->db->query("UPDATE `{$this->table_pembayaran}` SET `nomor_rekening` = `nomor_referensi` WHERE (`nomor_rekening` IS NULL OR `nomor_rekening` = '') AND `nomor_referensi` IS NOT NULL AND `nomor_referensi` <> ''");
         }
 
+        $this->db->query("CREATE TABLE IF NOT EXISTS `dispensasi_tagihan` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `akun_id` INT(11) NOT NULL,
+            `tagihan_id` INT(11) NOT NULL,
+            `alasan` TEXT NOT NULL,
+            `tanggal_jatuh_tempo_diminta` DATE NOT NULL,
+            `status` ENUM('MENUNGGU','DISETUJUI','DITOLAK') NOT NULL DEFAULT 'MENUNGGU',
+            `diajukan_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `diproses_oleh` INT(11) NULL,
+            `diproses_at` DATETIME NULL,
+            `catatan_admin` TEXT NULL,
+            PRIMARY KEY (`id`),
+            KEY `idx_dispensasi_status` (`status`),
+            KEY `idx_dispensasi_akun` (`akun_id`),
+            KEY `idx_dispensasi_tagihan` (`tagihan_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $this->db->query("CREATE TABLE IF NOT EXISTS `validasi_tagihan_akhir` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `akun_id` INT(11) NOT NULL,
+            `tahun_akademik` VARCHAR(20) NOT NULL,
+            `semester` ENUM('Ganjil','Genap') NOT NULL,
+            `status` ENUM('MENUNGGU','DISETUJUI','DITOLAK') NOT NULL DEFAULT 'MENUNGGU',
+            `catatan` TEXT NULL,
+            `diajukan_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `diputuskan_oleh` INT(11) NULL,
+            `diputuskan_at` DATETIME NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uq_validasi_tagihan_akhir_periode` (`akun_id`,`tahun_akademik`,`semester`),
+            KEY `idx_validasi_tagihan_akhir_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $this->db->query("CREATE TABLE IF NOT EXISTS `laporan_progres_penagihan` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `tahun_akademik` VARCHAR(20) NOT NULL,
+            `semester` ENUM('Ganjil','Genap') NOT NULL,
+            `jumlah_tagihan` INT(11) NOT NULL DEFAULT 0,
+            `jumlah_lunas` INT(11) NOT NULL DEFAULT 0,
+            `jumlah_pending` INT(11) NOT NULL DEFAULT 0,
+            `jumlah_tunggakan` INT(11) NOT NULL DEFAULT 0,
+            `nominal_total` DECIMAL(15,2) NOT NULL DEFAULT 0,
+            `nominal_lunas` DECIMAL(15,2) NOT NULL DEFAULT 0,
+            `nominal_pending` DECIMAL(15,2) NOT NULL DEFAULT 0,
+            `nominal_tunggakan` DECIMAL(15,2) NOT NULL DEFAULT 0,
+            `dikirim_oleh` INT(11) NOT NULL,
+            `dikirim_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_laporan_progres_periode` (`tahun_akademik`,`semester`),
+            KEY `idx_laporan_progres_dikirim` (`dikirim_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
         $upload_dir = FCPATH . 'uploads/bukti_pembayaran/';
         if (!is_dir($upload_dir)) @mkdir($upload_dir, 0755, true);
     }
@@ -132,11 +183,250 @@ class M_keuangan_shared extends CI_Model {
         return true;
     }
 
-    private function mahasiswa_semester_akhir($akun)
+    public function is_mahasiswa_semester_akhir($akun)
     {
         $prodi = strtoupper((string)$akun->prodi);
         $batas = strpos($prodi, 'D3') !== false ? 5 : 7;
         return (int)$akun->semester >= $batas;
+    }
+
+    private function periode_akademik_aktif()
+    {
+        $bulan = (int)date('n');
+        $tahun = (int)date('Y');
+        $semester = ($bulan >= 7 && $bulan <= 12) ? 'Ganjil' : 'Genap';
+        $tahun_akademik = $semester === 'Ganjil'
+            ? $tahun . '/' . ($tahun + 1)
+            : ($tahun - 1) . '/' . $tahun;
+
+        return [$tahun_akademik, $semester];
+    }
+
+    public function sinkronkan_antrian_tagihan_akhir()
+    {
+        list($tahun_akademik, $semester) = $this->periode_akademik_aktif();
+        $mahasiswa = $this->db->select('id, semester, prodi')
+                              ->where('role', 3)
+                              ->where('deleted_at IS NULL', null, false)
+                              ->get($this->table_akun)
+                              ->result();
+
+        foreach ($mahasiswa as $akun) {
+            if (!$this->is_mahasiswa_semester_akhir($akun)) {
+                continue;
+            }
+
+            $this->db->query(
+                "INSERT IGNORE INTO `validasi_tagihan_akhir` (`akun_id`,`tahun_akademik`,`semester`,`status`) VALUES (?,?,?,'MENUNGGU')",
+                [(int)$akun->id, $tahun_akademik, $semester]
+            );
+        }
+
+        return true;
+    }
+
+    public function get_antrian_tagihan_akhir($status = 'MENUNGGU')
+    {
+        $this->db->select('validasi_tagihan_akhir.*, akun.nim, akun.nama_lengkap, akun.email, akun.fakultas, akun.prodi, akun.semester as semester_mahasiswa')
+                 ->from('validasi_tagihan_akhir')
+                 ->join('akun', 'akun.id = validasi_tagihan_akhir.akun_id', 'inner')
+                 ->where('akun.deleted_at IS NULL', null, false);
+        if ($status !== null) {
+            $this->db->where('validasi_tagihan_akhir.status', $status);
+        }
+        return $this->db->order_by('validasi_tagihan_akhir.diajukan_at', 'ASC')
+                        ->get()
+                        ->result();
+    }
+
+    public function count_antrian_tagihan_akhir($status = 'MENUNGGU')
+    {
+        return $this->db->where('status', $status)->count_all_results('validasi_tagihan_akhir');
+    }
+
+    public function get_status_antrian_tagihan_akhir($akun_id)
+    {
+        list($tahun_akademik, $semester) = $this->periode_akademik_aktif();
+        return $this->db->where('akun_id', (int)$akun_id)
+                        ->where('tahun_akademik', $tahun_akademik)
+                        ->where('semester', $semester)
+                        ->get('validasi_tagihan_akhir')
+                        ->row();
+    }
+
+    public function putuskan_antrian_tagihan_akhir($id, $setujui, $admin_id, $catatan = null)
+    {
+        $permohonan = $this->db->where('id', (int)$id)
+                               ->where('status', 'MENUNGGU')
+                               ->get('validasi_tagihan_akhir')
+                               ->row();
+        if (!$permohonan) {
+            return false;
+        }
+
+        $akun = $this->db->select('id, semester, prodi')
+                         ->where('id', (int)$permohonan->akun_id)
+                         ->where('role', 3)
+                         ->where('deleted_at IS NULL', null, false)
+                         ->get($this->table_akun)
+                         ->row();
+        if (!$akun || ($setujui && !$this->is_mahasiswa_semester_akhir($akun))) {
+            return false;
+        }
+
+        $this->db->trans_begin();
+        if ($setujui && !$this->set_status_akses_ta_mahasiswa($akun->id, 1)) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $this->db->where('id', (int)$id)
+                 ->where('status', 'MENUNGGU')
+                 ->update('validasi_tagihan_akhir', [
+                     'status' => $setujui ? 'DISETUJUI' : 'DITOLAK',
+                     'catatan' => $catatan,
+                     'diputuskan_oleh' => (int)$admin_id,
+                     'diputuskan_at' => date('Y-m-d H:i:s'),
+                 ]);
+
+        if (!$this->db->trans_status() || $this->db->affected_rows() !== 1) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $this->db->trans_commit();
+        return true;
+    }
+
+    public function buat_pengajuan_dispensasi($akun_id, $tagihan_id, $alasan, $tanggal_diminta)
+    {
+        $tagihan = $this->db->where('id', (int)$tagihan_id)
+                            ->where('akun_id', (int)$akun_id)
+                            ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
+                            ->get($this->table_tagihan)
+                            ->row();
+        if (!$tagihan || $tanggal_diminta <= $tagihan->jatuh_tempo || $tanggal_diminta <= date('Y-m-d')) {
+            return false;
+        }
+
+        $pending = $this->db->where('akun_id', (int)$akun_id)
+                            ->where('tagihan_id', (int)$tagihan_id)
+                            ->where('status', 'MENUNGGU')
+                            ->count_all_results('dispensasi_tagihan');
+        if ($pending > 0) {
+            return false;
+        }
+
+        return $this->db->insert('dispensasi_tagihan', [
+            'akun_id' => (int)$akun_id,
+            'tagihan_id' => (int)$tagihan_id,
+            'alasan' => trim($alasan),
+            'tanggal_jatuh_tempo_diminta' => $tanggal_diminta,
+            'status' => 'MENUNGGU',
+        ]);
+    }
+
+    public function get_dispensasi_mahasiswa($akun_id)
+    {
+        return $this->db->select('dispensasi_tagihan.*, tagihan.jenis_tagihan, tagihan.nominal, tagihan.jatuh_tempo as jatuh_tempo_sekarang')
+                        ->from('dispensasi_tagihan')
+                        ->join('tagihan', 'tagihan.id = dispensasi_tagihan.tagihan_id', 'inner')
+                        ->where('dispensasi_tagihan.akun_id', (int)$akun_id)
+                        ->order_by('dispensasi_tagihan.diajukan_at', 'DESC')
+                        ->get()
+                        ->result();
+    }
+
+    public function get_daftar_dispensasi($status = null)
+    {
+        $this->db->select('dispensasi_tagihan.*, akun.nim, akun.nama_lengkap, akun.fakultas, akun.prodi, tagihan.jenis_tagihan, tagihan.nominal, tagihan.jatuh_tempo as jatuh_tempo_sekarang');
+        $this->db->from('dispensasi_tagihan');
+        $this->db->join('akun', 'akun.id = dispensasi_tagihan.akun_id', 'inner');
+        $this->db->join('tagihan', 'tagihan.id = dispensasi_tagihan.tagihan_id', 'inner');
+        if ($status !== null) {
+            $this->db->where('dispensasi_tagihan.status', $status);
+        }
+        return $this->db->order_by('dispensasi_tagihan.diajukan_at', 'DESC')->get()->result();
+    }
+
+    public function count_dispensasi_menunggu()
+    {
+        return $this->db->where('status', 'MENUNGGU')->count_all_results('dispensasi_tagihan');
+    }
+
+    public function putuskan_dispensasi($id, $setujui, $admin_id, $catatan = null)
+    {
+        $permohonan = $this->db->where('id', (int)$id)
+                               ->where('status', 'MENUNGGU')
+                               ->get('dispensasi_tagihan')
+                               ->row();
+        if (!$permohonan) {
+            return false;
+        }
+
+        $this->db->trans_begin();
+        if ($setujui) {
+            $this->db->where('id', (int)$permohonan->tagihan_id)
+                     ->where('akun_id', (int)$permohonan->akun_id)
+                     ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
+                     ->update($this->table_tagihan, [
+                         'jatuh_tempo' => $permohonan->tanggal_jatuh_tempo_diminta,
+                         'updated_at' => date('Y-m-d H:i:s'),
+                     ]);
+            if ($this->db->affected_rows() !== 1) {
+                $this->db->trans_rollback();
+                return false;
+            }
+        }
+
+        $this->db->where('id', (int)$id)
+                 ->where('status', 'MENUNGGU')
+                 ->update('dispensasi_tagihan', [
+                     'status' => $setujui ? 'DISETUJUI' : 'DITOLAK',
+                     'diproses_oleh' => (int)$admin_id,
+                     'diproses_at' => date('Y-m-d H:i:s'),
+                     'catatan_admin' => $catatan,
+                 ]);
+
+        if (!$this->db->trans_status() || $this->db->affected_rows() !== 1) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $this->db->trans_commit();
+        return true;
+    }
+
+    public function kirim_progres_penagihan($tahun_akademik, $semester, $admin_id)
+    {
+        $rekap = $this->db->select("COUNT(*) AS jumlah_tagihan,
+            COALESCE(SUM(status = 'LUNAS'), 0) AS jumlah_lunas,
+            COALESCE(SUM(status = 'PENDING'), 0) AS jumlah_pending,
+            COALESCE(SUM(status IN ('BELUM_BAYAR','DITOLAK')), 0) AS jumlah_tunggakan,
+            COALESCE(SUM(nominal), 0) AS nominal_total,
+            COALESCE(SUM(CASE WHEN status = 'LUNAS' THEN nominal ELSE 0 END), 0) AS nominal_lunas,
+            COALESCE(SUM(CASE WHEN status = 'PENDING' THEN nominal ELSE 0 END), 0) AS nominal_pending,
+            COALESCE(SUM(CASE WHEN status IN ('BELUM_BAYAR','DITOLAK') THEN nominal ELSE 0 END), 0) AS nominal_tunggakan", false)
+            ->where('tahun_akademik', $tahun_akademik)
+            ->where('semester', $semester)
+            ->get($this->table_tagihan)
+            ->row_array();
+
+        $rekap['tahun_akademik'] = $tahun_akademik;
+        $rekap['semester'] = $semester;
+        $rekap['dikirim_oleh'] = (int)$admin_id;
+        return $this->db->insert('laporan_progres_penagihan', $rekap);
+    }
+
+    public function get_laporan_progres_pimpinan($limit = 20)
+    {
+        return $this->db->select('laporan_progres_penagihan.*, akun.nama_lengkap as nama_pengirim')
+                        ->from('laporan_progres_penagihan')
+                        ->join('akun', 'akun.id = laporan_progres_penagihan.dikirim_oleh', 'left')
+                        ->order_by('laporan_progres_penagihan.dikirim_at', 'DESC')
+                        ->limit((int)$limit)
+                        ->get()
+                        ->result();
     }
 
 /* Legacy seed block removed; the application must start with empty transactions.
@@ -310,7 +600,7 @@ class M_keuangan_shared extends CI_Model {
                          ->get($this->table_akun)
                          ->row();
 
-        if (!$akun || ($status_int === 1 && !$this->mahasiswa_semester_akhir($akun))) {
+        if (!$akun || ($status_int === 1 && !$this->is_mahasiswa_semester_akhir($akun))) {
             return false;
         }
 
@@ -380,6 +670,7 @@ class M_keuangan_shared extends CI_Model {
 
     private function buat_tagihan_tambahan($akun_id, $jenis, $nominal, $is_semester_akhir)
     {
+        list($tahun_akademik, $semester) = $this->periode_akademik_aktif();
         $existing = $this->db->where('akun_id', (int)$akun_id)
                              ->where('jenis_tagihan', $jenis)
                              ->get($this->table_tagihan)
@@ -391,8 +682,8 @@ class M_keuangan_shared extends CI_Model {
         $this->db->insert($this->table_tagihan, [
             'akun_id'           => (int)$akun_id,
             'jenis_tagihan'     => $jenis,
-            'tahun_akademik'    => '2026/2027',
-            'semester'          => 'Ganjil',
+            'tahun_akademik'    => $tahun_akademik,
+            'semester'          => $semester,
             'nominal'           => $nominal,
             'jatuh_tempo'       => date('Y-m-d', strtotime('+30 days')),
             'status'            => 'BELUM_BAYAR',

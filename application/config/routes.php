@@ -57,6 +57,8 @@ $route['login'] = 'auth';
 $route['logout'] = 'auth/logout';
 $route['pengaturan/profil'] = 'profil';
 $route['pengaturan/ubah-password'] = 'profil';
+$route['dosen'] = 'dosen';
+$route['dosen/(:any)'] = 'dosen/$1';
 
 // Alias URL lama ke controller yang sudah dipisah berdasarkan role.
 $route['keuangan'] = 'shared/keuangan_core';
@@ -102,5 +104,9 @@ $route['mahasiswa/perpustakaan/(:any)'] = 'mahasiswa/perpustakaan/$1';
 $route['verifikasi'] = 'mahasiswa/verifikasi';
 $route['mahasiswa/verifikasi'] = 'mahasiswa/verifikasi';
 $route['mahasiswa/pengajuan'] = 'mahasiswa/pengajuan';
+$route['perwalian'] = 'mahasiswa/perwalian';
+$route['perwalian/(:any)'] = 'mahasiswa/perwalian/$1';
+$route['krs'] = 'mahasiswa/perwalian/ambil_matakuliah';
+$route['frs'] = 'mahasiswa/perwalian/frs';
 $route['kemahasiswaan'] = 'superadmin/kemahasiswaan';
 $route['perpustakaan'] = 'superadmin/perpustakaan';

@@ -270,6 +270,29 @@
                         </div>
                     </div>
 
+                    <!-- Tab Menu Integrasi Kontrol & Validasi -->
+                    <div class="ta-card mb-3">
+                        <ul class="nav nav-tabs nav-tabs-ta" id="kontrolTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link <?= ($active_tab !== 'validasi') ? 'active' : '' ?>" id="tab-kontrol-link" data-toggle="tab" href="#tab-kontrol-pane" role="tab">
+                                    <i class="fa fa-sliders mr-2"></i>Kontrol Izin Akses Mahasiswa
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= ($active_tab === 'validasi') ? 'active' : '' ?>" id="tab-validasi-link" data-toggle="tab" href="#tab-validasi-pane" role="tab">
+                                    <i class="fa fa-clipboard-check mr-2"></i>Antrean Validasi Tagihan Akhir
+                                    <?php if (!empty($antrian_tagihan_akhir)): ?>
+                                        <span class="badge badge-warning text-dark ml-2" style="font-size: 11px; border-radius: 10px; font-weight: 700;"><?= count($antrian_tagihan_akhir) ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" id="kontrolTabContent">
+                        <!-- TAB PANE 1: KONTROL AKSES MAHASISWA -->
+                        <div class="tab-pane fade <?= ($active_tab !== 'validasi') ? 'show active' : '' ?>" id="tab-kontrol-pane" role="tabpanel">
+
                     <!-- Filter & Live Search Bar -->
                     <div class="ta-card">
                         <div style="padding: 16px 24px;">
@@ -402,6 +425,137 @@
                             </table>
                         </div>
                     </div>
+                    </div><!-- /tab-kontrol-pane -->
+
+                    <!-- TAB PANE 2: ANTREAN VALIDASI TAGIHAN AKHIR -->
+                    <div class="tab-pane fade <?= ($active_tab === 'validasi') ? 'show active' : '' ?>" id="tab-validasi-pane" role="tabpanel">
+                        <!-- Card Antrean Menunggu -->
+                        <div class="ta-card">
+                            <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <div>
+                                        <h5 class="mb-1 font-weight-bold" style="color: #0f172a; font-size: 16px;">
+                                            <i class="fa fa-hourglass-half mr-2" style="color: #d97706;"></i>Antrean Validasi Mahasiswa Semester Akhir
+                                        </h5>
+                                        <p class="text-muted mb-0" style="font-size: 13px;">
+                                            Mahasiswa yang mencapai semester akhir masuk ke antrean ini. Tagihan semester akhir dibuat setelah disetujui Admin Keuangan.
+                                        </p>
+                                    </div>
+                                    <span class="badge badge-warning text-dark px-3 py-2 mt-2 mt-sm-0" style="border-radius: 20px; font-weight: 700; font-size: 12px;">
+                                        <?= count($antrian_tagihan_akhir ?? []) ?> Menunggu Validasi
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-ta mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;" class="text-center">No</th>
+                                            <th>Mahasiswa</th>
+                                            <th>Program Studi</th>
+                                            <th class="text-center">Semester</th>
+                                            <th>Periode Tagihan</th>
+                                            <th>Masuk Antrean</th>
+                                            <th style="width: 220px;" class="text-center">Validasi &amp; Keputusan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($antrian_tagihan_akhir)): ?>
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5 text-muted">
+                                                    <i class="fa fa-check-circle text-success" style="font-size: 36px; display: block; margin-bottom: 10px;"></i>
+                                                    <strong style="font-size: 15px; color: #1e293b;">Tidak Ada Mahasiswa yang Menunggu Validasi</strong>
+                                                    <p class="mb-0 text-muted" style="font-size: 13px;">Semua mahasiswa tingkat akhir yang memenuhi syarat telah tervalidasi.</p>
+                                                </td>
+                                            </tr>
+                                        <?php else: $no_val = 1; foreach ($antrian_tagihan_akhir as $val_item): ?>
+                                            <tr>
+                                                <td class="text-center font-weight-bold text-muted"><?= $no_val++ ?></td>
+                                                <td>
+                                                    <div style="font-weight: 700; font-size: 14px; color: #0f172a;"><?= html_escape($val_item->nama_lengkap) ?></div>
+                                                    <div style="font-size: 12px; color: #64748b; font-family: monospace;">NIM: <?= html_escape($val_item->nim) ?> &bull; <?= html_escape($val_item->email) ?></div>
+                                                </td>
+                                                <td>
+                                                    <div class="badge-fakultas mb-1"><?= html_escape($val_item->fakultas) ?></div>
+                                                    <div><span class="badge-prodi"><?= html_escape($val_item->prodi) ?></span></div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-light px-2 py-1" style="font-weight: 700; border: 1px solid #cbd5e1;">Sem. <?= (int)$val_item->semester_mahasiswa ?></span>
+                                                </td>
+                                                <td>
+                                                    <strong style="color: #1e293b;"><?= html_escape($val_item->semester) ?> <?= html_escape($val_item->tahun_akademik) ?></strong>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted"><?= html_escape($val_item->diajukan_at) ?></small>
+                                                </td>
+                                                <td>
+                                                    <?= form_open('keuangan/proses_validasi_tagihan_akhir', ['class' => 'd-flex flex-column', 'style' => 'gap: 6px;']) ?>
+                                                        <input type="hidden" name="validasi_id" value="<?= (int)$val_item->id ?>">
+                                                        <input type="text" name="catatan" class="form-control form-control-sm" maxlength="500" placeholder="Catatan (opsional)" style="border-radius: 6px; font-size: 12px;">
+                                                        <div class="d-flex" style="gap: 6px;">
+                                                            <button class="btn btn-sm btn-success flex-fill" name="keputusan" value="setujui" type="submit" onclick="return confirm('Setujui dan buat tagihan semester akhir untuk mahasiswa ini?')" style="border-radius: 6px; font-weight: 700; padding: 7px 10px;">
+                                                                <i class="fa fa-check mr-1"></i>Setujui
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger flex-fill" name="keputusan" value="tolak" type="submit" onclick="return confirm('Tolak validasi semester akhir ini?')" style="border-radius: 6px; font-weight: 600; padding: 7px 10px;">
+                                                                <i class="fa fa-times mr-1"></i>Tolak
+                                                            </button>
+                                                        </div>
+                                                    <?= form_close() ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Card Riwayat Validasi -->
+                        <div class="ta-card mt-4">
+                            <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
+                                <h5 class="mb-0 font-weight-bold" style="color: #0f172a; font-size: 16px;">
+                                    <i class="fa fa-history mr-2 text-primary"></i>Riwayat Validasi Tagihan Akhir
+                                </h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-ta mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;" class="text-center">No</th>
+                                            <th>Mahasiswa</th>
+                                            <th>Program Studi</th>
+                                            <th>Periode</th>
+                                            <th>Status</th>
+                                            <th>Catatan Admin</th>
+                                            <th>Waktu Diputuskan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $has_history_val = false; $no_rw = 1; if (!empty($riwayat_tagihan_akhir)): foreach ($riwayat_tagihan_akhir as $rw): if ($rw->status === 'MENUNGGU') continue; $has_history_val = true; ?>
+                                            <tr>
+                                                <td class="text-center font-weight-bold text-muted"><?= $no_rw++ ?></td>
+                                                <td>
+                                                    <strong style="color: #0f172a;"><?= html_escape($rw->nama_lengkap) ?></strong>
+                                                    <div class="text-muted" style="font-size: 12px; font-family: monospace;">NIM: <?= html_escape($rw->nim) ?></div>
+                                                </td>
+                                                <td><?= html_escape($rw->prodi) ?> <small class="text-muted">(Sem. <?= (int)$rw->semester_mahasiswa ?>)</small></td>
+                                                <td><?= html_escape($rw->semester) ?> <?= html_escape($rw->tahun_akademik) ?></td>
+                                                <td>
+                                                    <span class="badge <?= $rw->status === 'DISETUJUI' ? 'badge-success' : 'badge-danger' ?>" style="font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700;">
+                                                        <?= html_escape($rw->status) ?>
+                                                    </span>
+                                                </td>
+                                                <td><span style="font-size: 12.5px; color: #475569;"><?= html_escape($rw->catatan ?: '-') ?></span></td>
+                                                <td><small class="text-muted"><?= html_escape($rw->diputuskan_at ?: '-') ?></small></td>
+                                            </tr>
+                                        <?php endforeach; endif; if (!$has_history_val): ?>
+                                            <tr><td colspan="7" class="text-center py-4 text-muted">Belum ada riwayat keputusan validasi.</td></tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div><!-- /tab-validasi-pane -->
+                    </div><!-- /tab-content -->
 
                 </div>
 

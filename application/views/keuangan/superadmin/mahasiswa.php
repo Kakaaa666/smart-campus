@@ -566,25 +566,32 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
-                                <div>
-                                    <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
-                                        Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
-                                    </h5>
-                                    <p class="text-muted mb-0" style="font-size: 13px;">
-                                        Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel atau gunakan tombol konfirmasi pembayaran.
-                                    </p>
-                                </div>
-                                <div class="mt-2 mt-md-0">
-                                    <?php if (!empty($tagihan_pilihan)): ?>
-                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
-                                            <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
-                                        </button>
-                                    <?php else: ?>
-                                        <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 13px;">
-                                            <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas / Sedang Diproses
-                                        </span>
-                                    <?php endif; ?>
+                            <div class="billing-header-card p-3 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <h5 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 16px;">
+                                                Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
+                                            </h5>
+                                            <span class="badge badge-primary ml-2 px-2 py-1" style="font-size: 11px; border-radius: 6px; font-weight: 600;">Aktif</span>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5;">
+                                            Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel atau gunakan tombol konfirmasi pembayaran.
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-12">
+                                        <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 10px;">
+                                            <?php if (!empty($tagihan_pilihan)): ?>
+                                                <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 16px;">
+                                                    <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
+                                                </button>
+                                            <?php else: ?>
+                                                <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 12.5px; font-weight: 600;">
+                                                    <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas / Sedang Diproses
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

@@ -40,6 +40,8 @@
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css') ?>">
     <!-- Smart Campus Sidebar Style (dengan cache buster otomatis) -->
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-sidebar.css?v=' . time()) ?>">
+    <!-- Keuangan Modern UI System -->
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/keuangan-modern.css?v=' . time()) ?>">
     <!-- Inline White Sidebar Style (Menjamin langsung putih tanpa terhalang cache browser) -->
     <style id="smart-campus-white-sidebar-style">
         /* Sidebar Container Putih */
@@ -273,7 +275,7 @@
 
 <?php
     $theme_role = (int)$this->session->userdata('role');
-    $theme_class = $theme_role === 1 ? 'theme-superadmin' : ($theme_role === 2 ? 'theme-admin' : 'theme-mahasiswa');
+    $theme_class = $theme_role === 1 ? 'theme-superadmin' : ($theme_role === 2 ? 'theme-admin' : ($theme_role === 4 ? 'theme-dosen' : 'theme-mahasiswa'));
 ?>
 <body class="<?= $theme_class ?>">
     <!-- Pre-loader start -->

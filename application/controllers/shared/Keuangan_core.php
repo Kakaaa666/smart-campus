@@ -123,6 +123,9 @@ class Keuangan_core extends CI_Controller {
         }
 
         $this->M_keuangan->ensure_tagihan_semester_aktif($akun_id);
+        if ($user_role === 3) {
+            $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
+        }
         $data['ambil_semester_pendek'] = $target_mhs ? (bool)$target_mhs->ambil_semester_pendek : false;
 
         // Data Akun Pengguna yang Sedang Login
@@ -146,13 +149,15 @@ class Keuangan_core extends CI_Controller {
             'semester'     => ($target_mhs && !empty($target_mhs->semester)) ? (int)$target_mhs->semester : 5,
         ];
 
-        // Cek apakah mahasiswa berada di semester akhir (>= 5 untuk D3, >= 7 untuk S1)
-        $is_semester_akhir = ($data['mahasiswa_info']['semester'] >= 5);
+        $is_semester_akhir = $target_mhs && $this->M_keuangan->is_mahasiswa_semester_akhir($target_mhs);
         $data['is_semester_akhir'] = $is_semester_akhir;
-
-        if ($is_semester_akhir) {
-            $this->M_keuangan->sinkronkan_tagihan_kelulusan($akun_id);
-        }
+        $data['validasi_tagihan_akhir'] = $user_role === 3 && $is_semester_akhir
+            ? $this->M_keuangan->get_status_antrian_tagihan_akhir($akun_id)
+            : null;
+        $data['dispensasi_requests'] = $user_role === 3
+            ? $this->M_keuangan->get_dispensasi_mahasiswa($akun_id)
+            : [];
+        $data['bisa_ajukan_dispensasi'] = $user_role === 3;
 
         // Ambil Pengaturan Akses Pembayaran Tugas Akhir Spesifik Mahasiswa Ini
         $akses_ta_mahasiswa = $this->M_keuangan->get_status_akses_ta_mahasiswa($akun_id);
@@ -235,6 +240,13 @@ class Keuangan_core extends CI_Controller {
         if (!$this->require_roles([1, 2])) return;
 
         $current_user_id = (int)$this->session->userdata('id');
+
+        if ($user_role === 2) {
+            $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
+        }
+        $data['laporan_progres_pimpinan'] = $user_role === 1
+            ? $this->M_keuangan->get_laporan_progres_pimpinan()
+            : [];
 
         $data['user'] = [
             'id'           => $current_user_id,
@@ -386,9 +398,15 @@ class Keuangan_core extends CI_Controller {
         // Ambil daftar mahasiswa beserta status akses TA masing-masing
         $data['daftar_mahasiswa_ta'] = $this->M_keuangan->get_daftar_mahasiswa_ta($filter_fakultas, $filter_prodi, $keyword);
 
-        $data['title']      = 'Kontrol Akses Tagihan - Smart Campus';
-        $data['page_title'] = 'Kontrol Akses Tagihan Mahasiswa';
-        $data['page_desc']  = 'Pengelolaan akses tagihan Semester Akhir dan Semester Pendek secara per mahasiswa';
+        // Data sinkronisasi dan antrean validasi tagihan akhir
+        $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
+        $data['antrian_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir('MENUNGGU');
+        $data['riwayat_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir(null);
+        $data['active_tab'] = $this->input->get('tab', true) ?: 'kontrol';
+
+        $data['title']      = 'Kontrol & Validasi Tagihan Akhir - Smart Campus';
+        $data['page_title'] = 'Kontrol & Validasi Akses Tagihan';
+        $data['page_desc']  = 'Kelola perizinan tagihan Semester Akhir / Pendek serta validasi antrean tagihan mahasiswa';
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
@@ -396,6 +414,87 @@ class Keuangan_core extends CI_Controller {
         $view = $user_role === 1 ? 'keuangan/superadmin/kontrol_ta' : 'keuangan/admin/kontrol_ta';
         $this->load->view($view, $data);
         $this->load->view('templates/footer', $data);
+    }
+
+    /**
+     * Fitur dispensasi perpanjangan tagihan telah dihapus.
+     * Redirect ke halaman keuangan utama.
+     */
+    public function dispensasi()
+    {
+        $this->session->set_flashdata('info', 'Fitur dispensasi perpanjangan tagihan tidak tersedia.');
+        redirect('keuangan');
+    }
+
+    public function ajukan_dispensasi()
+    {
+        $this->session->set_flashdata('info', 'Fitur pengajuan dispensasi tidak tersedia.');
+        redirect('keuangan');
+    }
+
+    public function proses_dispensasi()
+    {
+        $this->session->set_flashdata('info', 'Fitur dispensasi tidak tersedia.');
+        redirect('keuangan');
+    }
+
+    public function validasi_tagihan_akhir()
+    {
+        if (!$this->require_roles([2])) return;
+        redirect('keuangan/kontrol_ta?tab=validasi');
+    }
+
+    public function proses_validasi_tagihan_akhir()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/validasi_tagihan_akhir');
+            return;
+        }
+        if (!$this->require_roles([2])) return;
+
+        $keputusan = $this->input->post('keputusan', true);
+        if (!in_array($keputusan, ['setujui', 'tolak'], true)) {
+            $this->session->set_flashdata('error', 'Keputusan validasi tidak valid.');
+            redirect('keuangan/validasi_tagihan_akhir');
+            return;
+        }
+        $saved = $this->M_keuangan->putuskan_antrian_tagihan_akhir(
+            (int)$this->input->post('validasi_id', true),
+            $keputusan === 'setujui',
+            (int)$this->session->userdata('id'),
+            trim((string)$this->input->post('catatan', true))
+        );
+        $this->session->set_flashdata($saved ? 'success' : 'error', $saved
+            ? 'Validasi tersimpan. Tagihan semester akhir dibuat setelah persetujuan.'
+            : 'Validasi tidak dapat disimpan; periksa kembali status mahasiswa dan antrean.');
+        redirect('keuangan/validasi_tagihan_akhir');
+    }
+
+    public function kirim_progres_penagihan()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/laporan');
+            return;
+        }
+        if (!$this->require_roles([2])) return;
+
+        $tahun_akademik = trim((string)$this->input->post('tahun_akademik', true));
+        $semester = trim((string)$this->input->post('semester', true));
+        if (!preg_match('/^\d{4}\/\d{4}$/', $tahun_akademik) || !in_array($semester, ['Ganjil', 'Genap'], true)) {
+            $this->session->set_flashdata('error', 'Periode laporan tidak valid.');
+            redirect('keuangan/laporan');
+            return;
+        }
+
+        $sent = $this->M_keuangan->kirim_progres_penagihan(
+            $tahun_akademik,
+            $semester,
+            (int)$this->session->userdata('id')
+        );
+        $this->session->set_flashdata($sent ? 'success' : 'error', $sent
+            ? 'Snapshot progres penagihan berhasil dikirim ke dashboard Pimpinan Keuangan.'
+            : 'Snapshot progres penagihan gagal dikirim.');
+        redirect('keuangan/admin');
     }
 
     // =====================================================
