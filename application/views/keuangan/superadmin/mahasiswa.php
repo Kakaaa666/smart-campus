@@ -37,6 +37,17 @@
                     color: #0f172a;
                 }
 
+                .custom-card-header > .badge {
+                    margin-left: auto;
+                    white-space: nowrap;
+                }
+
+                @media (max-width: 575.98px) {
+                    .custom-card-header > .badge {
+                        margin-left: 0;
+                    }
+                }
+
                 /* Metric Stat Card */
                 .fin-stat-card {
                     padding: 22px 24px;

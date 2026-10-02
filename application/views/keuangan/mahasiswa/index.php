@@ -27,7 +27,7 @@
                     border-bottom: 1px solid #f1f5f9 !important;
                     border-top-left-radius: 18px !important;
                     border-top-right-radius: 18px !important;
-                    padding: 20px 26px 36px !important;
+                    padding: 20px 26px !important;
                 }
 
                 .custom-card-header h5 {
@@ -35,6 +35,17 @@
                     font-size: 16.5px;
                     font-weight: 800;
                     color: #0f172a;
+                }
+
+                .custom-card-header > .badge {
+                    margin-left: auto;
+                    white-space: nowrap;
+                }
+
+                @media (max-width: 575.98px) {
+                    .custom-card-header > .badge {
+                        margin-left: 0;
+                    }
                 }
 
                 .billing-intro {
@@ -180,7 +191,7 @@
                 .bank-rek-box {
                     border: 1.5px dashed #cbd5e1;
                     border-radius: 14px;
-                    padding: 18px 18px 26px;
+                    padding: 18px;
                     background: #ffffff;
                     transition: border-color 0.2s ease, transform 0.2s ease;
                 }
@@ -338,8 +349,8 @@
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
                 <div class="card custom-card-white" style="border-left: 5px solid #0284c7; margin-bottom: 24px;">
-                    <div class="card-header custom-card-header d-flex align-items-start">
-                        <div class="d-flex align-items-start">
+                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="d-flex align-items-center">
                             <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
                                 <i class="bi bi-credit-card-2-front"></i>
                             </div>
@@ -347,12 +358,12 @@
                                 <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted d-block mt-1">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
-                                <span class="badge badge-primary px-3 py-2 mt-2 d-inline-block" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
-                                    <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
-                                </span>
+                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
                             </div>
                         </div>
+                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
+                            <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
+                        </span>
                     </div>
                     <div class="card-block" style="padding: 24px;">
                         <div class="alert alert-warning mb-3 py-2 px-3" style="border-radius: 10px; font-size: 12.5px; border-left: 4px solid #f59e0b; background:#fffbeb;">
