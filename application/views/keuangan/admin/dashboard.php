@@ -83,6 +83,11 @@
                     font-size: 11px;
                     font-weight: 700;
                     display: inline-block;
+                    width: max-content;
+                    max-width: 100%;
+                    white-space: normal;
+                    overflow-wrap: break-word;
+                    line-height: 1.35;
                 }
 
                 .badge-prodi {
@@ -94,6 +99,11 @@
                     font-size: 11px;
                     font-weight: 600;
                     display: inline-block;
+                    width: max-content;
+                    max-width: 100%;
+                    white-space: normal;
+                    overflow-wrap: break-word;
+                    line-height: 1.35;
                 }
 
                 .shortcut-btn {

@@ -790,6 +790,60 @@ class Keuangan_core extends CI_Controller {
 
     /**
      * =====================================================
+     * AKSI: BATALKAN VERIFIKASI PEMBAYARAN OLEH ADMIN
+     * =====================================================
+     */
+    public function batalkan_verifikasi_pembayaran()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        if (!$this->require_roles([1, 2])) return;
+
+        $pembayaran_id = (int)$this->input->post('pembayaran_id', true);
+        
+        // Ambil data pembayaran
+        $pembayaran = $this->db->select('pembayaran.*, tagihan.akun_id as tagihan_akun_id')
+                       ->from('pembayaran')
+                       ->join('tagihan', 'tagihan.id = pembayaran.tagihan_id', 'inner')
+                       ->where('pembayaran.id', $pembayaran_id)
+                       ->get()->row();
+                       
+        if (!$pembayaran) {
+            $this->session->set_flashdata('error', 'Data pembayaran tidak ditemukan.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        if ($pembayaran->status === 'PENDING') {
+            $this->session->set_flashdata('error', 'Pembayaran masih berstatus menunggu verifikasi.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        // Update pembayaran menjadi PENDING
+        $this->db->where('id', $pembayaran_id)
+                 ->update('pembayaran', [
+                     'status'            => 'PENDING',
+                     'alasan_penolakan'  => null,
+                     'diverifikasi_oleh' => null,
+                     'diverifikasi_at'   => null,
+                     'updated_at'        => date('Y-m-d H:i:s')
+                 ]);
+
+        // Update status tagihan terkait menjadi PENDING
+        $this->M_keuangan->update_status_tagihan($pembayaran->tagihan_id, 'PENDING');
+
+        $msg = 'Verifikasi pembayaran berhasil dibatalkan. Tagihan dikembalikan ke status PENDING.';
+        
+        $this->session->set_flashdata('success', $msg);
+        redirect('keuangan/verifikasi');
+    }
+
+    /**
+     * =====================================================
      * AKSI: TOLAK (REJECT) PEMBAYARAN OLEH ADMIN
      * =====================================================
      */
