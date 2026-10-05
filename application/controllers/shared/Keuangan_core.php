@@ -398,15 +398,9 @@ class Keuangan_core extends CI_Controller {
         // Ambil daftar mahasiswa beserta status akses TA masing-masing
         $data['daftar_mahasiswa_ta'] = $this->M_keuangan->get_daftar_mahasiswa_ta($filter_fakultas, $filter_prodi, $keyword);
 
-        // Data sinkronisasi dan antrean validasi tagihan akhir
-        $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
-        $data['antrian_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir('MENUNGGU');
-        $data['riwayat_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir(null);
-        $data['active_tab'] = $this->input->get('tab', true) ?: 'kontrol';
-
-        $data['title']      = 'Kontrol & Validasi Tagihan Akhir - Smart Campus';
-        $data['page_title'] = 'Kontrol & Validasi Akses Tagihan';
-        $data['page_desc']  = 'Kelola perizinan tagihan Semester Akhir / Pendek serta validasi antrean tagihan mahasiswa';
+        $data['title']      = 'Kontrol Akses Tagihan - Smart Campus';
+        $data['page_title'] = 'Kontrol Akses Tagihan Mahasiswa';
+        $data['page_desc']  = 'Pengelolaan akses tagihan Semester Akhir dan Semester Pendek secara per mahasiswa';
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
@@ -416,32 +410,114 @@ class Keuangan_core extends CI_Controller {
         $this->load->view('templates/footer', $data);
     }
 
-    /**
-     * Fitur dispensasi perpanjangan tagihan telah dihapus.
-     * Redirect ke halaman keuangan utama.
-     */
     public function dispensasi()
     {
-        $this->session->set_flashdata('info', 'Fitur dispensasi perpanjangan tagihan tidak tersedia.');
-        redirect('keuangan');
-    }
+        if (!$this->require_roles([2])) return;
 
-    public function ajukan_dispensasi()
-    {
-        $this->session->set_flashdata('info', 'Fitur pengajuan dispensasi tidak tersedia.');
-        redirect('keuangan');
-    }
+        $user_id = (int)$this->session->userdata('id');
+        $data['user'] = [
+            'id' => $user_id,
+            'nim' => $this->session->userdata('nim'),
+            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
+            'email' => $this->session->userdata('email'),
+            'role' => 2,
+            'role_name' => $this->session->userdata('role_name'),
+            'foto' => $this->session->userdata('foto'),
+        ];
+        $data['dispensasi_menunggu'] = $this->M_keuangan->get_daftar_dispensasi('MENUNGGU');
+        $data['dispensasi_selesai'] = $this->M_keuangan->get_daftar_dispensasi();
+        $data['title'] = 'Verifikasi Dispensasi Tagihan - Smart Campus';
+        $data['page_title'] = 'Verifikasi Dispensasi Tagihan';
+        $data['page_desc'] = 'Tinjau permohonan perpanjangan pembayaran dan tetapkan jatuh tempo baru.';
 
-    public function proses_dispensasi()
-    {
-        $this->session->set_flashdata('info', 'Fitur dispensasi tidak tersedia.');
-        redirect('keuangan');
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('keuangan/admin/dispensasi', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function validasi_tagihan_akhir()
     {
         if (!$this->require_roles([2])) return;
-        redirect('keuangan/kontrol_ta?tab=validasi');
+
+        $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
+        $user_id = (int)$this->session->userdata('id');
+        $data['user'] = [
+            'id' => $user_id,
+            'nim' => $this->session->userdata('nim'),
+            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
+            'email' => $this->session->userdata('email'),
+            'role' => 2,
+            'role_name' => $this->session->userdata('role_name'),
+            'foto' => $this->session->userdata('foto'),
+        ];
+        $data['antrian_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir('MENUNGGU');
+        $data['riwayat_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir(null);
+        $data['title'] = 'Validasi Tagihan Semester Akhir - Smart Campus';
+        $data['page_title'] = 'Validasi Tagihan Semester Akhir';
+        $data['page_desc'] = 'Periksa kelayakan mahasiswa tingkat akhir sebelum tagihan dibuat dan ditampilkan.';
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('keuangan/admin/validasi_tagihan_akhir', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    public function ajukan_dispensasi()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan');
+            return;
+        }
+        if (!$this->require_roles([3])) return;
+
+        $alasan = trim((string)$this->input->post('alasan', true));
+        $tanggal = trim((string)$this->input->post('tanggal_jatuh_tempo_diminta', true));
+        $tanggal_valid = DateTime::createFromFormat('Y-m-d', $tanggal);
+        if (strlen($alasan) < 10 || !$tanggal_valid || $tanggal_valid->format('Y-m-d') !== $tanggal) {
+            $this->session->set_flashdata('error', 'Alasan minimal 10 karakter dan tanggal perpanjangan harus valid.');
+            redirect('keuangan');
+            return;
+        }
+
+        $created = $this->M_keuangan->buat_pengajuan_dispensasi(
+            (int)$this->session->userdata('id'),
+            (int)$this->input->post('tagihan_id', true),
+            $alasan,
+            $tanggal
+        );
+        $this->session->set_flashdata($created ? 'success' : 'error', $created
+            ? 'Permohonan dispensasi berhasil dikirim ke Admin Keuangan.'
+            : 'Permohonan tidak dapat dikirim. Periksa status tagihan atau permohonan yang masih menunggu.');
+        redirect('keuangan');
+    }
+
+    public function proses_dispensasi()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/dispensasi');
+            return;
+        }
+        if (!$this->require_roles([2])) return;
+
+        $keputusan = $this->input->post('keputusan', true);
+        if (!in_array($keputusan, ['setujui', 'tolak'], true)) {
+            $this->session->set_flashdata('error', 'Keputusan dispensasi tidak valid.');
+            redirect('keuangan/dispensasi');
+            return;
+        }
+        $saved = $this->M_keuangan->putuskan_dispensasi(
+            (int)$this->input->post('dispensasi_id', true),
+            $keputusan === 'setujui',
+            (int)$this->session->userdata('id'),
+            trim((string)$this->input->post('catatan_admin', true))
+        );
+        $this->session->set_flashdata($saved ? 'success' : 'error', $saved
+            ? 'Keputusan dispensasi berhasil disimpan.'
+            : 'Permohonan sudah diproses atau tagihan tidak lagi memenuhi syarat.');
+        redirect('keuangan/dispensasi');
     }
 
     public function proses_validasi_tagihan_akhir()
@@ -784,6 +860,60 @@ class Keuangan_core extends CI_Controller {
             return;
         }
 
+        $this->session->set_flashdata('success', $msg);
+        redirect('keuangan/verifikasi');
+    }
+
+    /**
+     * =====================================================
+     * AKSI: BATALKAN VERIFIKASI PEMBAYARAN OLEH ADMIN
+     * =====================================================
+     */
+    public function batalkan_verifikasi_pembayaran()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        if (!$this->require_roles([1, 2])) return;
+
+        $pembayaran_id = (int)$this->input->post('pembayaran_id', true);
+        
+        // Ambil data pembayaran
+        $pembayaran = $this->db->select('pembayaran.*, tagihan.akun_id as tagihan_akun_id')
+                       ->from('pembayaran')
+                       ->join('tagihan', 'tagihan.id = pembayaran.tagihan_id', 'inner')
+                       ->where('pembayaran.id', $pembayaran_id)
+                       ->get()->row();
+                       
+        if (!$pembayaran) {
+            $this->session->set_flashdata('error', 'Data pembayaran tidak ditemukan.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        if ($pembayaran->status === 'PENDING') {
+            $this->session->set_flashdata('error', 'Pembayaran masih berstatus menunggu verifikasi.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        // Update pembayaran menjadi PENDING
+        $this->db->where('id', $pembayaran_id)
+                 ->update('pembayaran', [
+                     'status'            => 'PENDING',
+                     'alasan_penolakan'  => null,
+                     'diverifikasi_oleh' => null,
+                     'diverifikasi_at'   => null,
+                     'updated_at'        => date('Y-m-d H:i:s')
+                 ]);
+
+        // Update status tagihan terkait menjadi PENDING
+        $this->M_keuangan->update_status_tagihan($pembayaran->tagihan_id, 'PENDING');
+
+        $msg = 'Verifikasi pembayaran berhasil dibatalkan. Tagihan dikembalikan ke status PENDING.';
+        
         $this->session->set_flashdata('success', $msg);
         redirect('keuangan/verifikasi');
     }
