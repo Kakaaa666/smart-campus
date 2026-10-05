@@ -48,8 +48,6 @@
                     border-radius: 6px;
                     font-size: 11.5px;
                     font-weight: 700;
-                    display: inline-block;
-                    white-space: nowrap;
                 }
 
                 @media print {

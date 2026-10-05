@@ -355,7 +355,7 @@
                                                     <th>Rekening Pengirim</th>
                                                     <th>Status</th>
                                                     <th>Verifikator</th>
-                                                    <th>Aksi / Bukti</th>
+                                                    <th>Bukti</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -396,20 +396,10 @@
                                                         </td>
                                                         <td><?= htmlspecialchars($ps->nama_verifikator ?: 'Admin Keuangan') ?></td>
                                                         <td>
-                                                            <div style="display:flex; gap:6px;">
-                                                                <a href="<?= base_url('keuangan/lihat_bukti/' . $ps->id) ?>" target="_blank"
-                                                                   class="btn btn-sm btn-light" style="border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px;">
-                                                                    <i class="fa fa-file-image-o"></i>
-                                                                </a>
-                                                                <?php if ($ps->status === 'LUNAS'): ?>
-                                                                <form method="POST" action="<?= base_url('keuangan/batalkan_verifikasi_pembayaran') ?>" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan verifikasi pembayaran ini? Status akan dikembalikan menjadi Menunggu Verifikasi.');">
-                                                                    <input type="hidden" name="pembayaran_id" value="<?= $ps->id ?>">
-                                                                    <button type="submit" class="btn btn-sm" style="background:#fff; color:#f59e0b; border:1px solid #fcd34d; border-radius:6px; font-size:11.5px; font-weight:600;" title="Batalkan Verifikasi">
-                                                                        <i class="fa fa-undo"></i> Batal
-                                                                    </button>
-                                                                </form>
-                                                                <?php endif; ?>
-                                                            </div>
+                                                            <a href="<?= base_url('keuangan/lihat_bukti/' . $ps->id) ?>" target="_blank"
+                                                               class="btn btn-sm btn-light" style="border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px;">
+                                                                <i class="fa fa-file-image-o"></i>
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>

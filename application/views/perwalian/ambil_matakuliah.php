@@ -39,17 +39,6 @@
                     font-size: 13.5px;
                     border-top: 1px solid #f1f5f9;
                 }
-
-                .table-krs .badge {
-                    display: inline-block;
-                    white-space: nowrap;
-                }
-
-                @media (max-width: 767.98px) {
-                    .table-krs {
-                        min-width: 900px;
-                    }
-                }
                 </style>
 
                 <div class="krs-container">
