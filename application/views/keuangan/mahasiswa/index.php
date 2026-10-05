@@ -595,30 +595,32 @@
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="billing-intro d-flex align-items-center justify-content-between mb-3 flex-wrap">
-                                <div>
-                                    <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
-                                        Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
-                                    </h5>
-                                    <p class="text-muted mb-0" style="font-size: 13px;">
-                                        Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel atau gunakan tombol konfirmasi pembayaran.
-                                    </p>
-                                </div>
-                                <div class="mt-2 mt-md-0">
-                                    <?php if (!empty($tagihan_pilihan)): ?>
-                                        <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 600;">
-                                            <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
-                                        </button>
-                                    <?php else: ?>
-                                        <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 13px;">
-                                            <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas / Sedang Diproses
-                                        </span>
-                                    <?php endif; ?>
-                                    <?php if (!empty($bisa_ajukan_dispensasi) && !empty($tagihan_pilihan)): ?>
-                                        <button type="button" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#modalDispensasi">
-                                            <i class="fa fa-calendar-plus-o mr-1"></i>Ajukan Perpanjangan
-                                        </button>
-                                    <?php endif; ?>
+                            <div class="billing-header-card p-3 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <h5 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 16px;">
+                                                Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
+                                            </h5>
+                                            <span class="badge badge-primary ml-2 px-2 py-1" style="font-size: 11px; border-radius: 6px; font-weight: 600;">Aktif</span>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5;">
+                                            Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel, atau gunakan tombol konfirmasi pembayaran di bawah ini.
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-12">
+                                        <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 10px;">
+                                            <?php if (!empty($tagihan_pilihan)): ?>
+                                                <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 16px;">
+                                                    <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
+                                                </button>
+                                            <?php else: ?>
+                                                <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 12.5px; font-weight: 600;">
+                                                    <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1100,76 +1102,7 @@
 <!-- =======================================================
      MODAL KONFIRMASI PEMBAYARAN & UPLOAD BUKTI (BARU)
      ======================================================= -->
-<?php if (!empty($bisa_ajukan_dispensasi)): ?>
-    <div class="card custom-card-white mt-3 mb-4">
-        <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
-            <div>
-                <h5 class="mb-1"><i class="fa fa-calendar-plus-o mr-2 text-primary"></i>Dispensasi Perpanjangan Tagihan</h5>
-                <small class="text-muted">Permohonan akan ditinjau oleh Admin Keuangan. Jatuh tempo berubah hanya setelah disetujui.</small>
-            </div>
-        </div>
-        <div class="card-block table-responsive">
-            <?php if ($this->session->flashdata('success')): ?>
-                <div class="alert alert-success"><?= html_escape($this->session->flashdata('success')) ?></div>
-            <?php endif; ?>
-            <?php if ($this->session->flashdata('error')): ?>
-                <div class="alert alert-danger"><?= html_escape($this->session->flashdata('error')) ?></div>
-            <?php endif; ?>
-            <table class="table table-sm mb-0">
-                <thead><tr><th>Tagihan</th><th>Jatuh Tempo Diminta</th><th>Status</th><th>Catatan Admin</th></tr></thead>
-                <tbody>
-                <?php if (empty($dispensasi_requests)): ?>
-                    <tr><td colspan="4" class="text-center text-muted">Belum ada permohonan dispensasi.</td></tr>
-                <?php else: foreach ($dispensasi_requests as $request): ?>
-                    <tr>
-                        <td><?= html_escape($request->jenis_tagihan) ?></td>
-                        <td><?= html_escape($request->tanggal_jatuh_tempo_diminta) ?></td>
-                        <td><span class="badge <?= $request->status === 'DISETUJUI' ? 'badge-success' : ($request->status === 'DITOLAK' ? 'badge-danger' : 'badge-warning') ?>"><?= html_escape($request->status) ?></span></td>
-                        <td><?= html_escape($request->catatan_admin ?: '-') ?></td>
-                    </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="modal fade" id="modalDispensasi" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ajukan Perpanjangan Tagihan</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                </div>
-                <?= form_open('keuangan/ajukan_dispensasi') ?>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="dispensasiTagihan">Tagihan</label>
-                            <select id="dispensasiTagihan" name="tagihan_id" class="form-control" required>
-                                <?php foreach ($tagihan_pilihan as $tagihan): ?>
-                                    <option value="<?= (int)$tagihan->id ?>">
-                                        <?= html_escape($tagihan->jenis_tagihan) ?> · Rp <?= number_format((float)$tagihan->nominal, 0, ',', '.') ?> · jatuh tempo <?= html_escape($tagihan->jatuh_tempo) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="tanggalPerpanjangan">Tanggal jatuh tempo yang diminta</label>
-                            <input id="tanggalPerpanjangan" type="date" name="tanggal_jatuh_tempo_diminta" class="form-control" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
-                        </div>
-                        <div class="form-group mb-0">
-                            <label for="alasanDispensasi">Alasan permohonan</label>
-                            <textarea id="alasanDispensasi" name="alasan" class="form-control" rows="4" minlength="10" maxlength="2000" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" <?= empty($tagihan_pilihan) ? 'disabled' : '' ?>>Kirim Permohonan</button>
-                    </div>
-                <?= form_close() ?>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
 
 <div class="modal fade" id="modalKonfirmasiBayar" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">

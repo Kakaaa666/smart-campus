@@ -20,7 +20,6 @@ $config['role_menus'] = [
         'menus' => [
             'akademik' => ['label' => 'Operasional Akademik', 'route' => 'admin/akademik', 'bureau' => 'Akademik'],
             'keuangan' => ['label' => 'Operasional Keuangan', 'route' => 'admin/keuangan', 'bureau' => 'Keuangan'],
-            'dispensasi_keuangan' => ['label' => 'Verifikasi Dispensasi Tagihan', 'route' => 'keuangan/dispensasi', 'bureau' => 'Keuangan'],
             'validasi_tagihan_akhir' => ['label' => 'Validasi Tagihan Semester Akhir', 'route' => 'keuangan/validasi_tagihan_akhir', 'bureau' => 'Keuangan'],
             'laporan_progres' => ['label' => 'Laporan Progres Penagihan', 'route' => 'keuangan/laporan', 'bureau' => 'Keuangan'],
             'kemahasiswaan' => ['label' => 'Layanan Kemahasiswaan', 'route' => 'admin/kemahasiswaan', 'bureau' => 'Kemahasiswaan'],

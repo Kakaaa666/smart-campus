@@ -43,27 +43,4 @@
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-header"><h5 class="mb-0">Riwayat Validasi</h5></div>
-            <div class="card-block table-responsive">
-                <table class="table table-sm">
-                    <thead><tr><th>Mahasiswa</th><th>Jenjang/Prodi</th><th>Periode</th><th>Status</th><th>Catatan</th><th>Diputuskan</th></tr></thead>
-                    <tbody>
-                    <?php $has_history = false; foreach ($riwayat_tagihan_akhir as $item): if ($item->status === 'MENUNGGU') continue; $has_history = true; ?>
-                        <tr>
-                            <td><?= html_escape($item->nama_lengkap) ?> <small>(<?= html_escape($item->nim) ?>)</small></td>
-                            <td><?= html_escape($item->prodi) ?> · semester <?= (int)$item->semester_mahasiswa ?></td>
-                            <td><?= html_escape($item->semester) ?> <?= html_escape($item->tahun_akademik) ?></td>
-                            <td><span class="badge <?= $item->status === 'DISETUJUI' ? 'badge-success' : 'badge-danger' ?>"><?= html_escape($item->status) ?></span></td>
-                            <td><?= html_escape($item->catatan ?: '-') ?></td>
-                            <td><?= html_escape($item->diputuskan_at ?: '-') ?></td>
-                        </tr>
-                    <?php endforeach; if (!$has_history): ?>
-                        <tr><td colspan="6" class="text-center text-muted">Belum ada keputusan validasi.</td></tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+        

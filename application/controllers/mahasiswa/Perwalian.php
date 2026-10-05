@@ -17,7 +17,7 @@ class Perwalian extends CI_Controller {
         }
     }
 
-    private function _render($page_title, $page_desc, $card_subtitle = '') {
+    private function _render($page_title, $page_desc, $card_subtitle = '', $view_name = 'ambil_matakuliah') {
         $current_user_id = (int)$this->session->userdata('id');
         $user_role       = (int)$this->session->userdata('role');
 
@@ -32,13 +32,24 @@ class Perwalian extends CI_Controller {
             $data['target_mahasiswa'] = $target_mhs;
             $akun_id = $target_akun_id;
         } else {
+            $target_mhs = $this->db->get_where('akun', ['id' => $current_user_id])->row();
             $data['is_admin_preview'] = false;
-            $data['target_mahasiswa'] = null;
+            $data['target_mahasiswa'] = $target_mhs;
             $akun_id = $current_user_id;
         }
 
         // Cek Status Pembayaran Semester Mahasiswa untuk Akses KRS
         $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
+
+        // Dukungan simulasi status krs melalui query string (khusus preview/testing)
+        $simulasi = $this->input->get('status', true) ?: $this->input->get('simulasi', true);
+        if ($simulasi === 'terkunci') {
+            $status_krs['buka_krs'] = false;
+            $status_krs['status']   = 'BELUM_BAYAR';
+        } elseif ($simulasi === 'terbuka' || $simulasi === 'lunas') {
+            $status_krs['buka_krs'] = true;
+            $status_krs['status']   = 'LUNAS';
+        }
 
         $data['title']             = $page_title . ' - Smart Campus';
         $data['page_title']        = $page_title;
@@ -46,6 +57,7 @@ class Perwalian extends CI_Controller {
         $data['card_subtitle']     = $card_subtitle;
         $data['breadcrumb_parent'] = 'Perwalian';
         $data['status_krs']        = $status_krs;
+        $data['view_name']         = $view_name;
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
@@ -55,7 +67,8 @@ class Perwalian extends CI_Controller {
         if (!$status_krs['buka_krs']) {
             $this->load->view('perwalian/krs_terkunci', $data);
         } else {
-            $this->load->view('templates/content_page', $data);
+            $target_view = ($view_name === 'frs') ? 'perwalian/frs' : 'perwalian/ambil_matakuliah';
+            $this->load->view($target_view, $data);
         }
 
         $this->load->view('templates/footer', $data);
@@ -66,10 +79,10 @@ class Perwalian extends CI_Controller {
     }
 
     public function ambil_matakuliah() {
-        $this->_render('Ambil Mata Kuliah', 'Pemilihan rencana studi dan kartu rencana studi semester baru', 'Formulir pemilihan mata kuliah');
+        $this->_render('Ambil Mata Kuliah', 'Pemilihan rencana studi dan kartu rencana studi semester baru', 'Formulir pemilihan mata kuliah', 'ambil_matakuliah');
     }
 
     public function frs() {
-        $this->_render('Formulir Rencana Studi (FRS)', 'Persetujuan dan cetak formulir rencana studi dari dosen wali', 'Status verifikasi dan validasi FRS');
+        $this->_render('Formulir Rencana Studi (FRS)', 'Persetujuan dan cetak formulir rencana studi dari dosen wali', 'Status verifikasi dan validasi FRS', 'frs');
     }
 }

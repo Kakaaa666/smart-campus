@@ -61,58 +61,123 @@ body .pcoded-inner-content {
 }
 
 body .pcoded-header {
-    height: 74px !important;
+    height: 62px !important;
     background: var(--sc-surface) !important;
     border-bottom: 1px solid var(--sc-line) !important;
-    box-shadow: 0 8px 30px rgba(16, 45, 61, 0.07) !important;
+    box-shadow: 0 4px 20px rgba(16, 45, 61, 0.06) !important;
 }
 
 body .pcoded-header .navbar-wrapper,
 body .pcoded-header .navbar-container {
-    height: 74px !important;
+    height: 62px !important;
 }
 
 body .header-center-brand {
     display: flex !important;
     align-items: center !important;
-    height: 74px !important;
-    padding: 0 26px !important;
+    justify-content: center !important;
+    height: 62px !important;
+    padding: 0 20px !important;
 }
 
 body .header-brand-link {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 10px !important;
-    color: var(--sc-ink) !important;
+    gap: 8px !important;
+    color: #ffffff !important;
     font-family: "Space Grotesk", sans-serif !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.04em !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    text-decoration: none !important;
 }
 
 body .brand-icon {
-    color: var(--sc-accent) !important;
-    font-size: 22px !important;
+    color: #ffffff !important;
+    font-size: 20px !important;
 }
 
-body .header-navbar .nav-left > li > a,
-body .header-navbar .nav-right > li > a {
-    color: var(--sc-ink) !important;
+body .header-navbar .nav-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    height: 62px !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    list-style: none !important;
+}
+
+body .header-navbar .nav-left > li {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+}
+
+body .header-icon-btn,
+body .sidebar_toggle a {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+body .header-icon-btn:hover,
+body .sidebar_toggle a:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: scale(1.05) !important;
+    color: #ffffff !important;
+}
+
+body .header-navbar .nav-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    height: 62px !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 16px !important;
+    list-style: none !important;
 }
 
 body .user-profile-badge {
-    min-height: 52px !important;
-    border-left: 1px solid var(--sc-line) !important;
-    padding: 7px 18px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    min-width: 170px !important;
+    max-width: 260px !important;
+    padding: 3px 14px 3px 4px !important;
+    border-radius: 24px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+body .user-profile-badge:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 body .user-name {
-    color: var(--sc-ink) !important;
+    color: #ffffff !important;
     font-weight: 700 !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
 }
 
 body .user-role {
-    color: var(--sc-muted) !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
 }
 
 body .pcoded .pcoded-navbar,

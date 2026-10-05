@@ -101,7 +101,6 @@ if ($current_role === 2) {
                                     $ci =& get_instance();
                                     $ci->load->model('admin/M_keuangan_admin', 'M_keuangan');
                                     $pending_verif_count = $ci->M_keuangan->count_pembayaran_by_status('PENDING');
-                                    $pending_dispensasi_count = $ci->M_keuangan->count_dispensasi_menunggu();
                                     $pending_validasi_ta_count = $ci->M_keuangan->count_antrian_tagihan_akhir('MENUNGGU');
                                 ?>
 
@@ -117,29 +116,16 @@ if ($current_role === 2) {
                                     </a>
                                 </li>
 
-                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'dispensasi') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/dispensasi') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-calendar-plus-o"></i></span>
-                                        <span class="pcoded-mtext">Verifikasi Dispensasi Tagihan</span>
-                                        <?php if ($pending_dispensasi_count > 0): ?><span class="badge badge-warning ml-2"><?= (int)$pending_dispensasi_count ?></span><?php endif; ?>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                </li>
 
-                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'validasi_tagihan_akhir') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/validasi_tagihan_akhir') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
-                                        <span class="pcoded-mtext">Validasi Tagihan Semester Akhir</span>
-                                        <?php if ($pending_validasi_ta_count > 0): ?><span class="badge badge-warning ml-2"><?= (int)$pending_validasi_ta_count ?></span><?php endif; ?>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                </li>
 
-                                <!-- Kontrol Akses Tagihan (Menu Tersendiri) -->
-                                <li class="<?= ($seg1 == 'keuangan' && $seg2 == 'kontrol_ta') ? 'active' : '' ?>">
+                                <!-- Kontrol & Validasi Akses Tagihan (Terintegrasi Efisien) -->
+                                <li class="<?= ($seg1 == 'keuangan' && ($seg2 == 'kontrol_ta' || $seg2 == 'validasi_tagihan_akhir')) ? 'active' : '' ?>">
                                     <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
-                                        <span class="pcoded-mtext">Kontrol Akses Tagihan</span>
+                                        <span class="pcoded-micon"><i class="fa fa-sliders"></i></span>
+                                        <span class="pcoded-mtext">Kontrol &amp; Validasi Tagihan</span>
+                                        <?php if ($pending_validasi_ta_count > 0): ?>
+                                            <span class="badge badge-warning ml-2" style="font-size:11px;padding:3px 8px;border-radius:12px;font-weight:700;"><?= (int)$pending_validasi_ta_count ?></span>
+                                        <?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>

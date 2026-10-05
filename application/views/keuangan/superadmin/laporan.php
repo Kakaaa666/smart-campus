@@ -53,15 +53,26 @@
                     justify-content: flex-end;
                     align-items: center;
                     flex-wrap: wrap;
-                    gap: 8px;
+                    gap: 10px;
                 }
                 .laporan-actions .btn {
                     margin: 0 !important;
-                    white-space: nowrap;
+                    height: 38px !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    white-space: nowrap !important;
+                    font-size: 13px !important;
+                    font-weight: 600 !important;
+                    border-radius: 8px !important;
+                    padding: 0 16px !important;
+                    transition: all 0.2s ease !important;
                 }
-                @media (max-width: 767.98px) {
-                    .laporan-actions { justify-content: flex-start; }
-                    .laporan-actions .btn { flex: 1 1 auto; }
+                @media (max-width: 991.98px) {
+                    .laporan-actions {
+                        justify-content: flex-start;
+                        margin-top: 14px;
+                    }
                 }
                 @media print {
                     @page { size: A4 landscape; margin: 12mm; }
@@ -99,38 +110,38 @@
                 </style>
 
                 <!-- Header Laporan Eksekutif -->
-                <div class="laporan-card no-print" style="border-left:4px solid #6366f1;">
-                    <div style="padding:20px 28px;">
+                <div class="laporan-card no-print" style="border-left: 5px solid #111827;">
+                    <div style="padding: 22px 28px;">
                         <div class="row align-items-center">
-                            <div class="col-md-7">
-                                <div style="display:flex;align-items:center;gap:14px;">
-                                    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#4338ca);display:flex;align-items:center;justify-content:center;">
-                                        <i class="fa fa-bar-chart" style="font-size:22px;color:#fff;"></i>
+                            <div class="col-lg-5 col-md-12">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <div style="width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #1f2937, #111827); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); flex-shrink: 0;">
+                                        <i class="fa fa-bar-chart" style="font-size: 22px; color: #fff;"></i>
                                     </div>
                                     <div>
-                                        <h4 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1e293b;">
+                                        <h4 style="margin: 0 0 4px; font-size: 19px; font-weight: 800; color: #0f172a;">
                                             Laporan Keuangan Mahasiswa ke Rektorat
                                         </h4>
-                                        <p style="margin:0;color:#64748b;font-size:13px;">
+                                        <p style="margin: 0; color: #64748b; font-size: 13px;">
                                             Monitoring eksekutif penerimaan SPP/UKT, praktikum, dan biaya studi kampus
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5 mt-3 mt-md-0">
+                            <div class="col-lg-7 col-md-12 mt-3 mt-lg-0">
                                 <div class="laporan-actions">
-                                <a href="<?= base_url('keuangan/admin') ?>" class="btn btn-sm"
-                                   style="background:#f1f5f9;color:#475569;border-radius:8px;font-weight:600;padding:9px 16px;">
-                                    <i class="fa fa-arrow-left mr-1"></i>Kembali
-                                </a>
-                                <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn btn-sm"
-                                   style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
-                                    <i class="fa fa-file-word-o mr-1"></i>Ekspor Word (.doc)
-                                </a>
-                                <button onclick="window.print()" class="btn btn-sm"
-                                        style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:8px;font-size:13px;font-weight:700;padding:9px 18px;">
-                                    <i class="fa fa-print mr-1"></i>Cetak Rinci
-                                </button>
+                                    <a href="<?= base_url('superadmin/keuangan') ?>" class="btn shadow-sm"
+                                       style="background: #ffffff; color: #475569; border: 1.5px solid #cbd5e1;">
+                                        <i class="fa fa-arrow-left mr-1"></i> Kembali
+                                    </a>
+                                    <a href="<?= base_url('keuangan/export_word') . '?' . http_build_query($_GET) ?>" class="btn shadow-sm"
+                                       style="background: #2563eb; color: #ffffff; border: 1px solid #1d4ed8;">
+                                        <i class="fa fa-file-word-o mr-1"></i> Ekspor Word (.doc)
+                                    </a>
+                                    <button onclick="window.print()" class="btn shadow-sm"
+                                            style="background: #4f46e5; color: #ffffff; border: 1px solid #4338ca;">
+                                        <i class="fa fa-print mr-1"></i> Cetak Rinci
+                                    </button>
                                 </div>
                             </div>
                         </div>
