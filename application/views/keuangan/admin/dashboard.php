@@ -5,19 +5,46 @@
 
                 <!-- Styling Khusus Dashboard Keuangan Admin -->
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
                 .admin-container {
                     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
 
+                @keyframes fadeUpIn {
+                    from { opacity:0; transform:translateY(20px); }
+                    to   { opacity:1; transform:translateY(0); }
+                }
+                @keyframes orbDrift {
+                    0%,100% { transform:translate(0,0) scale(1); opacity:0.8; }
+                    33%     { transform:translate(-25px,20px) scale(1.06); opacity:1; }
+                    66%     { transform:translate(20px,-25px) scale(0.94); opacity:0.7; }
+                }
+                @keyframes cardShine {
+                    0%   { left:-80%; }
+                    100% { left: 220%; }
+                }
+                @keyframes pulseDot {
+                    0%,100% { opacity:1; transform:scale(1); }
+                    50%     { opacity:0.4; transform:scale(0.75); }
+                }
+                @keyframes progressGrow { from { width:0% !important; } }
+                @keyframes pulseBadge {
+                    0%,100% { box-shadow:0 0 0 0 rgba(245,158,11,0); }
+                    50%     { box-shadow:0 0 0 6px rgba(245,158,11,0.12); }
+                }
+
+                /* ── Admin Card (glassmorphism) ── */
                 .admin-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    border: 1px solid #e2e8f0;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                    background: rgba(255,255,255,0.93) !important;
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                    border-radius: 18px !important;
+                    border: 1px solid rgba(226,232,240,0.75) !important;
+                    box-shadow: 0 4px 24px rgba(15,23,42,0.06), 0 1px 4px rgba(15,23,42,0.04) !important;
                     margin-bottom: 24px;
                     overflow: hidden;
+                    animation: fadeUpIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
                 }
 
                 .admin-card-header {
@@ -28,8 +55,8 @@
                     justify-content: space-between;
                     flex-wrap: wrap;
                     gap: 12px;
+                    background: linear-gradient(135deg, #ffffff, #f8faff);
                 }
-
                 .admin-card-header h5 {
                     margin: 0;
                     font-size: 16px;
@@ -37,24 +64,43 @@
                     color: #0f172a;
                 }
 
+                /* ── KPI Stat Boxes ── */
                 .stat-box-modern {
-                    background: #ffffff;
+                    background: rgba(255,255,255,0.95);
                     border-radius: 16px;
-                    border: 1px solid #e2e8f0;
+                    border: 1px solid rgba(226,232,240,0.8);
                     padding: 22px 24px;
                     position: relative;
                     overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+                    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+                    animation: fadeUpIn 0.5s ease both;
                 }
-
+                .stat-box-modern::after {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: -80%;
+                    width: 50%; height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+                    transform: skewX(-15deg);
+                }
                 .stat-box-modern:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+                    transform: translateY(-5px) scale(1.01);
+                    box-shadow: 0 16px 42px rgba(0,0,0,0.1);
+                }
+                .stat-box-modern:hover::after {
+                    animation: cardShine 0.6s ease forwards;
                 }
 
+                /* Staggered entry delays */
+                .row > .col-xl-3:nth-child(1) .stat-box-modern { animation-delay:0.06s; }
+                .row > .col-xl-3:nth-child(2) .stat-box-modern { animation-delay:0.14s; }
+                .row > .col-xl-3:nth-child(3) .stat-box-modern { animation-delay:0.22s; }
+                .row > .col-xl-3:nth-child(4) .stat-box-modern { animation-delay:0.30s; }
+
+                /* ── Table ── */
                 .table-admin thead th {
-                    background: #f8fafc;
+                    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
                     color: #475569;
                     font-weight: 700;
                     font-size: 12px;
@@ -65,15 +111,22 @@
                     padding: 14px 16px;
                     white-space: nowrap;
                 }
-
                 .table-admin tbody td {
                     padding: 14px 16px;
                     vertical-align: middle;
                     color: #334155;
                     font-size: 13.5px;
                     border-top: 1px solid #f1f5f9;
+                    transition: background 0.15s ease;
+                }
+                .table-admin tbody tr:hover td {
+                    background: rgba(21,101,192,0.03);
+                }
+                .table-admin tbody tr:nth-child(even) {
+                    background: rgba(248,250,252,0.5);
                 }
 
+                /* ── Badges ── */
                 .badge-fakultas {
                     background: #e0f2fe;
                     color: #0369a1;
@@ -84,7 +137,6 @@
                     font-weight: 700;
                     display: inline-block;
                 }
-
                 .badge-prodi {
                     background: #f1f5f9;
                     color: #334155;
@@ -96,21 +148,60 @@
                     display: inline-block;
                 }
 
+                /* ── Shortcut Buttons ── */
                 .shortcut-btn {
-                    border-radius: 12px;
-                    padding: 14px 18px;
+                    border-radius: 14px;
+                    padding: 18px 22px;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     color: #ffffff;
                     text-decoration: none;
-                    transition: all 0.2s ease;
+                    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
                     margin-bottom: 16px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .shortcut-btn::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
                 }
                 .shortcut-btn:hover {
                     color: #ffffff;
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                    transform: translateY(-4px) scale(1.01);
+                    box-shadow: 0 14px 32px rgba(0,0,0,0.22);
+                }
+                .shortcut-btn:hover::before { opacity: 1; }
+                .shortcut-btn .fa-arrow-right { transition: transform 0.3s ease; }
+                .shortcut-btn:hover .fa-arrow-right { transform: translateX(8px); }
+
+                /* ── Progress Bar ── */
+                .progress-bar {
+                    animation: progressGrow 1.3s cubic-bezier(0.4,0,0.2,1) both;
+                    animation-delay: 0.5s;
+                }
+
+                /* ── Pending badge pulse ── */
+                .badge-warning { animation: pulseBadge 2.5s ease-in-out infinite; }
+
+                /* ── Buttons ── */
+                .btn { transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1) !important; }
+                .btn:hover { transform: translateY(-2px); }
+                .btn-outline-primary:hover { box-shadow: 0 6px 18px rgba(21,101,192,0.25) !important; }
+
+                /* ── Alert ── */
+                .alert { animation: fadeUpIn 0.35s ease both; }
+
+                /* ── Scrollbar ── */
+                ::-webkit-scrollbar { width:6px; height:6px; }
+                ::-webkit-scrollbar-track { background:#f1f5f9; }
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg,#1565c0,#6366f1);
+                    border-radius: 10px;
                 }
                 </style>
 
@@ -131,33 +222,33 @@
                         </div>
                     <?php endif; ?>
 
-                    <!-- Header Banner -->
-                    <div class="admin-card" style="border-left: 5px solid #1565c0;">
-                        <div style="padding: 24px 28px;">
-                            <div class="row align-items-center">
-                                <div class="col-lg-8">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg,#1565c0,#0d47a1); display: flex; align-items: center; justify-content: center; margin-right: 18px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(21, 101, 192, 0.25);">
-                                            <i class="fa fa-tachometer" style="font-size: 24px; color: #ffffff;"></i>
-                                        </div>
-                                        <div>
-                                            <h4 style="margin: 0 0 4px; font-weight: 800; color: #0f172a; font-size: 22px;">
-                                                Dashboard Eksekutif Keuangan Kampus
-                                            </h4>
-                                            <p style="margin: 0; font-size: 13.5px; color: #64748b;">
-                                                Ikhtisar penerimaan SPP/UKT, rasio realisasi biaya pendidikan, dan kontrol akses mahasiswa.
-                                            </p>
-                                        </div>
+                <!-- Header Banner Admin -->
+                <div class="admin-card" style="background:linear-gradient(135deg,#0c1445 0%,#1565c0 55%,#0d47a1 100%) !important;border:none !important;color:#fff;">
+                    <div style="padding:28px 32px;position:relative;overflow:hidden;">
+                        <!-- Decorative orbs -->
+                        <div style="position:absolute;top:-80px;right:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(99,102,241,0.2) 0%,transparent 65%);border-radius:50%;animation:orbDrift 16s ease-in-out infinite;pointer-events:none;"></div>
+                        <div style="position:absolute;bottom:-60px;left:30%;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 65%);border-radius:50%;animation:orbDrift 20s ease-in-out infinite reverse;pointer-events:none;"></div>
+                        <div class="row align-items-center" style="position:relative;z-index:1;">
+                            <div class="col-lg-8">
+                                <div class="d-flex align-items-center">
+                                    <div style="width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;margin-right:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.2);">
+                                        <i class="fa fa-tachometer" style="font-size:26px;color:#fff;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;opacity:0.65;margin-bottom:5px;">Biro Administrasi Keuangan</div>
+                                        <h4 style="margin:0 0 5px;font-weight:800;color:#fff;font-size:22px;">Dashboard Eksekutif Keuangan</h4>
+                                        <p style="margin:0;font-size:13px;opacity:0.8;">Ikhtisar penerimaan SPP/UKT, rasio realisasi biaya, dan kontrol akses mahasiswa.</p>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
-                                    <a href="<?= base_url('keuangan/laporan') ?>" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 700; padding: 8px 16px;">
-                                        <i class="fa fa-bar-chart mr-1"></i>Buka Laporan Rektorat
-                                    </a>
-                                </div>
+                            </div>
+                            <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
+                                <a href="<?= base_url('keuangan/laporan') ?>" class="btn" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:10px;font-weight:700;padding:10px 18px;backdrop-filter:blur(8px);transition:all 0.25s ease;">
+                                    <i class="fa fa-bar-chart mr-2"></i>Laporan Rektorat
+                                </a>
                             </div>
                         </div>
                     </div>
+                </div>
 
                     <!-- 4 Kartu KPI Keuangan Utama -->
                     <div class="row mb-3">

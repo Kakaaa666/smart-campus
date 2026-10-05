@@ -422,8 +422,57 @@ class Keuangan_core extends CI_Controller {
      */
     public function dispensasi()
     {
-        $this->session->set_flashdata('info', 'Fitur dispensasi perpanjangan tagihan tidak tersedia.');
-        redirect('keuangan');
+        if (!$this->require_roles([2])) return;
+
+        $user_id = (int)$this->session->userdata('id');
+        $data['user'] = [
+            'id' => $user_id,
+            'nim' => $this->session->userdata('nim'),
+            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
+            'email' => $this->session->userdata('email'),
+            'role' => 2,
+            'role_name' => $this->session->userdata('role_name'),
+            'foto' => $this->session->userdata('foto'),
+        ];
+        $data['dispensasi_menunggu'] = $this->M_keuangan->get_daftar_dispensasi('MENUNGGU');
+        $data['dispensasi_selesai'] = $this->M_keuangan->get_daftar_dispensasi();
+        $data['title'] = 'Verifikasi Dispensasi Tagihan - Smart Campus';
+        $data['page_title'] = 'Verifikasi Dispensasi Tagihan';
+        $data['page_desc'] = 'Tinjau permohonan perpanjangan pembayaran dan tetapkan jatuh tempo baru.';
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('keuangan/admin/dispensasi', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    public function validasi_tagihan_akhir()
+    {
+        if (!$this->require_roles([2])) return;
+
+        $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
+        $user_id = (int)$this->session->userdata('id');
+        $data['user'] = [
+            'id' => $user_id,
+            'nim' => $this->session->userdata('nim'),
+            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
+            'email' => $this->session->userdata('email'),
+            'role' => 2,
+            'role_name' => $this->session->userdata('role_name'),
+            'foto' => $this->session->userdata('foto'),
+        ];
+        $data['antrian_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir('MENUNGGU');
+        $data['riwayat_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir(null);
+        $data['title'] = 'Validasi Tagihan Semester Akhir - Smart Campus';
+        $data['page_title'] = 'Validasi Tagihan Semester Akhir';
+        $data['page_desc'] = 'Periksa kelayakan mahasiswa tingkat akhir sebelum tagihan dibuat dan ditampilkan.';
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('keuangan/admin/validasi_tagihan_akhir', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function ajukan_dispensasi()
@@ -442,6 +491,7 @@ class Keuangan_core extends CI_Controller {
     {
         if (!$this->require_roles([2])) return;
         redirect('keuangan/kontrol_ta?tab=validasi');
+    }
     }
 
     public function proses_validasi_tagihan_akhir()

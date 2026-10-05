@@ -1,14 +1,28 @@
-﻿/* =====================================================
+/* =====================================================
    SMART CAMPUS - KEUANGAN MODERN UI SYSTEM
    Premium Design with Glassmorphism & Micro-animations
    ===================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
-/* Global background for keuangan pages */
-.pcoded-content {
+/* Global background & layout for keuangan pages */
+.pcoded[theme-layout="vertical"] .pcoded-content,
+.pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
+.pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
     background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%) !important;
     min-height: 100vh;
+    margin-left: 235px !important;
+    transition: margin-left 0.25s ease-in-out;
+}
+.pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="collapsed"] .pcoded-content {
+    margin-left: 70px !important;
+}
+@media only screen and (max-width: 768px) {
+    .pcoded[theme-layout="vertical"] .pcoded-content,
+    .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
+    .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
+        margin-left: 0 !important;
+    }
 }
 
 /* Floating Orbs Background */
