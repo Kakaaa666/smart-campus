@@ -1,7 +1,6 @@
 <?php
 $seg1 = $this->uri->segment(1);
 $seg2 = $this->uri->segment(2);
-$seg3 = $this->uri->segment(3);
 $current_role = (int)$this->session->userdata('role');
 $current_bureau = strtolower((string)$this->session->userdata('biro'));
 if ($current_role === 2 && $current_bureau === '') {
@@ -54,14 +53,14 @@ if ($current_role === 2) {
 
                                 <?php if ($current_role === 1): ?>
                                 <!-- Menu utama Super Admin: satu item untuk setiap biro -->
-                                <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan' || ($seg1 == 'superadmin' && $seg2 == 'keuangan')) ? 'pcoded-trigger active' : '' ?>">
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'keuangan') ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-money"></i></span><span class="pcoded-mtext">Biro Keuangan</span><span class="pcoded-mcaret"></span></a>
                                     <ul class="pcoded-submenu">
                                         <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
-                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'keuangan' && $seg3 == 'admin') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/keuangan/admin') ?>"><span class="pcoded-mtext">Dashboard Keuangan</span></a></li>
-                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'keuangan' && $seg3 == 'verifikasi') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/keuangan/verifikasi') ?>"><span class="pcoded-mtext">Verifikasi Pembayaran</span></a></li>
-                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'keuangan' && $seg3 == 'kontrol_ta') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/keuangan/kontrol_ta') ?>"><span class="pcoded-mtext">Kontrol Akses Tagihan</span></a></li>
-                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'keuangan' && $seg3 == 'laporan') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/keuangan/laporan') ?>"><span class="pcoded-mtext">Laporan Rektorat</span></a></li>
+                                        <li><a href="<?= base_url('superadmin/keuangan/admin') ?>"><span class="pcoded-mtext">Dashboard Keuangan</span></a></li>
+                                        <li><a href="<?= base_url('superadmin/keuangan/verifikasi') ?>"><span class="pcoded-mtext">Verifikasi Pembayaran</span></a></li>
+                                        <li><a href="<?= base_url('superadmin/keuangan/kontrol_ta') ?>"><span class="pcoded-mtext">Kontrol Akses Tagihan</span></a></li>
+                                        <li><a href="<?= base_url('superadmin/keuangan/laporan') ?>"><span class="pcoded-mtext">Laporan Rektorat</span></a></li>
                                     </ul>
                                 </li>
                                 <li class="pcoded-hasmenu <?= ($seg1 == 'akademik') ? 'pcoded-trigger active' : '' ?>">

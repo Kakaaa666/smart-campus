@@ -139,91 +139,38 @@
                     border: 1px solid #fda4af;
                 }
 
-                /* Informasi biaya semester */
+                /* Banner Simulasi Biaya */
                 .banner-biaya-simulasi {
-                    background: #f5f9fc;
-                    border: 1px solid #d8e5ed;
-                    border-left: 4px solid #5b8fa8;
-                    border-radius: 8px;
-                    color: #334155;
-                    padding: 24px 28px;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+                    border-radius: 18px;
+                    color: #ffffff;
+                    padding: 28px 32px;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
                     margin-bottom: 24px;
                 }
                 .banner-biaya-simulasi::after {
-                    display: none;
+                    content: "";
+                    position: absolute;
+                    top: -60px;
+                    right: -60px;
+                    width: 220px;
+                    height: 220px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.06);
+                    pointer-events: none;
                 }
-                .biaya-label {
-                    color: #64748b;
+                .tag-simulasi {
+                    background: #f59e0b;
+                    color: #78350f;
                     font-size: 11px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .biaya-period {
-                    color: #64748b;
-                    font-size: 13px;
-                    font-weight: 500;
-                }
-                .biaya-heading {
-                    color: #475569;
-                    font-size: 13px;
-                    font-weight: 700;
-                    letter-spacing: 0.03em;
-                    text-transform: uppercase;
-                }
-                .biaya-icon-accent {
-                    color: #477e98;
-                }
-                .biaya-total {
-                    color: #0f172a;
-                    font-size: 32px;
                     font-weight: 800;
-                    margin: 6px 0 8px;
-                    line-height: 1.2;
-                }
-                .biaya-program {
-                    color: #475569;
-                    font-size: 13px;
-                    line-height: 1.6;
-                }
-                .biaya-breakdown {
-                    border-left: 1px solid #d8e5ed;
-                    padding-left: 28px;
-                }
-                .biaya-breakdown-title {
-                    color: #334155;
-                    font-size: 13px;
-                    font-weight: 700;
-                    margin-bottom: 12px;
                     text-transform: uppercase;
-                }
-                .biaya-breakdown-list {
-                    color: #334155;
-                    font-size: 13px;
-                    line-height: 1.8;
-                }
-                .biaya-item-label {
-                    color: #64748b;
-                    font-size: 12px;
-                }
-                .biaya-item-check {
-                    color: #059669;
-                }
-                .biaya-note {
-                    border-top: 1px dashed #c7d8e2;
-                    color: #64748b;
-                    font-size: 12px;
-                    margin-top: 8px;
-                    opacity: 1;
-                    padding-top: 8px;
-                }
-                @media (max-width: 991.98px) {
-                    .biaya-breakdown {
-                        border-left: 0;
-                        border-top: 1px solid #e2e8f0;
-                        margin-top: 8px;
-                        padding: 20px 0 0;
-                    }
+                    letter-spacing: 0.8px;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    display: inline-block;
                 }
 
                 /* Bank Card Rekening */
@@ -318,22 +265,22 @@
                     </div>
                 </div>
 
-                <!-- Informasi Rincian Biaya Kuliah -->
+                <!-- Banner Rincian Biaya Kuliah & Deskripsi Keuangan (Desain Modern & Menonjol) -->
                 <div class="banner-biaya-simulasi">
                     <div class="row align-items-center">
                         <div class="col-lg-6 mb-3 mb-lg-0">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="biaya-label mr-2">Data simulasi kampus</span>
-                                <span class="biaya-period">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
+                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">DATA SIMULASI KAMPUS</span>
+                                <span style="font-size: 13.5px; opacity: 0.9; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
                             </div>
-                            <div class="biaya-heading">
-                                Total biaya perkuliahan semester
+                            <div style="font-size: 15px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Total Biaya Perkuliahan Semester
                             </div>
-                            <h1 class="biaya-total">
+                            <h1 style="font-weight: 800; font-size: 38px; margin: 6px 0 8px; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
                                 Rp 4.500.000
                             </h1>
-                            <div class="biaya-program">
-                                <i class="fa fa-graduation-cap mr-1 biaya-icon-accent"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
+                            <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
+                                <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                             </div>
                             <!-- Status Akses Semester Akhir Mahasiswa -->
                             <?php if ($is_semester_akhir): ?>
@@ -350,30 +297,30 @@
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="col-lg-6 biaya-breakdown">
-                            <div class="biaya-breakdown-title">
-                                <i class="fa fa-list-ul mr-1 biaya-icon-accent"></i> Rincian biaya pokok
+                        <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.25); padding-left: 28px;">
+                            <div class="font-weight-bold mb-3" style="font-size: 14.5px; letter-spacing: 0.5px; text-transform: uppercase;">
+                                <i class="fa fa-list-ul mr-1 text-warning"></i> Rincian Transparansi Biaya Pokok
                             </div>
-                            <div class="row biaya-breakdown-list">
+                            <div class="row" style="font-size: 13.5px; line-height: 1.8;">
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Kewajiban Pokok Kuliah</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> SPP / UKT: <strong>Rp 3.500.000</strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Kewajiban Pokok Kuliah</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp 3.500.000</strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Akademik &amp; Laboratorium</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> Praktikum: <strong>Rp 500.000</strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Akademik &amp; Laboratorium</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp 500.000</strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Sarana Kampus</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> Fasilitas: <strong>Rp 300.000</strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Sarana Kampus</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp 300.000</strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Layanan Digital</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> SI &amp; Admin: <strong>Rp 200.000</strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Layanan Digital</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp 200.000</strong>
                                 </div>
                             </div>
-                            <div class="biaya-note">
-                                <i class="fa fa-info-circle mr-1 biaya-icon-accent"></i> Biaya semester akhir (tugas akhir/skripsi) bersifat kondisional dan hanya muncul jika akses telah disetujui serta dibuka oleh Bagian Keuangan.
+                            <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
+                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir (tugas akhir/skripsi) bersifat kondisional dan hanya muncul jika akses telah disetujui serta dibuka oleh Bagian Keuangan.
                             </div>
                         </div>
                     </div>
@@ -390,7 +337,7 @@
                                 <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted d-block mt-1">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
                             </div>
                         </div>
                         <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">

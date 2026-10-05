@@ -301,7 +301,7 @@ body .table thead th {
 }
 
 body.theme-mahasiswa .pcoded-header {
-    background: linear-gradient(110deg, #082943 0%, #0b3555 56%, #0b5268 100%) !important;
+    background: linear-gradient(110deg, #06233f 0%, #0c3c61 70%, #075e7d 100%) !important;
     border-bottom-color: #0c5a78 !important;
 }
 
@@ -321,7 +321,7 @@ body.theme-mahasiswa .brand-icon {
 }
 
 body.theme-admin .pcoded-header {
-    background: linear-gradient(110deg, #16352b 0%, #1d4935 58%, #256343 100%) !important;
+    background: #16352b !important;
     border-bottom-color: #2f8f5b !important;
 }
 
@@ -341,7 +341,7 @@ body.theme-admin .brand-icon {
 }
 
 body.theme-superadmin .pcoded-header {
-    background: linear-gradient(110deg, #111111 0%, #202326 64%, #30373b 100%) !important;
+    background: #111111 !important;
     border-bottom-color: #111111 !important;
 }
 
