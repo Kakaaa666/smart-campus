@@ -269,6 +269,27 @@
         .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon {
             color: #1976d2 !important;
         }
+
+        /* Menjamin konten halaman tidak tertindih oleh sidebar yang fixed */
+        .pcoded[theme-layout="vertical"] .pcoded-content,
+        .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
+        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
+            margin-left: 235px !important;
+            transition: margin-left 0.25s ease-in-out;
+        }
+        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="collapsed"] .pcoded-content {
+            margin-left: 70px !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="offcanvas"] .pcoded-content {
+            margin-left: 0 !important;
+        }
+        @media only screen and (max-width: 768px) {
+            .pcoded[theme-layout="vertical"] .pcoded-content,
+            .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
+            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
+                margin-left: 0 !important;
+            }
+        }
     </style>
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-themes.css?v=' . time()) ?>">
 </head>

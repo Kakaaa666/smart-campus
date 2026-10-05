@@ -5,76 +5,93 @@
                 
                 <!-- Custom Styling Khusus Modul Keuangan Mahasiswa -->
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
                 .page-wrapper {
                     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
 
+                /* ── Premium Card Base ── */
                 .custom-card-white {
-                    background-color: #ffffff !important;
-                    background: #ffffff !important;
+                    background: rgba(255,255,255,0.95) !important;
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
                     border-radius: 18px !important;
-                    border: 1px solid #e2e8f0 !important;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+                    border: 1px solid rgba(226,232,240,0.8) !important;
+                    box-shadow: 0 4px 24px rgba(15,23,42,0.06), 0 1px 4px rgba(15,23,42,0.04) !important;
                     overflow: hidden !important;
                     margin-bottom: 24px !important;
-                    transition: all 0.25s ease-in-out;
+                    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+                    animation: fadeUpIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+                }
+                .custom-card-white:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 40px rgba(15,23,42,0.1) !important;
+                }
+
+                @keyframes fadeUpIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes orbPulse {
+                    0%,100% { transform: scale(1) translate(0,0); opacity:0.7; }
+                    50%     { transform: scale(1.12) translate(15px,-15px); opacity:1; }
+                }
+                @keyframes cardShine {
+                    0%   { left:-100%; }
+                    100% { left: 200%; }
                 }
 
                 .custom-card-header {
-                    background-color: #ffffff !important;
+                    background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%) !important;
                     border-bottom: 1px solid #f1f5f9 !important;
                     border-top-left-radius: 18px !important;
                     border-top-right-radius: 18px !important;
                     padding: 20px 26px !important;
                 }
-
                 .custom-card-header h5 {
                     margin: 0;
                     font-size: 16.5px;
                     font-weight: 800;
                     color: #0f172a;
                 }
-
-                .custom-card-header > .badge {
-                    margin-left: auto;
-                    white-space: nowrap;
-                }
-
+                .custom-card-header > .badge { margin-left: auto; white-space: nowrap; }
                 @media (max-width: 575.98px) {
                     .custom-card-header > .badge {
                         margin-left: 0;
                     }
                 }
+
                 .billing-intro {
                     padding-bottom: 24px;
                 }
 
-                @media (max-width: 767.98px) {
-                    .billing-intro {
-                        padding-bottom: 16px;
-                        margin-bottom: 16px !important;
-                    }
-                    .billing-intro .btn-open-bayar-general {
-                        margin-bottom: 0 !important;
-                    }
-                }
-
-                /* Metric Stat Card */
+                /* ── Stat Cards ── */
                 .fin-stat-card {
                     padding: 22px 24px;
                     border-radius: 16px;
-                    border: 1px solid #e2e8f0;
-                    background: #ffffff;
+                    border: 1px solid rgba(226,232,240,0.8);
+                    background: rgba(255,255,255,0.95);
                     position: relative;
                     overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+                    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+                }
+                .fin-stat-card::after {
+                    content: '';
+                    position: absolute;
+                    top:0; left:-80%;
+                    width: 50%; height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                    transform: skewX(-15deg);
+                    transition: none;
                 }
                 .fin-stat-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+                    transform: translateY(-5px) scale(1.01);
+                    box-shadow: 0 14px 36px rgba(0,0,0,0.09);
+                }
+                .fin-stat-card:hover::after {
+                    animation: cardShine 0.6s ease forwards;
                 }
                 .fin-stat-icon {
                     width: 50px;
@@ -86,29 +103,30 @@
                     font-size: 22px;
                 }
 
-                /* Nav Tabs Styling */
+                /* ── Nav Tabs ── */
                 .nav-tabs-keuangan {
                     border-bottom: 2px solid #e2e8f0;
                     padding: 0 24px;
-                    background: #ffffff;
+                    background: linear-gradient(135deg, #ffffff, #fafbff);
                 }
                 .nav-tabs-keuangan .nav-link {
                     border: none;
                     color: #64748b;
                     font-weight: 600;
-                    font-size: 14px;
-                    padding: 18px 22px;
+                    font-size: 13.5px;
+                    padding: 18px 20px;
                     margin-bottom: -2px;
                     border-bottom: 3px solid transparent;
-                    transition: all 0.2s ease;
+                    transition: all 0.25s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                 }
-                .nav-tabs-keuangan .nav-link i {
-                    margin-right: 8px;
-                    font-size: 16px;
-                }
+                .nav-tabs-keuangan .nav-link i { font-size: 15px; }
                 .nav-tabs-keuangan .nav-link:hover {
                     color: #0284c7;
                     border-bottom-color: #bae6fd;
+                    background: rgba(2,132,199,0.04);
                 }
                 .nav-tabs-keuangan .nav-link.active {
                     color: #0284c7;
@@ -117,7 +135,7 @@
                     border-bottom: 3px solid #0284c7;
                 }
 
-                /* Badges Status */
+                /* ── Status Badges ── */
                 .badge-status {
                     padding: 6px 14px;
                     border-radius: 20px;
@@ -127,19 +145,11 @@
                     align-items: center;
                     letter-spacing: 0.3px;
                 }
-                .badge-status i {
-                    margin-right: 5px;
-                    font-size: 13px;
-                }
-                .badge-belum-bayar {
-                    background-color: #fee2e2;
-                    color: #dc2626;
-                    border: 1px solid #fca5a5;
-                }
+                .badge-status i { margin-right: 5px; font-size: 13px; }
+                .badge-belum-bayar { background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; }
                 .badge-pending {
-                    background-color: #fef3c7;
-                    color: #b45309;
-                    border: 1px solid #fcd34d;
+                    background:#fef3c7; color:#b45309; border:1px solid #fcd34d;
+                    animation: pulseBadge 2.5s ease-in-out infinite;
                 }
                 .badge-lunas {
                     background-color: #d1fae5;
@@ -152,110 +162,60 @@
                     border: 1px solid #fda4af;
                 }
 
-                /* Informasi biaya semester */
+                /* Banner Simulasi Biaya */
                 .banner-biaya-simulasi {
-                    background: #f5f9fc;
-                    border: 1px solid #d8e5ed;
-                    border-left: 4px solid #5b8fa8;
-                    border-radius: 8px;
-                    color: #334155;
-                    padding: 24px 28px;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+                    border-radius: 18px;
+                    color: #ffffff;
+                    padding: 28px 32px;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
                     margin-bottom: 24px;
                 }
                 .banner-biaya-simulasi::after {
-                    display: none;
+                    content: "";
+                    position: absolute;
+                    top: -60px;
+                    right: -60px;
+                    width: 220px;
+                    height: 220px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.06);
+                    pointer-events: none;
                 }
-                .biaya-label {
-                    color: #64748b;
+                .tag-simulasi {
+                    background: #f59e0b;
+                    color: #78350f;
                     font-size: 11px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .biaya-period {
-                    color: #64748b;
-                    font-size: 13px;
-                    font-weight: 500;
-                }
-                .biaya-heading {
-                    color: #475569;
-                    font-size: 13px;
-                    font-weight: 700;
-                    letter-spacing: 0.03em;
-                    text-transform: uppercase;
-                }
-                .biaya-icon-accent {
-                    color: #477e98;
-                }
-                .biaya-total {
-                    color: #0f172a;
-                    font-size: 32px;
                     font-weight: 800;
-                    margin: 6px 0 8px;
-                    line-height: 1.2;
-                }
-                .biaya-program {
-                    color: #475569;
-                    font-size: 13px;
-                    line-height: 1.6;
-                }
-                .biaya-breakdown {
-                    border-left: 1px solid #d8e5ed;
-                    padding-left: 28px;
-                }
-                .biaya-breakdown-title {
-                    color: #334155;
-                    font-size: 13px;
-                    font-weight: 700;
-                    margin-bottom: 12px;
                     text-transform: uppercase;
-                }
-                .biaya-breakdown-list {
-                    color: #334155;
-                    font-size: 13px;
-                    line-height: 1.8;
-                }
-                .biaya-item-label {
-                    color: #64748b;
-                    font-size: 12px;
-                }
-                .biaya-item-check {
-                    color: #059669;
-                }
-                .biaya-note {
-                    border-top: 1px dashed #c7d8e2;
-                    color: #64748b;
-                    font-size: 12px;
-                    margin-top: 8px;
-                    opacity: 1;
-                    padding-top: 8px;
-                }
-                @media (max-width: 991.98px) {
-                    .biaya-breakdown {
-                        border-left: 0;
-                        border-top: 1px solid #e2e8f0;
-                        margin-top: 8px;
-                        padding: 20px 0 0;
-                    }
+                    letter-spacing: 0.8px;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    display: inline-block;
                 }
 
-                /* Bank Card Rekening */
+                /* ── Bank Rekening Box ── */
                 .bank-rek-box {
                     border: 1.5px dashed #cbd5e1;
                     border-radius: 14px;
                     padding: 18px;
-                    background: #ffffff;
-                    transition: border-color 0.2s ease, transform 0.2s ease;
+                    background: linear-gradient(135deg, #ffffff, #f8faff);
+                    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+                    position: relative;
+                    overflow: hidden;
                 }
                 .bank-rek-box:hover {
                     border-color: #0284c7;
-                    background: #f0f9ff;
-                    transform: translateY(-2px);
+                    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+                    transform: translateY(-3px) scale(1.01);
+                    box-shadow: 0 8px 24px rgba(2,132,199,0.12);
                 }
 
-                /* Table Design */
+                /* ── Keuangan Table ── */
                 .table-keuangan thead th {
-                    background-color: #f8fafc;
+                    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
                     color: #475569;
                     font-weight: 700;
                     font-size: 12px;
@@ -271,24 +231,71 @@
                     color: #334155;
                     font-size: 13.5px;
                     border-top: 1px solid #f1f5f9;
+                    transition: background 0.15s ease;
                 }
+                .table-keuangan tbody tr:hover td { background: rgba(2,132,199,0.03); }
 
-                /* Realtime Floating Toast */
+                /* ── Toast ── */
                 #realtimeToast {
                     position: fixed;
-                    bottom: 28px;
-                    right: 28px;
+                    bottom: 28px; right: 28px;
                     z-index: 9999;
-                    min-width: 320px;
-                    max-width: 420px;
-                    border-radius: 14px;
-                    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+                    min-width: 320px; max-width: 420px;
+                    border-radius: 16px;
+                    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
                     display: none;
-                    animation: slideUpFade 0.3s ease-out;
+                    animation: toastSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
                 }
-                @keyframes slideUpFade {
-                    from { transform: translateY(30px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
+                @keyframes toastSlideUp {
+                    from { transform: translateY(40px) scale(0.9); opacity:0; }
+                    to   { transform: translateY(0) scale(1); opacity:1; }
+                }
+
+                /* ── Progress Bar ── */
+                .progress-bar {
+                    animation: progressGrow 1.4s cubic-bezier(0.4,0,0.2,1) both;
+                    animation-delay: 0.4s;
+                }
+                @keyframes progressGrow { from { width:0% !important; } }
+
+                /* ── Buttons ── */
+                .btn { transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1) !important; }
+                .btn:hover { transform: translateY(-2px); }
+                .btn-primary:hover { box-shadow: 0 6px 18px rgba(2,132,199,0.4) !important; }
+                .btn-success:hover { box-shadow: 0 6px 18px rgba(5,150,105,0.4) !important; }
+
+                /* ── Alert Animated ── */
+                .alert { animation: fadeUpIn 0.35s ease both; }
+
+                /* ── Step Wizard Badges ── */
+                .step-badge {
+                    width: 32px; height: 32px;
+                    border-radius: 50%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 800;
+                    font-size: 14px;
+                    flex-shrink: 0;
+                }
+
+                /* ── Billing info card divider ── */
+                .cost-divider {
+                    border-top: 1px dashed rgba(255,255,255,0.2);
+                    padding-top: 14px;
+                    margin-top: 14px;
+                }
+
+                /* ── Scrollbar ── */
+                ::-webkit-scrollbar { width:6px; height:6px; }
+                ::-webkit-scrollbar-track { background:#f1f5f9; }
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg,#0284c7,#6366f1);
+                    border-radius: 10px;
+                }
+
+                @keyframes pulseDot {
+                    0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);}
                 }
                 </style>
 
@@ -307,24 +314,28 @@
                 </div>
 
                 <!-- 1. Header Halaman Keuangan -->
-                <div class="card custom-card-white">
-                    <div class="card-block" style="padding: 22px 28px;">
+                <div class="custom-card-white" style="border-left:5px solid #0284c7; background:linear-gradient(135deg,#ffffff,#f0f9ff) !important;">
+                    <div style="padding: 24px 32px;">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <div class="d-flex align-items-center mb-1">
-                                    <h4 class="m-0 mr-2" style="font-size: 20px; font-weight: 700; color: #1e293b;">
-                                        <i class="bi bi-wallet2 mr-2 text-primary"></i> Modul Keuangan Mahasiswa
-                                    </h4>
-                                    <span class="tag-simulasi">Data Simulasi</span>
+                                <div class="d-flex align-items-center gap-3" style="gap:14px;">
+                                    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0284c7,#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(2,132,199,0.3);">
+                                        <i class="bi bi-wallet2" style="font-size:24px;color:#fff;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="m-0 mb-1" style="font-size:20px;font-weight:800;color:#0f172a;">Modul Keuangan Mahasiswa</h4>
+                                        <p class="m-0" style="color:#64748b;font-size:13px;">
+                                            <strong><?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></strong>
+                                            &nbsp;&middot;&nbsp;NIM: <?= htmlspecialchars($mahasiswa_info['nim']) ?>
+                                            &nbsp;&middot;&nbsp;<?= htmlspecialchars($mahasiswa_info['prodi']) ?> &mdash; Semester <?= htmlspecialchars($mahasiswa_info['semester']) ?>
+                                        </p>
+                                    </div>
                                 </div>
-                                <p class="m-0" style="color: #64748b; font-size: 13.5px;">
-                                    Mahasiswa: <strong><?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></strong> (NIM: <?= htmlspecialchars($mahasiswa_info['nim']) ?>) &middot; 
-                                    <span><?= htmlspecialchars($mahasiswa_info['prodi']) ?> &mdash; Semester <?= htmlspecialchars($mahasiswa_info['semester']) ?></span>
-                                </p>
                             </div>
                             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                                <span class="badge badge-light px-3 py-2" style="border: 1.5px solid #cbd5e1; font-size: 12px; border-radius: 8px;">
-                                    <i class="fa fa-refresh mr-1 text-primary"></i> Sync Real-time: <strong class="text-success">Aktif</strong>
+                                <span class="badge" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+                                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;margin-right:6px;animation:pulseDot 1.5s ease-in-out infinite;"></span>
+                                    Sync Real-time: Aktif
                                 </span>
                             </div>
                         </div>
@@ -340,68 +351,69 @@
 
                 <!-- Informasi Rincian Biaya Kuliah -->
                 <div class="banner-biaya-simulasi">
+                    <div class="banner-content">
                     <div class="row align-items-center">
                         <div class="col-lg-6 mb-3 mb-lg-0">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="biaya-label mr-2">Informasi tarif kampus</span>
-                                <span class="biaya-period">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
+                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">INFORMASI TARIF KAMPUS</span>
+                                <span style="font-size: 13.5px; opacity: 0.9; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
                             </div>
-                            <div class="biaya-heading">
-                                Total biaya perkuliahan semester
+                            <div style="font-size: 15px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Total Biaya Perkuliahan Semester
                             </div>
-                            <h1 class="biaya-total">
+                            <h1 style="font-weight: 800; font-size: 38px; margin: 6px 0 8px; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
                                 Rp <?= number_format($total_biaya_semester, 0, ',', '.') ?>
                             </h1>
-                            <div class="biaya-program">
-                                <i class="fa fa-graduation-cap mr-1 biaya-icon-accent"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
+                            <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
+                                <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                             </div>
                             <!-- Status Akses Semester Akhir Mahasiswa -->
                             <?php if ($is_semester_akhir): ?>
                                 <div class="mt-3">
                                     <?php if ($akses_ta_mahasiswa): ?>
-                                        <span class="badge badge-success px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
-                                            <i class="fa fa-unlock mr-1"></i> Akses Biaya Semester Akhir: DIBUKA OLEH ADMIN KEUANGAN
+                                        <span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(110,231,183,0.35);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
+                                            <i class="fa fa-unlock"></i> Akses Biaya Semester Akhir: DIBUKA
                                         </span>
                                     <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'MENUNGGU'): ?>
-                                        <span class="badge badge-warning px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700;">
-                                            <i class="fa fa-clock-o mr-1"></i> Kelayakan Semester Akhir sedang divalidasi Biro Keuangan
+                                        <span style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;">
+                                            <i class="fa fa-clock-o"></i> Menunggu validasi Biro Keuangan
                                         </span>
                                     <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'DITOLAK'): ?>
-                                        <span class="badge badge-danger px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700;">
-                                            <i class="fa fa-times-circle mr-1"></i> Validasi semester akhir belum disetujui Biro Keuangan
+                                        <span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(252,165,165,0.3);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;">
+                                            <i class="fa fa-times-circle"></i> Validasi belum disetujui
                                         </span>
                                     <?php else: ?>
-                                        <span class="badge badge-secondary px-3 py-2" style="font-size: 12px; border-radius: 8px; font-weight: 700; background: rgba(255,255,255,0.25); color: #fff;">
-                                            <i class="fa fa-lock mr-1"></i> Akses tagihan semester akhir menunggu persetujuan keuangan
+                                        <span style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15);font-size:12px;border-radius:20px;font-weight:600;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
+                                            <i class="fa fa-lock"></i> Tagihan semester akhir menunggu persetujuan
                                         </span>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="col-lg-6 biaya-breakdown">
-                            <div class="biaya-breakdown-title">
-                                <i class="fa fa-list-ul mr-1 biaya-icon-accent"></i> Rincian biaya pokok
+                        <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.25); padding-left: 28px;">
+                            <div class="font-weight-bold mb-3" style="font-size: 14.5px; letter-spacing: 0.5px; text-transform: uppercase;">
+                                <i class="fa fa-list-ul mr-1 text-warning"></i> Rincian Transparansi Biaya Pokok
                             </div>
-                            <div class="row biaya-breakdown-list">
+                            <div class="row" style="font-size: 13.5px; line-height: 1.8;">
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Kewajiban Pokok Kuliah</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> SPP / UKT: <strong>Rp <?= number_format($komponen_biaya[0]['nominal'], 0, ',', '.') ?></strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Kewajiban Pokok Kuliah</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp <?= number_format($komponen_biaya[0]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Akademik &amp; Laboratorium</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> Praktikum: <strong>Rp <?= number_format($komponen_biaya[1]['nominal'], 0, ',', '.') ?></strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Akademik &amp; Laboratorium</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp <?= number_format($komponen_biaya[1]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Sarana Kampus</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> Fasilitas: <strong>Rp <?= number_format($komponen_biaya[2]['nominal'], 0, ',', '.') ?></strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Sarana Kampus</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp <?= number_format($komponen_biaya[2]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-sm-6 mb-2">
-                                    <div class="biaya-item-label">Layanan Digital</div>
-                                    <i class="fa fa-check-circle mr-1 biaya-item-check"></i> SI &amp; Admin: <strong>Rp <?= number_format($komponen_biaya[3]['nominal'], 0, ',', '.') ?></strong>
+                                    <div style="opacity: 0.85; font-size: 12px;">Layanan Digital</div>
+                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp <?= number_format($komponen_biaya[3]['nominal'], 0, ',', '.') ?></strong>
                                 </div>
                             </div>
-                            <div class="biaya-note">
-                                <i class="fa fa-info-circle mr-1 biaya-icon-accent"></i> Biaya semester akhir bersifat kondisional dan hanya muncul setelah akses dibuka oleh Bagian Keuangan.
+                            <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
+                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir bersifat kondisional dan hanya muncul setelah akses dibuka oleh Bagian Keuangan.
                             </div>
                         </div>
                     </div>
