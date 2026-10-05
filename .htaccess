@@ -2,6 +2,9 @@
     RewriteEngine On
     RewriteBase /smart-campus/
 
+    # Serve static assets from the Git repository used for local development.
+    RewriteRule ^assets/(.*)$ Untitled/assets/$1 [L]
+
     # Direct requests to index.php if not a real file or directory
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

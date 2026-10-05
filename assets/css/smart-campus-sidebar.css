@@ -508,8 +508,50 @@
 }
 
 /* Adjust page content margin when collapsed so it doesn't leave blank space */
-.pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="collapsed"] .pcoded-content {
+#pcoded.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-content {
     margin-left: 70px !important;
+    margin-right: 0 !important;
+    width: calc(100% - 70px) !important;
+    max-width: calc(100% - 70px) !important;
+    box-sizing: border-box !important;
+    left: auto !important;
+    right: auto !important;
+    float: none !important;
+}
+
+#pcoded.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-content > .pcoded-inner-content,
+#pcoded.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-content .main-body,
+#pcoded.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-content .page-wrapper {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.pcoded .table-responsive {
+    max-width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media only screen and (min-width: 769px) {
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-content {
+        margin-left: 235px !important;
+        margin-right: 0 !important;
+        width: calc(100% - 235px) !important;
+        max-width: calc(100% - 235px) !important;
+        box-sizing: border-box !important;
+        left: auto !important;
+        right: auto !important;
+        float: none !important;
+    }
+
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-content > .pcoded-inner-content,
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-content .main-body,
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-content .page-wrapper {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
 }
 
 /* ============================================================
@@ -520,9 +562,9 @@
 .pcoded-header {
     background: #1976d2 !important;
     background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%) !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22) !important;
@@ -534,18 +576,18 @@
     z-index: 1030 !important;
 }
 
-/* Pastikan container halaman memiliki margin-top 56px agar konten tidak tertimpa header fixed */
+/* Keep page content below the fixed header. */
 .pcoded .pcoded-main-container,
 .pcoded-main-container {
-    margin-top: 56px !important;
+    margin-top: 74px !important;
     position: relative !important;
 }
 
 /* Pastikan sidebar tetap berada di bawah header fixed dan dapat di-scroll secara independen */
 .pcoded[theme-layout="vertical"] .pcoded-navbar {
-    top: 56px !important;
+    top: 74px !important;
     position: fixed !important;
-    height: calc(100vh - 56px) !important;
+    height: calc(100vh - 74px) !important;
     z-index: 1028 !important;
 }
 
@@ -977,9 +1019,6 @@
         display: none !important;
     }
 }
-
-
-
 
 /* ============================================================
    Page Header Banner (Dihapus Sepenuhnya Sesuai Permintaan)
