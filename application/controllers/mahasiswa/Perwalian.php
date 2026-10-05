@@ -41,14 +41,16 @@ class Perwalian extends CI_Controller {
         // Cek Status Pembayaran Semester Mahasiswa untuk Akses KRS
         $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
 
-        // Dukungan simulasi status krs melalui query string (khusus preview/testing)
-        $simulasi = $this->input->get('status', true) ?: $this->input->get('simulasi', true);
-        if ($simulasi === 'terkunci') {
-            $status_krs['buka_krs'] = false;
-            $status_krs['status']   = 'BELUM_BAYAR';
-        } elseif ($simulasi === 'terbuka' || $simulasi === 'lunas') {
-            $status_krs['buka_krs'] = true;
-            $status_krs['status']   = 'LUNAS';
+        // Simulasi status hanya untuk preview admin, bukan mahasiswa.
+        if ($user_role !== 3) {
+            $simulasi = $this->input->get('status', true) ?: $this->input->get('simulasi', true);
+            if ($simulasi === 'terkunci') {
+                $status_krs['buka_krs'] = false;
+                $status_krs['status']   = 'BELUM_BAYAR';
+            } elseif ($simulasi === 'terbuka' || $simulasi === 'lunas') {
+                $status_krs['buka_krs'] = true;
+                $status_krs['status']   = 'LUNAS';
+            }
         }
 
         $data['title']             = $page_title . ' - Smart Campus';

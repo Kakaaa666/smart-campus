@@ -65,7 +65,8 @@
     line-height: 1.2 !important;
     padding-left: 0 !important;
     margin: 0 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
 }
 
 .pcoded .pcoded-navbar .pcoded-item>li>a .pcoded-micon,
@@ -535,11 +536,16 @@
 }
 
 @media only screen and (min-width: 769px) {
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar,
+    #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-inner-navbar {
+        width: 280px !important;
+    }
+
     #pcoded.pcoded:not([vertical-nav-type="collapsed"]) .pcoded-content {
-        margin-left: 235px !important;
+        margin-left: 280px !important;
         margin-right: 0 !important;
-        width: calc(100% - 235px) !important;
-        max-width: calc(100% - 235px) !important;
+        width: calc(100% - 280px) !important;
+        max-width: calc(100% - 280px) !important;
         box-sizing: border-box !important;
         left: auto !important;
         right: auto !important;

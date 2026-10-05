@@ -43,6 +43,7 @@ class M_keuangan_shared extends CI_Model {
                 `akun_id` INT(11) NOT NULL,
                 `metode_pembayaran` VARCHAR(100) NOT NULL,
                 `tanggal_pembayaran` DATE NOT NULL,
+                `jam_pembayaran` TIME NULL,
                 `nominal_pembayaran` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
                 `nomor_referensi` VARCHAR(100) NULL,
                 `nomor_rekening` VARCHAR(100) NULL,
@@ -74,6 +75,7 @@ class M_keuangan_shared extends CI_Model {
 
         if ($this->db->table_exists($this->table_pembayaran)) {
             $fields = $this->db->list_fields($this->table_pembayaran);
+            if (!in_array('jam_pembayaran', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `jam_pembayaran` TIME NULL AFTER `tanggal_pembayaran`");
             if (!in_array('nomor_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nomor_rekening` VARCHAR(100) NULL AFTER `nomor_referensi`");
             if (!in_array('nama_rekening', $fields)) $this->db->query("ALTER TABLE `{$this->table_pembayaran}` ADD COLUMN `nama_rekening` VARCHAR(150) NULL AFTER `nomor_rekening`");
             $this->db->query("UPDATE `{$this->table_pembayaran}` SET `nomor_rekening` = `nomor_referensi` WHERE (`nomor_rekening` IS NULL OR `nomor_rekening` = '') AND `nomor_referensi` IS NOT NULL AND `nomor_referensi` <> ''");

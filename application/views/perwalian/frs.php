@@ -40,7 +40,15 @@
                     border-top: 1px solid #f1f5f9;
                 }
 
+                .table-frs th:nth-child(4),
+                .table-frs td:nth-child(4) {
+                    width: 90px;
+                    min-width: 90px;
+                    white-space: nowrap;
+                }
+
                 .badge-sks {
+                    display: inline-block;
                     background: #e0f2fe;
                     color: #0369a1;
                     border: 1px solid #bae6fd;
@@ -48,6 +56,7 @@
                     border-radius: 6px;
                     font-size: 11.5px;
                     font-weight: 700;
+                    white-space: nowrap;
                 }
 
                 @media print {
@@ -204,7 +213,7 @@
                                         <th style="width: 40px;" class="text-center">No</th>
                                         <th style="width: 100px;">Kode MK</th>
                                         <th>Nama Mata Kuliah</th>
-                                        <th class="text-center" style="width: 70px;">SKS</th>
+                                        <th class="text-center" style="width: 90px; min-width: 90px;">SKS</th>
                                         <th class="text-center" style="width: 80px;">Kelas</th>
                                         <th>Jadwal Kuliah</th>
                                         <th>Ruangan</th>
@@ -286,7 +295,7 @@
                                 <tfoot>
                                     <tr style="background: #f8fafc; font-weight: 700;">
                                         <td colspan="3" class="text-right pr-3">Total Beban SKS Semester Ini:</td>
-                                        <td class="text-center" style="color: #0284c7; font-size: 15px;">21 SKS</td>
+                                        <td class="text-center" style="color: #0284c7; font-size: 15px; white-space: nowrap;">21 SKS</td>
                                         <td colspan="4" class="text-muted font-weight-normal" style="font-size: 12px;">(Telah memenuhi syarat minimum 12 SKS dan tidak melampaui batas 24 SKS)</td>
                                     </tr>
                                 </tfoot>

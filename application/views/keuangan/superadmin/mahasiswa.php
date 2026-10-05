@@ -727,7 +727,7 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 40px;">No</th>
-                                            <th>Waktu Pengiriman</th>
+                                            <th>Tanggal &amp; Jam Pembayaran</th>
                                             <th>Kewajiban / Tagihan</th>
                                             <th>Metode Bayar</th>
                                             <th>Nominal</th>
@@ -762,7 +762,8 @@
                                                     <td class="font-weight-bold text-center"><?= $no++ ?></td>
                                                     <td>
                                                         <strong><?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?></strong><br>
-                                                        <small class="text-muted"><?= date('H:i', strtotime($r->created_at)) ?> WIB</small>
+                                                        <small class="text-muted">Jam bayar: <?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small><br>
+                                                        <small class="text-muted">Dikirim: <?= date('H:i', strtotime($r->created_at)) ?> WIB</small>
                                                     </td>
                                                     <td>
                                                         <strong style="color: #1e293b;"><?= htmlspecialchars($r->jenis_tagihan) ?></strong><br>
@@ -823,6 +824,7 @@
                                                                         data-nominal="Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>"
                                                                         data-metode="<?= htmlspecialchars($r->metode_pembayaran) ?>"
                                                                         data-tanggal="<?= $r->tanggal_pembayaran ?>"
+                                                                        data-jam="<?= htmlspecialchars($r->jam_pembayaran ?? '') ?>"
                                                                         data-rekening="<?= htmlspecialchars($r->nomor_rekening) ?>"
                                                                         data-nama-rekening="<?= htmlspecialchars($r->nama_rekening) ?>"
                                                                         style="border-radius: 6px 0 0 6px;"
@@ -869,7 +871,7 @@
                                         <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 4px;">
                                             <i class="bi bi-receipt-cutoff mr-1"></i> Total Pengeluaran Resmi Terverifikasi
                                         </div>
-                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; color: #ffffff !important; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                             Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?>
                                         </h2>
                                         <p style="font-size: 13px; opacity: 0.85; margin-bottom: 0;">
@@ -1129,7 +1131,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="metode_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Metode / Rekening Tujuan <span class="text-danger">*</span>
                             </label>
@@ -1143,11 +1145,17 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="tanggal_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Tanggal Transfer / Bayar <span class="text-danger">*</span>
                             </label>
                             <input type="date" name="tanggal_pembayaran" id="tanggal_pembayaran" class="form-control" value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
+                                Jam Transfer / Bayar <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" name="jam_pembayaran" id="jam_pembayaran" class="form-control" value="<?= date('H:i') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
 
@@ -1231,7 +1239,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="edit_metode_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Metode Pembayaran <span class="text-danger">*</span>
                             </label>
@@ -1244,11 +1252,17 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="edit_tanggal_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Tanggal Transfer / Bayar <span class="text-danger">*</span>
                             </label>
                             <input type="date" name="tanggal_pembayaran" id="edit_tanggal_pembayaran" class="form-control" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px;">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="edit_jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
+                                Jam Transfer / Bayar <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" name="jam_pembayaran" id="edit_jam_pembayaran" class="form-control" required style="height: 44px; border-radius: 8px;">
                         </div>
                     </div>
 
@@ -1407,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const nominal = this.getAttribute('data-nominal');
             const metode  = this.getAttribute('data-metode');
             const tgl     = this.getAttribute('data-tanggal');
+            const jam     = this.getAttribute('data-jam');
             const rekening = this.getAttribute('data-rekening');
             const namaRekening = this.getAttribute('data-nama-rekening');
 
@@ -1415,6 +1430,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editTagihanNominal').textContent = nominal;
             document.getElementById('edit_metode_pembayaran').value = metode;
             document.getElementById('edit_tanggal_pembayaran').value = tgl;
+            document.getElementById('edit_jam_pembayaran').value = jam || '';
             document.getElementById('edit_nomor_rekening').value = rekening;
             document.getElementById('edit_nama_rekening').value = namaRekening;
 

@@ -274,6 +274,7 @@
                                                     <th>Mahasiswa</th>
                                                     <th>Fakultas &amp; Program Studi</th>
                                                     <th>Kewajiban Tagihan</th>
+                                                    <th>Tanggal &amp; Jam Transfer</th>
                                                     <th>Nominal</th>
                                                     <th>Metode &amp; Rekening</th>
                                                     <th>Bukti Transfer</th>
@@ -298,6 +299,10 @@
                                                         <td>
                                                             <div style="font-weight: 700; font-size: 13.5px; color: #1e293b;"><?= htmlspecialchars($p->jenis_tagihan) ?></div>
                                                             <div style="font-size: 12px; color: #64748b;"><?= $p->tahun_akademik ?> &bull; <?= $p->semester ?></div>
+                                                        </td>
+                                                        <td style="font-size:12px; white-space:nowrap;">
+                                                            <div><?= !empty($p->tanggal_pembayaran) ? date('d M Y', strtotime($p->tanggal_pembayaran)) : '-' ?></div>
+                                                            <small class="text-muted">Jam: <?= !empty($p->jam_pembayaran) ? date('H:i', strtotime($p->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small>
                                                         </td>
                                                         <td style="font-weight: 800; color: #0f172a; font-size: 15px;">
                                                             Rp <?= number_format($p->nominal_pembayaran, 0, ',', '.') ?>
@@ -348,6 +353,7 @@
                                                 <tr>
                                                     <th style="width: 40px;" class="text-center">No</th>
                                                     <th>Waktu Verifikasi</th>
+                                                    <th>Tanggal &amp; Jam Transfer</th>
                                                     <th>Mahasiswa</th>
                                                     <th>Program Studi</th>
                                                     <th>Kewajiban Tagihan</th>
@@ -356,6 +362,7 @@
                                                     <th>Status</th>
                                                     <th>Verifikator</th>
                                                     <th>Bukti</th>
+                                                    <th>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -364,6 +371,10 @@
                                                         <td class="text-center text-muted"><?= $idx + 1 ?></td>
                                                         <td style="font-size: 12.5px;">
                                                             <?= $ps->diverifikasi_at ? date('d M Y, H:i', strtotime($ps->diverifikasi_at)) : '-' ?>
+                                                        </td>
+                                                        <td style="font-size:12px; white-space:nowrap;">
+                                                            <div><?= !empty($ps->tanggal_pembayaran) ? date('d M Y', strtotime($ps->tanggal_pembayaran)) : '-' ?></div>
+                                                            <small class="text-muted">Jam: <?= !empty($ps->jam_pembayaran) ? date('H:i', strtotime($ps->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small>
                                                         </td>
                                                         <td>
                                                             <div style="font-weight:700; color:#1e293b;"><?= htmlspecialchars($ps->nama_mahasiswa) ?></div>
@@ -400,6 +411,21 @@
                                                                class="btn btn-sm btn-light" style="border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px;">
                                                                 <i class="fa fa-file-image-o"></i>
                                                             </a>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($ps->status === 'LUNAS'): ?>
+                                                                <?= form_open('keuangan/batalkan_verifikasi_pembayaran', [
+                                                                    'onsubmit' => "return confirm('Batalkan verifikasi ini? Pembayaran kembali menunggu tindakan admin dan akses KRS dapat terkunci.')",
+                                                                    'style' => 'display:inline-block;'
+                                                                ]) ?>
+                                                                    <input type="hidden" name="pembayaran_id" value="<?= (int)$ps->id ?>">
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Batalkan verifikasi" aria-label="Batalkan verifikasi pembayaran">
+                                                                        <i class="fa fa-undo"></i>
+                                                                    </button>
+                                                                <?= form_close() ?>
+                                                            <?php else: ?>
+                                                                <span class="text-muted">-</span>
+                                                            <?php endif; ?>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>

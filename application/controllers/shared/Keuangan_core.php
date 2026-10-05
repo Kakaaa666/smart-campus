@@ -447,34 +447,6 @@ class Keuangan_core extends CI_Controller {
         $this->load->view('templates/footer', $data);
     }
 
-    public function validasi_tagihan_akhir()
-    {
-        if (!$this->require_roles([2])) return;
-
-        $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
-        $user_id = (int)$this->session->userdata('id');
-        $data['user'] = [
-            'id' => $user_id,
-            'nim' => $this->session->userdata('nim'),
-            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
-            'email' => $this->session->userdata('email'),
-            'role' => 2,
-            'role_name' => $this->session->userdata('role_name'),
-            'foto' => $this->session->userdata('foto'),
-        ];
-        $data['antrian_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir('MENUNGGU');
-        $data['riwayat_tagihan_akhir'] = $this->M_keuangan->get_antrian_tagihan_akhir(null);
-        $data['title'] = 'Validasi Tagihan Semester Akhir - Smart Campus';
-        $data['page_title'] = 'Validasi Tagihan Semester Akhir';
-        $data['page_desc'] = 'Periksa kelayakan mahasiswa tingkat akhir sebelum tagihan dibuat dan ditampilkan.';
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/topbar', $data);
-        $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/admin/validasi_tagihan_akhir', $data);
-        $this->load->view('templates/footer', $data);
-    }
-
     public function ajukan_dispensasi()
     {
         $this->session->set_flashdata('info', 'Fitur pengajuan dispensasi tidak tersedia.');
@@ -491,7 +463,6 @@ class Keuangan_core extends CI_Controller {
     {
         if (!$this->require_roles([2])) return;
         redirect('keuangan/kontrol_ta?tab=validasi');
-    }
     }
 
     public function proses_validasi_tagihan_akhir()
@@ -835,6 +806,66 @@ class Keuangan_core extends CI_Controller {
         }
 
         $this->session->set_flashdata('success', $msg);
+        redirect('keuangan/verifikasi');
+    }
+
+    public function batalkan_verifikasi_pembayaran()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        if (!$this->require_roles([1, 2])) return;
+
+        $pembayaran_id = (int)$this->input->post('pembayaran_id', true);
+        $pembayaran = $this->db->select('pembayaran.*, tagihan.akun_id as tagihan_akun_id')
+                       ->from('pembayaran')
+                       ->join('tagihan', 'tagihan.id = pembayaran.tagihan_id', 'inner')
+                       ->where('pembayaran.id', $pembayaran_id)
+                       ->get()->row();
+
+        if (!$pembayaran || $pembayaran->status !== 'LUNAS' || (int)$pembayaran->akun_id !== (int)$pembayaran->tagihan_akun_id) {
+            $this->session->set_flashdata('error', 'Pembayaran tidak ditemukan atau bukan pembayaran terverifikasi yang dapat dibatalkan.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        $this->db->trans_begin();
+        $this->db->where('id', $pembayaran_id)
+                 ->where('status', 'LUNAS')
+                 ->update('pembayaran', [
+                     'status'            => 'PENDING',
+                     'alasan_penolakan'  => null,
+                     'diverifikasi_oleh' => null,
+                     'diverifikasi_at'   => null,
+                     'updated_at'        => date('Y-m-d H:i:s')
+                 ]);
+
+        if ($this->db->affected_rows() !== 1) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Pembayaran sudah berubah status atau dibatalkan oleh admin lain.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        $pembayaran_lunas_lain = $this->db->where('tagihan_id', (int)$pembayaran->tagihan_id)
+                                          ->where('status', 'LUNAS')
+                                          ->count_all_results('pembayaran') > 0;
+        $this->M_keuangan->update_status_tagihan(
+            $pembayaran->tagihan_id,
+            $pembayaran_lunas_lain ? 'LUNAS' : 'PENDING'
+        );
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Pembatalan verifikasi gagal disimpan.');
+            redirect('keuangan/verifikasi');
+            return;
+        }
+
+        $this->db->trans_commit();
+        $this->session->set_flashdata('success', 'Verifikasi dibatalkan. Pembayaran kembali menunggu tindakan admin.');
         redirect('keuangan/verifikasi');
     }
 
@@ -1347,6 +1378,9 @@ class Keuangan_core extends CI_Controller {
         $this->form_validation->set_rules('tanggal_pembayaran', 'Tanggal Pembayaran', 'trim|required', [
             'required' => 'Tanggal pembayaran wajib diisi.'
         ]);
+        $this->form_validation->set_rules('jam_pembayaran', 'Jam Pembayaran', 'trim|required', [
+            'required' => 'Jam pembayaran wajib diisi.'
+        ]);
         $this->form_validation->set_rules('nomor_rekening', 'Nomor Rekening', 'trim|required|max_length[100]', [
             'required' => 'Nomor rekening wajib diisi.',
             'max_length' => 'Nomor rekening maksimal 100 karakter.'
@@ -1370,9 +1404,18 @@ class Keuangan_core extends CI_Controller {
             return;
         }
 
+        $jam_pembayaran = $this->input->post('jam_pembayaran', true);
+        $jam_valid = DateTime::createFromFormat('!H:i', $jam_pembayaran);
+        if (!$jam_valid || $jam_valid->format('H:i') !== $jam_pembayaran) {
+            $this->session->set_flashdata('error', 'Jam pembayaran tidak valid.');
+            redirect('keuangan');
+            return;
+        }
+
         $update_data = [
             'metode_pembayaran'  => $this->input->post('metode_pembayaran', true),
             'tanggal_pembayaran' => $this->input->post('tanggal_pembayaran', true),
+            'jam_pembayaran'     => $jam_pembayaran,
             'nomor_rekening'     => $this->input->post('nomor_rekening', true),
             'nama_rekening'      => $this->input->post('nama_rekening', true)
         ];
@@ -1517,6 +1560,9 @@ class Keuangan_core extends CI_Controller {
         $this->form_validation->set_rules('tanggal_pembayaran', 'Tanggal Pembayaran', 'trim|required', [
             'required' => 'Tanggal pembayaran wajib diisi.'
         ]);
+        $this->form_validation->set_rules('jam_pembayaran', 'Jam Pembayaran', 'trim|required', [
+            'required' => 'Jam pembayaran wajib diisi.'
+        ]);
         $this->form_validation->set_rules('nomor_rekening', 'Nomor Rekening', 'trim|required|max_length[100]', [
             'required' => 'Nomor rekening wajib diisi.',
             'max_length' => 'Nomor rekening maksimal 100 karakter.'
@@ -1536,6 +1582,14 @@ class Keuangan_core extends CI_Controller {
         $tanggal_valid = DateTime::createFromFormat('Y-m-d', $tanggal_pembayaran);
         if (!$tanggal_valid || $tanggal_valid->format('Y-m-d') !== $tanggal_pembayaran || $tanggal_pembayaran > date('Y-m-d')) {
             $this->session->set_flashdata('error', 'Tanggal pembayaran tidak valid atau melebihi tanggal hari ini.');
+            redirect('keuangan');
+            return;
+        }
+
+        $jam_pembayaran = $this->input->post('jam_pembayaran', true);
+        $jam_valid = DateTime::createFromFormat('!H:i', $jam_pembayaran);
+        if (!$jam_valid || $jam_valid->format('H:i') !== $jam_pembayaran) {
+            $this->session->set_flashdata('error', 'Jam pembayaran tidak valid.');
             redirect('keuangan');
             return;
         }
@@ -1625,6 +1679,7 @@ class Keuangan_core extends CI_Controller {
             'akun_id'            => $akun_id,
             'metode_pembayaran'  => $this->input->post('metode_pembayaran', true),
             'tanggal_pembayaran' => $tanggal_pembayaran,
+            'jam_pembayaran'     => $jam_pembayaran,
             'nominal_pembayaran' => $tagihan->nominal,
             'nomor_rekening'     => $this->input->post('nomor_rekening', true),
             'nama_rekening'      => $this->input->post('nama_rekening', true),

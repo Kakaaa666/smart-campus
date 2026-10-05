@@ -162,6 +162,83 @@
                     border: 1px solid #fda4af;
                 }
 
+                .payment-stepper {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 8px;
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                }
+                .payment-step {
+                    position: relative;
+                    min-width: 0;
+                    text-align: center;
+                    color: #94a3b8;
+                    font-size: 11px;
+                    line-height: 1.35;
+                }
+                .payment-step:not(:last-child)::after {
+                    position: absolute;
+                    top: 15px;
+                    left: calc(50% + 18px);
+                    width: calc(100% - 28px);
+                    height: 2px;
+                    background: #dbe4ef;
+                    content: '';
+                }
+                .payment-step-marker {
+                    position: relative;
+                    z-index: 1;
+                    display: flex;
+                    width: 30px;
+                    height: 30px;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 7px;
+                    border: 2px solid #cbd5e1;
+                    border-radius: 50%;
+                    background: #fff;
+                    color: #94a3b8;
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+                .payment-step.is-complete,
+                .payment-step.is-current { color: #1e3a8a; }
+                .payment-step.is-complete .payment-step-marker,
+                .payment-step.is-current .payment-step-marker {
+                    border-color: #1684cf;
+                    background: #1684cf;
+                    color: #fff;
+                }
+                .payment-step.is-complete:not(:last-child)::after { background: #1684cf; }
+                .payment-step.is-current .payment-step-marker { box-shadow: 0 0 0 4px #dbeafe; }
+                .payment-step.is-rejected,
+                .payment-step.is-rejected .payment-step-marker { color: #b91c1c; }
+                .payment-step.is-rejected .payment-step-marker {
+                    border-color: #dc2626;
+                    background: #dc2626;
+                }
+                @media (max-width: 575.98px) {
+                    .payment-stepper { gap: 2px; }
+                    .payment-step { font-size: 9px; }
+                    .payment-step:not(:last-child)::after {
+                        left: calc(50% + 15px);
+                        width: calc(100% - 22px);
+                    }
+                }
+
+                #formKonfirmasiPembayaran .form-group > label,
+                #modalEditPembayaran .form-group > label {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    color: #334155 !important;
+                    font-size: 13.5px !important;
+                    line-height: 1.4 !important;
+                    margin-bottom: 6px !important;
+                }
+
                 /* Banner Simulasi Biaya */
                 .banner-biaya-simulasi {
                     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
@@ -311,35 +388,6 @@
                     <button type="button" class="close text-white" onclick="$('#realtimeToast').fadeOut();" style="opacity:0.9;">
                         <span>&times;</span>
                     </button>
-                </div>
-
-                <!-- 1. Header Halaman Keuangan -->
-                <div class="custom-card-white" style="border-left:5px solid #0284c7; background:linear-gradient(135deg,#ffffff,#f0f9ff) !important;">
-                    <div style="padding: 24px 32px;">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <div class="d-flex align-items-center gap-3" style="gap:14px;">
-                                    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0284c7,#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(2,132,199,0.3);">
-                                        <i class="bi bi-wallet2" style="font-size:24px;color:#fff;"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="m-0 mb-1" style="font-size:20px;font-weight:800;color:#0f172a;">Modul Keuangan Mahasiswa</h4>
-                                        <p class="m-0" style="color:#64748b;font-size:13px;">
-                                            <strong><?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></strong>
-                                            &nbsp;&middot;&nbsp;NIM: <?= htmlspecialchars($mahasiswa_info['nim']) ?>
-                                            &nbsp;&middot;&nbsp;<?= htmlspecialchars($mahasiswa_info['prodi']) ?> &mdash; Semester <?= htmlspecialchars($mahasiswa_info['semester']) ?>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                                <span class="badge" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(16,185,129,0.3);">
-                                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;margin-right:6px;animation:pulseDot 1.5s ease-in-out infinite;"></span>
-                                    Sync Real-time: Aktif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <?php
@@ -688,6 +736,10 @@
                                 </div>
                             </div>
 
+                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
+                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                                <strong>Keterangan:</strong> Jenis tagihan menunjukkan kewajiban yang harus dibayar; tahun akademik dan semester menunjukkan periodenya; nominal adalah jumlah tagihan; jatuh tempo adalah batas akhir pembayaran; status dan aksi menunjukkan proses yang dapat dilakukan.
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-hover table-keuangan">
                                     <thead>
@@ -711,6 +763,15 @@
                                                 </td>
                                             </tr>
                                         <?php else: ?>
+                                            <?php
+                                                $latest_payment_by_tagihan = [];
+                                                foreach ($riwayat_pembayaran as $payment_record) {
+                                                    $payment_tagihan_id = (int)$payment_record->tagihan_id;
+                                                    if (!isset($latest_payment_by_tagihan[$payment_tagihan_id])) {
+                                                        $latest_payment_by_tagihan[$payment_tagihan_id] = $payment_record;
+                                                    }
+                                                }
+                                            ?>
                                             <?php $no = 1; foreach ($daftar_tagihan as $item): ?>
                                                 <?php 
                                                     $badge_cls = 'badge-belum-bayar';
@@ -760,6 +821,17 @@
                                                         <span class="badge-status <?= $badge_cls ?>">
                                                             <i class="bi <?= $icon_cls ?>"></i> <?= $label_st ?>
                                                         </span>
+                                                        <?php $latest_payment = $latest_payment_by_tagihan[(int)$item->id] ?? null; ?>
+                                                        <button type="button" class="btn btn-link btn-sm d-block p-0 mt-1 btn-lihat-progres"
+                                                                data-jenis="<?= htmlspecialchars($item->jenis_tagihan, ENT_QUOTES, 'UTF-8') ?>"
+                                                                data-status="<?= htmlspecialchars($item->status, ENT_QUOTES, 'UTF-8') ?>"
+                                                                data-tagihan-dibuat="<?= !empty($item->created_at) ? date('d M Y, H:i', strtotime($item->created_at)) . ' WIB' : '-' ?>"
+                                                                data-pembayaran-dikirim="<?= $latest_payment ? date('d M Y, H:i', strtotime($latest_payment->created_at)) . ' WIB' : '' ?>"
+                                                                data-diverifikasi="<?= $latest_payment && !empty($latest_payment->diverifikasi_at) ? date('d M Y, H:i', strtotime($latest_payment->diverifikasi_at)) . ' WIB' : '' ?>"
+                                                                data-admin="<?= htmlspecialchars($latest_payment->nama_verifikator ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                                data-alasan="<?= htmlspecialchars($latest_payment->alasan_penolakan ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                                            <i class="bi bi-diagram-3 mr-1"></i>Lihat Progres
+                                                        </button>
                                                     </td>
                                                     <td class="text-center">
                                                         <?php if ($item->status === 'BELUM_BAYAR'): ?>
@@ -815,12 +887,16 @@
                                 </div>
                             </div>
 
+                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
+                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                                <strong>Keterangan:</strong> Tanggal dan jam bayar adalah waktu transfer yang Anda masukkan; waktu “Dikirim” menunjukkan kapan konfirmasi tercatat di sistem. Kolom lainnya menampilkan tagihan, metode, nominal, rekening pengirim, bukti, status, dan aksi koreksi.
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-hover table-keuangan">
                                     <thead>
                                         <tr>
                                             <th style="width: 40px;">No</th>
-                                            <th>Waktu Pengiriman</th>
+                                            <th>Tanggal &amp; Jam Pembayaran</th>
                                             <th>Kewajiban / Tagihan</th>
                                             <th>Metode Bayar</th>
                                             <th>Nominal</th>
@@ -855,7 +931,8 @@
                                                     <td class="font-weight-bold text-center"><?= $no++ ?></td>
                                                     <td>
                                                         <strong><?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?></strong><br>
-                                                        <small class="text-muted"><?= date('H:i', strtotime($r->created_at)) ?> WIB</small>
+                                                        <small class="text-muted">Jam bayar: <?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small><br>
+                                                        <small class="text-muted">Dikirim: <?= date('H:i', strtotime($r->created_at)) ?> WIB</small>
                                                     </td>
                                                     <td>
                                                         <strong style="color: #1e293b;"><?= htmlspecialchars($r->jenis_tagihan) ?></strong><br>
@@ -916,6 +993,7 @@
                                                                         data-nominal="Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>"
                                                                         data-metode="<?= htmlspecialchars($r->metode_pembayaran) ?>"
                                                                         data-tanggal="<?= $r->tanggal_pembayaran ?>"
+                                                                        data-jam="<?= htmlspecialchars($r->jam_pembayaran ?? '') ?>"
                                                                         data-rekening="<?= htmlspecialchars($r->nomor_rekening) ?>"
                                                                         data-nama-rekening="<?= htmlspecialchars($r->nama_rekening) ?>"
                                                                         style="border-radius: 6px 0 0 6px;"
@@ -962,7 +1040,7 @@
                                         <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 4px;">
                                             <i class="bi bi-receipt-cutoff mr-1"></i> Total Pengeluaran Resmi Terverifikasi
                                         </div>
-                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; color: #ffffff !important; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                             Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?>
                                         </h2>
                                         <p style="font-size: 13px; opacity: 0.85; margin-bottom: 0;">
@@ -1085,6 +1163,10 @@
                             <h6 class="font-weight-bold text-primary mb-2" style="font-size: 14px;">
                                 <i class="fa fa-folder-open mr-1"></i> 1. Rincian Biaya Kuliah Semester (Wajib SPP / UKT)
                             </h6>
+                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
+                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                                <strong>Keterangan:</strong> Tabel ini merinci komponen biaya semester wajib. Kategori mengelompokkan biaya, keterangan menjelaskan penggunaannya, dan nominal menunjukkan jumlah per komponen; total tercantum di baris terakhir.
+                            </div>
                             <div class="table-responsive mb-4">
                                 <table class="table table-bordered table-keuangan">
                                     <thead>
@@ -1129,6 +1211,10 @@
                             <p class="text-muted mb-2" style="font-size: 12.5px;">
                                 Biaya berikut tidak termasuk dalam tagihan semester reguler dan hanya dikenakan apabila mahasiswa menggunakan layanan tersebut (misalnya di semester akhir).
                             </p>
+                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
+                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                                <strong>Keterangan:</strong> Jenis biaya menunjukkan layanan tambahan; peruntukan menjelaskan siapa atau kondisi yang dikenai biaya; keterangan berisi rincian layanan; nominal adalah biaya untuk layanan tersebut.
+                            </div>
                             <div class="table-responsive mb-3">
                                 <table class="table table-bordered table-keuangan">
                                     <thead>
@@ -1202,6 +1288,10 @@
                         </div>
                     </div>
 
+                    <p class="mb-3 text-muted" style="font-size:12px;">
+                        <span class="text-danger font-weight-bold">*</span> Wajib diisi sebelum konfirmasi pembayaran dikirim.
+                    </p>
+
                     <div class="form-group mb-3">
                         <label for="select_tagihan_id" class="font-weight-bold" style="font-size: 13.5px;">
                             Pilih Tagihan yang Akan Dibayarkan <span class="text-danger">*</span>
@@ -1213,6 +1303,7 @@
                                 <?php foreach ($tagihan_pilihan as $tp): ?>
                                     <option value="<?= $tp->id ?>" 
                                             data-jenis="<?= htmlspecialchars($tp->jenis_tagihan) ?>"
+                                            data-status="<?= htmlspecialchars($tp->status, ENT_QUOTES, 'UTF-8') ?>"
                                             data-nominal="Rp <?= number_format($tp->nominal, 0, ',', '.') ?>"
                                             data-semester="<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>"
                                             data-tempo="<?= date('d M Y', strtotime($tp->jatuh_tempo)) ?>">
@@ -1224,7 +1315,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="metode_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Metode / Rekening Tujuan <span class="text-danger">*</span>
                             </label>
@@ -1238,11 +1329,17 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="tanggal_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Tanggal Transfer / Bayar <span class="text-danger">*</span>
                             </label>
                             <input type="date" name="tanggal_pembayaran" id="tanggal_pembayaran" class="form-control" value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
+                                Jam Transfer / Bayar <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" name="jam_pembayaran" id="jam_pembayaran" class="form-control" value="<?= date('H:i') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
 
@@ -1282,6 +1379,32 @@
                     </button>
                 </div>
             <?= form_close() ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalProgresPembayaran" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content" style="border:0; border-radius:14px; overflow:hidden;">
+            <div class="modal-header" style="background:#eff6ff; border-bottom:1px solid #dbeafe;">
+                <div>
+                    <span class="d-block text-uppercase text-primary font-weight-bold" style="font-size:11px;">Pelacakan Pembayaran</span>
+                    <h5 class="modal-title font-weight-bold mb-0" id="progressTagihanTitle">Progres Tagihan</h5>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#334155;">Status pembayaran</div>
+                <ol class="payment-stepper" id="paymentProgressTimeline">
+                    <li class="payment-step" data-progress-step><span class="payment-step-marker">1</span><strong>Tagihan dibuat</strong><small class="d-block mt-1" data-step-detail></small></li>
+                    <li class="payment-step" data-progress-step><span class="payment-step-marker">2</span><strong>Pembayaran dikirim</strong><small class="d-block mt-1" data-step-detail></small></li>
+                    <li class="payment-step" data-progress-step><span class="payment-step-marker">3</span><strong>Verifikasi admin</strong><small class="d-block mt-1" data-step-detail></small></li>
+                    <li class="payment-step" data-progress-step><span class="payment-step-marker">4</span><strong>Pembayaran selesai</strong><small class="d-block mt-1" data-step-detail></small></li>
+                </ol>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:7px;">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1326,7 +1449,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="edit_metode_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Metode Pembayaran <span class="text-danger">*</span>
                             </label>
@@ -1339,11 +1462,17 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 form-group mb-3">
+                        <div class="col-md-4 form-group mb-3">
                             <label for="edit_tanggal_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
                                 Tanggal Transfer / Bayar <span class="text-danger">*</span>
                             </label>
                             <input type="date" name="tanggal_pembayaran" id="edit_tanggal_pembayaran" class="form-control" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px;">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="edit_jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
+                                Jam Transfer / Bayar <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" name="jam_pembayaran" id="edit_jam_pembayaran" class="form-control" required style="height: 44px; border-radius: 8px;">
                         </div>
                     </div>
 
@@ -1433,7 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalDetailTempo    = document.getElementById('modalDetailTempo');
     const buktiInput          = document.getElementById('buktiPembayaranInput');
     const buktiLabel          = document.getElementById('buktiFileLabel');
-
     // 1. Update Preview Kotak Detail Tagihan
     function updateModalDetailFromSelect() {
         if (!selectTagihan) return;
@@ -1469,6 +1597,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    document.querySelectorAll('.btn-lihat-progres').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const status = this.getAttribute('data-status') || 'BELUM_BAYAR';
+            const title = this.getAttribute('data-jenis') || 'Tagihan';
+            const sentAt = this.getAttribute('data-pembayaran-dikirim') || '';
+            const verifiedAt = this.getAttribute('data-diverifikasi') || '';
+            const admin = this.getAttribute('data-admin') || '';
+            const rejection = this.getAttribute('data-alasan') || '';
+            const statusMessage = document.getElementById('progressStatusMessage');
+            const steps = Array.from(document.querySelectorAll('#paymentProgressTimeline [data-progress-step]'));
+            const stepDetails = Array.from(document.querySelectorAll('#paymentProgressTimeline [data-step-detail]'));
+            const completionIndex = status === 'LUNAS' ? 3 : status === 'PENDING' ? 2 : status === 'DITOLAK' ? 2 : 0;
+
+            document.getElementById('progressTagihanTitle').textContent = title;
+            statusMessage.textContent = status === 'LUNAS'
+                ? 'Pembayaran telah diverifikasi dan dinyatakan lunas.'
+                : status === 'PENDING'
+                    ? 'Bukti pembayaran sudah dikirim dan sedang menunggu verifikasi admin.'
+                    : status === 'DITOLAK'
+                        ? 'Pembayaran ditolak admin. Periksa catatan dan kirim ulang bukti yang benar.'
+                        : 'Tagihan tersedia. Silakan kirim pembayaran dan bukti transfer untuk memulai verifikasi.';
+            statusMessage.style.background = status === 'DITOLAK' ? '#fff1f2' : status === 'LUNAS' ? '#ecfdf5' : '#f8fafc';
+            statusMessage.style.color = status === 'DITOLAK' ? '#be123c' : status === 'LUNAS' ? '#047857' : '#334155';
+
+            const details = [
+                this.getAttribute('data-tagihan-dibuat') || 'Tagihan tersedia',
+                sentAt || 'Menunggu pembayaran',
+                status === 'LUNAS' || status === 'DITOLAK'
+                    ? (admin ? 'Oleh ' + admin : 'Diproses admin') + (verifiedAt ? ' · ' + verifiedAt : '')
+                    : status === 'PENDING' ? 'Menunggu tindakan admin' : 'Menunggu bukti pembayaran',
+                status === 'LUNAS' ? 'Selesai' : status === 'DITOLAK' ? 'Belum selesai' : 'Menunggu verifikasi'
+            ];
+
+            steps.forEach((step, index) => {
+                step.classList.toggle('is-complete', index < completionIndex || (status === 'LUNAS' && index === completionIndex));
+                step.classList.toggle('is-current', status !== 'LUNAS' && index === completionIndex);
+                step.classList.toggle('is-rejected', status === 'DITOLAK' && index === completionIndex);
+                stepDetails[index].textContent = details[index];
+                const marker = step.querySelector('.payment-step-marker');
+                if (marker) marker.innerHTML = step.classList.contains('is-complete') ? '<i class="bi bi-check-lg"></i>' : String(index + 1);
+            });
+
+            if (status === 'DITOLAK' && rejection) {
+                statusMessage.textContent += ' Catatan admin: ' + rejection;
+            }
+            $('#modalProgresPembayaran').modal('show');
+        });
+    });
+
     // 3. Tombol General Konfirmasi Bayar dan Pilih & Bayar Item Tugas Akhir
     document.querySelectorAll('.btn-open-bayar-general').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1499,6 +1676,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const nominal = this.getAttribute('data-nominal');
             const metode  = this.getAttribute('data-metode');
             const tgl     = this.getAttribute('data-tanggal');
+            const jam     = this.getAttribute('data-jam');
             const rekening = this.getAttribute('data-rekening');
             const namaRekening = this.getAttribute('data-nama-rekening');
 
@@ -1507,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editTagihanNominal').textContent = nominal;
             document.getElementById('edit_metode_pembayaran').value = metode;
             document.getElementById('edit_tanggal_pembayaran').value = tgl;
+            document.getElementById('edit_jam_pembayaran').value = jam || '';
             document.getElementById('edit_nomor_rekening').value = rekening;
             document.getElementById('edit_nama_rekening').value = namaRekening;
 
