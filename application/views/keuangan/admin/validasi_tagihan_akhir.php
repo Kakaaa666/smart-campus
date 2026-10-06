@@ -31,8 +31,8 @@
                                     <input type="hidden" name="validasi_id" value="<?= (int)$item->id ?>">
                                     <input type="text" name="catatan" class="form-control form-control-sm" maxlength="500" placeholder="Catatan (opsional)">
                                     <div class="d-flex" style="gap:6px;">
-                                        <button class="btn btn-success btn-sm" name="keputusan" value="setujui" type="submit" onclick="return confirm('Setujui dan buat tagihan semester akhir untuk mahasiswa ini?')">Setujui</button>
-                                        <button class="btn btn-outline-danger btn-sm" name="keputusan" value="tolak" type="submit" onclick="return confirm('Tolak validasi semester akhir ini?')">Tolak</button>
+                                        <button class="btn btn-success btn-sm" name="keputusan" value="setujui" type="submit" data-sc-confirm="Setujui dan buat tagihan semester akhir untuk mahasiswa ini?">Setujui</button>
+                                        <button class="btn btn-outline-danger btn-sm" name="keputusan" value="tolak" type="submit" data-sc-confirm="Tolak validasi semester akhir ini?">Tolak</button>
                                     </div>
                                 <?= form_close() ?>
                             </td>

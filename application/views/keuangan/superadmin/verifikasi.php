@@ -303,6 +303,7 @@
                                                         <td style="font-size:12px; white-space:nowrap;">
                                                             <div><?= !empty($p->tanggal_pembayaran) ? date('d M Y', strtotime($p->tanggal_pembayaran)) : '-' ?></div>
                                                             <small class="text-muted">Jam: <?= !empty($p->jam_pembayaran) ? date('H:i', strtotime($p->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small>
+                                                            <br><small class="text-muted">Dikirim: <?= !empty($p->created_at) ? date('H:i', strtotime($p->created_at)) . ' WIB' : '-' ?></small>
                                                         </td>
                                                         <td style="font-weight: 800; color: #0f172a; font-size: 15px;">
                                                             Rp <?= number_format($p->nominal_pembayaran, 0, ',', '.') ?>
@@ -375,6 +376,7 @@
                                                         <td style="font-size:12px; white-space:nowrap;">
                                                             <div><?= !empty($ps->tanggal_pembayaran) ? date('d M Y', strtotime($ps->tanggal_pembayaran)) : '-' ?></div>
                                                             <small class="text-muted">Jam: <?= !empty($ps->jam_pembayaran) ? date('H:i', strtotime($ps->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small>
+                                                            <br><small class="text-muted">Dikirim: <?= !empty($ps->created_at) ? date('H:i', strtotime($ps->created_at)) . ' WIB' : '-' ?></small>
                                                         </td>
                                                         <td>
                                                             <div style="font-weight:700; color:#1e293b;"><?= htmlspecialchars($ps->nama_mahasiswa) ?></div>
@@ -415,7 +417,7 @@
                                                         <td>
                                                             <?php if ($ps->status === 'LUNAS'): ?>
                                                                 <?= form_open('keuangan/batalkan_verifikasi_pembayaran', [
-                                                                    'onsubmit' => "return confirm('Batalkan verifikasi ini? Pembayaran kembali menunggu tindakan admin dan akses KRS dapat terkunci.')",
+                                                                    'data-sc-confirm' => 'Batalkan verifikasi ini? Pembayaran kembali menunggu tindakan admin dan akses KRS dapat terkunci.',
                                                                     'style' => 'display:inline-block;'
                                                                 ]) ?>
                                                                     <input type="hidden" name="pembayaran_id" value="<?= (int)$ps->id ?>">
@@ -555,7 +557,7 @@
 function konfirmasiVerifikasi(pembayaranId, namaMhs, jenisTghn, nominal) {
     var inputId = document.getElementById('input-verif-id');
     if (!inputId) {
-        alert('Komponen form verifikasi gagal dimuat.');
+        SCDialog.alert('Komponen form verifikasi gagal dimuat.', { type: 'error' });
         return;
     }
     inputId.value = pembayaranId;
@@ -568,9 +570,8 @@ function konfirmasiVerifikasi(pembayaranId, namaMhs, jenisTghn, nominal) {
         $('#modalVerifikasi').modal('show');
     } else {
         // Fallback konfirmasi langsung
-        if (confirm('Setujui pembayaran dari ' + namaMhs + ' untuk ' + jenisTghn + ' sebesar Rp ' + parseInt(nominal).toLocaleString('id-ID') + ' menjadi LUNAS?')) {
-            eksekusiVerifikasiAjax(pembayaranId);
-        }
+        SCDialog.confirm('Setujui pembayaran dari ' + namaMhs + ' untuk ' + jenisTghn + ' sebesar Rp ' + parseInt(nominal).toLocaleString('id-ID') + ' menjadi LUNAS?')
+            .then(function(confirmed) { if (confirmed) eksekusiVerifikasiAjax(pembayaranId); });
     }
 }
 
@@ -578,7 +579,7 @@ function konfirmasiVerifikasi(pembayaranId, namaMhs, jenisTghn, nominal) {
 function bukaModalTolak(pembayaranId, namaMhs, jenisTghn) {
     var inputId = document.getElementById('input-tolak-id');
     if (!inputId) {
-        alert('Komponen form penolakan gagal dimuat.');
+        SCDialog.alert('Komponen form penolakan gagal dimuat.', { type: 'error' });
         return;
     }
     inputId.value = pembayaranId;
@@ -588,10 +589,8 @@ function bukaModalTolak(pembayaranId, namaMhs, jenisTghn) {
     if (typeof $ !== 'undefined' && $('#modalTolak').modal) {
         $('#modalTolak').modal('show');
     } else {
-        var alasan = prompt('Masukkan alasan penolakan untuk ' + namaMhs + ':');
-        if (alasan && alasan.trim()) {
-            eksekusiTolakAjax(pembayaranId, alasan.trim());
-        }
+        SCDialog.prompt('Masukkan alasan penolakan untuk ' + namaMhs + ':', { required: true, placeholder: 'Tulis alasan penolakan' })
+            .then(function(alasan) { if (alasan && alasan.trim()) eksekusiTolakAjax(pembayaranId, alasan.trim()); });
     }
 }
 
@@ -629,9 +628,9 @@ function eksekusiVerifikasiAjax(pembayaranId) {
             } else {
                 window.location.reload();
             }
-            alert('Sukses: ' + data.message);
+            SCDialog.alert(data.message, { title: 'Pembayaran Disetujui', type: 'success' });
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
+            SCDialog.alert(data.message || 'Terjadi kesalahan', { title: 'Verifikasi Gagal', type: 'error' });
         }
     })
     .catch(function(err) {
@@ -680,9 +679,9 @@ function eksekusiTolakAjax(pembayaranId, alasan) {
             } else {
                 window.location.reload();
             }
-            alert('Sukses: ' + data.message);
+            SCDialog.alert(data.message, { title: 'Pembayaran Ditolak', type: 'success' });
         } else {
-            alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
+            SCDialog.alert(data.message || 'Terjadi kesalahan', { title: 'Penolakan Gagal', type: 'error' });
         }
     })
     .catch(function() {
@@ -730,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var id = document.getElementById('input-tolak-id').value;
             var alasan = document.getElementById('input-alasan').value.trim();
             if (!alasan) {
-                alert('Alasan penolakan wajib diisi.');
+                SCDialog.alert('Alasan penolakan wajib diisi.', { title: 'Data Belum Lengkap', type: 'warning' });
                 document.getElementById('input-alasan').focus();
                 return;
             }

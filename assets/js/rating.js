@@ -25,7 +25,7 @@ $(document).ready(function() {
             allowEmpty: true,
             emptyValue: '-- no rating selected --',
             onSelect: function(value, text) {
-                alert('Selected rating: ' + value);
+                SCDialog.alert('Selected rating: ' + value, { title: 'Penilaian Dipilih', type: 'success' });
             }
         });
 

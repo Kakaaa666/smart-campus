@@ -174,9 +174,16 @@
                     position: relative;
                     min-width: 0;
                     text-align: center;
-                    color: #94a3b8;
+                    color: #1e40af;
                     font-size: 11px;
                     line-height: 1.35;
+                }
+                .payment-step strong,
+                .payment-step small,
+                .payment-step.is-rejected,
+                .payment-step.is-rejected strong,
+                .payment-step.is-rejected small {
+                    color: #1e40af !important;
                 }
                 .payment-step:not(:last-child)::after {
                     position: absolute;
@@ -1389,12 +1396,12 @@
             <div class="modal-header" style="background:#eff6ff; border-bottom:1px solid #dbeafe;">
                 <div>
                     <span class="d-block text-uppercase text-primary font-weight-bold" style="font-size:11px;">Pelacakan Pembayaran</span>
-                    <h5 class="modal-title font-weight-bold mb-0" id="progressTagihanTitle">Progres Tagihan</h5>
+                    <h5 class="modal-title font-weight-bold mb-0" id="progressTagihanTitle" style="color:#1e40af !important;">Progres Tagihan</h5>
                 </div>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup" style="color:#1e40af !important;"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
-                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#334155;">Status pembayaran</div>
+                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#1e40af !important;">Status pembayaran</div>
                 <ol class="payment-stepper" id="paymentProgressTimeline">
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">1</span><strong>Tagihan dibuat</strong><small class="d-block mt-1" data-step-detail></small></li>
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">2</span><strong>Pembayaran dikirim</strong><small class="d-block mt-1" data-step-detail></small></li>
@@ -1619,7 +1626,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ? 'Pembayaran ditolak admin. Periksa catatan dan kirim ulang bukti yang benar.'
                         : 'Tagihan tersedia. Silakan kirim pembayaran dan bukti transfer untuk memulai verifikasi.';
             statusMessage.style.background = status === 'DITOLAK' ? '#fff1f2' : status === 'LUNAS' ? '#ecfdf5' : '#f8fafc';
-            statusMessage.style.color = status === 'DITOLAK' ? '#be123c' : status === 'LUNAS' ? '#047857' : '#334155';
+            statusMessage.style.setProperty('color', '#1e40af', 'important');
 
             const details = [
                 this.getAttribute('data-tagihan-dibuat') || 'Tagihan tersedia',

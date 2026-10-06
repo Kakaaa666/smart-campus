@@ -78,7 +78,7 @@
                                         <a href="<?= base_url('perwalian/frs') ?>" class="btn btn-outline-primary shadow-sm" style="border-radius: 8px; font-weight: 600; font-size: 13px; padding: 9px 16px; background: #ffffff;">
                                             <i class="fa fa-file-text-o mr-1"></i> Lihat Dokumen FRS
                                         </a>
-                                        <button type="button" class="btn btn-primary shadow-sm" onclick="alert('Rencana studi Anda telah berhasil tersimpan dan diajukan ke Dosen Wali.')" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 18px; background: #0284c7; border-color: #0284c7;">
+                                        <button type="button" class="btn btn-primary shadow-sm" onclick="SCDialog.alert('Rencana studi Anda telah berhasil tersimpan dan diajukan ke Dosen Wali.', { title: 'Rencana Studi Diajukan', type: 'success' })" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 18px; background: #0284c7; border-color: #0284c7;">
                                             <i class="fa fa-save mr-1"></i> Simpan Rencana Studi
                                         </button>
                                     </div>

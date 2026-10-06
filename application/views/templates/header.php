@@ -42,6 +42,7 @@
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-sidebar.css?v=' . time()) ?>">
     <!-- Keuangan Modern UI System -->
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/keuangan-modern.css?v=' . time()) ?>">
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-dialogs.css?v=' . time()) ?>">
     <!-- Inline White Sidebar Style (Menjamin langsung putih tanpa terhalang cache browser) -->
     <style id="smart-campus-white-sidebar-style">
         /* Sidebar Container Putih */

@@ -493,10 +493,10 @@
                                                         <input type="hidden" name="validasi_id" value="<?= (int)$val_item->id ?>">
                                                         <input type="text" name="catatan" class="form-control form-control-sm" maxlength="500" placeholder="Catatan (opsional)" style="border-radius: 6px; font-size: 12px;">
                                                         <div class="d-flex" style="gap: 6px;">
-                                                            <button class="btn btn-sm btn-success flex-fill" name="keputusan" value="setujui" type="submit" onclick="return confirm('Setujui dan buat tagihan semester akhir untuk mahasiswa ini?')" style="border-radius: 6px; font-weight: 700; padding: 7px 10px;">
+                                                            <button class="btn btn-sm btn-success flex-fill" name="keputusan" value="setujui" type="submit" data-sc-confirm="Setujui dan buat tagihan semester akhir untuk mahasiswa ini?" style="border-radius: 6px; font-weight: 700; padding: 7px 10px;">
                                                                 <i class="fa fa-check mr-1"></i>Setujui
                                                             </button>
-                                                            <button class="btn btn-sm btn-outline-danger flex-fill" name="keputusan" value="tolak" type="submit" onclick="return confirm('Tolak validasi semester akhir ini?')" style="border-radius: 6px; font-weight: 600; padding: 7px 10px;">
+                                                            <button class="btn btn-sm btn-outline-danger flex-fill" name="keputusan" value="tolak" type="submit" data-sc-confirm="Tolak validasi semester akhir ini?" style="border-radius: 6px; font-weight: 600; padding: 7px 10px;">
                                                                 <i class="fa fa-times mr-1"></i>Tolak
                                                             </button>
                                                         </div>

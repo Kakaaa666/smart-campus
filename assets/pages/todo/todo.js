@@ -15,7 +15,7 @@
           var task = $('input[name=task-insert]').val();
           // Alert if the form in submitted empty
           if (task.length == 0) {
-              alert('please enter a task');
+              SCDialog.alert('Silakan masukkan tugas terlebih dahulu.', { title: 'Tugas Kosong', type: 'warning' });
           } else {
               var newTask = '<li>' + '<p>' + task + '</p>' + '</li>'
               $('#task-list').append(newTask);
@@ -58,7 +58,7 @@
           $(".md-form-control").removeClass("md-valid");
           var task = $('.add_task_todo').val();
           if (task == "") {
-              alert("please enter task");
+              SCDialog.alert('Silakan masukkan tugas terlebih dahulu.', { title: 'Tugas Kosong', type: 'warning' });
           } else {
               var add_todo = $('<div class="to-do-list" id="' + i + '"><div class="checkbox-fade fade-in-primary"><label class="check-task"><input type="checkbox" onclick="check_task(' + i + ')" id="checkbox' + i + '"><span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span><span>' + task + '</span></label></div><div class="f-right"><a onclick="delete_todo(' + i + ');" href="#!" class="delete_todolist"><i class="icofont icofont-ui-delete" ></i></a></div></div>');
               i++;
@@ -79,7 +79,7 @@
           $(".md-form-control").removeClass("md-valid");
           var saveTask = $('.save_task_todo').val();
           if (saveTask == "") {
-              alert("please enter task");
+              SCDialog.alert('Silakan masukkan tugas terlebih dahulu.', { title: 'Tugas Kosong', type: 'warning' });
           } else {
               var add_todo = $('<div class="to-do-label" id="' + i + '"><div class="checkbox-fade fade-in-primary"><label class="check-task"><input type="checkbox" onclick="check_label(' + i + ')" id="checkbox' + i + '"><span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span><span class="task-title-sp">' + saveTask + '</span><div class="f-right hidden-phone"><i class="icofont icofont-ui-delete delete_todo" onclick="delete_todo(' + i + ');"></i></div></label></div></div>');
               i++;

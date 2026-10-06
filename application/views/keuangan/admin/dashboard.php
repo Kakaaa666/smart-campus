@@ -509,7 +509,7 @@ function bukaDetailTagihan(mahasiswaId) {
         cache: false,
         xhrFields: { withCredentials: true },
         success: function(resp) {
-            if (!resp || !resp.success) { alert(resp ? (resp.message || 'Data tidak valid.') : 'Respons tidak valid.'); return; }
+            if (!resp || !resp.success) { SCDialog.alert(resp ? (resp.message || 'Data tidak valid.') : 'Respons tidak valid.', { title: 'Data Tidak Valid', type: 'error' }); return; }
             var mhs = resp.mahasiswa, rs = resp.ringkasan, tagihan = resp.tagihan;
 
             var rows = '';
@@ -585,7 +585,7 @@ function bukaDetailTagihan(mahasiswaId) {
                 }
             }
 
-            alert(message + ' Status: ' + (xhr.status || 'none') + '. Apakah Anda sudah login sebagai Admin/Super Admin?');
+            SCDialog.alert(message + ' Status: ' + (xhr.status || 'none') + '. Apakah Anda sudah login sebagai Admin/Super Admin?', { title: 'Gagal Memuat Data', type: 'error' });
         }
     });
 }
@@ -656,7 +656,7 @@ function bukaDetailTagihan(mahasiswaId) {
             $('#modalDetailTagihanBody').html(html);
             $('#modalDetailTagihan').modal('show');
         })
-        .catch(function(err) { console.error(err); alert('Gagal memuat data rinci.'); });
+        .catch(function(err) { console.error(err); SCDialog.alert('Gagal memuat data rinci.', { title: 'Gagal Memuat Data', type: 'error' }); });
 }
 
 // Existing search

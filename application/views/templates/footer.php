@@ -8,6 +8,7 @@
     <script type="text/javascript" src="<?= base_url('assets/js/jquery-ui/jquery-ui.min.js') ?>"></script>
     <script type="text/javascript" src="<?= base_url('assets/js/popper.js/popper.min.js') ?>"></script>
     <script type="text/javascript" src="<?= base_url('assets/js/bootstrap/js/bootstrap.min.js') ?>"></script>
+    <script src="<?= base_url('assets/js/smart-campus-dialogs.js?v=' . time()) ?>"></script>
     <!-- waves js -->
     <script src="<?= base_url('assets/pages/waves/js/waves.min.js') ?>"></script>
     <!-- jquery slimscroll js -->

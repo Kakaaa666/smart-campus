@@ -1,0 +1,76 @@
+.sc-dialog .modal-content {
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    box-shadow: 0 20px 55px rgba(15, 23, 42, 0.24);
+}
+
+.sc-dialog .modal-header {
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #dbeafe;
+    background: #eff6ff;
+}
+
+.sc-dialog .modal-title {
+    color: #173b75;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.sc-dialog .modal-header .close {
+    color: #64748b;
+    text-shadow: none;
+    opacity: 1;
+}
+
+.sc-dialog .modal-body {
+    padding: 20px;
+    color: #334155;
+}
+
+.sc-dialog-message {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.sc-dialog .form-control {
+    min-height: 42px;
+    border-color: #cbd5e1;
+    border-radius: 7px;
+}
+
+.sc-dialog .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+.sc-dialog .modal-footer {
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.sc-dialog .modal-footer .btn {
+    min-width: 92px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+
+.sc-dialog .sc-dialog-cancel {
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.sc-dialog .sc-dialog-accept {
+    border-color: #1d4ed8;
+    background: #2563eb;
+}
+
+@media (max-width: 575.98px) {
+    .sc-dialog .modal-dialog {
+        margin: 12px;
+    }
+}

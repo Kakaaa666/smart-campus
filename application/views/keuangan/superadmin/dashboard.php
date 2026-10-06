@@ -448,7 +448,7 @@ function bukaDetailTagihan(mahasiswaId) {
         xhrFields: { withCredentials: true },
         success: function(resp) {
             if (!resp || !resp.success) {
-                alert(resp ? (resp.message || 'Data tidak valid.') : 'Respons tidak valid.');
+                SCDialog.alert(resp ? (resp.message || 'Data tidak valid.') : 'Respons tidak valid.', { title: 'Data Tidak Valid', type: 'error' });
                 return;
             }
 
@@ -532,7 +532,7 @@ function bukaDetailTagihan(mahasiswaId) {
                 }
             }
 
-            alert(message + ' Status: ' + (xhr.status || 'none') + '. Apakah Anda sudah login sebagai Admin/Super Admin?');
+            SCDialog.alert(message + ' Status: ' + (xhr.status || 'none') + '. Apakah Anda sudah login sebagai Admin/Super Admin?', { title: 'Gagal Memuat Data', type: 'error' });
         }
     });
 }
