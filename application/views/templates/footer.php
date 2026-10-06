@@ -17,7 +17,7 @@
     <script src="<?= base_url('assets/js/jquery.mCustomScrollbar.concat.min.js') ?>"></script>
     <!-- menu js -->
     <script src="<?= base_url('assets/js/pcoded.min.js') ?>"></script>
-    <script src="<?= base_url('assets/js/vertical/vertical-layout.min.js') ?>"></script>
+    <script src="<?= base_url('assets/js/vertical/vertical-layout.js?v=' . filemtime(FCPATH . 'assets/js/vertical/vertical-layout.js')) ?>"></script>
     <script type="text/javascript" src="<?= base_url('assets/js/script.js') ?>"></script>
     <script>
         // Memastikan preloader langsung hilang begitu DOM siap

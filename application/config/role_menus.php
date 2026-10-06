@@ -52,6 +52,7 @@ $config['role_menus'] = [
             'isi_nilai' => ['label' => 'Isi Nilai', 'route' => 'dosen/isi-nilai', 'bureau' => 'Akademik'],
             'revisi_nilai' => ['label' => 'Revisi Nilai', 'route' => 'dosen/revisi-nilai', 'bureau' => 'Akademik'],
             'mahasiswa_bimbingan' => ['label' => 'Mahasiswa Bimbingan', 'route' => 'dosen/mahasiswa-bimbingan', 'bureau' => 'Akademik'],
+            'persetujuan_krs' => ['label' => 'Persetujuan KRS', 'route' => 'dosen/persetujuan-krs', 'bureau' => 'Akademik'],
             'akademik' => ['label' => 'Akademik', 'route' => 'dosen/akademik', 'bureau' => 'Akademik'],
             'perkuliahan' => ['label' => 'Perkuliahan', 'route' => 'dosen/perkuliahan', 'bureau' => 'Akademik'],
             'profil' => ['label' => 'Profile', 'route' => 'dosen/profil', 'bureau' => 'Akademik'],

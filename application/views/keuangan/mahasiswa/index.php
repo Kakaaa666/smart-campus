@@ -164,16 +164,77 @@
 
                 .payment-stepper {
                     display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                    overflow: hidden;
+                    border: 1px solid var(--sc-line);
+                    border-radius: 14px;
+                    background: var(--sc-surface);
+                    box-shadow: 0 8px 20px rgba(16, 45, 61, .08);
+                }
+                .payment-stepper-item {
+                    position: relative;
+                    min-width: 0;
+                    border-right: 1px solid var(--sc-line);
+                }
+                .payment-stepper-item:last-child { border-right: 0; }
+                .payment-stepper-button {
+                    display: flex;
+                    width: 100%;
+                    min-height: 48px;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 9px 10px;
+                    border: 0;
+                    background: transparent;
+                    color: var(--sc-muted);
+                    text-align: left;
+                    font-size: 12px;
+                    line-height: 1.3;
+                    cursor: pointer;
+                }
+                .payment-stepper-button:disabled {
+                    color: color-mix(in srgb, var(--sc-muted) 75%, var(--sc-surface));
+                    cursor: not-allowed;
+                }
+                .payment-step-marker {
+                    display: inline-flex;
+                    flex: 0 0 20px;
+                    width: 20px;
+                    height: 20px;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid var(--sc-ink);
+                    border-radius: 50%;
+                    background: var(--sc-ink);
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 700;
+                }
+                .payment-stepper-item.is-current {
+                    background: color-mix(in srgb, var(--sc-accent) 12%, var(--sc-surface));
+                    box-shadow: inset 0 -3px 0 var(--sc-accent-strong);
+                }
+                .payment-stepper-item.is-complete .payment-step-marker {
+                    background: var(--sc-accent-strong);
+                    border-color: var(--sc-accent-strong);
+                }
+                .payment-stepper-panel[hidden] { display: none !important; }
+                .payment-tracker {
+                    display: grid;
                     grid-template-columns: repeat(4, minmax(0, 1fr));
                     gap: 8px;
                     margin: 0;
                     padding: 0;
                     list-style: none;
                 }
-                .payment-step {
+                .payment-tracker .payment-step {
                     position: relative;
                     min-width: 0;
                     text-align: center;
+<<<<<<< Updated upstream
                     color: #1e40af;
                     font-size: 11px;
                     line-height: 1.35;
@@ -186,15 +247,22 @@
                     color: #1e40af !important;
                 }
                 .payment-step:not(:last-child)::after {
+=======
+                    color: var(--sc-muted);
+                    font-size: 11px;
+                    line-height: 1.35;
+                }
+                .payment-tracker .payment-step:not(:last-child)::after {
+>>>>>>> Stashed changes
                     position: absolute;
                     top: 15px;
                     left: calc(50% + 18px);
                     width: calc(100% - 28px);
                     height: 2px;
-                    background: #dbe4ef;
+                    background: var(--sc-line);
                     content: '';
                 }
-                .payment-step-marker {
+                .payment-tracker .payment-step-marker {
                     position: relative;
                     z-index: 1;
                     display: flex;
@@ -203,33 +271,40 @@
                     align-items: center;
                     justify-content: center;
                     margin: 0 auto 7px;
-                    border: 2px solid #cbd5e1;
+                    border: 2px solid var(--sc-line);
                     border-radius: 50%;
-                    background: #fff;
-                    color: #94a3b8;
+                    background: var(--sc-surface);
+                    color: var(--sc-muted);
                     font-size: 12px;
-                    font-weight: 700;
                 }
-                .payment-step.is-complete,
-                .payment-step.is-current { color: #1e3a8a; }
-                .payment-step.is-complete .payment-step-marker,
-                .payment-step.is-current .payment-step-marker {
-                    border-color: #1684cf;
-                    background: #1684cf;
+                .payment-tracker .payment-step.is-complete,
+                .payment-tracker .payment-step.is-current { color: var(--sc-ink); }
+                .payment-tracker .payment-step.is-complete .payment-step-marker,
+                .payment-tracker .payment-step.is-current .payment-step-marker {
+                    border-color: var(--sc-accent-strong);
+                    background: var(--sc-accent-strong);
                     color: #fff;
                 }
-                .payment-step.is-complete:not(:last-child)::after { background: #1684cf; }
-                .payment-step.is-current .payment-step-marker { box-shadow: 0 0 0 4px #dbeafe; }
-                .payment-step.is-rejected,
-                .payment-step.is-rejected .payment-step-marker { color: #b91c1c; }
-                .payment-step.is-rejected .payment-step-marker {
+                .payment-tracker .payment-step.is-complete:not(:last-child)::after { background: var(--sc-accent-strong); }
+                .payment-tracker .payment-step.is-current .payment-step-marker {
+                    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sc-accent) 18%, transparent);
+                }
+                .payment-tracker .payment-step.is-rejected,
+                .payment-tracker .payment-step.is-rejected .payment-step-marker { color: #b91c1c; }
+                .payment-tracker .payment-step.is-rejected .payment-step-marker {
                     border-color: #dc2626;
                     background: #dc2626;
                 }
+                body #modalKonfirmasiBayar .modal-header {
+                    background: linear-gradient(115deg, var(--sc-ink), var(--sc-accent-strong)) !important;
+                }
                 @media (max-width: 575.98px) {
-                    .payment-stepper { gap: 2px; }
-                    .payment-step { font-size: 9px; }
-                    .payment-step:not(:last-child)::after {
+                    .payment-stepper-button { min-height: 54px; gap: 5px; padding: 7px 5px; font-size: 10px; }
+                    .payment-step-marker { flex-basis: 18px; width: 18px; height: 18px; }
+                    .payment-stepper-item { overflow-wrap: anywhere; }
+                    .payment-tracker { gap: 2px; }
+                    .payment-tracker .payment-step { font-size: 9px; }
+                    .payment-tracker .payment-step:not(:last-child)::after {
                         left: calc(50% + 15px);
                         width: calc(100% - 22px);
                     }
@@ -1264,7 +1339,7 @@
 <div class="modal fade" id="modalKonfirmasiBayar" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <div class="modal-header bg-primary text-white" style="background-color: #1565c0 !important; padding: 18px 24px;">
+            <div class="modal-header bg-primary text-white" style="padding: 18px 24px;">
                 <h5 class="modal-title font-weight-bold">
                     <i class="bi bi-cash-stack mr-2"></i> Konfirmasi Pembayaran Tagihan Mahasiswa
                 </h5>
@@ -1275,51 +1350,28 @@
 
             <?= form_open_multipart('keuangan/konfirmasi_pembayaran', ['id' => 'formKonfirmasiPembayaran']) ?>
                 <div class="modal-body" style="padding: 26px;">
-                    
-                    <div class="p-3 mb-4 rounded" style="background-color: #f0f7ff; border: 1.5px solid #bfdbfe;">
-                        <div class="row align-items-center">
-                            <div class="col-sm-8">
-                                <span class="text-muted" style="font-size: 12px; text-transform: uppercase; font-weight: 700;">Tagihan yang Dipilih</span>
-                                <h5 class="font-weight-bold mb-1" id="modalDetailJenis" style="color: #1e3a8a;">SPP / UKT</h5>
-                                <div style="font-size: 13px; color: #475569;">
-                                    <span id="modalDetailSemester">Ganjil 2026/2027</span> &bull; 
-                                    Jatuh Tempo: <span id="modalDetailTempo" class="font-weight-bold text-danger">30 Sep 2026</span>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 text-sm-right mt-2 mt-sm-0">
-                                <span class="text-muted" style="font-size: 12px;">Nominal Kewajiban:</span>
-                                <h4 class="font-weight-bold text-primary mb-0" id="modalDetailNominal" style="color: #1565c0 !important;">
-                                    Rp 3.500.000
-                                </h4>
-                            </div>
-                        </div>
-                    </div>
+                    <ol class="payment-stepper mb-4" id="paymentWizardSteps" aria-label="Tahapan konfirmasi pembayaran">
+                        <li class="payment-stepper-item is-current">
+                            <button type="button" class="payment-stepper-button" data-wizard-target="0" aria-current="step">
+                                <span class="payment-step-marker">1</span><span>Input Info Bayar</span>
+                            </button>
+                        </li>
+                        <li class="payment-stepper-item">
+                            <button type="button" class="payment-stepper-button" data-wizard-target="1" disabled>
+                                <span class="payment-step-marker">2</span><span>Upload Bukti Bayar</span>
+                            </button>
+                        </li>
+                        <li class="payment-stepper-item">
+                            <button type="button" class="payment-stepper-button" data-wizard-target="2" disabled>
+                                <span class="payment-step-marker">3</span><span>Pilih Tanggungan</span>
+                            </button>
+                        </li>
+                    </ol>
 
+                    <section class="payment-stepper-panel" data-wizard-panel="0">
                     <p class="mb-3 text-muted" style="font-size:12px;">
-                        <span class="text-danger font-weight-bold">*</span> Wajib diisi sebelum konfirmasi pembayaran dikirim.
+                        <span class="text-danger font-weight-bold">*</span> Isi informasi sesuai transaksi pembayaran yang sudah dilakukan.
                     </p>
-
-                    <div class="form-group mb-3">
-                        <label for="select_tagihan_id" class="font-weight-bold" style="font-size: 13.5px;">
-                            Pilih Tagihan yang Akan Dibayarkan <span class="text-danger">*</span>
-                        </label>
-                        <select name="tagihan_id" id="select_tagihan_id" class="form-control" required style="height: 44px; border-radius: 8px; font-size: 14px;">
-                            <?php if (empty($tagihan_pilihan)): ?>
-                                <option value="" disabled selected>Tidak ada tagihan tertunggak</option>
-                            <?php else: ?>
-                                <?php foreach ($tagihan_pilihan as $tp): ?>
-                                    <option value="<?= $tp->id ?>" 
-                                            data-jenis="<?= htmlspecialchars($tp->jenis_tagihan) ?>"
-                                            data-status="<?= htmlspecialchars($tp->status, ENT_QUOTES, 'UTF-8') ?>"
-                                            data-nominal="Rp <?= number_format($tp->nominal, 0, ',', '.') ?>"
-                                            data-semester="<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>"
-                                            data-tempo="<?= date('d M Y', strtotime($tp->jatuh_tempo)) ?>">
-                                        <?= htmlspecialchars(str_replace('Tugas Akhir', 'Semester Akhir', $tp->jenis_tagihan)) ?> - Rp <?= number_format($tp->nominal, 0, ',', '.') ?> (<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
 
                     <div class="row">
                         <div class="col-md-4 form-group mb-3">
@@ -1363,7 +1415,9 @@
                         </label>
                         <input type="text" name="nama_rekening" id="nama_rekening" class="form-control" placeholder="Masukkan nama pemilik rekening" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                     </div>
+                    </section>
 
+                    <section class="payment-stepper-panel" data-wizard-panel="1" hidden>
                     <div class="form-group mb-2">
                         <label class="font-weight-bold" style="font-size: 13.5px;">
                             Unggah Bukti Transfer <span class="text-danger">*</span>
@@ -1376,12 +1430,60 @@
                         </div>
                         <small class="text-muted mt-1 d-block">Mendukung format JPG, JPEG, PNG, dan PDF (maks. 3MB).</small>
                     </div>
+                    </section>
+
+                    <section class="payment-stepper-panel" data-wizard-panel="2" hidden>
+                        <p class="mb-3 text-muted" style="font-size:12px;">
+                            Pilih tanggungan yang dibayar dan periksa kembali rinciannya sebelum mengirim.
+                        </p>
+                        <div class="form-group mb-3">
+                            <label for="select_tagihan_id" class="font-weight-bold" style="font-size: 13.5px;">
+                                Pilih Tanggungan / Tagihan <span class="text-danger">*</span>
+                            </label>
+                            <select name="tagihan_id" id="select_tagihan_id" class="form-control" required style="height: 44px; border-radius: 8px; font-size: 14px;">
+                                <?php if (empty($tagihan_pilihan)): ?>
+                                    <option value="" disabled selected>Tidak ada tagihan tertunggak</option>
+                                <?php else: ?>
+                                    <?php foreach ($tagihan_pilihan as $tp): ?>
+                                        <option value="<?= $tp->id ?>"
+                                                data-jenis="<?= htmlspecialchars($tp->jenis_tagihan) ?>"
+                                                data-status="<?= htmlspecialchars($tp->status, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-nominal="Rp <?= number_format($tp->nominal, 0, ',', '.') ?>"
+                                                data-semester="<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>"
+                                                data-tempo="<?= date('d M Y', strtotime($tp->jatuh_tempo)) ?>">
+                                            <?= htmlspecialchars(str_replace('Tugas Akhir', 'Semester Akhir', $tp->jenis_tagihan)) ?> - Rp <?= number_format($tp->nominal, 0, ',', '.') ?> (<?= htmlspecialchars($tp->semester) ?> <?= htmlspecialchars($tp->tahun_akademik) ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="p-3 rounded" style="background-color: #f0f7ff; border: 1.5px solid #bfdbfe;">
+                            <div class="row align-items-center">
+                                <div class="col-sm-8">
+                                    <span class="text-muted" style="font-size: 12px; text-transform: uppercase; font-weight: 700;">Rincian Tanggungan</span>
+                                    <h5 class="font-weight-bold mb-1" id="modalDetailJenis" style="color: #1e3a8a;">-</h5>
+                                    <div style="font-size: 13px; color: #475569;">
+                                        <span id="modalDetailSemester">-</span> &bull;
+                                        Jatuh Tempo: <span id="modalDetailTempo" class="font-weight-bold text-danger">-</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 text-sm-right mt-2 mt-sm-0">
+                                    <span class="text-muted" style="font-size: 12px;">Nominal Kewajiban:</span>
+                                    <h4 class="font-weight-bold text-primary mb-0" id="modalDetailNominal" style="color: #1565c0 !important;">-</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
                 </div>
 
                 <div class="modal-footer bg-light" style="border-top: 1px solid #e2e8f0; padding: 16px 24px;">
                     <button type="button" class="btn btn-secondary px-4" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4 shadow" style="border-radius: 8px; font-weight: 600; background-color: #1565c0;">
+                    <button type="button" class="btn btn-outline-secondary px-4" id="paymentWizardPrevious" style="border-radius: 8px;" hidden>Kembali</button>
+                    <button type="button" class="btn btn-primary px-4" id="paymentWizardNext" style="border-radius: 8px; font-weight: 600; background-color: #1565c0;">
+                        Lanjut <i class="bi bi-arrow-right ml-1"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4 shadow" id="paymentWizardSubmit" style="border-radius: 8px; font-weight: 600; background-color: #1565c0;" hidden>
                         <i class="bi bi-cloud-arrow-up-fill mr-1"></i> Kirim Konfirmasi
                     </button>
                 </div>
@@ -1401,8 +1503,13 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Tutup" style="color:#1e40af !important;"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
+<<<<<<< Updated upstream
                 <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#1e40af !important;">Status pembayaran</div>
                 <ol class="payment-stepper" id="paymentProgressTimeline">
+=======
+                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#334155;">Status pembayaran</div>
+                <ol class="payment-tracker" id="paymentProgressTimeline">
+>>>>>>> Stashed changes
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">1</span><strong>Tagihan dibuat</strong><small class="d-block mt-1" data-step-detail></small></li>
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">2</span><strong>Pembayaran dikirim</strong><small class="d-block mt-1" data-step-detail></small></li>
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">3</span><strong>Verifikasi admin</strong><small class="d-block mt-1" data-step-detail></small></li>
@@ -1569,6 +1676,93 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalDetailTempo    = document.getElementById('modalDetailTempo');
     const buktiInput          = document.getElementById('buktiPembayaranInput');
     const buktiLabel          = document.getElementById('buktiFileLabel');
+    const wizardForm          = document.getElementById('formKonfirmasiPembayaran');
+    const wizardSteps         = Array.from(document.querySelectorAll('#paymentWizardSteps [data-wizard-target]'));
+    const wizardPanels        = Array.from(document.querySelectorAll('#formKonfirmasiPembayaran [data-wizard-panel]'));
+    const wizardNext          = document.getElementById('paymentWizardNext');
+    const wizardPrevious      = document.getElementById('paymentWizardPrevious');
+    const wizardSubmit        = document.getElementById('paymentWizardSubmit');
+    let currentWizardStep = 0;
+    let unlockedWizardStep = 0;
+    const completedWizardSteps = new Set();
+
+    function renderWizardStep(stepIndex) {
+        currentWizardStep = stepIndex;
+        wizardPanels.forEach(function(panel, index) {
+            panel.hidden = index !== stepIndex;
+        });
+        wizardSteps.forEach(function(button, index) {
+            const item = button.closest('.payment-stepper-item');
+            const isCurrent = index === stepIndex;
+            button.disabled = index > unlockedWizardStep;
+            if (isCurrent) {
+                button.setAttribute('aria-current', 'step');
+            } else {
+                button.removeAttribute('aria-current');
+            }
+            item.classList.toggle('is-current', isCurrent);
+            item.classList.toggle('is-complete', completedWizardSteps.has(index));
+            const marker = button.querySelector('.payment-step-marker');
+            marker.textContent = completedWizardSteps.has(index) ? '\u2713' : String(index + 1);
+        });
+        wizardPrevious.hidden = stepIndex === 0;
+        wizardNext.hidden = stepIndex === wizardPanels.length - 1;
+        wizardSubmit.hidden = stepIndex !== wizardPanels.length - 1;
+    }
+
+    function validateWizardStep(stepIndex) {
+        const requiredFields = Array.from(wizardPanels[stepIndex].querySelectorAll(':required'));
+        for (const field of requiredFields) {
+            if (!field.checkValidity()) {
+                field.reportValidity();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    if (wizardForm && wizardPanels.length && wizardSteps.length) {
+        renderWizardStep(0);
+        wizardNext.addEventListener('click', function() {
+            if (!validateWizardStep(currentWizardStep)) return;
+            completedWizardSteps.add(currentWizardStep);
+            unlockedWizardStep = Math.min(currentWizardStep + 1, wizardPanels.length - 1);
+            renderWizardStep(unlockedWizardStep);
+        });
+        wizardPrevious.addEventListener('click', function() {
+            renderWizardStep(Math.max(0, currentWizardStep - 1));
+        });
+        wizardSteps.forEach(function(button, index) {
+            button.addEventListener('click', function() {
+                if (index <= unlockedWizardStep) renderWizardStep(index);
+            });
+        });
+        wizardForm.addEventListener('submit', function(event) {
+            if (currentWizardStep !== wizardPanels.length - 1) {
+                event.preventDefault();
+                return;
+            }
+            for (let index = 0; index < wizardPanels.length; index++) {
+                const invalidField = Array.from(wizardPanels[index].querySelectorAll(':required'))
+                    .find(function(field) { return !field.checkValidity(); });
+                if (invalidField) {
+                    event.preventDefault();
+                    completedWizardSteps.delete(index);
+                    unlockedWizardStep = Math.max(unlockedWizardStep, index);
+                    renderWizardStep(index);
+                    invalidField.reportValidity();
+                    return;
+                }
+                completedWizardSteps.add(index);
+            }
+        });
+        $('#modalKonfirmasiBayar').on('hidden.bs.modal', function() {
+            completedWizardSteps.clear();
+            unlockedWizardStep = 0;
+            renderWizardStep(0);
+        });
+    }
+
     // 1. Update Preview Kotak Detail Tagihan
     function updateModalDetailFromSelect() {
         if (!selectTagihan) return;
@@ -1583,6 +1777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (selectTagihan) {
         selectTagihan.addEventListener('change', updateModalDetailFromSelect);
+        updateModalDetailFromSelect();
     }
 
     // 2. Klik Tombol Bayar Sekarang / Upload Ulang

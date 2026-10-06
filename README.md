@@ -33,6 +33,15 @@ Field `akun.biro` dibuat otomatis oleh `M_auth` dengan default `keuangan` untuk 
 - Permohonan dispensasi mahasiswa tersimpan di `dispensasi_tagihan`. Admin Keuangan menyetujui atau menolak; jatuh tempo tagihan hanya berubah jika disetujui.
 - Mahasiswa akhir studi masuk antrean `validasi_tagihan_akhir` berdasarkan prodi (D3 mulai semester 5, jenjang lain mulai semester 7). Tagihan akhir baru dibuat setelah Admin Keuangan menyetujui.
 - Admin dapat mengirim snapshot jumlah dan nominal tagihan per semester dari halaman laporan. Snapshot tersimpan di `laporan_progres_penagihan` dan tampil pada Dashboard Keuangan Superadmin/Pimpinan.
+- Konfirmasi pembayaran mahasiswa memakai tiga tahap: input informasi pembayaran, unggah bukti, lalu pilih tanggungan. Tagihan hanya dikirim setelah seluruh tahap tervalidasi.
+
+## Alur Akademik & Perwalian
+
+- Admin Akademik mengelola penawaran mata kuliah per program studi, semester, kelas, dan periode akademik, serta menetapkan Dosen Wali untuk mahasiswa.
+- Mahasiswa hanya dapat mengisi KRS setelah SPP semester aktif berstatus LUNAS. Sistem memvalidasi jadwal bentrok dan batas 12–24 SKS sebelum pengajuan diteruskan.
+- Dosen Wali yang ditetapkan memeriksa dan menyetujui atau menolak KRS. FRS menampilkan status serta mata kuliah yang tersimpan; persetujuan tidak lagi berupa data contoh statis.
+- Periode aktif mengikuti kalender aplikasi: Juli–Desember untuk Ganjil dan Januari–Juni untuk Genap. Katalog tidak diisi data contoh otomatis.
+- Model akademik menyiapkan tabel `penawaran_matakuliah`, `dosen_wali`, `krs`, dan `krs_detail` saat modul akademik digunakan.
 
 ## Tema Interface
 

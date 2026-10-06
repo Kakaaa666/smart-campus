@@ -15,7 +15,20 @@ class Akademik extends MY_Role_Controller
 
     public function index()
     {
-        $this->render_module('Pusat Kendali Akademik', 'Pantau dan kelola seluruh layanan akademik perguruan tinggi.', 'Akademik');
+        $period = $this->M_akademik->get_active_period();
+        $data = [
+            'title' => 'Pusat Kendali Akademik - Smart Campus',
+            'page_title' => 'Pusat Kendali Akademik',
+            'page_desc' => 'Pantau penawaran mata kuliah dan status KRS pada periode aktif.',
+            'card_subtitle' => 'Akademik',
+            'active_period' => $period,
+            'overview' => $this->M_akademik->get_period_overview($period),
+        ];
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('akademik/superadmin_overview', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function jadwal() { $this->index(); }

@@ -1,77 +1,95 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$selected_offerings = [];
+if (!empty($krs->mata_kuliah)) {
+    $selected_offerings = array_map('intval', array_column($krs->mata_kuliah, 'id'));
+}
+?>
 <div class="pcoded-content">
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Rencana Studi Semester <?= html_escape($academic_period['semester_akademik']) ?> <?= html_escape($academic_period['tahun_akademik']) ?></h5>
+                            <span><?= html_escape($target_mahasiswa->nama_lengkap) ?> &mdash; <?= html_escape($target_mahasiswa->nim) ?> &mdash; <?= html_escape($target_mahasiswa->prodi ?: 'Program studi belum diatur') ?></span>
+                        </div>
+                        <div class="card-block">
+                            <?php if ($this->session->flashdata('success')): ?>
+                                <div class="alert alert-success" role="alert"><?= html_escape($this->session->flashdata('success')) ?></div>
+                            <?php endif; ?>
+                            <?php if ($this->session->flashdata('error')): ?>
+                                <div class="alert alert-danger" role="alert"><?= html_escape($this->session->flashdata('error')) ?></div>
+                            <?php endif; ?>
 
-                <style>
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-                .krs-container {
-                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-
-                .krs-card {
-                    background: #ffffff;
-                    border-radius: 16px;
-                    border: 1px solid #e2e8f0;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-                    margin-bottom: 24px;
-                    overflow: hidden;
-                }
-
-                .table-krs thead th {
-                    background: #f8fafc;
-                    color: #475569;
-                    font-weight: 700;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.6px;
-                    border-top: none;
-                    border-bottom: 1.5px solid #e2e8f0;
-                    padding: 13px 16px;
-                    white-space: nowrap;
-                }
-
-                .table-krs tbody td {
-                    padding: 13px 16px;
-                    vertical-align: middle;
-                    color: #334155;
-                    font-size: 13.5px;
-                    border-top: 1px solid #f1f5f9;
-                }
-
-                .table-krs .badge {
-                    display: inline-block;
-                    white-space: nowrap;
-                }
-
-                @media (max-width: 767.98px) {
-                    .table-krs {
-                        min-width: 900px;
-                    }
-                }
-                </style>
-
-                <div class="krs-container">
-
-                    <!-- Header Banner -->
-                    <div class="krs-card" style="border-left: 5px solid #0284c7;">
-                        <div style="padding: 22px 28px;">
-                            <div class="row align-items-center">
-                                <div class="col-lg-7 col-md-12">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #0369a1); display: flex; align-items: center; justify-content: center; margin-right: 18px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);">
-                                            <i class="fa fa-th-large" style="font-size: 24px; color: #ffffff;"></i>
-                                        </div>
-                                        <div>
-                                            <h4 style="margin: 0 0 4px; font-weight: 800; color: #0f172a; font-size: 20px;">
-                                                Pengambilan Rencana Studi (KRS)
-                                            </h4>
-                                            <p style="margin: 0; font-size: 13.5px; color: #64748b;">
-                                                Pemilihan paket mata kuliah semester aktif dan pengajuan persetujuan rencana studi ke Dosen Pembimbing Akademik.
-                                            </p>
+                            <div class="row mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block">Status Pembayaran Semester</small>
+                                        <strong class="<?= $status_krs['buka_krs'] ? 'text-success' : 'text-danger' ?>">
+                                            <?= html_escape($status_krs['status']) ?>
+                                        </strong>
+                                        <div class="small text-muted mt-1"><?= html_escape($status_krs['pesan']) ?></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block">Status KRS</small>
+                                        <strong><?= html_escape($krs ? $krs->status : 'BELUM DIBUAT') ?></strong>
+                                        <div class="small text-muted mt-1">
+                                            <?= $krs ? (int)$krs->total_sks : 0 ?> / <?= (int)$max_sks ?> SKS
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3 h-100">
+                                        <small class="text-muted d-block">Dosen Wali</small>
+                                        <?php if ($advisor): ?>
+                                            <strong><?= html_escape($advisor->nama_lengkap) ?></strong>
+                                            <div class="small text-muted"><?= html_escape($advisor->nim) ?></div>
+                                        <?php else: ?>
+                                            <strong class="text-warning">Belum ditetapkan</strong>
+                                            <div class="small text-muted">Hubungi Admin Akademik untuk penetapan Dosen Wali.</div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php if ($krs && $krs->status === 'DITOLAK' && $krs->catatan): ?>
+                                <div class="alert alert-warning">
+                                    <strong>Catatan Dosen Wali:</strong> <?= nl2br(html_escape($krs->catatan)) ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($krs && $krs->status === 'MENUNGGU'): ?>
+                                <div class="alert alert-info">
+                                    KRS Anda sedang menunggu keputusan Dosen Wali. Pilihan mata kuliah dikunci selama proses ini.
+                                </div>
+                            <?php elseif ($krs && $krs->status === 'DISETUJUI'): ?>
+                                <div class="alert alert-success">
+                                    KRS telah disetujui. Jadwal resmi dapat dilihat pada FRS.
+                                    <a class="alert-link ml-1" href="<?= base_url('perwalian/frs') ?>">Buka FRS</a>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!$offerings): ?>
+                                <div class="alert alert-secondary mb-0">
+                                    Belum ada penawaran mata kuliah untuk program studi, semester, dan periode akademik Anda.
+                                    Admin Akademik perlu menambahkan penawaran terlebih dahulu.
+                                </div>
+                            <?php else: ?>
+                                <?= form_open('perwalian/simpan_krs') ?>
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                        <div>
+                                            <h6 class="mb-1 font-weight-bold">Penawaran Mata Kuliah</h6>
+                                            <small class="text-muted">Pilih <?= (int)$min_sks ?>-<?= (int)$max_sks ?> SKS dan hindari jadwal yang bertabrakan.</small>
+                                        </div>
+                                        <div class="mt-2 mt-md-0">
+                                            Beban dipilih: <strong id="selectedSks"><?= $krs ? (int)$krs->total_sks : 0 ?></strong> / <?= (int)$max_sks ?> SKS
+                                        </div>
+                                    </div>
+<<<<<<< Updated upstream
                                 </div>
                                 <div class="col-lg-5 col-md-12 text-lg-right mt-3 mt-lg-0">
                                     <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 10px;">
@@ -81,153 +99,70 @@
                                         <button type="button" class="btn btn-primary shadow-sm" onclick="SCDialog.alert('Rencana studi Anda telah berhasil tersimpan dan diajukan ke Dosen Wali.', { title: 'Rencana Studi Diajukan', type: 'success' })" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 18px; background: #0284c7; border-color: #0284c7;">
                                             <i class="fa fa-save mr-1"></i> Simpan Rencana Studi
                                         </button>
+=======
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Pilih</th>
+                                                    <th>Kode / Mata Kuliah</th>
+                                                    <th>SKS</th>
+                                                    <th>Kelas</th>
+                                                    <th>Jadwal</th>
+                                                    <th>Ruangan</th>
+                                                    <th>Dosen Pengampu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($offerings as $offering): ?>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="checkbox" name="penawaran[]" value="<?= (int)$offering->id ?>"
+                                                                   data-sks="<?= (int)$offering->sks ?>"
+                                                                   <?= in_array((int)$offering->id, $selected_offerings, true) ? 'checked' : '' ?>
+                                                                   <?= !$can_edit_krs ? 'disabled' : '' ?>
+                                                                   aria-label="Pilih <?= html_escape($offering->kode_mk) ?>">
+                                                        </td>
+                                                        <td><strong><?= html_escape($offering->kode_mk) ?></strong><br><?= html_escape($offering->nama_mk) ?></td>
+                                                        <td><?= (int)$offering->sks ?></td>
+                                                        <td><?= html_escape($offering->kelas) ?></td>
+                                                        <td><?= html_escape($offering->hari) ?>, <?= html_escape(substr($offering->waktu_mulai, 0, 5)) ?>–<?= html_escape(substr($offering->waktu_selesai, 0, 5)) ?></td>
+                                                        <td><?= html_escape($offering->ruangan) ?></td>
+                                                        <td><?= html_escape($offering->nama_dosen ?: 'Dosen belum tersedia') ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+>>>>>>> Stashed changes
                                     </div>
-                                </div>
-                            </div>
+                                    <?php if ($can_edit_krs): ?>
+                                        <div class="d-flex justify-content-end flex-wrap" style="gap:8px">
+                                            <button class="btn btn-outline-primary" name="aksi" value="draft" type="submit">Simpan Draf</button>
+                                            <button class="btn btn-primary" name="aksi" value="ajukan" type="submit">Ajukan ke Dosen Wali</button>
+                                        </div>
+                                    <?php elseif (!$is_admin_preview && !$status_krs['buka_krs']): ?>
+                                        <div class="alert alert-warning mb-0"><?= html_escape($status_krs['pesan']) ?></div>
+                                    <?php endif; ?>
+                                <?= form_close() ?>
+                            <?php endif; ?>
                         </div>
                     </div>
-
-                    <?php
-                        $mhs_nama = $target_mahasiswa ? $target_mahasiswa->nama_lengkap : ($this->session->userdata('nama_lengkap') ?: 'Muhammad Eka');
-                        $mhs_nim  = $target_mahasiswa ? $target_mahasiswa->nim : ($this->session->userdata('nim') ?: '210101001');
-                        $mhs_prodi = $target_mahasiswa ? ($target_mahasiswa->prodi ?: 'D3 Sistem Informasi') : 'D3 Sistem Informasi';
-                        $mhs_semester = $target_mahasiswa ? ($target_mahasiswa->semester ?: '5') : '5';
-                    ?>
-
-                    <!-- Summary Quota SKS -->
-                    <div class="row mb-3">
-                        <div class="col-md-4 mb-3">
-                            <div class="krs-card p-3 mb-0">
-                                <span class="text-muted" style="font-size: 12.5px; font-weight: 600;">Status Pembayaran SPP</span>
-                                <h4 class="font-weight-bold mb-0 mt-1" style="color: #059669; font-size: 18px;">
-                                    <i class="bi bi-patch-check-fill mr-1"></i> LUNAS / TERVERIFIKASI
-                                </h4>
-                                <small class="text-muted">Akses pengisian KRS terbuka penuh</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="krs-card p-3 mb-0">
-                                <span class="text-muted" style="font-size: 12.5px; font-weight: 600;">Beban SKS Diambil</span>
-                                <h4 class="font-weight-bold mb-0 mt-1" style="color: #0284c7; font-size: 18px;">
-                                    21 SKS <small class="text-muted font-weight-normal">/ Maks. 24 SKS</small>
-                                </h4>
-                                <small class="text-success font-weight-bold">Beban studi optimal</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="krs-card p-3 mb-0">
-                                <span class="text-muted" style="font-size: 12.5px; font-weight: 600;">Dosen Pembimbing Akademik</span>
-                                <h4 class="font-weight-bold mb-0 mt-1" style="color: #0f172a; font-size: 16px;">
-                                    Dr. Ir. H. Budi Santoso, M.Kom.
-                                </h4>
-                                <small class="text-muted">NIDN. 0412087501</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabel Pilihan Mata Kuliah -->
-                    <div class="krs-card">
-                        <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
-                            <h5 class="font-weight-bold mb-1" style="color: #0f172a; font-size: 16px;">
-                                Paket Mata Kuliah Tersedia (Semester <?= htmlspecialchars($mhs_semester) ?>)
-                            </h5>
-                            <p class="text-muted mb-0" style="font-size: 13px;">
-                                Centang mata kuliah yang ingin Anda ambil pada semester berjalan ini.
-                            </p>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-krs mb-0">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50px;" class="text-center">Pilih</th>
-                                        <th style="width: 100px;">Kode MK</th>
-                                        <th>Nama Mata Kuliah</th>
-                                        <th class="text-center" style="width: 80px;">SKS</th>
-                                        <th class="text-center" style="width: 90px;">Kelas</th>
-                                        <th>Jadwal Kuliah</th>
-                                        <th>Ruangan</th>
-                                        <th>Dosen Pengampu</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI501</span></td>
-                                        <td><strong style="color: #0f172a;">Pemrograman Web Lanjut</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">A</td>
-                                        <td>Senin, 08.00 - 10.30</td>
-                                        <td>Lab Komputer 2</td>
-                                        <td>Budi Santoso, M.Kom.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI502</span></td>
-                                        <td><strong style="color: #0f172a;">Rekayasa Perangkat Lunak</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">A</td>
-                                        <td>Selasa, 10.00 - 12.30</td>
-                                        <td>Ruang Teori 304</td>
-                                        <td>Dr. Hendra Wijaya, M.T.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI503</span></td>
-                                        <td><strong style="color: #0f172a;">Manajemen Basis Data Terdistribusi</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">B</td>
-                                        <td>Rabu, 13.00 - 15.30</td>
-                                        <td>Lab Basis Data</td>
-                                        <td>Siti Rahma, M.Kom.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI504</span></td>
-                                        <td><strong style="color: #0f172a;">Analisis &amp; Perancangan Sistem</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">A</td>
-                                        <td>Kamis, 08.00 - 10.30</td>
-                                        <td>Ruang Teori 201</td>
-                                        <td>Agus Setiawan, M.Cs.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI505</span></td>
-                                        <td><strong style="color: #0f172a;">Keamanan Sistem &amp; Jaringan</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">A</td>
-                                        <td>Kamis, 13.00 - 15.30</td>
-                                        <td>Lab Jaringan</td>
-                                        <td>Rizky Kurniawan, M.T.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI506</span></td>
-                                        <td><strong style="color: #0f172a;">Kewirausahaan Digital &amp; Start-up</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">C</td>
-                                        <td>Jumat, 08.00 - 10.30</td>
-                                        <td>Ruang Teori 402</td>
-                                        <td>Maya Indah, S.E., M.M.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #0284c7;"></td>
-                                        <td><span style="font-family: monospace; font-weight: 700; color: #0369a1;">SI507</span></td>
-                                        <td><strong style="color: #0f172a;">Proyek Pengembangan Sistem Informasi</strong></td>
-                                        <td class="text-center"><span class="badge badge-info" style="font-size: 11px;">3 SKS</span></td>
-                                        <td class="text-center font-weight-bold">A</td>
-                                        <td>Jumat, 13.30 - 16.00</td>
-                                        <td>Ruang Diskusi Proyek 1</td>
-                                        <td>Tim Dosen Sistem Informasi</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
                 </div>
-
             </div>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = Array.from(document.querySelectorAll('input[name="penawaran[]"]'));
+    const total = document.getElementById('selectedSks');
+    function updateTotal() {
+        total.textContent = checkboxes.reduce(function(sum, checkbox) {
+            return sum + (checkbox.checked ? Number(checkbox.dataset.sks) : 0);
+        }, 0);
+    }
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateTotal);
+    });
+});
+</script>

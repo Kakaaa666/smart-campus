@@ -30,7 +30,26 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function jadwal() {
-        $this->_render('Jadwal Kuliah', 'Informasi jadwal perkuliahan semester aktif', 'Daftar jadwal mata kuliah dan ruangan');
+        $akun_id = (int)$this->session->userdata('id');
+        $period = $this->M_akademik->get_active_period();
+        $account = $this->M_akademik->get_account($akun_id);
+        if (!$account) {
+            show_error('Data mahasiswa aktif tidak ditemukan.', 404);
+            return;
+        }
+        $data = [
+            'title' => 'Jadwal Kuliah - Smart Campus',
+            'page_title' => 'Jadwal Kuliah',
+            'page_desc' => 'Jadwal mata kuliah sesuai KRS yang disetujui pada periode aktif.',
+            'card_subtitle' => 'Daftar jadwal mata kuliah dan ruangan',
+            'active_period' => $period,
+            'krs' => $this->M_akademik->get_krs($akun_id, $period),
+        ];
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('akademik/mahasiswa_jadwal', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function nilai() {

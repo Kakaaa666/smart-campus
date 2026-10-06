@@ -184,39 +184,56 @@ body .pcoded .pcoded-navbar,
 body .pcoded .pcoded-navbar .main-menu,
 body .pcoded[theme-layout="vertical"] .pcoded-navbar,
 body .pcoded .pcoded-navbar .pcoded-inner-navbar {
-    background: var(--sc-surface) !important;
-    border-right: 1px solid var(--sc-line) !important;
-    box-shadow: 8px 0 28px rgba(16, 45, 61, 0.06) !important;
+    background: color-mix(in srgb, var(--sc-ink) 94%, #111827) !important;
+    border-right: 1px solid color-mix(in srgb, var(--sc-accent) 20%, var(--sc-ink)) !important;
+    box-shadow: 8px 0 28px rgba(10, 18, 34, 0.2) !important;
+}
+
+body .pcoded .pcoded-navbar .pcoded-item {
+    padding-top: 14px !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-item > li > a,
 body .pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext {
-    color: var(--sc-muted) !important;
+    color: rgba(255, 255, 255, 0.72) !important;
     font-weight: 600 !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-item > li > a {
-    margin: 4px 12px !important;
+    margin: 5px 12px !important;
+    padding: 11px 14px !important;
     border: 1px solid transparent !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     transition: background 180ms ease, color 180ms ease, transform 180ms ease !important;
+}
+
+body .pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
+    color: rgba(255, 255, 255, 0.68) !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-item > li > a:hover,
 body .pcoded .pcoded-navbar .pcoded-item > li:hover > a {
-    color: var(--sc-accent-strong) !important;
-    background: color-mix(in srgb, var(--sc-accent) 12%, transparent) !important;
-    border-color: color-mix(in srgb, var(--sc-accent) 22%, transparent) !important;
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent) 18%, var(--sc-ink)) !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 32%, var(--sc-ink)) !important;
     transform: translateX(2px) !important;
+}
+
+body .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-mtext,
+body .pcoded .pcoded-navbar .pcoded-item > li:hover > a .pcoded-mtext,
+body .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon,
+body .pcoded .pcoded-navbar .pcoded-item > li:hover > a .pcoded-micon,
+body .pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon i {
+    color: #ffffff !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-item > li.active > a,
 body .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a {
-    color: var(--sc-surface) !important;
-    background: var(--sc-accent-strong) !important;
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent-strong) 58%, var(--sc-ink)) !important;
     border-left: 0 !important;
-    border-color: var(--sc-accent-strong) !important;
-    box-shadow: 0 8px 18px color-mix(in srgb, var(--sc-accent-strong) 25%, transparent) !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 48%, var(--sc-ink)) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18) !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-item > li.active > a .pcoded-mtext,
@@ -230,7 +247,7 @@ body .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon i
 }
 
 body .pcoded .pcoded-navbar .pcoded-submenu {
-    background: color-mix(in srgb, var(--sc-accent) 5%, var(--sc-surface)) !important;
+    background: color-mix(in srgb, #ffffff 5%, var(--sc-ink)) !important;
     border: 0 !important;
     border-radius: 12px !important;
     margin: 0 12px 6px !important;
@@ -238,15 +255,148 @@ body .pcoded .pcoded-navbar .pcoded-submenu {
 }
 
 body .pcoded .pcoded-navbar .pcoded-submenu li > a {
-    color: var(--sc-muted) !important;
+    color: rgba(255, 255, 255, 0.68) !important;
     border-left: 2px solid transparent !important;
 }
 
 body .pcoded .pcoded-navbar .pcoded-submenu li.active > a,
 body .pcoded .pcoded-navbar .pcoded-submenu li > a:hover {
-    color: var(--sc-accent-strong) !important;
-    background: color-mix(in srgb, var(--sc-accent) 12%, transparent) !important;
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent) 18%, var(--sc-ink)) !important;
     border-left-color: var(--sc-accent) !important;
+}
+
+body .pcoded .pcoded-navbar .pcoded-item > li > a:focus-visible,
+body .pcoded .pcoded-submenu li > a:focus-visible {
+    outline: 2px solid var(--sc-accent) !important;
+    outline-offset: 2px !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li.menu-verifikasi-pembayaran > a .payment-verification-count {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 6px !important;
+    border: 2px solid var(--sc-surface) !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    background: #dc3545 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-mtext {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a {
+    margin: 5px 12px !important;
+    padding: 11px 14px !important;
+    border: 1px solid transparent !important;
+    border-radius: 14px !important;
+    transition: background 180ms ease, color 180ms ease, transform 180ms ease !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-micon {
+    color: rgba(255, 255, 255, 0.68) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a {
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent) 18%, var(--sc-ink)) !important;
+    background-color: color-mix(in srgb, var(--sc-accent) 18%, var(--sc-ink)) !important;
+    border: 1px solid color-mix(in srgb, var(--sc-accent) 32%, var(--sc-ink)) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-mtext,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-mtext,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li:hover > a .pcoded-micon,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon i,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a:hover .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a {
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent-strong) 58%, var(--sc-ink)) !important;
+    background-color: color-mix(in srgb, var(--sc-accent-strong) 58%, var(--sc-ink)) !important;
+    border: 1px solid color-mix(in srgb, var(--sc-accent) 48%, var(--sc-ink)) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-mtext,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-mtext,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon i,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon svg,
+body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
+    background: color-mix(in srgb, #ffffff 5%, var(--sc-ink)) !important;
+    border-color: color-mix(in srgb, #ffffff 8%, var(--sc-ink)) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
+    color: rgba(255, 255, 255, 0.68) !important;
+}
+
+body[class*="theme-"] .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
+body[class*="theme-"] .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover {
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent) 18%, var(--sc-ink)) !important;
+    border-left-color: var(--sc-accent) !important;
+}
+
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a {
+    background: color-mix(in srgb, var(--sc-accent-strong) 58%, var(--sc-ink)) !important;
+    background-color: color-mix(in srgb, var(--sc-accent-strong) 58%, var(--sc-ink)) !important;
+    border: 1px solid color-mix(in srgb, var(--sc-accent) 48%, var(--sc-ink)) !important;
+}
+
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon {
+    background: var(--sc-accent-strong) !important;
+    background-color: var(--sc-accent-strong) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon i,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.active > a .pcoded-micon svg,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon {
+    background: color-mix(in srgb, var(--sc-accent) 22%, var(--sc-ink)) !important;
+    background-color: color-mix(in srgb, var(--sc-accent) 22%, var(--sc-ink)) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+}
+
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon i,
+body[class*="theme-"] .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar[active-item-theme] .pcoded-item > li:not(.active) > a:hover .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
 }
 
 body .main-body .page-wrapper {
@@ -380,34 +530,6 @@ body.theme-dosen .brand-icon {
     color: #f1ad79 !important;
 }
 
-body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li > a:hover,
-body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li:hover > a {
-    color: #3c2632 !important;
-    background: #f5e7dc !important;
-    border-color: #e8cbb7 !important;
-}
-
-body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li.active > a,
-body.theme-dosen .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a {
-    color: #ffffff !important;
-    background: #914321 !important;
-    border-color: #914321 !important;
-}
-
-body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li > a:hover,
-body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li:hover > a {
-    color: #111111 !important;
-    background: #ededeb !important;
-    border-color: #d5d5d0 !important;
-}
-
-body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li.active > a,
-body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > a {
-    color: #ffffff !important;
-    background: #111111 !important;
-    border-color: #111111 !important;
-}
-
 @media (max-width: 767px) {
     body .main-body .page-wrapper {
         padding: 18px 14px !important;
@@ -419,5 +541,174 @@ body.theme-superadmin .pcoded .pcoded-navbar .pcoded-item > li.pcoded-trigger > 
 
     body .brand-text {
         font-size: 13px !important;
+    }
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar {
+    transition: width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+        margin-left 280ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 180ms ease !important;
+    will-change: width, margin-left;
+}
+
+body[class*="theme-"] #pcoded .pcoded-content,
+body[class*="theme-"] #pcoded .pcoded-header .pcoded-left-header,
+body[class*="theme-"] #pcoded .pcoded-header .pcoded-right-header {
+    transition: width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+        margin 280ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a,
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-submenu li > a {
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease,
+        box-shadow 180ms ease, transform 180ms ease !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
+    transition: color 180ms ease, background-color 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a:hover .pcoded-micon {
+    transform: scale(1.08);
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-inner-navbar,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .main-menu {
+    width: 70px !important;
+}
+
+@media (min-width: 769px) {
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="expanded"] .pcoded-navbar,
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="expanded"] .pcoded-navbar .pcoded-inner-navbar,
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="expanded"] .pcoded-navbar .main-menu {
+        width: 280px !important;
+    }
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a {
+    display: flex !important;
+    width: 54px !important;
+    min-height: 54px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 6px auto !important;
+    padding: 8px !important;
+    border: 1px solid transparent !important;
+    border-radius: 16px !important;
+    transform: none !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
+    display: inline-flex !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-size: 18px !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-mtext {
+    display: none !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.menu-verifikasi-pembayaran > a .payment-verification-count {
+    position: absolute !important;
+    top: -5px !important;
+    right: 1px !important;
+    z-index: 2 !important;
+    min-width: 17px !important;
+    height: 17px !important;
+    margin: 0 !important;
+    padding: 0 4px !important;
+    border: 2px solid color-mix(in srgb, #ffffff 5%, var(--sc-ink)) !important;
+    font-size: 9px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28) !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a {
+    background: color-mix(in srgb, var(--sc-accent) 12%, transparent) !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 24%, transparent) !important;
+    box-shadow: none !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon {
+    color: #ffffff !important;
+    background: var(--sc-accent-strong) !important;
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--sc-accent-strong) 30%, transparent) !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon i,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .pcoded-micon svg,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon i,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > a .pcoded-micon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li:not(.active):not(.pcoded-trigger) > a:hover {
+    background: color-mix(in srgb, var(--sc-accent) 9%, transparent) !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 16%, transparent) !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li:not(.active):not(.pcoded-trigger) > a:hover .pcoded-micon {
+    color: #ffffff !important;
+    background: color-mix(in srgb, var(--sc-accent) 28%, var(--sc-ink)) !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.pcoded-trigger > .pcoded-submenu {
+    background: color-mix(in srgb, #ffffff 5%, var(--sc-ink)) !important;
+    border: 1px solid color-mix(in srgb, var(--sc-accent) 20%, var(--sc-ink)) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+}
+
+@media (max-width: 768px) {
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="offcanvas"] .pcoded-navbar {
+        width: min(235px, 86vw) !important;
+        max-width: 86vw !important;
+        margin-left: calc(-1 * min(235px, 86vw) - 16px) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        transition: margin-left 280ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 180ms ease,
+            visibility 0s linear 180ms !important;
+    }
+
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="expanded"] .pcoded-navbar {
+        width: min(235px, 86vw) !important;
+        max-width: 86vw !important;
+        margin-left: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transition: margin-left 280ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 180ms ease,
+            visibility 0s !important;
+    }
+
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="offcanvas"] .pcoded-navbar .pcoded-inner-navbar,
+    body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="offcanvas"] .pcoded-navbar .main-menu {
+        width: 100% !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body[class*="theme-"] #pcoded .pcoded-navbar,
+    body[class*="theme-"] #pcoded .pcoded-content,
+    body[class*="theme-"] #pcoded .pcoded-header .pcoded-left-header,
+    body[class*="theme-"] #pcoded .pcoded-header .pcoded-right-header,
+    body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a,
+    body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-submenu li > a,
+    body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
