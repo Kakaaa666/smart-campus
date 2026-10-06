@@ -237,7 +237,8 @@
                         foreach ($daftar_mahasiswa_ta as $m) {
                             if ((int)$m->akses_ta === 1) $count_dibuka++;
                             else $count_ditutup++;
-                            if ((int)$m->semester >= 5) $count_akhir++;
+                            $semester_min_akhir = strpos(strtoupper((string)$m->prodi), 'D3') !== false ? 5 : 7;
+                            if ((int)$m->semester >= $semester_min_akhir) $count_akhir++;
                         }
                     ?>
                     <div class="row mb-3">
@@ -339,7 +340,8 @@
                                         <?php foreach ($daftar_mahasiswa_ta as $i => $m): ?>
                                             <?php
                                                 $is_open = ((int)$m->akses_ta === 1);
-                                                $is_sem_akhir = ((int)$m->semester >= 5);
+                                                $semester_min_akhir = strpos(strtoupper((string)$m->prodi), 'D3') !== false ? 5 : 7;
+                                                $is_sem_akhir = ((int)$m->semester >= $semester_min_akhir);
                                                 $is_sem_pendek = ((int)($m->ambil_semester_pendek ?? 0) === 1);
                                             ?>
                                             <tr class="searchable-row" id="row-mhs-<?= $m->id ?>" data-search="<?= strtolower($m->nama_lengkap . ' ' . $m->nim . ' ' . ($m->fakultas ?? '') . ' ' . ($m->prodi ?? '')) ?>">
@@ -366,7 +368,7 @@
                                                         <span id="text-status-<?= $m->id ?>"><?= $is_open ? 'Akses DIBUKA' : 'Akses DITUTUP' ?></span>
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td id="ta-billing-status-<?= (int)$m->id ?>">
                                                     <?php if ($is_open): ?>
                                                         <div style="font-size: 13px; font-weight: 700; color: #059669;">
                                                             Rp <?= number_format($m->ta_tagihan_nominal ?: 1250000, 0, ',', '.') ?>
@@ -381,9 +383,10 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-center">
-                                                    <button type="button" 
+                                                        <button type="button"
                                                             id="btn-toggle-<?= $m->id ?>"
                                                             class="<?= $is_open ? 'btn-toggle-close' : 'btn-toggle-open' ?>"
+                                                            <?= (!$is_open && !$is_sem_akhir) ? 'disabled title="Belum mencapai semester akhir"' : '' ?>
                                                             onclick="toggleAksesTAMhs(<?= (int)$m->id ?>, <?= $is_open ? 0 : 1 ?>, <?= htmlspecialchars(json_encode($m->nama_lengkap), ENT_QUOTES, 'UTF-8') ?>)">
                                                         <i class="fa <?= $is_open ? 'fa-lock' : 'fa-unlock' ?> mr-1"></i>
                                                         <span id="btn-text-<?= $m->id ?>"><?= $is_open ? 'Tutup Akses' : 'Buka Akses' ?></span>
@@ -499,7 +502,15 @@ function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
         },
         body: formData
     })
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+        return res.text().then(function(text) {
+            var data;
+            try { data = JSON.parse(text); }
+            catch (error) { throw new Error('Server tidak mengirim respons JSON. Sesi mungkin berakhir; muat ulang halaman dan login kembali.'); }
+            if (!res.ok || !data.success) throw new Error(data.message || 'Perubahan akses ditolak server.');
+            return data;
+        });
+    })
     .then(function(data) {
         if (data.success) {
             var isNowOpen = (data.status_int === 1);
@@ -513,6 +524,17 @@ function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
             if (badge) {
                 badge.className = isNowOpen ? 'badge-ta-open' : 'badge-ta-closed';
                 badge.innerHTML = '<i class="fa ' + (isNowOpen ? 'fa-check-circle' : 'fa-lock') + ' mr-1"></i><span>' + (isNowOpen ? 'Akses DIBUKA' : 'Akses DITUTUP') + '</span>';
+            }
+            var billingStatus = document.getElementById('ta-billing-status-' + akunId);
+            if (billingStatus) {
+                if (isNowOpen) {
+                    var nominal = Number(data.tagihan_nominal || 0).toLocaleString('id-ID');
+                    var status = data.tagihan_status || 'BELUM_BAYAR';
+                    var badgeClass = status === 'LUNAS' ? 'success' : 'warning text-dark';
+                    billingStatus.innerHTML = '<div style="font-size:13px;font-weight:700;color:#059669;">Rp ' + nominal + '</div><small class="badge badge-' + badgeClass + '">' + status + '</small>';
+                } else {
+                    billingStatus.innerHTML = '<span class="text-muted" style="font-size:12.5px;font-style:italic;">Tidak Ditagihkan</span>';
+                }
             }
 
             // Update statistik angka
@@ -531,12 +553,19 @@ function toggleAksesTAMhs(akunId, targetStatus, namaMhs) {
             }
 
             showTaToast(data.message, 'success');
-        } else {
-            showTaToast(data.message || 'Terjadi kesalahan sistem', 'error');
         }
     })
     .catch(function(err) {
-        showTaToast('Gagal menghubungi server.', 'error');
+        var wasOpen = targetStatus !== 1;
+        if (btn) {
+            btn.className = wasOpen ? 'btn-toggle-close' : 'btn-toggle-open';
+            btn.innerHTML = '<i class="fa ' + (wasOpen ? 'fa-lock' : 'fa-unlock') + ' mr-1"></i><span>' + (wasOpen ? 'Tutup Akses' : 'Buka Akses') + '</span>';
+        }
+        if (badge) {
+            badge.className = wasOpen ? 'badge-ta-open' : 'badge-ta-closed';
+            badge.innerHTML = '<i class="fa ' + (wasOpen ? 'fa-check-circle' : 'fa-lock') + ' mr-1"></i><span>' + (wasOpen ? 'Akses DIBUKA' : 'Akses DITUTUP') + '</span>';
+        }
+        showTaToast(err.message || 'Gagal menghubungi server.', 'error');
     })
     .finally(function() {
         if (btn) btn.disabled = false;

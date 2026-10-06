@@ -234,26 +234,18 @@
                     position: relative;
                     min-width: 0;
                     text-align: center;
-<<<<<<< Updated upstream
                     color: #1e40af;
                     font-size: 11px;
                     line-height: 1.35;
                 }
-                .payment-step strong,
-                .payment-step small,
-                .payment-step.is-rejected,
-                .payment-step.is-rejected strong,
-                .payment-step.is-rejected small {
+                .payment-tracker .payment-step strong,
+                .payment-tracker .payment-step small,
+                .payment-tracker .payment-step.is-rejected,
+                .payment-tracker .payment-step.is-rejected strong,
+                .payment-tracker .payment-step.is-rejected small {
                     color: #1e40af !important;
                 }
-                .payment-step:not(:last-child)::after {
-=======
-                    color: var(--sc-muted);
-                    font-size: 11px;
-                    line-height: 1.35;
-                }
                 .payment-tracker .payment-step:not(:last-child)::after {
->>>>>>> Stashed changes
                     position: absolute;
                     top: 15px;
                     left: calc(50% + 18px);
@@ -295,6 +287,24 @@
                     border-color: #dc2626;
                     background: #dc2626;
                 }
+                .payment-progress-message {
+                    display: block;
+                    width: 100%;
+                    min-height: 0;
+                    margin: 0 0 24px;
+                    padding: 14px 16px;
+                    border-radius: 8px;
+                    background: #f0f7ff;
+                    color: #1e40af !important;
+                    line-height: 1.5;
+                }
+                #modalProgresPembayaran .modal-body {
+                    display: block;
+                }
+                #paymentProgressTimeline.payment-tracker {
+                    width: 100%;
+                    min-height: 0;
+                }
                 body #modalKonfirmasiBayar .modal-header {
                     background: linear-gradient(115deg, var(--sc-ink), var(--sc-accent-strong)) !important;
                 }
@@ -302,12 +312,9 @@
                     .payment-stepper-button { min-height: 54px; gap: 5px; padding: 7px 5px; font-size: 10px; }
                     .payment-step-marker { flex-basis: 18px; width: 18px; height: 18px; }
                     .payment-stepper-item { overflow-wrap: anywhere; }
-                    .payment-tracker { gap: 2px; }
+                    .payment-tracker { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 6px; }
                     .payment-tracker .payment-step { font-size: 9px; }
-                    .payment-tracker .payment-step:not(:last-child)::after {
-                        left: calc(50% + 15px);
-                        width: calc(100% - 22px);
-                    }
+                    .payment-tracker .payment-step::after { display: none; }
                 }
 
                 #formKonfirmasiPembayaran .form-group > label,
@@ -1503,13 +1510,8 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Tutup" style="color:#1e40af !important;"><span>&times;</span></button>
             </div>
             <div class="modal-body p-4">
-<<<<<<< Updated upstream
-                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#1e40af !important;">Status pembayaran</div>
-                <ol class="payment-stepper" id="paymentProgressTimeline">
-=======
-                <div id="progressStatusMessage" class="mb-4 p-3" style="border-radius:8px; background:#f8fafc; color:#334155;">Status pembayaran</div>
+                <div id="progressStatusMessage" class="payment-progress-message">Status pembayaran</div>
                 <ol class="payment-tracker" id="paymentProgressTimeline">
->>>>>>> Stashed changes
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">1</span><strong>Tagihan dibuat</strong><small class="d-block mt-1" data-step-detail></small></li>
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">2</span><strong>Pembayaran dikirim</strong><small class="d-block mt-1" data-step-detail></small></li>
                     <li class="payment-step" data-progress-step><span class="payment-step-marker">3</span><strong>Verifikasi admin</strong><small class="d-block mt-1" data-step-detail></small></li>

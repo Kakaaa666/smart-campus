@@ -606,10 +606,13 @@ class M_keuangan_shared extends CI_Model {
             return false;
         }
 
-        $this->db->where('id', (int)$akun_id)->update($this->table_akun, [
+        $saved = $this->db->where('id', (int)$akun_id)->update($this->table_akun, [
             'akses_ta'   => $status_int,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
+        if (!$saved || (int)$this->get_status_akses_ta_mahasiswa($akun_id) !== $status_int) {
+            return false;
+        }
 
         // Sinkronkan hanya tagihan Bimbingan & Ujian Tugas Akhir.
         $this->sinkronkan_tagihan_ta($akun_id, $status_int);

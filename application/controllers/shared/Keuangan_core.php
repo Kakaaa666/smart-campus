@@ -551,15 +551,27 @@ class Keuangan_core extends CI_Controller {
             $new_status = (int)$req_status ? 1 : 0;
         }
 
+        if ($new_status && !$this->M_keuangan->is_mahasiswa_semester_akhir($target)) {
+            $this->output->set_status_header(422)->set_content_type('application/json')
+                         ->set_output(json_encode(['success' => false, 'message' => 'Akses hanya dapat dibuka untuk mahasiswa yang sudah memasuki semester akhir.']));
+            return;
+        }
+
         $updated = $this->M_keuangan->set_status_akses_ta_mahasiswa($akun_id, $new_status);
 
         if (!$updated) {
-            $message = 'Akses Tugas Akhir hanya dapat dibuka untuk mahasiswa yang sudah berada di semester akhir.';
+            $message = 'Perubahan akses tidak tersimpan. Muat ulang halaman dan coba lagi.';
             $this->output->set_status_header(422)
                          ->set_content_type('application/json')
                          ->set_output(json_encode(['success' => false, 'message' => $message]));
             return;
         }
+
+        $tagihan_ta = $this->db->select('status, nominal')
+                               ->where('akun_id', $akun_id)
+                               ->where('jenis_tagihan', 'Bimbingan & Ujian Tugas Akhir')
+                               ->order_by('id', 'DESC')
+                               ->get('tagihan')->row();
 
         $label = $new_status ? 'DIBUKA' : 'DITUTUP';
         $msg = "Akses Pembayaran Tugas Akhir untuk {$target->nama_lengkap} (NIM: {$target->nim}) berhasil {$label}.";
@@ -570,6 +582,8 @@ class Keuangan_core extends CI_Controller {
                              'success'    => true,
                              'status'     => (bool)$new_status,
                              'status_int' => $new_status,
+                             'tagihan_status' => $new_status && $tagihan_ta ? $tagihan_ta->status : null,
+                             'tagihan_nominal' => $new_status && $tagihan_ta ? (float)$tagihan_ta->nominal : null,
                              'nama'       => $target->nama_lengkap,
                              'message'    => $msg
                          ]));
@@ -708,21 +722,28 @@ class Keuangan_core extends CI_Controller {
                              ->get('akun')->result();
 
         $count = 0;
+        $failed = 0;
         foreach ($mhs_list as $m) {
-            $this->M_keuangan->set_status_akses_ta_mahasiswa($m->id, $status);
-            $count++;
+            if ($this->M_keuangan->set_status_akses_ta_mahasiswa($m->id, $status)) {
+                $count++;
+            } else {
+                $failed++;
+            }
         }
 
         $label = $status ? 'DIBUKA' : 'DITUTUP';
-        $msg = "Akses Tugas Akhir untuk {$count} mahasiswa tingkat akhir (semester {$semester_min}+) berhasil {$label}.";
+        $msg = "Akses Tugas Akhir berhasil {$label} untuk {$count} mahasiswa.";
+        if ($failed > 0) {
+            $msg .= " {$failed} mahasiswa tidak dapat diperbarui karena belum memenuhi syarat atau gagal disimpan.";
+        }
 
         if ($this->input->is_ajax_request()) {
             $this->output->set_content_type('application/json')
-                         ->set_output(json_encode(['success' => true, 'count' => $count, 'message' => $msg]));
+                         ->set_output(json_encode(['success' => $failed === 0, 'count' => $count, 'failed' => $failed, 'message' => $msg]));
             return;
         }
 
-        $this->session->set_flashdata('success', $msg);
+        $this->session->set_flashdata($failed > 0 ? 'error' : 'success', $msg);
         redirect('keuangan/kontrol_ta');
     }
 
