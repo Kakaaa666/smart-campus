@@ -469,42 +469,67 @@
     display: none !important;
 }
 
-/* Submenu dropdown flyout when collapsed and clicked */
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger {
-    width: 70px !important;
+/* Saat sidebar kecil, submenu dibuka sebagai panel melayang di samping ikon. */
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item .pcoded-hasmenu > .pcoded-submenu {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger>.pcoded-submenu {
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
     left: 70px !important;
     top: 0 !important;
-    position: absolute !important;
     width: 220px !important;
-    background-color: #ffffff !important;
-    box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.1) !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 0 8px 8px 0 !important;
+    height: auto !important;
+    overflow: visible !important;
     z-index: 1050 !important;
-    display: block !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0 10px 10px 0 !important;
+    box-shadow: 5px 8px 22px rgba(15, 23, 42, 0.18) !important;
 }
 
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger>.pcoded-submenu li>a {
-    padding: 10px 20px !important;
-    justify-content: flex-start !important;
-    color: #4b5563 !important;
-}
-
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger>.pcoded-submenu li>a:hover {
-    background-color: #f1f5f9 !important;
-    color: #1976d2 !important;
-}
-
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger>.pcoded-submenu li.active>a {
-    background-color: #e3f2fd !important;
-    color: #1976d2 !important;
-}
-
-.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item>.pcoded-hasmenu.pcoded-trigger>.pcoded-submenu li>a .pcoded-mtext {
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu .pcoded-mtext {
     display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu > a {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Setelah pindah halaman, plugin scrollbar kadang menyisakan ukuran/transform
+   menu lebar. Paksa daftar menu utama dan ikon tetap tampil pada sidebar kecil. */
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .main-menu,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .mCSB_container_wrapper,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .mCSB_container,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item {
+    display: block !important;
+    width: 70px !important;
+    min-width: 70px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+}
+
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li {
+    display: block !important;
+    width: 70px !important;
+    min-height: 52px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-micon,
+.pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-micon i {
+    display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
 }

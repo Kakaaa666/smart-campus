@@ -633,6 +633,32 @@ class M_keuangan_shared extends CI_Model {
         }
     }
 
+    /**
+     * Samakan fasilitas pembayaran Tugas Akhir untuk seluruh mahasiswa aktif.
+     *
+     * Tagihan dibuat satu kali per mahasiswa oleh buat_tagihan_tambahan(), sehingga
+     * aman dipanggil berulang kali saat halaman keuangan dibuka.
+     */
+    public function sinkronkan_tagihan_ta_semua_mahasiswa()
+    {
+        $mahasiswa = $this->db->select('id')
+                              ->where('role', 3)
+                              ->where('deleted_at IS NULL', null, false)
+                              ->get($this->table_akun)
+                              ->result();
+
+        foreach ($mahasiswa as $mahasiswa_item) {
+            $akun_id = (int)$mahasiswa_item->id;
+            $this->db->where('id', $akun_id)->update($this->table_akun, [
+                'akses_ta'   => 1,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            $this->sinkronkan_tagihan_ta($akun_id, true);
+        }
+
+        return true;
+    }
+
     public function sinkronkan_tagihan_kelulusan($akun_id)
     {
         $this->buat_tagihan_tambahan($akun_id, 'Cetak & Administrasi Dokumen Akademik', 100000, 1);
@@ -1379,7 +1405,7 @@ class M_keuangan_shared extends CI_Model {
                 'jenis_biaya' => 'Bimbingan & Ujian Tugas Akhir',
                 'nominal'     => 1250000,
                 'keterangan'  => 'Honorarium bimbingan intensif laporan tugas akhir/skripsi dan administrasi pelaksanaan sidang.',
-                'peruntukan'  => 'Mahasiswa Semester Akhir (Sesuai Izin Admin)'
+                'peruntukan'  => 'Seluruh Mahasiswa'
             ],
             [
                 'no'          => 2,

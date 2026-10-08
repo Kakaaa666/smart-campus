@@ -123,6 +123,9 @@ class Keuangan_core extends CI_Controller {
         }
 
         $this->M_keuangan->ensure_tagihan_semester_aktif($akun_id);
+        // Semua mahasiswa memakai susunan tagihan yang sama, termasuk Tugas Akhir.
+        // Method ini idempoten: tagihan yang sudah ada tidak akan diduplikasi.
+        $this->M_keuangan->sinkronkan_tagihan_ta_semua_mahasiswa();
         if ($user_role === 3) {
             $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
         }

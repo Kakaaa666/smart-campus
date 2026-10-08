@@ -504,28 +504,11 @@
                             <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
                                 <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                             </div>
-                            <!-- Status Akses Semester Akhir Mahasiswa -->
-                            <?php if ($is_semester_akhir): ?>
-                                <div class="mt-3">
-                                    <?php if ($akses_ta_mahasiswa): ?>
-                                        <span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(110,231,183,0.35);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
-                                            <i class="fa fa-unlock"></i> Akses Biaya Semester Akhir: DIBUKA
-                                        </span>
-                                    <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'MENUNGGU'): ?>
-                                        <span style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;">
-                                            <i class="fa fa-clock-o"></i> Menunggu validasi Biro Keuangan
-                                        </span>
-                                    <?php elseif (!empty($validasi_tagihan_akhir) && $validasi_tagihan_akhir->status === 'DITOLAK'): ?>
-                                        <span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(252,165,165,0.3);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;">
-                                            <i class="fa fa-times-circle"></i> Validasi belum disetujui
-                                        </span>
-                                    <?php else: ?>
-                                        <span style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15);font-size:12px;border-radius:20px;font-weight:600;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
-                                            <i class="fa fa-lock"></i> Tagihan semester akhir menunggu persetujuan
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
+                            <div class="mt-3">
+                                <span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(110,231,183,0.35);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
+                                    <i class="fa fa-unlock"></i> Pembayaran Tugas Akhir Tersedia
+                                </span>
+                            </div>
                         </div>
                         <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.25); padding-left: 28px;">
                             <div class="font-weight-bold mb-3" style="font-size: 14.5px; letter-spacing: 0.5px; text-transform: uppercase;">
@@ -550,7 +533,7 @@
                                 </div>
                             </div>
                             <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
-                                <i class="fa fa-info-circle mr-1 text-warning"></i> Biaya semester akhir bersifat kondisional dan hanya muncul setelah akses dibuka oleh Bagian Keuangan.
+                                <i class="fa fa-info-circle mr-1 text-warning"></i> Rincian biaya tambahan, termasuk pembayaran Tugas Akhir, tersedia untuk seluruh mahasiswa.
                             </div>
                         </div>
                     </div>
@@ -773,18 +756,12 @@
                                 <i class="bi bi-clock-history"></i> Riwayat Pembayaran (<?= count($riwayat_pembayaran) ?>)
                             </a>
                         </li>
-                        <?php if ($is_semester_akhir || $akses_tugas_akhir || $ambil_semester_pendek): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tab-ta-link" data-toggle="tab" href="#tab-ta" role="tab">
-                                    <i class="bi bi-mortarboard"></i> Pembayaran Semester Akhir
-                                    <?php if ($akses_tugas_akhir): ?>
-                                        <span class="badge badge-success ml-1" style="font-size: 10px;">Buka</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-secondary ml-1" style="font-size: 10px;">Tutup</span>
-                                    <?php endif; ?>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-ta-link" data-toggle="tab" href="#tab-ta" role="tab">
+                                <i class="bi bi-mortarboard"></i> Pembayaran Tugas Akhir
+                                <span class="badge badge-success ml-1" style="font-size: 10px;">Tersedia</span>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" id="tab-biaya-link" data-toggle="tab" href="#tab-biaya" role="tab">
                                 <i class="bi bi-info-square"></i> Rincian Biaya Kuliah &amp; Tambahan
@@ -1153,8 +1130,7 @@
                             </div>
                         </div>
 
-                        <!-- TAB KHUSUS MAHASISWA SEMESTER AKHIR -->
-                        <?php if ($is_semester_akhir || $akses_tugas_akhir || $ambil_semester_pendek): ?>
+                        <!-- TAB PEMBAYARAN TUGAS AKHIR DAN BIAYA TAMBAHAN -->
                             <div class="tab-pane fade p-4" id="tab-ta" role="tabpanel">
                                 <div class="p-3 mb-4 rounded" style="background-color: #f8fafc; border: 1.5px solid #e2e8f0;">
                                     <div class="row align-items-center">
@@ -1162,36 +1138,21 @@
                                             <div class="d-flex align-items-center mb-1">
                                                 <i class="bi bi-mortarboard mr-2 text-primary" style="font-size: 24px;"></i>
                                                 <h5 class="mb-0 font-weight-bold" style="color: #1e293b;">
-                                                    Menu Pembayaran Semester Akhir &amp; Kelulusan
+                                                    Menu Pembayaran Tugas Akhir &amp; Biaya Tambahan
                                                 </h5>
                                             </div>
                                             <p class="text-muted mb-0" style="font-size: 13px;">
-                                                Menu ini khusus terbuka bagi Anda yang telah memasuki <strong>Semester Akhir (Semester <?= htmlspecialchars($mahasiswa_info['semester']) ?>)</strong> pada Program Studi <?= htmlspecialchars($mahasiswa_info['prodi']) ?>.
+                                                Pembayaran Tugas Akhir dan rincian biaya tambahan tersedia untuk seluruh mahasiswa Program Studi <?= htmlspecialchars($mahasiswa_info['prodi']) ?>.
                                             </p>
                                         </div>
                                         <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                            <?php if ($akses_tugas_akhir): ?>
-                                                <span class="badge badge-success px-3 py-2" style="font-size: 13px; border-radius: 8px;">
-                                                    <i class="bi bi-unlock-fill mr-1"></i> Akses Dibuka oleh Admin
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="badge badge-danger px-3 py-2" style="font-size: 13px; border-radius: 8px;">
-                                                    <i class="bi bi-lock-fill mr-1"></i> Akses Ditutup oleh Admin
-                                                </span>
-                                            <?php endif; ?>
+                                            <span class="badge badge-success px-3 py-2" style="font-size: 13px; border-radius: 8px;">
+                                                <i class="bi bi-unlock-fill mr-1"></i> Pembayaran Tersedia
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <?php if ($is_semester_akhir && !$akses_tugas_akhir): ?>
-                                    <div class="alert alert-warning text-center py-5" style="border-radius: 12px; background-color: #fffbeb; border: 1.5px solid #fde68a;">
-                                        <i class="bi bi-shield-lock text-warning" style="font-size: 48px;"></i>
-                                        <h5 class="font-weight-bold mt-3 mb-1" style="color: #92400e;">Akses Pembayaran Semester Akhir Sedang Ditutup</h5>
-                                        <p class="text-muted mb-0" style="font-size: 13.5px; max-width: 540px; margin: 0 auto;">
-                                            Periode pembayaran semester akhir belum dibuka atau sedang ditutup oleh Bagian Keuangan Kampus. Silakan hubungi admin keuangan jika jadwal pembayaran semester akhir Anda sudah dimulai.
-                                        </p>
-                                    </div>
-                                <?php endif; ?>
                                     <div class="row">
                                         <?php foreach ($biaya_tambahan as $bt): ?>
                                             <?php
@@ -1208,7 +1169,7 @@
                                                     <div class="card-body p-3 d-flex flex-column justify-content-between">
                                                         <div>
                                                             <div class="d-flex align-items-center justify-content-between mb-1">
-                                                                <strong style="color: #1e293b; font-size: 15px;"><?= htmlspecialchars(str_replace('Tugas Akhir', 'Semester Akhir', $bt['jenis_biaya'])) ?></strong>
+                                                                <strong style="color: #1e293b; font-size: 15px;"><?= htmlspecialchars($bt['jenis_biaya']) ?></strong>
                                                                 <span class="badge badge-info" style="font-size: 11px;"><?= htmlspecialchars($bt['peruntukan']) ?></span>
                                                             </div>
                                                             <h4 class="font-weight-bold text-primary mb-2" style="font-size: 18px;">
@@ -1233,7 +1194,6 @@
                                         <?php endforeach; ?>
                                     </div>
                             </div>
-                        <?php endif; ?>
 
                         <!-- TAB 3: INFORMASI BIAYA PERKULIAHAN LENGKAP -->
                         <div class="tab-pane fade p-4" id="tab-biaya" role="tabpanel">
