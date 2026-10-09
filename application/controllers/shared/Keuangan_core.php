@@ -346,6 +346,13 @@ class Keuangan_core extends CI_Controller {
         // Riwayat pembayaran yang telah diverifikasi (LUNAS atau DITOLAK)
         $data['pembayaran_selesai'] = $this->M_keuangan->get_semua_pembayaran_diverifikasi($filter_fakultas, $filter_prodi);
 
+        // Pengajuan Keringanan Pembayaran Mahasiswa
+        $data['keringanan_pending'] = $this->M_keuangan->get_daftar_dispensasi('MENUNGGU', $filter_fakultas, $filter_prodi);
+        $data['keringanan_selesai'] = array_values(array_filter(
+            $this->M_keuangan->get_daftar_dispensasi(null, $filter_fakultas, $filter_prodi),
+            function($item) { return $item->status !== 'MENUNGGU'; }
+        ));
+
         $data['title']      = 'Verifikasi Pembayaran - Smart Campus';
         $data['page_title'] = 'Verifikasi Pembayaran Mahasiswa';
         $data['page_desc']  = 'Pemeriksaan bukti transfer, persetujuan pembayaran LUNAS, dan penolakan transaksi';
@@ -420,46 +427,184 @@ class Keuangan_core extends CI_Controller {
     }
 
     /**
-     * Fitur dispensasi perpanjangan tagihan telah dihapus.
-     * Redirect ke halaman keuangan utama.
+     * =====================================================
+     * FITUR PENGAJUAN KERINGANAN / DISPENSASI PEMBAYARAN
+     * =====================================================
      */
     public function dispensasi()
     {
-        if (!$this->require_roles([2])) return;
+        redirect('keuangan/verifikasi?tab=keringanan');
+    }
 
-        $user_id = (int)$this->session->userdata('id');
-        $data['user'] = [
-            'id' => $user_id,
-            'nim' => $this->session->userdata('nim'),
-            'nama_lengkap' => $this->session->userdata('nama_lengkap'),
-            'email' => $this->session->userdata('email'),
-            'role' => 2,
-            'role_name' => $this->session->userdata('role_name'),
-            'foto' => $this->session->userdata('foto'),
-        ];
-        $data['dispensasi_menunggu'] = $this->M_keuangan->get_daftar_dispensasi('MENUNGGU');
-        $data['dispensasi_selesai'] = $this->M_keuangan->get_daftar_dispensasi();
-        $data['title'] = 'Verifikasi Dispensasi Tagihan - Smart Campus';
-        $data['page_title'] = 'Verifikasi Dispensasi Tagihan';
-        $data['page_desc'] = 'Tinjau permohonan perpanjangan pembayaran dan tetapkan jatuh tempo baru.';
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/topbar', $data);
-        $this->load->view('templates/sidebar', $data);
-        $this->load->view('keuangan/admin/dispensasi', $data);
-        $this->load->view('templates/footer', $data);
+    public function ajukan_keringanan()
+    {
+        $this->ajukan_dispensasi();
     }
 
     public function ajukan_dispensasi()
     {
-        $this->session->set_flashdata('info', 'Fitur pengajuan dispensasi tidak tersedia.');
-        redirect('keuangan');
+        if (!$this->require_roles([3])) return;
+
+        $akun_id           = (int)$this->session->userdata('id');
+        $tagihan_id        = (int)$this->input->post('tagihan_id');
+        $jenis_keringanan  = $this->input->post('jenis_keringanan', true) ?: 'PENUNDAAN';
+        $alasan            = trim((string)$this->input->post('alasan', true));
+        $tanggal_diminta   = $this->input->post('tanggal_jatuh_tempo_diminta', true);
+        $nominal_pengajuan = $this->input->post('nominal_pengajuan', true);
+
+        if (!$tagihan_id || empty($alasan)) {
+            $msg = 'Tagihan yang diajukan dan alasan pengajuan wajib diisi.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('error', $msg);
+            redirect('keuangan?tab=keringanan');
+            return;
+        }
+
+        // Handle upload berkas pendukung
+        $berkas_name = null;
+        if (!empty($_FILES['berkas_pendukung']['name'])) {
+            $upload_path = FCPATH . 'uploads/berkas_keringanan/';
+            if (!is_dir($upload_path)) {
+                @mkdir($upload_path, 0777, true);
+            }
+
+            $config['upload_path']   = $upload_path;
+            $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+            $config['max_size']      = 5120; // 5MB
+            $config['file_name']     = 'keringanan_' . $akun_id . '_' . time();
+
+            $this->load->library('upload');
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('berkas_pendukung')) {
+                $upload_data = $this->upload->data();
+                $berkas_name = $upload_data['file_name'];
+            } else {
+                $upload_err = strip_tags($this->upload->display_errors());
+                if ($this->input->is_ajax_request()) {
+                    $this->output->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => 'Gagal mengunggah berkas: ' . $upload_err]));
+                    return;
+                }
+                $this->session->set_flashdata('error', 'Gagal mengunggah berkas pendukung: ' . $upload_err);
+                redirect('keuangan?tab=keringanan');
+                return;
+            }
+        }
+
+        $res = $this->M_keuangan->ajukan_dispensasi(
+            $akun_id,
+            $tagihan_id,
+            $alasan,
+            $tanggal_diminta,
+            $jenis_keringanan,
+            $nominal_pengajuan,
+            $berkas_name
+        );
+
+        if ($res) {
+            $msg = 'Pengajuan keringanan pembayaran Anda berhasil dikirim! Menunggu verifikasi dari Admin Keuangan.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => true, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('success', $msg);
+        } else {
+            $msg = 'Gagal mengajukan keringanan. Pastikan tagihan masih aktif dan Anda belum memiliki pengajuan yang sedang menunggu verifikasi.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('error', $msg);
+        }
+
+        redirect('keuangan?tab=keringanan');
+    }
+
+    public function proses_keringanan()
+    {
+        $this->proses_dispensasi();
     }
 
     public function proses_dispensasi()
     {
-        $this->session->set_flashdata('info', 'Fitur dispensasi tidak tersedia.');
-        redirect('keuangan');
+        if (!$this->require_roles([1, 2])) return;
+
+        $admin_id         = (int)$this->session->userdata('id');
+        $id               = (int)$this->input->post('dispensasi_id');
+        $aksi             = strtoupper(trim((string)$this->input->post('aksi', true))); // SETUJUI / TOLAK
+        $catatan          = trim((string)$this->input->post('catatan_admin', true));
+        $jatuh_tempo_baru = $this->input->post('jatuh_tempo_baru', true);
+        $nominal_baru     = $this->input->post('nominal_baru', true);
+
+        if (!$id || !in_array($aksi, ['SETUJUI', 'TOLAK'])) {
+            $msg = 'Parameter verifikasi tidak valid.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('error', $msg);
+            redirect('keuangan/verifikasi?tab=keringanan');
+            return;
+        }
+
+        $setujui = ($aksi === 'SETUJUI');
+        $res     = $this->M_keuangan->putuskan_dispensasi($id, $setujui, $admin_id, $catatan, $jatuh_tempo_baru, $nominal_baru);
+
+        if ($res) {
+            $msg = $setujui
+                ? 'Pengajuan keringanan pembayaran berhasil DISETUJUI.'
+                : 'Pengajuan keringanan pembayaran berhasil DITOLAK.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => true, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('success', $msg);
+        } else {
+            $msg = 'Gagal memproses permohonan keringanan. Data mungkin sudah diproses sebelumnya.';
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json')->set_output(json_encode(['success' => false, 'message' => $msg]));
+                return;
+            }
+            $this->session->set_flashdata('error', $msg);
+        }
+
+        redirect('keuangan/verifikasi?tab=keringanan');
+    }
+
+    public function lihat_berkas_keringanan($id)
+    {
+        if (!$this->require_roles([1, 2, 3])) return;
+
+        $id  = (int)$id;
+        $row = $this->db->get_where('dispensasi_tagihan', ['id' => $id])->row();
+        if (!$row || empty($row->berkas_pendukung)) {
+            show_404();
+            return;
+        }
+
+        $current_role    = $this->current_role();
+        $current_user_id = (int)$this->session->userdata('id');
+        // Mahasiswa hanya boleh melihat berkas miliknya sendiri
+        if ($current_role === 3 && (int)$row->akun_id !== $current_user_id) {
+            show_error('Anda tidak memiliki akses ke berkas ini.', 403);
+            return;
+        }
+
+        $filepath = FCPATH . 'uploads/berkas_keringanan/' . $row->berkas_pendukung;
+        if (!file_exists($filepath)) {
+            show_404();
+            return;
+        }
+
+        $mime = mime_content_type($filepath) ?: 'application/octet-stream';
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . basename($filepath) . '"');
+        header('Content-Length: ' . filesize($filepath));
+        readfile($filepath);
+        exit;
     }
 
     public function validasi_tagihan_akhir()

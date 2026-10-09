@@ -68,7 +68,7 @@
 
                 /* ── Stat Cards ── */
                 .fin-stat-card {
-                    padding: 22px 24px;
+                    padding: 20px 22px;
                     border-radius: 16px;
                     border: 1px solid rgba(226,232,240,0.8);
                     background: rgba(255,255,255,0.95);
@@ -76,6 +76,9 @@
                     overflow: hidden;
                     box-shadow: 0 4px 16px rgba(0,0,0,0.04);
                     transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+                    min-height: 114px;
+                    display: flex;
+                    align-items: center;
                 }
                 .fin-stat-card::after {
                     content: '';
@@ -87,40 +90,46 @@
                     transition: none;
                 }
                 .fin-stat-card:hover {
-                    transform: translateY(-5px) scale(1.01);
+                    transform: translateY(-4px) scale(1.01);
                     box-shadow: 0 14px 36px rgba(0,0,0,0.09);
                 }
                 .fin-stat-card:hover::after {
                     animation: cardShine 0.6s ease forwards;
                 }
                 .fin-stat-icon {
-                    width: 50px;
-                    height: 50px;
+                    width: 48px;
+                    height: 48px;
                     border-radius: 14px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 22px;
+                    font-size: 20px;
+                    flex-shrink: 0;
+                    margin-left: 12px;
                 }
 
                 /* ── Nav Tabs ── */
                 .nav-tabs-keuangan {
                     border-bottom: 2px solid #e2e8f0;
-                    padding: 0 24px;
+                    padding: 0 16px;
                     background: linear-gradient(135deg, #ffffff, #fafbff);
+                    display: flex;
+                    flex-wrap: nowrap;
+                    white-space: nowrap;
                 }
                 .nav-tabs-keuangan .nav-link {
                     border: none;
                     color: #64748b;
                     font-weight: 600;
                     font-size: 13.5px;
-                    padding: 18px 20px;
+                    padding: 16px 20px;
                     margin-bottom: -2px;
                     border-bottom: 3px solid transparent;
                     transition: all 0.25s ease;
-                    display: flex;
+                    display: inline-flex;
                     align-items: center;
                     gap: 8px;
+                    white-space: nowrap;
                 }
                 .nav-tabs-keuangan .nav-link i { font-size: 15px; }
                 .nav-tabs-keuangan .nav-link:hover {
@@ -333,7 +342,7 @@
                     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
                     border-radius: 18px;
                     color: #ffffff;
-                    padding: 28px 32px;
+                    padding: 32px 36px;
                     position: relative;
                     overflow: hidden;
                     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
@@ -349,6 +358,17 @@
                     border-radius: 50%;
                     background: rgba(255, 255, 255, 0.06);
                     pointer-events: none;
+                }
+                .biaya-item-box {
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba(255, 255, 255, 0.16);
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                    transition: all 0.2s ease;
+                }
+                .biaya-item-box:hover {
+                    background: rgba(255, 255, 255, 0.14);
+                    border-color: rgba(255, 255, 255, 0.28);
                 }
                 .tag-simulasi {
                     background: #f59e0b;
@@ -366,11 +386,15 @@
                 .bank-rek-box {
                     border: 1.5px dashed #cbd5e1;
                     border-radius: 14px;
-                    padding: 18px;
+                    padding: 20px;
                     background: linear-gradient(135deg, #ffffff, #f8faff);
                     transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
                     position: relative;
                     overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    min-height: 205px;
                 }
                 .bank-rek-box:hover {
                     border-color: #0284c7;
@@ -400,6 +424,34 @@
                     transition: background 0.15s ease;
                 }
                 .table-keuangan tbody tr:hover td { background: rgba(2,132,199,0.03); }
+
+                /* ── Action Buttons Modern Styling ── */
+                .btn-bukti-action {
+                    background: #eff6ff;
+                    color: #1d4ed8;
+                    border: 1.5px solid #bfdbfe;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    padding: 5px 12px;
+                    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    text-decoration: none !important;
+                    white-space: nowrap;
+                    line-height: 1.2;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+
+                .btn-bukti-action:hover {
+                    background: #2563eb;
+                    color: #ffffff !important;
+                    border-color: #2563eb;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+                }
 
                 /* ── Toast ── */
                 #realtimeToast {
@@ -489,51 +541,72 @@
                 <!-- Banner Rincian Biaya Kuliah & Deskripsi Keuangan -->
                 <div class="banner-biaya-simulasi">
                     <div class="banner-content">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 mb-3 mb-lg-0">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge badge-warning text-dark font-weight-bold mr-2" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;">INFORMASI TARIF KAMPUS</span>
-                                <span style="font-size: 13.5px; opacity: 0.9; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
-                            </div>
-                            <div style="font-size: 15px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                Total Biaya Perkuliahan Semester
-                            </div>
-                            <h1 style="font-weight: 800; font-size: 38px; margin: 6px 0 8px; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-                                Rp <?= number_format($total_biaya_semester, 0, ',', '.') ?>
-                            </h1>
-                            <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
-                                <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
-                            </div>
-                            <div class="mt-3">
-                                <span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(110,231,183,0.35);font-size:12px;border-radius:20px;font-weight:700;padding:7px 16px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);">
-                                    <i class="fa fa-unlock"></i> Pembayaran Tugas Akhir Tersedia
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.25); padding-left: 28px;">
-                            <div class="font-weight-bold mb-3" style="font-size: 14.5px; letter-spacing: 0.5px; text-transform: uppercase;">
-                                <i class="fa fa-list-ul mr-1 text-warning"></i> Rincian Transparansi Biaya Pokok
-                            </div>
-                            <div class="row" style="font-size: 13.5px; line-height: 1.8;">
-                                <div class="col-sm-6 mb-2">
-                                    <div style="opacity: 0.85; font-size: 12px;">Kewajiban Pokok Kuliah</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SPP / UKT: <strong>Rp <?= number_format($komponen_biaya[0]['nominal'], 0, ',', '.') ?></strong>
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 mb-4 mb-lg-0">
+                                <div class="d-flex align-items-center flex-wrap mb-2" style="gap: 10px;">
+                                    <span class="badge badge-warning text-dark font-weight-bold" style="font-size: 11px; padding: 6px 12px; border-radius: 6px; letter-spacing: 0.4px;">INFORMASI TARIF KAMPUS</span>
+                                    <span style="font-size: 13.5px; opacity: 0.95; font-weight: 600;">Tahun Akademik 2026/2027 &bull; Semester Ganjil</span>
                                 </div>
-                                <div class="col-sm-6 mb-2">
-                                    <div style="opacity: 0.85; font-size: 12px;">Akademik &amp; Laboratorium</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Praktikum: <strong>Rp <?= number_format($komponen_biaya[1]['nominal'], 0, ',', '.') ?></strong>
+                                <div style="font-size: 13.5px; opacity: 0.9; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 10px;">
+                                    Total Biaya Perkuliahan Semester
                                 </div>
-                                <div class="col-sm-6 mb-2">
-                                    <div style="opacity: 0.85; font-size: 12px;">Sarana Kampus</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> Fasilitas: <strong>Rp <?= number_format($komponen_biaya[2]['nominal'], 0, ',', '.') ?></strong>
+                                <h1 style="font-weight: 800; font-size: 38px; margin: 4px 0 12px; letter-spacing: -1px; line-height: 1.15; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                    Rp <?= number_format($total_biaya_semester, 0, ',', '.') ?>
+                                </h1>
+                                <div style="font-size: 14px; opacity: 0.95; line-height: 1.6; margin-bottom: 16px;">
+                                    <i class="fa fa-graduation-cap mr-1 text-warning"></i> Program Studi: <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> &bull; Semester <strong><?= htmlspecialchars($mahasiswa_info['semester']) ?></strong>
                                 </div>
-                                <div class="col-sm-6 mb-2">
-                                    <div style="opacity: 0.85; font-size: 12px;">Layanan Digital</div>
-                                    <i class="fa fa-check-circle mr-1" style="color: #86efac;"></i> SI &amp; Admin: <strong>Rp <?= number_format($komponen_biaya[3]['nominal'], 0, ',', '.') ?></strong>
+                                <div>
+                                    <span style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(110,231,183,0.35);font-size:12.5px;border-radius:20px;font-weight:700;padding:8px 18px;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(4px);">
+                                        <i class="fa fa-unlock"></i> Pembayaran Tugas Akhir Tersedia
+                                    </span>
                                 </div>
                             </div>
-                            <div class="mt-2 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9;">
-                                <i class="fa fa-info-circle mr-1 text-warning"></i> Rincian biaya tambahan, termasuk pembayaran Tugas Akhir, tersedia untuk seluruh mahasiswa.
+                            <div class="col-lg-6" style="border-left: 1.5px solid rgba(255,255,255,0.2); padding-left: 32px;">
+                                <div class="font-weight-bold mb-3" style="font-size: 13.5px; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.95;">
+                                    <i class="fa fa-list-ul mr-1 text-warning"></i> Rincian Transparansi Biaya Pokok
+                                </div>
+                                <div class="row" style="row-gap: 12px;">
+                                    <div class="col-sm-6">
+                                        <div class="biaya-item-box">
+                                            <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px;">Kewajiban Pokok Kuliah</div>
+                                            <div style="font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fa fa-check-circle" style="color: #86efac; font-size: 14px;"></i>
+                                                <span>SPP / UKT: <strong>Rp <?= number_format($komponen_biaya[0]['nominal'], 0, ',', '.') ?></strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="biaya-item-box">
+                                            <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px;">Akademik &amp; Laboratorium</div>
+                                            <div style="font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fa fa-check-circle" style="color: #86efac; font-size: 14px;"></i>
+                                                <span>Praktikum: <strong>Rp <?= number_format($komponen_biaya[1]['nominal'], 0, ',', '.') ?></strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="biaya-item-box">
+                                            <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px;">Sarana Kampus</div>
+                                            <div style="font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fa fa-check-circle" style="color: #86efac; font-size: 14px;"></i>
+                                                <span>Fasilitas: <strong>Rp <?= number_format($komponen_biaya[2]['nominal'], 0, ',', '.') ?></strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="biaya-item-box">
+                                            <div style="font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px;">Layanan Digital</div>
+                                            <div style="font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                                <i class="fa fa-check-circle" style="color: #86efac; font-size: 14px;"></i>
+                                                <span>SI &amp; Admin: <strong>Rp <?= number_format($komponen_biaya[3]['nominal'], 0, ',', '.') ?></strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-2" style="border-top: 1px dashed rgba(255,255,255,0.25); font-size: 12px; opacity: 0.9; line-height: 1.5;">
+                                    <i class="fa fa-info-circle mr-1 text-warning"></i> Rincian biaya tambahan, termasuk pembayaran Tugas Akhir, tersedia untuk seluruh mahasiswa.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -541,75 +614,99 @@
 
                 <!-- Rekening Resmi Pembayaran Kampus (DITAMPILKAN DI ATAS AGAR MAHASISWA PASTI MEMBACA) -->
                 <div class="card custom-card-white" style="border-left: 5px solid #0284c7; margin-bottom: 24px;">
-                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap">
+                    <div class="card-header custom-card-header d-flex align-items-center justify-content-between flex-wrap" style="padding: 20px 28px !important;">
                         <div class="d-flex align-items-center">
-                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 12px;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; flex-shrink: 0;">
                                 <i class="bi bi-credit-card-2-front"></i>
                             </div>
                             <div>
-                                <h5 class="mb-0" style="color: #0f172a; font-weight: 800;">
+                                <h5 class="mb-1" style="color: #0f172a; font-weight: 800; font-size: 16.5px; letter-spacing: -0.2px;">
                                     Rekening Resmi Pembayaran Kampus
                                 </h5>
-                                <small class="text-muted">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</small>
+                                <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.4;">Gunakan salah satu saluran resmi di bawah ini untuk melakukan pembayaran</p>
                             </div>
                         </div>
-                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700;">
-                            <i class="fa fa-shield mr-1"></i> Jalur Resmi Terverifikasi
+                        <span class="badge badge-primary px-3 py-2 mt-2 mt-sm-0" style="border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa fa-shield"></i> Jalur Resmi Terverifikasi
                         </span>
                     </div>
-                    <div class="card-block" style="padding: 24px;">
-                        <div class="alert alert-warning mb-3 py-2 px-3" style="border-radius: 10px; font-size: 12.5px; border-left: 4px solid #f59e0b; background:#fffbeb;">
-                            <i class="fa fa-exclamation-circle mr-1 text-warning"></i> <strong>Perhatian:</strong> Pastikan Anda mentransfer ke nomor rekening / Virtual Account resmi di bawah ini. Simpan bukti transfer untuk diunggah pada form pembayaran.
+                    <div class="card-block" style="padding: 24px 28px;">
+                        <div class="alert alert-warning mb-4 py-3 px-3" style="border-radius: 12px; font-size: 13px; border-left: 4px solid #f59e0b; background:#fffbeb; line-height: 1.5;">
+                            <div class="d-flex align-items-start" style="gap: 10px;">
+                                <i class="fa fa-exclamation-circle text-warning mt-1" style="font-size: 16px; flex-shrink: 0;"></i>
+                                <div><strong>Perhatian:</strong> Pastikan Anda mentransfer ke nomor rekening / Virtual Account resmi di bawah ini. Simpan bukti transfer untuk diunggah pada form pembayaran.</div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <div class="bank-rek-box h-100">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong style="color: #0f172a; font-size: 15px;">BANK BNI</strong>
-                                        <span class="badge badge-primary px-2 py-1" style="border-radius: 6px;">Virtual Account</span>
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <strong style="color: #0f172a; font-size: 15px; font-weight: 800;">BANK BNI</strong>
+                                            <span class="badge badge-primary px-2 py-1" style="border-radius: 6px; font-size: 11px; font-weight: 700;">Virtual Account</span>
+                                        </div>
+                                        <p class="text-muted mb-2" style="font-size: 12px;">No. Virtual Account Mahasiswa:</p>
+                                        <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:10px 14px; border-radius:10px; border:1px solid #e2e8f0; gap: 8px;">
+                                            <span class="font-weight-bold text-primary" style="letter-spacing: 0.6px; font-size: 16px; font-family: 'SFMono-Regular', Consolas, monospace;">8808-<?= htmlspecialchars($mahasiswa_info['nim']) ?></span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 btn-copy-rek" data-copy="8808<?= htmlspecialchars($mahasiswa_info['nim']) ?>" title="Salin VA" style="border-radius: 6px; flex-shrink: 0;">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Virtual Account Mahasiswa:</p>
-                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
-                                        <h5 class="mb-0 font-weight-bold text-primary" style="letter-spacing: 0.5px;">8808-<?= htmlspecialchars($mahasiswa_info['nim']) ?></h5>
-                                        <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 btn-copy-rek" data-copy="8808<?= htmlspecialchars($mahasiswa_info['nim']) ?>" title="Salin VA">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
+                                    <div class="mt-3 pt-2" style="border-top: 1px dashed #e2e8f0;">
+                                        <small class="text-muted d-block" style="font-size: 12px; line-height: 1.4;">
+                                            <span style="opacity: 0.75;">Atas Nama:</span><br>
+                                            <strong style="color: #334155;">Smart Campus - <?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></strong>
+                                        </small>
                                     </div>
-                                    <small class="text-muted d-block mt-2">a.n. Smart Campus - <?= htmlspecialchars($mahasiswa_info['nama_lengkap']) ?></small>
                                 </div>
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <div class="bank-rek-box h-100">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong style="color: #0f172a; font-size: 15px;">BANK MANDIRI</strong>
-                                        <span class="badge badge-info px-2 py-1" style="border-radius: 6px;">Transfer Bank</span>
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <strong style="color: #0f172a; font-size: 15px; font-weight: 800;">BANK MANDIRI</strong>
+                                            <span class="badge badge-info px-2 py-1" style="border-radius: 6px; font-size: 11px; font-weight: 700;">Transfer Bank</span>
+                                        </div>
+                                        <p class="text-muted mb-2" style="font-size: 12px;">No. Rekening Kampus:</p>
+                                        <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:10px 14px; border-radius:10px; border:1px solid #e2e8f0; gap: 8px;">
+                                            <span class="font-weight-bold" style="color:#0f172a; letter-spacing: 0.6px; font-size: 16px; font-family: 'SFMono-Regular', Consolas, monospace;">137-00-1928374-1</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="1370019283741" title="Salin No. Rekening" style="border-radius: 6px; flex-shrink: 0;">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Kampus:</p>
-                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
-                                        <h5 class="mb-0 font-weight-bold" style="color:#0f172a; letter-spacing: 0.5px;">137-00-1928374-1</h5>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="1370019283741" title="Salin No. Rekening">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
+                                    <div class="mt-3 pt-2" style="border-top: 1px dashed #e2e8f0;">
+                                        <small class="text-muted d-block" style="font-size: 12px; line-height: 1.4;">
+                                            <span style="opacity: 0.75;">Atas Nama:</span><br>
+                                            <strong style="color: #334155;">Yayasan Smart Campus Indonesia</strong>
+                                        </small>
                                     </div>
-                                    <small class="text-muted d-block mt-2">a.n. Yayasan Smart Campus Indonesia</small>
                                 </div>
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <div class="bank-rek-box h-100">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <strong style="color: #0f172a; font-size: 15px;">BANK BCA</strong>
-                                        <span class="badge badge-success px-2 py-1" style="border-radius: 6px;">Transfer Giro</span>
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <strong style="color: #0f172a; font-size: 15px; font-weight: 800;">BANK BCA</strong>
+                                            <span class="badge badge-success px-2 py-1" style="border-radius: 6px; font-size: 11px; font-weight: 700;">Transfer Giro</span>
+                                        </div>
+                                        <p class="text-muted mb-2" style="font-size: 12px;">No. Rekening Giro Kampus:</p>
+                                        <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:10px 14px; border-radius:10px; border:1px solid #e2e8f0; gap: 8px;">
+                                            <span class="font-weight-bold" style="color:#0f172a; letter-spacing: 0.6px; font-size: 16px; font-family: 'SFMono-Regular', Consolas, monospace;">829-501-8890</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="8295018890" title="Salin No. Rekening" style="border-radius: 6px; flex-shrink: 0;">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p class="text-muted mb-1" style="font-size: 12px;">No. Rekening Giro Kampus:</p>
-                                    <div class="d-flex align-items-center justify-content-between" style="background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
-                                        <h5 class="mb-0 font-weight-bold" style="color:#0f172a; letter-spacing: 0.5px;">829-501-8890</h5>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 btn-copy-rek" data-copy="8295018890" title="Salin No. Rekening">
-                                            <i class="bi bi-clipboard"></i>
-                                        </button>
+                                    <div class="mt-3 pt-2" style="border-top: 1px dashed #e2e8f0;">
+                                        <small class="text-muted d-block" style="font-size: 12px; line-height: 1.4;">
+                                            <span style="opacity: 0.75;">Atas Nama:</span><br>
+                                            <strong style="color: #334155;">Smart Campus Operasional</strong>
+                                        </small>
                                     </div>
-                                    <small class="text-muted d-block mt-2">a.n. Smart Campus Operasional</small>
                                 </div>
                             </div>
                         </div>
@@ -673,16 +770,16 @@
                 <?php endif; ?>
 
                 <!-- Ringkasan Finansial Mahasiswa (4 Stat Cards) -->
-                <div class="row mb-3">
+                <div class="row mb-4">
                     <div class="col-xl-3 col-md-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Tagihan Aktif</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #0f172a; font-size: 20px;">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div style="min-width: 0;">
+                                    <span class="text-muted d-block" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total Tagihan Aktif</span>
+                                    <h4 class="mb-1 font-weight-bold" style="color: #0f172a; font-size: 21px; line-height: 1.2;">
                                         Rp <?= number_format($ringkasan['total_tagihan'], 0, ',', '.') ?>
                                     </h4>
-                                    <small class="text-muted"><?= count($daftar_tagihan) ?> Item Kewajiban</small>
+                                    <small class="text-muted d-block" style="font-size: 12px; font-weight: 500;"><?= count($daftar_tagihan) ?> Item Kewajiban</small>
                                 </div>
                                 <div class="fin-stat-icon" style="background-color: #eff6ff; color: #1d4ed8;">
                                     <i class="bi bi-calculator"></i>
@@ -693,13 +790,13 @@
 
                     <div class="col-xl-3 col-md-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Sisa Belum Dibayar</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #dc2626; font-size: 20px;" id="statBelumNominal">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div style="min-width: 0;">
+                                    <span class="text-muted d-block" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Sisa Belum Dibayar</span>
+                                    <h4 class="mb-1 font-weight-bold" style="color: #dc2626; font-size: 21px; line-height: 1.2;" id="statBelumNominal">
                                         Rp <?= number_format($ringkasan['total_belum_bayar'], 0, ',', '.') ?>
                                     </h4>
-                                    <small class="text-danger font-weight-bold" id="statBelumCount"><?= $ringkasan['count_belum_bayar'] ?> Tagihan Menunggu</small>
+                                    <small class="text-danger font-weight-bold d-block" style="font-size: 12px;" id="statBelumCount"><?= $ringkasan['count_belum_bayar'] ?> Tagihan Menunggu</small>
                                 </div>
                                 <div class="fin-stat-icon" style="background-color: #fef2f2; color: #dc2626;">
                                     <i class="bi bi-clock-history"></i>
@@ -710,13 +807,13 @@
 
                     <div class="col-xl-3 col-md-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Lunas</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #059669; font-size: 20px;" id="statLunasNominal">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div style="min-width: 0;">
+                                    <span class="text-muted d-block" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total Lunas</span>
+                                    <h4 class="mb-1 font-weight-bold" style="color: #059669; font-size: 21px; line-height: 1.2;" id="statLunasNominal">
                                         Rp <?= number_format($ringkasan['total_terbayar'], 0, ',', '.') ?>
                                     </h4>
-                                    <small class="text-success font-weight-bold" id="statLunasCount"><?= $ringkasan['count_lunas'] ?> Tagihan Terverifikasi</small>
+                                    <small class="text-success font-weight-bold d-block" style="font-size: 12px;" id="statLunasCount"><?= $ringkasan['count_lunas'] ?> Tagihan Terverifikasi</small>
                                 </div>
                                 <div class="fin-stat-icon" style="background-color: #ecfdf5; color: #059669;">
                                     <i class="bi bi-check2-circle"></i>
@@ -727,13 +824,13 @@
 
                     <div class="col-xl-3 col-md-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Dalam Verifikasi</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #d97706; font-size: 20px;" id="statPendingCount">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div style="min-width: 0;">
+                                    <span class="text-muted d-block" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Dalam Verifikasi</span>
+                                    <h4 class="mb-1 font-weight-bold" style="color: #d97706; font-size: 21px; line-height: 1.2;" id="statPendingCount">
                                         <?= $ringkasan['count_pending'] ?> Tagihan
                                     </h4>
-                                    <small class="text-warning font-weight-bold">Menunggu Verifikasi Admin</small>
+                                    <small class="text-warning font-weight-bold d-block" style="font-size: 12px;">Menunggu Verifikasi Admin</small>
                                 </div>
                                 <div class="fin-stat-icon" style="background-color: #fffbeb; color: #d97706;">
                                     <i class="bi bi-hourglass-split"></i>
@@ -745,55 +842,73 @@
 
                 <!-- 4. Area Konten Ber-Tab -->
                 <div class="card custom-card-white">
-                    <ul class="nav nav-tabs nav-tabs-keuangan" id="keuanganTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="tab-tagihan-link" data-toggle="tab" href="#tab-tagihan" role="tab">
-                                <i class="bi bi-receipt"></i> Tagihan Semester (<?= count($daftar_tagihan) ?>)
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="tab-riwayat-link" data-toggle="tab" href="#tab-riwayat" role="tab">
-                                <i class="bi bi-clock-history"></i> Riwayat Pembayaran (<?= count($riwayat_pembayaran) ?>)
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="tab-ta-link" data-toggle="tab" href="#tab-ta" role="tab">
-                                <i class="bi bi-mortarboard"></i> Pembayaran Tugas Akhir
-                                <span class="badge badge-success ml-1" style="font-size: 10px;">Tersedia</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="tab-biaya-link" data-toggle="tab" href="#tab-biaya" role="tab">
-                                <i class="bi bi-info-square"></i> Rincian Biaya Kuliah &amp; Tambahan
-                            </a>
-                        </li>
-                    </ul>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 2px solid #e2e8f0; background: linear-gradient(135deg, #ffffff, #fafbff);">
+                        <ul class="nav nav-tabs nav-tabs-keuangan flex-nowrap" id="keuanganTab" role="tablist" style="border-bottom: none; min-width: max-content;">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab-tagihan-link" data-toggle="tab" href="#tab-tagihan" role="tab">
+                                    <i class="bi bi-receipt mr-1"></i> Tagihan Semester (<?= count($daftar_tagihan) ?>)
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-riwayat-link" data-toggle="tab" href="#tab-riwayat" role="tab">
+                                    <i class="bi bi-clock-history mr-1"></i> Riwayat Pembayaran (<?= count($riwayat_pembayaran) ?>)
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-ta-link" data-toggle="tab" href="#tab-ta" role="tab">
+                                    <i class="bi bi-mortarboard mr-1"></i> Pembayaran Tugas Akhir
+                                    <span class="badge badge-success ml-1" style="font-size: 10px; padding: 3px 8px; border-radius: 6px;">Tersedia</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-biaya-link" data-toggle="tab" href="#tab-biaya" role="tab">
+                                    <i class="bi bi-info-square mr-1"></i> Rincian Biaya Kuliah &amp; Tambahan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-keringanan-link" data-toggle="tab" href="#tab-keringanan" role="tab">
+                                    <i class="bi bi-file-earmark-medical mr-1"></i> Pengajuan Keringanan
+                                    <?php 
+                                        $pending_keringanan = 0;
+                                        if (!empty($dispensasi_requests)) {
+                                            foreach ($dispensasi_requests as $dr) {
+                                                if ($dr->status === 'MENUNGGU') $pending_keringanan++;
+                                            }
+                                        }
+                                    ?>
+                                    <?php if ($pending_keringanan > 0): ?>
+                                        <span class="badge badge-warning text-dark ml-1" style="font-size: 10px; border-radius: 8px; font-weight:700; padding: 3px 8px;"><?= $pending_keringanan ?> Menunggu</span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     <div class="tab-content" id="keuanganTabContent">
                         
                         <!-- TAB 1: TAGIHAN SEMESTER AKTIF -->
                         <div class="tab-pane fade show active p-4" id="tab-tagihan" role="tabpanel">
-                            <div class="billing-header-card p-3 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                            <div class="billing-header-card p-4 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;">
                                 <div class="row align-items-center">
                                     <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
-                                        <div class="d-flex align-items-center mb-1">
-                                            <h5 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 16px;">
+                                        <div class="d-flex align-items-center flex-wrap mb-1" style="gap: 8px;">
+                                            <h5 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 16.5px; letter-spacing: -0.2px;">
                                                 Daftar Tagihan Semester Berjalan (2026/2027 Ganjil)
                                             </h5>
-                                            <span class="badge badge-primary ml-2 px-2 py-1" style="font-size: 11px; border-radius: 6px; font-weight: 600;">Aktif</span>
+                                            <span class="badge badge-primary px-2 py-1" style="font-size: 11px; border-radius: 6px; font-weight: 700;">Aktif</span>
                                         </div>
-                                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5;">
-                                            Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel, atau gunakan tombol konfirmasi pembayaran di bawah ini.
+                                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5; margin-top: 4px;">
+                                            Pilih tagihan yang ingin dibayarkan secara langsung melalui tombol di tabel, atau gunakan tombol konfirmasi pembayaran di sebelah kanan.
                                         </p>
                                     </div>
                                     <div class="col-lg-5 col-md-12">
                                         <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 10px;">
                                             <?php if (!empty($tagihan_pilihan)): ?>
-                                                <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 8px; font-weight: 700; font-size: 13px; padding: 9px 16px;">
+                                                <button type="button" class="btn btn-primary px-3 shadow-sm btn-open-bayar-general" style="border-radius: 10px; font-weight: 700; font-size: 13px; padding: 10px 20px;">
                                                     <i class="bi bi-credit-card mr-1"></i> Konfirmasi Pembayaran
                                                 </button>
                                             <?php else: ?>
-                                                <span class="badge badge-success px-3 py-2" style="border-radius: 8px; font-size: 12.5px; font-weight: 600;">
+                                                <span class="badge badge-success px-3 py-2" style="border-radius: 10px; font-size: 12.5px; font-weight: 600;">
                                                     <i class="bi bi-check2-all mr-1"></i> Seluruh Tagihan Lunas
                                                 </span>
                                             <?php endif; ?>
@@ -802,8 +917,8 @@
                                 </div>
                             </div>
 
-                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
-                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                            <div class="mb-4 px-3 py-2" style="border-left: 3.5px solid #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: 12.5px; line-height: 1.6;">
+                                <i class="bi bi-info-circle mr-1 font-weight-bold"></i>
                                 <strong>Keterangan:</strong> Jenis tagihan menunjukkan kewajiban yang harus dibayar; tahun akademik dan semester menunjukkan periodenya; nominal adalah jumlah tagihan; jatuh tempo adalah batas akhir pembayaran; status dan aksi menunjukkan proses yang dapat dilakukan.
                             </div>
                             <div class="table-responsive">
@@ -942,19 +1057,19 @@
 
                         <!-- TAB 2: RIWAYAT PEMBAYARAN & OPSI EDIT JIKA PENDING -->
                         <div class="tab-pane fade p-4" id="tab-riwayat" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
+                            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap">
                                 <div>
-                                    <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
+                                    <h5 class="font-weight-bold mb-1" style="color: #0f172a; font-size: 16.5px; letter-spacing: -0.2px;">
                                         Riwayat Pembayaran &amp; Opsi Edit
                                     </h5>
-                                    <p class="text-muted mb-0" style="font-size: 13px;">
+                                    <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5; margin-top: 4px;">
                                         Jika terdapat kesalahan pada bukti/data yang berstatus <strong>Menunggu Verifikasi (PENDING)</strong>, Anda dapat <strong>mengedit</strong> atau <strong>membatalkannya langsung</strong> tanpa menunggu penolakan admin.
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
-                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                            <div class="mb-4 px-3 py-2" style="border-left: 3.5px solid #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: 12.5px; line-height: 1.6;">
+                                <i class="bi bi-info-circle mr-1 font-weight-bold"></i>
                                 <strong>Keterangan:</strong> Tanggal dan jam bayar adalah waktu transfer yang Anda masukkan; waktu “Dikirim” menunjukkan kapan konfirmasi tercatat di sistem. Kolom lainnya menampilkan tagihan, metode, nominal, rekening pengirim, bukti, status, dan aksi koreksi.
                             </div>
                             <div class="table-responsive">
@@ -996,37 +1111,42 @@
                                                 <tr>
                                                     <td class="font-weight-bold text-center"><?= $no++ ?></td>
                                                     <td>
-                                                        <strong><?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?></strong><br>
-                                                        <small class="text-muted">Jam bayar: <?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></small><br>
-                                                        <small class="text-muted">Dikirim: <?= date('H:i', strtotime($r->created_at)) ?> WIB</small>
+                                                        <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;"><?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?></div>
+                                                        <div style="font-size: 11.5px; color: #64748b; margin-top: 3px; line-height: 1.4;">
+                                                            <span>Jam bayar: <?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></span><br>
+                                                            <span>Dikirim: <?= date('H:i', strtotime($r->created_at)) ?> WIB</span>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <strong style="color: #1e293b;"><?= htmlspecialchars($r->jenis_tagihan) ?></strong><br>
-                                                        <small class="text-muted"><?= htmlspecialchars($r->semester) ?> <?= htmlspecialchars($r->tahun_akademik) ?></small>
+                                                        <div style="font-weight: 700; color: #1e293b; font-size: 13.5px;"><?= htmlspecialchars($r->jenis_tagihan) ?></div>
+                                                        <span class="badge badge-light mt-1" style="border: 1px solid #e2e8f0; font-size: 11px; color: #475569;">
+                                                            <?= htmlspecialchars($r->semester) ?> <?= htmlspecialchars($r->tahun_akademik) ?>
+                                                        </span>
                                                     </td>
                                                     <td>
-                                                        <span class="badge badge-light px-2 py-1" style="border: 1px solid #cbd5e1;">
+                                                        <span class="badge badge-light px-2 py-1" style="border: 1px solid #cbd5e1; font-size: 11.5px;">
                                                             <?= htmlspecialchars($r->metode_pembayaran) ?>
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <strong style="color: #1565c0;">
+                                                        <strong style="color: #1565c0; font-size: 14px;">
                                                             Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>
                                                         </strong>
                                                     </td>
                                                     <td>
                                                         <?php if (!empty($r->nomor_rekening) || !empty($r->nama_rekening)): ?>
-                                                            <small class="d-block text-muted">No. Rekening</small>
-                                                            <code><?= htmlspecialchars($r->nomor_rekening ?: '-') ?></code><br>
-                                                            <small class="d-block text-muted">Nama Pemilik</small>
-                                                            <small><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
+                                                            <small class="d-block text-muted" style="font-size: 11px;">No. Rekening</small>
+                                                            <code style="font-size: 12px;"><?= htmlspecialchars($r->nomor_rekening ?: '-') ?></code><br>
+                                                            <small class="d-block text-muted mt-1" style="font-size: 11px;">Nama Pemilik</small>
+                                                            <small style="color: #334155; font-weight: 600;"><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
                                                         <?php else: ?>
                                                             <span class="text-muted">-</span>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td>
-                                                        <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn btn-outline-primary btn-sm px-2" style="border-radius: 6px;">
-                                                            <i class="bi bi-file-earmark-text mr-1"></i> Lihat
+                                                        <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn-bukti-action" title="Lihat berkas bukti transfer">
+                                                            <i class="bi bi-file-earmark-image"></i>
+                                                            <span>Bukti</span>
                                                         </a>
                                                     </td>
                                                     <td>
@@ -1035,7 +1155,7 @@
                                                         </span>
                                                         <?php if ($r->status === 'DITOLAK' && !empty($r->alasan_penolakan)): ?>
                                                             <div class="mt-1">
-                                                                <small class="text-danger font-weight-bold d-block">
+                                                                <small class="text-danger font-weight-bold d-block" style="font-size: 11.5px; line-height: 1.35;">
                                                                     <i class="bi bi-info-circle mr-1"></i> <?= htmlspecialchars($r->alasan_penolakan) ?>
                                                                 </small>
                                                             </div>
@@ -1100,30 +1220,30 @@
                             </div>
 
                             <!-- Kartu Total Pengeluaran Resmi Mahasiswa (Sesuai Revisi) -->
-                            <div class="mt-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1565c0 100%); border-radius: 14px; color: #fff; padding: 24px 28px;">
+                            <div class="mt-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1565c0 100%); border-radius: 16px; color: #fff; padding: 26px 30px;">
                                 <div class="row align-items-center">
                                     <div class="col-md-7">
-                                        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 4px;">
+                                        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.85; margin-bottom: 6px;">
                                             <i class="bi bi-receipt-cutoff mr-1"></i> Total Pengeluaran Resmi Terverifikasi
                                         </div>
-                                        <h2 class="mb-1 font-weight-bold" style="font-size: 30px; letter-spacing: -1px; color: #ffffff !important; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                        <h2 class="mb-2 font-weight-bold" style="font-size: 32px; letter-spacing: -1px; color: #ffffff !important; text-shadow: 0 2px 8px rgba(0,0,0,0.2); line-height: 1.15;">
                                             Rp <?= number_format($total_pengeluaran, 0, ',', '.') ?>
                                         </h2>
-                                        <p style="font-size: 13px; opacity: 0.85; margin-bottom: 0;">
+                                        <p style="font-size: 13px; opacity: 0.88; margin-bottom: 0; line-height: 1.5;">
                                             Akumulasi total pembayaran dengan status <strong>LUNAS</strong> yang telah diverifikasi oleh Admin Keuangan.
                                         </p>
                                     </div>
                                     <div class="col-md-5 text-md-right mt-3 mt-md-0">
-                                        <div style="background: rgba(255,255,255,0.12); border-radius: 12px; padding: 16px 20px; display: inline-block; border: 1px solid rgba(255,255,255,0.2);">
+                                        <div style="background: rgba(255,255,255,0.12); border-radius: 14px; padding: 18px 24px; display: inline-block; border: 1px solid rgba(255,255,255,0.22); backdrop-filter: blur(8px);">
                                             <?php
                                                 $jumlah_lunas = 0;
                                                 foreach ($riwayat_pembayaran as $rp) {
                                                     if ($rp->status === 'LUNAS') $jumlah_lunas++;
                                                 }
                                             ?>
-                                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Jumlah Transaksi Lunas</div>
-                                            <div style="font-size: 28px; font-weight: 800;"><?= $jumlah_lunas ?></div>
-                                            <div style="font-size: 11.5px; opacity: 0.75; margin-top: 2px;">Dari <?= count($riwayat_pembayaran) ?> total transaksi</div>
+                                            <div style="font-size: 12px; opacity: 0.85; font-weight: 600; margin-bottom: 4px;">Jumlah Transaksi Lunas</div>
+                                            <div style="font-size: 30px; font-weight: 800; line-height: 1.1;"><?= $jumlah_lunas ?></div>
+                                            <div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">Dari <?= count($riwayat_pembayaran) ?> total transaksi</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1131,29 +1251,29 @@
                         </div>
 
                         <!-- TAB PEMBAYARAN TUGAS AKHIR DAN BIAYA TAMBAHAN -->
-                            <div class="tab-pane fade p-4" id="tab-ta" role="tabpanel">
-                                <div class="p-3 mb-4 rounded" style="background-color: #f8fafc; border: 1.5px solid #e2e8f0;">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <i class="bi bi-mortarboard mr-2 text-primary" style="font-size: 24px;"></i>
-                                                <h5 class="mb-0 font-weight-bold" style="color: #1e293b;">
-                                                    Menu Pembayaran Tugas Akhir &amp; Biaya Tambahan
-                                                </h5>
-                                            </div>
-                                            <p class="text-muted mb-0" style="font-size: 13px;">
-                                                Pembayaran Tugas Akhir dan rincian biaya tambahan tersedia untuk seluruh mahasiswa Program Studi <?= htmlspecialchars($mahasiswa_info['prodi']) ?>.
-                                            </p>
+                        <div class="tab-pane fade p-4" id="tab-ta" role="tabpanel">
+                            <div class="p-4 mb-4 rounded" style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px !important;">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-mortarboard mr-2 text-primary" style="font-size: 24px;"></i>
+                                            <h5 class="mb-0 font-weight-bold" style="color: #0f172a; font-size: 16.5px;">
+                                                Menu Pembayaran Tugas Akhir &amp; Biaya Tambahan
+                                            </h5>
                                         </div>
-                                        <div class="col-md-4 text-md-right mt-2 mt-md-0">
-                                            <span class="badge badge-success px-3 py-2" style="font-size: 13px; border-radius: 8px;">
-                                                <i class="bi bi-unlock-fill mr-1"></i> Pembayaran Tersedia
-                                            </span>
-                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5; margin-top: 4px;">
+                                            Pembayaran Tugas Akhir dan rincian biaya tambahan tersedia untuk seluruh mahasiswa Program Studi <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong>.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-md-right mt-3 mt-md-0">
+                                        <span class="badge badge-success px-3 py-2" style="font-size: 12.5px; border-radius: 8px; font-weight: 700;">
+                                            <i class="bi bi-unlock-fill mr-1"></i> Pembayaran Tersedia
+                                        </span>
                                     </div>
                                 </div>
+                            </div>
 
-                                    <div class="row">
+                            <div class="row">
                                         <?php foreach ($biaya_tambahan as $bt): ?>
                                             <?php
                                             $tagihan_biaya = null;
@@ -1195,28 +1315,28 @@
                                     </div>
                             </div>
 
-                        <!-- TAB 3: INFORMASI BIAYA PERKULIAHAN LENGKAP -->
+                        <!-- TAB 4: INFORMASI BIAYA PERKULIAHAN LENGKAP -->
                         <div class="tab-pane fade p-4" id="tab-biaya" role="tabpanel">
-                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap">
+                            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap: 12px;">
                                 <div>
-                                    <h5 class="font-weight-bold mb-1" style="color: #1e293b; font-size: 16px;">
+                                    <h5 class="font-weight-bold mb-1" style="color: #0f172a; font-size: 16.5px; letter-spacing: -0.2px;">
                                         Rincian Biaya Kuliah &amp; Biaya Tambahan
                                     </h5>
-                                    <p class="text-muted mb-0" style="font-size: 13px;">
+                                    <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.5; margin-top: 4px;">
                                         Standar acuan biaya perkuliahan Program Studi <strong><?= htmlspecialchars($mahasiswa_info['prodi']) ?></strong> Semester Ganjil 2026/2027.
                                     </p>
                                 </div>
                                 <span class="tag-simulasi">Data Simulasi</span>
                             </div>
 
-                            <h6 class="font-weight-bold text-primary mb-2" style="font-size: 14px;">
+                            <h6 class="font-weight-bold text-primary mb-2" style="font-size: 14.5px;">
                                 <i class="fa fa-folder-open mr-1"></i> 1. Rincian Biaya Kuliah Semester (Wajib SPP / UKT)
                             </h6>
-                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
-                                <i class="bi bi-info-circle mr-1 text-primary"></i>
+                            <div class="mb-4 px-3 py-2" style="border-left: 3.5px solid #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: 12.5px; line-height: 1.6;">
+                                <i class="bi bi-info-circle mr-1 font-weight-bold"></i>
                                 <strong>Keterangan:</strong> Tabel ini merinci komponen biaya semester wajib. Kategori mengelompokkan biaya, keterangan menjelaskan penggunaannya, dan nominal menunjukkan jumlah per komponen; total tercantum di baris terakhir.
                             </div>
-                            <div class="table-responsive mb-4">
+                            <div class="table-responsive mb-5">
                                 <table class="table table-bordered table-keuangan">
                                     <thead>
                                         <tr>
@@ -1254,46 +1374,770 @@
                                 </table>
                             </div>
 
-                            <h6 class="font-weight-bold text-primary mb-2" style="font-size: 14px;">
-                                <i class="fa fa-plus-circle mr-1"></i> 2. Biaya Tambahan (Di Luar Tagihan SPP / UKT Semester Reguler)
-                            </h6>
-                            <p class="text-muted mb-2" style="font-size: 12.5px;">
-                                Biaya berikut tidak termasuk dalam tagihan semester reguler dan hanya dikenakan apabila mahasiswa menggunakan layanan tersebut (misalnya di semester akhir).
-                            </p>
-                            <div class="mb-2 px-3 py-2" style="border-left:3px solid #1684cf; border-radius:4px; background:#f1f7fd; color:#526477; font-size:12px; line-height:1.5;">
-                                <i class="bi bi-info-circle mr-1 text-primary"></i>
-                                <strong>Keterangan:</strong> Jenis biaya menunjukkan layanan tambahan; peruntukan menjelaskan siapa atau kondisi yang dikenai biaya; keterangan berisi rincian layanan; nominal adalah biaya untuk layanan tersebut.
-                            </div>
-                            <div class="table-responsive mb-3">
-                                <table class="table table-bordered table-keuangan">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 50px;">No</th>
-                                            <th>Jenis Biaya Tambahan</th>
-                                            <th>Peruntukan</th>
-                                            <th>Keterangan</th>
-                                            <th class="text-right">Nominal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($biaya_tambahan as $bt): ?>
+                            <div class="pt-2">
+                                <h6 class="font-weight-bold text-primary mb-2" style="font-size: 14.5px;">
+                                    <i class="fa fa-plus-circle mr-1"></i> 2. Biaya Tambahan (Di Luar Tagihan SPP / UKT Semester Reguler)
+                                </h6>
+                                <p class="text-muted mb-3" style="font-size: 13px; line-height: 1.5;">
+                                    Biaya berikut tidak termasuk dalam tagihan semester reguler dan hanya dikenakan apabila mahasiswa menggunakan layanan tersebut (misalnya di semester akhir).
+                                </p>
+                                <div class="mb-4 px-3 py-2" style="border-left: 3.5px solid #0284c7; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: 12.5px; line-height: 1.6;">
+                                    <i class="bi bi-info-circle mr-1 font-weight-bold"></i>
+                                    <strong>Keterangan:</strong> Jenis biaya menunjukkan layanan tambahan; peruntukan menjelaskan siapa atau kondisi yang dikenai biaya; keterangan berisi rincian layanan; nominal adalah biaya untuk layanan tersebut.
+                                </div>
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-keuangan">
+                                        <thead>
                                             <tr>
-                                                <td class="text-center font-weight-bold"><?= $bt['no'] ?></td>
-                                                <td><strong style="color: #1e293b;"><?= htmlspecialchars($bt['jenis_biaya']) ?></strong></td>
-                                                <td><span class="badge badge-info px-2 py-1"><?= htmlspecialchars($bt['peruntukan']) ?></span></td>
-                                                <td style="font-size: 13px; color: #475569;"><?= htmlspecialchars($bt['keterangan']) ?></td>
-                                                <td class="text-right font-weight-bold" style="color: #047857; font-size: 14px;">
-                                                    Rp <?= number_format($bt['nominal'], 0, ',', '.') ?>
-                                                </td>
+                                                <th style="width: 50px;">No</th>
+                                                <th>Jenis Biaya Tambahan</th>
+                                                <th>Peruntukan</th>
+                                                <th>Keterangan</th>
+                                                <th class="text-right">Nominal</th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($biaya_tambahan as $bt): ?>
+                                                <tr>
+                                                    <td class="text-center font-weight-bold"><?= $bt['no'] ?></td>
+                                                    <td><strong style="color: #1e293b;"><?= htmlspecialchars($bt['jenis_biaya']) ?></strong></td>
+                                                    <td><span class="badge badge-info px-2 py-1"><?= htmlspecialchars($bt['peruntukan']) ?></span></td>
+                                                    <td style="font-size: 13px; color: #475569;"><?= htmlspecialchars($bt['keterangan']) ?></td>
+                                                    <td class="text-right font-weight-bold" style="color: #047857; font-size: 14px;">
+                                                        Rp <?= number_format($bt['nominal'], 0, ',', '.') ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- TAB 5: PENGAJUAN KERINGANAN & DISPENSASI PEMBAYARAN -->
+                        <div class="tab-pane fade p-4" id="tab-keringanan" role="tabpanel">
+
+                            <!-- Header Banner Pengajuan Keringanan -->
+                            <div class="p-4 mb-4" style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #bfdbfe; border-radius: 16px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.05);">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-8 col-md-12 mb-3 mb-lg-0">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #0284c7, #0369a1); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; margin-right: 14px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(2,132,199,0.3);">
+                                                <i class="bi bi-file-earmark-medical"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 17px;">
+                                                    Layanan Pengajuan Keringanan Pembayaran
+                                                </h5>
+                                                <span class="text-muted" style="font-size: 13px;">Bantuan finansial, penundaan jatuh tempo, dan skema cicilan resmi mahasiswa</span>
+                                            </div>
+                                        </div>
+                                        <p class="mb-0 text-secondary" style="font-size: 13px; line-height: 1.6;">
+                                            Mahasiswa yang mengalami kendala ekonomi dapat mengajukan permohonan keringanan biaya kuliah. Pengajuan akan ditinjau dan diverifikasi langsung oleh <strong>Biro Keuangan</strong> secara transparan.
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-12 text-lg-right">
+                                        <?php if (!empty($tagihan_pilihan)): ?>
+                                            <button type="button" class="btn btn-primary shadow-sm" onclick="bukaFormKeringanan()" style="border-radius: 10px; font-weight: 700; font-size: 13px; padding: 10px 20px; background: #0284c7; border-color: #0284c7;">
+                                                <i class="bi bi-plus-circle mr-1"></i> Buat Pengajuan Baru
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="badge badge-success px-3 py-2" style="font-size: 12px; border-radius: 10px;">
+                                                <i class="bi bi-check-circle mr-1"></i> Semua Tagihan Lunas
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Area Formulir Pengajuan Keringanan dengan Stepper -->
+                            <?php if (!empty($tagihan_pilihan)): ?>
+                            <div id="boxFormKeringanan" class="card mb-4" style="border: 1px solid #cbd5e1; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); overflow: hidden; display: none;">
+                                <div class="card-header bg-white" style="border-bottom: 1px solid #e2e8f0; padding: 20px 24px;">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                        <div>
+                                            <h6 class="font-weight-bold mb-1" style="color: #0f172a; font-size: 15px;">
+                                                <i class="bi bi-pencil-square text-primary mr-1"></i> Formulir Pengajuan Keringanan Tagihan
+                                            </h6>
+                                            <small class="text-muted">Ikuti 3 tahapan berikut untuk mengirimkan pengajuan ke Biro Keuangan</small>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="tutupFormKeringanan()" style="border-radius: 8px;">
+                                            <i class="fa fa-times mr-1"></i> Batal
+                                        </button>
+                                    </div>
+
+                                    <!-- Visual Stepper Header -->
+                                    <div class="keringanan-stepper-wrap mt-3">
+                                        <div class="keringanan-stepper">
+                                            <div class="keringanan-step active" id="step-nav-1" onclick="pindahStepKeringanan(1)">
+                                                <div class="keringanan-step-number">1</div>
+                                                <div class="keringanan-step-text">
+                                                    <span class="step-title">Pilih Tagihan &amp; Bentuk</span>
+                                                    <span class="step-desc">Apa yang diajukan</span>
+                                                </div>
+                                            </div>
+                                            <div class="keringanan-step-line" id="step-line-1"></div>
+                                            <div class="keringanan-step" id="step-nav-2" onclick="pindahStepKeringanan(2)">
+                                                <div class="keringanan-step-number">2</div>
+                                                <div class="keringanan-step-text">
+                                                    <span class="step-title">Alasan &amp; Berkas</span>
+                                                    <span class="step-desc">Keterangan kondisi</span>
+                                                </div>
+                                            </div>
+                                            <div class="keringanan-step-line" id="step-line-2"></div>
+                                            <div class="keringanan-step" id="step-nav-3" onclick="pindahStepKeringanan(3)">
+                                                <div class="keringanan-step-number">3</div>
+                                                <div class="keringanan-step-text">
+                                                    <span class="step-title">Konfirmasi</span>
+                                                    <span class="step-desc">Kirim permohonan</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-body p-4">
+                                    <form id="formKeringananMahasiswa" action="<?= base_url('keuangan/ajukan_keringanan') ?>" method="POST" enctype="multipart/form-data">
+                                        
+                                        <!-- STEP 1: Pilih Tagihan & Bentuk Keringanan -->
+                                        <div class="step-content" id="step-content-1">
+                                            <h6 class="font-weight-bold mb-3" style="color: #1e293b; font-size: 14px;">
+                                                <span class="badge badge-primary mr-1" style="font-size: 11px;">Langkah 1</span> Tentukan Tagihan dan Bentuk Keringanan yang Dimohonkan:
+                                            </h6>
+
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                        Tagihan yang Diajukan <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select class="form-control" name="tagihan_id" id="keringanan_tagihan_id" required onchange="updateTagihanPreview()" style="height: 44px; border-radius: 10px; font-size: 13.5px;">
+                                                        <option value="">-- Pilih Tagihan yang Belum Lunas --</option>
+                                                        <?php foreach ($tagihan_pilihan as $tp): ?>
+                                                            <option value="<?= (int)$tp->id ?>" 
+                                                                    data-nominal="<?= (float)$tp->nominal ?>"
+                                                                    data-jatuh-tempo="<?= htmlspecialchars($tp->jatuh_tempo ?: '') ?>"
+                                                                    data-tahun="<?= htmlspecialchars($tp->tahun_akademik) ?>"
+                                                                    data-semester="<?= htmlspecialchars($tp->semester) ?>"
+                                                                    data-jenis="<?= htmlspecialchars($tp->jenis_tagihan) ?>">
+                                                                <?= htmlspecialchars($tp->jenis_tagihan) ?> - Rp <?= number_format($tp->nominal, 0, ',', '.') ?> (Jatuh Tempo: <?= date('d M Y', strtotime($tp->jatuh_tempo)) ?>)
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <small class="text-muted">Pilih jenis biaya yang saat ini terkendala untuk dilunasi.</small>
+                                                </div>
+
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                        Bentuk Keringanan yang Diminta <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select class="form-control" name="jenis_keringanan" id="keringanan_jenis" required onchange="handleJenisKeringananChange()" style="height: 44px; border-radius: 10px; font-size: 13.5px;">
+                                                        <option value="PENUNDAAN">Perpanjangan Jatuh Tempo (Penundaan Bayar)</option>
+                                                        <option value="POTONGAN">Keringanan / Pengurangan Nominal Tagihan</option>
+                                                        <option value="ANGSURAN">Pembayaran Secara Bertahap (Cicilan)</option>
+                                                        <option value="BEBAS_SPP">Pembebasan Biaya (Beasiswa / Kondisi Khusus)</option>
+                                                    </select>
+                                                    <small class="text-muted">Pilih jenis bantuan finansial yang sesuai dengan kebutuhan Anda.</small>
+                                                </div>
+                                            </div>
+
+                                            <!-- Opsi Tambahan Tergantung Jenis Keringanan -->
+                                            <div class="row" id="row_opsi_keringanan">
+                                                <div class="col-md-6 mb-3" id="wrap_jatuh_tempo">
+                                                    <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                        Tanggal Jatuh Tempo Baru yang Dimohonkan <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="date" class="form-control" name="tanggal_jatuh_tempo_diminta" id="keringanan_tanggal_diminta" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" style="height: 44px; border-radius: 10px; font-size: 13.5px;">
+                                                    <small class="text-muted">Pilih tanggal kesanggupan pembayaran terbaru.</small>
+                                                </div>
+
+                                                <div class="col-md-6 mb-3" id="wrap_nominal_pengajuan" style="display: none;">
+                                                    <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                        Nominal yang Disanggupi / Diajukan (Rp)
+                                                    </label>
+                                                    <input type="number" class="form-control" name="nominal_pengajuan" id="keringanan_nominal_pengajuan" placeholder="Contoh: 1500000" min="0" step="50000" style="height: 44px; border-radius: 10px; font-size: 13.5px;">
+                                                    <small class="text-muted">Isi estimasi nominal yang sanggup Anda bayarkan.</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-end mt-3">
+                                                <button type="button" class="btn btn-primary px-4 py-2" onclick="validasiDanLanjutStep(1)" style="border-radius: 10px; font-weight: 700;">
+                                                    Lanjut ke Alasan &amp; Berkas <i class="fa fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- STEP 2: Alasan & Berkas Pendukung -->
+                                        <div class="step-content" id="step-content-2" style="display: none;">
+                                            <h6 class="font-weight-bold mb-3" style="color: #1e293b; font-size: 14px;">
+                                                <span class="badge badge-primary mr-1" style="font-size: 11px;">Langkah 2</span> Jelaskan Alasan Pengajuan &amp; Lampirkan Berkas Pendukung:
+                                            </h6>
+
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                    Alasan Detail Pengajuan Keringanan <span class="text-danger">*</span>
+                                                </label>
+                                                <textarea class="form-control" name="alasan" id="keringanan_alasan" rows="4" required placeholder="Jelaskan secara rinci alasan kendala finansial keluarga, kondisi pekerjaan orang tua, atau kendala ekonomi yang dihadapi sehingga memerlukan keringanan ini..." style="border-radius: 10px; font-size: 13.5px; padding: 12px;"></textarea>
+                                                <small class="text-muted">Mohon sampaikan alasan dengan jujur dan jelas untuk mempermudah verifikasi oleh Biro Keuangan.</small>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold text-dark" style="font-size: 13px;">
+                                                    Unggah Berkas Pendukung <small class="text-muted font-weight-normal">(Opsional namun sangat disarankan)</small>
+                                                </label>
+                                                <div class="custom-file" style="height: 44px;">
+                                                    <input type="file" class="custom-file-input" name="berkas_pendukung" id="keringanan_berkas" accept=".pdf,.jpg,.jpeg,.png" onchange="previewNamaBerkas(this)">
+                                                    <label class="custom-file-label" id="keringanan_berkas_label" for="keringanan_berkas" style="border-radius: 10px; height: 44px; line-height: 30px; font-size: 13px;">
+                                                        Pilih berkas pendukung (PDF, JPG, PNG - Maks. 5MB)
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted mt-1 d-block">
+                                                    Contoh berkas: Surat Keterangan Tidak Mampu (SKTM) dari Kelurahan, Slip Penghasilan / Gaji Orang Tua, Surat Keterangan PHK, atau dokumen pendukung lainnya.
+                                                </small>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mt-4">
+                                                <button type="button" class="btn btn-outline-secondary px-3 py-2" onclick="pindahStepKeringanan(1)" style="border-radius: 10px;">
+                                                    <i class="fa fa-arrow-left mr-1"></i> Kembali
+                                                </button>
+                                                <button type="button" class="btn btn-primary px-4 py-2" onclick="validasiDanLanjutStep(2)" style="border-radius: 10px; font-weight: 700;">
+                                                    Lanjut ke Ringkasan Konfirmasi <i class="fa fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- STEP 3: Konfirmasi & Kirim -->
+                                        <div class="step-content" id="step-content-3" style="display: none;">
+                                            <h6 class="font-weight-bold mb-3" style="color: #1e293b; font-size: 14px;">
+                                                <span class="badge badge-primary mr-1" style="font-size: 11px;">Langkah 3</span> Tinjau Ringkasan Pengajuan Sebelum Mengirim:
+                                            </h6>
+
+                                            <div class="p-3 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                                <div class="row" style="font-size: 13px;">
+                                                    <div class="col-md-6 mb-2">
+                                                        <span class="text-muted d-block">Tagihan yang Diajukan:</span>
+                                                        <strong id="review_tagihan" class="text-dark">-</strong>
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+                                                        <span class="text-muted d-block">Bentuk Keringanan:</span>
+                                                        <strong id="review_jenis" class="text-primary">-</strong>
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+                                                        <span class="text-muted d-block" id="review_label_opsi">Tanggal / Nominal yang Diminta:</span>
+                                                        <strong id="review_opsi" class="text-dark">-</strong>
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+                                                        <span class="text-muted d-block">Berkas Lampiran:</span>
+                                                        <strong id="review_berkas" class="text-info">-</strong>
+                                                    </div>
+                                                    <div class="col-12 mt-2 pt-2 border-top">
+                                                        <span class="text-muted d-block">Alasan Pengajuan:</span>
+                                                        <p id="review_alasan" class="mb-0 text-dark" style="white-space: pre-line; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12.5px;">-</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="alert alert-warning py-2 px-3" style="border-radius: 10px; font-size: 12.5px;">
+                                                <i class="fa fa-info-circle mr-1"></i> Setelah permohonan dikirim, status akan menjadi <strong>MENUNGGU VERIFIKASI</strong> dari Admin Keuangan. Anda dapat memantau progresnya melalui stepper di bawah.
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mt-4">
+                                                <button type="button" class="btn btn-outline-secondary px-3 py-2" onclick="pindahStepKeringanan(2)" style="border-radius: 10px;">
+                                                    <i class="fa fa-arrow-left mr-1"></i> Kembali
+                                                </button>
+                                                <button type="submit" class="btn btn-success px-4 py-2" style="border-radius: 10px; font-weight: 700;">
+                                                    <i class="fa fa-paper-plane mr-1"></i> Kirim Pengajuan Sekarang
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
+                            <!-- DAFTAR RIWAYAT PENGAJUAN KERINGANAN & LIVE TRACKER STEPPER -->
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="font-weight-bold mb-0" style="color: #0f172a; font-size: 15px;">
+                                        <i class="bi bi-clock-history mr-1 text-primary"></i> Riwayat &amp; Status Pengajuan Keringanan Anda
+                                    </h6>
+                                    <span class="badge badge-light" style="font-size: 12px; border: 1px solid #e2e8f0;">
+                                        Total: <?= count($dispensasi_requests) ?> Pengajuan
+                                    </span>
+                                </div>
+
+                                <?php if (empty($dispensasi_requests)): ?>
+                                    <div class="text-center py-5 px-3" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 16px;">
+                                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #e2e8f0; display: inline-flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 26px; margin-bottom: 12px;">
+                                            <i class="bi bi-inbox"></i>
+                                        </div>
+                                        <h6 class="font-weight-bold text-dark mb-1" style="font-size: 15px;">Belum Ada Riwayat Pengajuan Keringanan</h6>
+                                        <p class="text-muted mb-3" style="font-size: 13px; max-width: 500px; margin: 0 auto;">
+                                            Jika Anda mengalami kendala pembayaran biaya kuliah, gunakan tombol <strong>"Buat Pengajuan Baru"</strong> di atas untuk mengajukan keringanan kepada Biro Keuangan.
+                                        </p>
+                                        <?php if (!empty($tagihan_pilihan)): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="bukaFormKeringanan()" style="border-radius: 8px; font-weight: 600;">
+                                                <i class="bi bi-plus-circle mr-1"></i> Buat Pengajuan Pertama
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="row">
+                                        <?php foreach ($dispensasi_requests as $idx => $dr): ?>
+                                            <?php 
+                                                $status = $dr->status;
+                                                $bgCard = '#ffffff';
+                                                $borderCard = '#e2e8f0';
+                                                if ($status === 'DISETUJUI') {
+                                                    $badgeClass = 'badge-success';
+                                                    $statusText = 'Disetujui';
+                                                    $borderCard = '#86efac';
+                                                } elseif ($status === 'DITOLAK') {
+                                                    $badgeClass = 'badge-danger';
+                                                    $statusText = 'Ditolak';
+                                                    $borderCard = '#fca5a5';
+                                                } else {
+                                                    $badgeClass = 'badge-warning text-dark';
+                                                    $statusText = 'Menunggu Verifikasi';
+                                                    $borderCard = '#fde68a';
+                                                }
+
+                                                $jenisLabel = 'Penundaan Jatuh Tempo';
+                                                if (!empty($dr->jenis_keringanan)) {
+                                                    if ($dr->jenis_keringanan === 'POTONGAN') $jenisLabel = 'Pengurangan / Potongan Biaya';
+                                                    elseif ($dr->jenis_keringanan === 'ANGSURAN') $jenisLabel = 'Pembayaran Bertahap / Cicilan';
+                                                    elseif ($dr->jenis_keringanan === 'BEBAS_SPP') $jenisLabel = 'Pembebasan Biaya Kuliah';
+                                                }
+                                            ?>
+                                            <div class="col-12 mb-4">
+                                                <div class="card" style="border: 1.5px solid <?= $borderCard ?>; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); overflow: hidden;">
+                                                    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9;">
+                                                        <div>
+                                                            <span class="badge <?= $badgeClass ?> px-3 py-1 mr-2" style="font-size: 11.5px; border-radius: 12px; font-weight: 700;">
+                                                                <?= $statusText ?>
+                                                            </span>
+                                                            <strong style="color: #0f172a; font-size: 14.5px;">
+                                                                <?= htmlspecialchars($dr->jenis_tagihan) ?>
+                                                            </strong>
+                                                            <span class="text-muted ml-2" style="font-size: 12px;">
+                                                                (Tagihan Normal: Rp <?= number_format($dr->nominal, 0, ',', '.') ?>)
+                                                            </span>
+                                                        </div>
+                                                        <div class="text-muted" style="font-size: 12px;">
+                                                            <i class="fa fa-calendar mr-1"></i> Diajukan: <?= date('d M Y, H:i', strtotime($dr->diajukan_at)) ?>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card-body p-4">
+                                                        <!-- LIVE TRACKING STEPPER PER PERMOHONAN -->
+                                                        <div class="tracking-stepper-container mb-4">
+                                                            <div class="tracking-stepper">
+                                                                
+                                                                <!-- Step 1: Pengajuan Dikirim -->
+                                                                <div class="tracking-step completed">
+                                                                    <div class="tracking-step-icon">
+                                                                        <i class="fa fa-check"></i>
+                                                                    </div>
+                                                                    <div class="tracking-step-label">
+                                                                        <div class="step-name">Pengajuan Dikirim</div>
+                                                                        <div class="step-time"><?= date('d M Y', strtotime($dr->diajukan_at)) ?></div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="tracking-line <?= ($status !== 'MENUNGGU') ? 'completed' : 'active' ?>"></div>
+
+                                                                <!-- Step 2: Peninjauan Admin Keuangan -->
+                                                                <div class="tracking-step <?= ($status !== 'MENUNGGU') ? 'completed' : 'active' ?>">
+                                                                    <div class="tracking-step-icon">
+                                                                        <?php if ($status !== 'MENUNGGU'): ?>
+                                                                            <i class="fa fa-check"></i>
+                                                                        <?php else: ?>
+                                                                            <i class="fa fa-hourglass-half"></i>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                    <div class="tracking-step-label">
+                                                                        <div class="step-name">Verifikasi Biro Keuangan</div>
+                                                                        <div class="step-time">
+                                                                            <?= ($status !== 'MENUNGGU') ? 'Telah Ditinjau' : 'Sedang Ditinjau Admin' ?>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="tracking-line <?= ($status !== 'MENUNGGU') ? 'completed' : '' ?>"></div>
+
+                                                                <!-- Step 3: Keputusan Akhir -->
+                                                                <div class="tracking-step <?= ($status === 'DISETUJUI') ? 'completed' : (($status === 'DITOLAK') ? 'rejected' : '') ?>">
+                                                                    <div class="tracking-step-icon">
+                                                                        <?php if ($status === 'DISETUJUI'): ?>
+                                                                            <i class="fa fa-check-circle"></i>
+                                                                        <?php elseif ($status === 'DITOLAK'): ?>
+                                                                            <i class="fa fa-times-circle"></i>
+                                                                        <?php else: ?>
+                                                                            <i class="fa fa-circle-o"></i>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                    <div class="tracking-step-label">
+                                                                        <div class="step-name">
+                                                                            <?= ($status === 'DISETUJUI') ? 'Disetujui' : (($status === 'DITOLAK') ? 'Ditolak' : 'Keputusan Akhir') ?>
+                                                                        </div>
+                                                                        <div class="step-time">
+                                                                            <?= !empty($dr->diproses_at) ? date('d M Y', strtotime($dr->diproses_at)) : 'Menunggu Keputusan' ?>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Detail Rincian Permohonan -->
+                                                        <div class="row" style="font-size: 13px; background: #f8fafc; border-radius: 12px; padding: 16px; margin: 0;">
+                                                            <div class="col-md-4 mb-2">
+                                                                <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Bentuk Keringanan</span>
+                                                                <strong class="text-primary"><?= $jenisLabel ?></strong>
+                                                            </div>
+
+                                                            <div class="col-md-4 mb-2">
+                                                                <?php if (!empty($dr->tanggal_jatuh_tempo_diminta)): ?>
+                                                                    <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Jatuh Tempo Diminta</span>
+                                                                    <strong><?= date('d M Y', strtotime($dr->tanggal_jatuh_tempo_diminta)) ?></strong>
+                                                                <?php elseif (!empty($dr->nominal_pengajuan)): ?>
+                                                                    <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Nominal Diajukan</span>
+                                                                    <strong class="text-success">Rp <?= number_format($dr->nominal_pengajuan, 0, ',', '.') ?></strong>
+                                                                <?php else: ?>
+                                                                    <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Penyesuaian</span>
+                                                                    <span>Sesuai Pertimbangan Admin</span>
+                                                                <?php endif; ?>
+                                                            </div>
+
+                                                            <div class="col-md-4 mb-2">
+                                                                <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Berkas Pendukung</span>
+                                                                <?php if (!empty($dr->berkas_pendukung)): ?>
+                                                                    <a href="<?= base_url('keuangan/lihat_berkas_keringanan/' . $dr->id) ?>" target="_blank" class="btn btn-xs btn-outline-info" style="font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 600;">
+                                                                        <i class="fa fa-file-text-o mr-1"></i> Lihat Berkas Lampiran
+                                                                    </a>
+                                                                <?php else: ?>
+                                                                    <span class="text-muted" style="font-style: italic;">Tidak ada berkas lampiran</span>
+                                                                <?php endif; ?>
+                                                            </div>
+
+                                                            <div class="col-12 mt-2 pt-2 border-top">
+                                                                <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 700;">Alasan Permohonan Mahasiswa:</span>
+                                                                <p class="mb-0 text-dark" style="font-size: 12.5px; line-height: 1.5; white-space: pre-line;"><?= htmlspecialchars($dr->alasan) ?></p>
+                                                            </div>
+
+                                                            <?php if (!empty($dr->catatan_admin)): ?>
+                                                                <div class="col-12 mt-3 pt-2" style="border-top: 1px dashed <?= ($status === 'DISETUJUI') ? '#86efac' : '#fca5a5' ?>;">
+                                                                    <div class="p-3" style="background: <?= ($status === 'DISETUJUI') ? '#f0fdf4' : '#fef2f2' ?>; border-radius: 8px;">
+                                                                        <span class="d-block font-weight-bold <?= ($status === 'DISETUJUI') ? 'text-success' : 'text-danger' ?>" style="font-size: 12px;">
+                                                                            <i class="fa fa-commenting mr-1"></i> Catatan Resmi Biro Keuangan:
+                                                                            <?php if (!empty($dr->nama_verifikator)): ?>
+                                                                                <small class="text-muted font-weight-normal">(oleh <?= htmlspecialchars($dr->nama_verifikator) ?>)</small>
+                                                                            <?php endif; ?>
+                                                                        </span>
+                                                                        <p class="mb-0 text-dark mt-1" style="font-size: 12.5px;"><?= htmlspecialchars($dr->catatan_admin) ?></p>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
                         </div>
 
                     </div>
                 </div>
+
+                <!-- Custom Styles untuk Stepper Keringanan -->
+                <style>
+                /* Stepper Header Wizard */
+                .keringanan-stepper-wrap {
+                    padding: 8px 0;
+                }
+                .keringanan-stepper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    max-width: 720px;
+                    margin: 0 auto;
+                }
+                .keringanan-step {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    cursor: pointer;
+                    opacity: 0.6;
+                    transition: all 0.3s ease;
+                }
+                .keringanan-step.active, .keringanan-step.completed {
+                    opacity: 1;
+                }
+                .keringanan-step-number {
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 50%;
+                    background: #e2e8f0;
+                    color: #64748b;
+                    font-weight: 800;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                }
+                .keringanan-step.active .keringanan-step-number {
+                    background: #0284c7;
+                    color: #fff;
+                    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+                }
+                .keringanan-step.completed .keringanan-step-number {
+                    background: #10b981;
+                    color: #fff;
+                }
+                .keringanan-step-text .step-title {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    line-height: 1.2;
+                }
+                .keringanan-step-text .step-desc {
+                    display: block;
+                    font-size: 11px;
+                    color: #94a3b8;
+                }
+                .keringanan-step-line {
+                    flex: 1;
+                    height: 3px;
+                    background: #e2e8f0;
+                    margin: 0 14px;
+                    border-radius: 2px;
+                    transition: all 0.3s ease;
+                }
+                .keringanan-step-line.active {
+                    background: #0284c7;
+                }
+
+                /* Live Tracking Stepper Per Permohonan */
+                .tracking-stepper-container {
+                    padding: 8px 12px;
+                }
+                .tracking-stepper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    position: relative;
+                }
+                .tracking-step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    z-index: 2;
+                    min-width: 100px;
+                }
+                .tracking-step-icon {
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 50%;
+                    background: #f1f5f9;
+                    color: #94a3b8;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 15px;
+                    font-weight: 700;
+                    border: 2px solid #cbd5e1;
+                    transition: all 0.3s ease;
+                }
+                .tracking-step.active .tracking-step-icon {
+                    background: #0284c7;
+                    color: #ffffff;
+                    border-color: #0284c7;
+                    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2);
+                    animation: pulseStep 2s infinite;
+                }
+                .tracking-step.completed .tracking-step-icon {
+                    background: #10b981;
+                    color: #ffffff;
+                    border-color: #10b981;
+                    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+                }
+                .tracking-step.rejected .tracking-step-icon {
+                    background: #ef4444;
+                    color: #ffffff;
+                    border-color: #ef4444;
+                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+                }
+                .tracking-step-label {
+                    margin-top: 8px;
+                }
+                .tracking-step-label .step-name {
+                    font-size: 12.5px;
+                    font-weight: 700;
+                    color: #1e293b;
+                }
+                .tracking-step-label .step-time {
+                    font-size: 11px;
+                    color: #94a3b8;
+                }
+                .tracking-line {
+                    flex: 1;
+                    height: 3px;
+                    background: #e2e8f0;
+                    margin: 0 -10px;
+                    position: relative;
+                    top: -14px;
+                    z-index: 1;
+                }
+                .tracking-line.completed {
+                    background: #10b981;
+                }
+                .tracking-line.active {
+                    background: #0284c7;
+                }
+                @keyframes pulseStep {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.08); }
+                    100% { transform: scale(1); }
+                }
+                @media (max-width: 576px) {
+                    .keringanan-step-text { display: none; }
+                    .tracking-step-label .step-name { font-size: 11px; }
+                }
+                </style>
+
+                <!-- Javascript Handler Form Stepper Keringanan -->
+                <script>
+                function bukaFormKeringanan() {
+                    $('#boxFormKeringanan').slideDown(300);
+                    $('html, body').animate({
+                        scrollTop: $("#boxFormKeringanan").offset().top - 80
+                    }, 400);
+                    pindahStepKeringanan(1);
+                }
+
+                function tutupFormKeringanan() {
+                    $('#boxFormKeringanan').slideUp(250);
+                }
+
+                function handleJenisKeringananChange() {
+                    var jenis = $('#keringanan_jenis').val();
+                    if (jenis === 'PENUNDAAN') {
+                        $('#wrap_jatuh_tempo').show();
+                        $('#wrap_nominal_pengajuan').hide();
+                    } else if (jenis === 'POTONGAN' || jenis === 'ANGSURAN') {
+                        $('#wrap_jatuh_tempo').show();
+                        $('#wrap_nominal_pengajuan').show();
+                    } else { // BEBAS_SPP
+                        $('#wrap_jatuh_tempo').hide();
+                        $('#wrap_nominal_pengajuan').hide();
+                    }
+                }
+
+                function pindahStepKeringanan(step) {
+                    $('.step-content').hide();
+                    $('#step-content-' + step).show();
+
+                    // Update visual stepper nav
+                    for (var i = 1; i <= 3; i++) {
+                        var $nav = $('#step-nav-' + i);
+                        if (i < step) {
+                            $nav.removeClass('active').addClass('completed');
+                        } else if (i === step) {
+                            $nav.removeClass('completed').addClass('active');
+                        } else {
+                            $nav.removeClass('active completed');
+                        }
+                    }
+
+                    $('#step-line-1').toggleClass('active', step >= 2);
+                    $('#step-line-2').toggleClass('active', step >= 3);
+
+                    if (step === 3) {
+                        isiReviewKeringanan();
+                    }
+                }
+
+                function validasiDanLanjutStep(stepSaatIni) {
+                    if (stepSaatIni === 1) {
+                        var tagihanId = $('#keringanan_tagihan_id').val();
+                        if (!tagihanId) {
+                            SCDialog.alert('Silakan pilih tagihan yang ingin diajukan keringanan.', { title: 'Pilih Tagihan', type: 'warning' });
+                            return;
+                        }
+                        var jenis = $('#keringanan_jenis').val();
+                        if (jenis === 'PENUNDAAN') {
+                            var tgl = $('#keringanan_tanggal_diminta').val();
+                            if (!tgl) {
+                                SCDialog.alert('Silakan tentukan tanggal jatuh tempo baru yang dimohonkan.', { title: 'Tanggal Wajib Diisi', type: 'warning' });
+                                return;
+                            }
+                        }
+                        pindahStepKeringanan(2);
+                    } else if (stepSaatIni === 2) {
+                        var alasan = $('#keringanan_alasan').val().trim();
+                        if (!alasan || alasan.length < 15) {
+                            SCDialog.alert('Silakan tuliskan alasan pengajuan secara lengkap (minimal 15 karakter).', { title: 'Alasan Belum Lengkap', type: 'warning' });
+                            return;
+                        }
+                        pindahStepKeringanan(3);
+                    }
+                }
+
+                function previewNamaBerkas(input) {
+                    if (input.files && input.files[0]) {
+                        var fileName = input.files[0].name;
+                        $('#keringanan_berkas_label').text(fileName);
+                    } else {
+                        $('#keringanan_berkas_label').text('Pilih berkas pendukung (PDF, JPG, PNG - Maks. 5MB)');
+                    }
+                }
+
+                function updateTagihanPreview() {
+                    // otomatis refresh opsi preview
+                }
+
+                function isiReviewKeringanan() {
+                    var $opt = $('#keringanan_tagihan_id option:selected');
+                    var namaTagihan = $opt.text().trim();
+                    var jenisText = $('#keringanan_jenis option:selected').text();
+                    var jenisVal = $('#keringanan_jenis').val();
+                    var alasan = $('#keringanan_alasan').val().trim();
+                    var berkas = $('#keringanan_berkas')[0].files[0] ? $('#keringanan_berkas')[0].files[0].name : 'Tidak ada berkas yang dilampirkan';
+
+                    $('#review_tagihan').text(namaTagihan || '-');
+                    $('#review_jenis').text(jenisText);
+                    $('#review_alasan').text(alasan || '-');
+                    $('#review_berkas').text(berkas);
+
+                    if (jenisVal === 'PENUNDAAN') {
+                        var tgl = $('#keringanan_tanggal_diminta').val();
+                        $('#review_label_opsi').text('Tanggal Jatuh Tempo Diminta:');
+                        $('#review_opsi').text(tgl || 'Sesuai pertimbangan admin');
+                    } else if (jenisVal === 'POTONGAN' || jenisVal === 'ANGSURAN') {
+                        var nom = $('#keringanan_nominal_pengajuan').val();
+                        $('#review_label_opsi').text('Nominal yang Disanggupi:');
+                        $('#review_opsi').text(nom ? 'Rp ' + Number(nom).toLocaleString('id-ID') : 'Sesuai pertimbangan admin');
+                    } else {
+                        $('#review_label_opsi').text('Kategori Keringanan:');
+                        $('#review_opsi').text('Pembebasan Biaya Penuh');
+                    }
+                }
+
+                // Cek tab parameter di URL
+                document.addEventListener('DOMContentLoaded', function() {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('tab') === 'keringanan') {
+                        $('#tab-keringanan-link').tab('show');
+                    }
+                });
+                </script>
 
 
 

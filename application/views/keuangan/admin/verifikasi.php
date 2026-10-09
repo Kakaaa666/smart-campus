@@ -125,6 +125,60 @@
                     color: #b91c1c;
                 }
 
+                /* ── Action Buttons Modern Styling ── */
+                .btn-bukti-action {
+                    background: #eff6ff;
+                    color: #1d4ed8;
+                    border: 1.5px solid #bfdbfe;
+                    border-radius: 8px;
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    padding: 6px 12px;
+                    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    text-decoration: none !important;
+                    white-space: nowrap;
+                    line-height: 1.2;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+
+                .btn-bukti-action:hover {
+                    background: #2563eb;
+                    color: #ffffff !important;
+                    border-color: #2563eb;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+                }
+
+                .btn-undo-action {
+                    background: #fff1f2;
+                    color: #e11d48;
+                    border: 1.5px solid #fecdd3;
+                    border-radius: 8px;
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    padding: 6px 12px;
+                    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    white-space: nowrap;
+                    line-height: 1.2;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                }
+
+                .btn-undo-action:hover {
+                    background: #e11d48;
+                    color: #ffffff;
+                    border-color: #e11d48;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+                }
+
                 .nav-verif-tabs {
                     border-bottom: 2px solid #e2e8f0;
                     padding: 0 24px;
@@ -251,6 +305,16 @@
                                     <span class="badge badge-light ml-1" style="border:1px solid #cbd5e1;"><?= count($pembayaran_selesai) ?></span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-keringanan-nav" data-toggle="tab" href="#tab-keringanan" role="tab">
+                                    <i class="fa fa-handshake-o mr-1 text-primary"></i> Pengajuan Keringanan
+                                    <?php if (!empty($keringanan_pending)): ?>
+                                        <span class="badge badge-danger ml-1" id="tab-badge-keringanan"><?= count($keringanan_pending) ?></span>
+                                    <?php else: ?>
+                                        <span class="badge badge-light ml-1" style="border:1px solid #cbd5e1;">0</span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
                         </ul>
 
                         <div class="tab-content">
@@ -362,8 +426,8 @@
                                                     <th>Rekening Pengirim</th>
                                                     <th>Status</th>
                                                     <th>Verifikator</th>
-                                                    <th>Bukti</th>
-                                                    <th>Aksi</th>
+                                                    <th class="text-center" style="width: 100px;">Bukti</th>
+                                                    <th class="text-center" style="width: 115px;">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -408,26 +472,248 @@
                                                             <?php endif; ?>
                                                         </td>
                                                         <td><?= htmlspecialchars($ps->nama_verifikator ?: 'Admin Keuangan') ?></td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <a href="<?= base_url('keuangan/lihat_bukti/' . $ps->id) ?>" target="_blank"
-                                                               class="btn btn-sm btn-light" style="border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px;">
-                                                                <i class="fa fa-file-image-o"></i>
+                                                               class="btn-bukti-action" title="Lihat berkas bukti transfer">
+                                                                <i class="fa fa-image"></i>
+                                                                <span>Bukti</span>
                                                             </a>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <?php if ($ps->status === 'LUNAS'): ?>
                                                                 <?= form_open('keuangan/batalkan_verifikasi_pembayaran', [
                                                                     'data-sc-confirm' => 'Batalkan verifikasi ini? Pembayaran kembali menunggu tindakan admin dan akses KRS dapat terkunci.',
-                                                                    'style' => 'display:inline-block;'
+                                                                    'style' => 'display:inline-block; margin:0;'
                                                                 ]) ?>
                                                                     <input type="hidden" name="pembayaran_id" value="<?= (int)$ps->id ?>">
-                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Batalkan verifikasi" aria-label="Batalkan verifikasi pembayaran">
+                                                                    <button type="submit" class="btn-undo-action" title="Batalkan status verifikasi dan kembalikan ke antrean">
                                                                         <i class="fa fa-undo"></i>
+                                                                        <span>Batalkan</span>
                                                                     </button>
                                                                 <?= form_close() ?>
                                                             <?php else: ?>
-                                                                <span class="text-muted">-</span>
+                                                                <span class="text-muted font-italic">-</span>
                                                             <?php endif; ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- TAB 3: Verifikasi Pengajuan Keringanan Pembayaran -->
+                            <div class="tab-pane fade" id="tab-keringanan" role="tabpanel">
+                                <div style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: #fafafa;">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div>
+                                            <h5 style="margin: 0; font-weight: 800; color: #0f172a; font-size: 16px;">
+                                                <i class="fa fa-handshake-o text-primary mr-2"></i>Daftar Pengajuan Keringanan Pembayaran Mahasiswa
+                                            </h5>
+                                            <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">
+                                                Evaluasi permohonan penundaan jadwal jatuh tempo atau penyesuaian nominal tagihan dari mahasiswa yang membutuhkan.
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span class="badge" style="background:#e0f2fe; color:#0369a1; padding: 6px 14px; border-radius: 20px; font-weight: 700;">
+                                                Total Antrian: <?= !empty($keringanan_pending) ? count($keringanan_pending) : 0 ?> Permohonan
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-bagian: Antrian Menunggu Verifikasi -->
+                                <div style="padding: 16px 24px 8px; background: #fff;">
+                                    <h6 style="font-weight: 700; color: #334155; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center;">
+                                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b; margin-right:8px;"></span>
+                                        Permohonan Membutuhkan Keputusan
+                                    </h6>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <?php if (empty($keringanan_pending)): ?>
+                                        <div style="text-align:center; padding: 48px 24px; color: #94a3b8;">
+                                            <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                                                <i class="fa fa-check-circle" style="font-size: 32px; color: #3b82f6;"></i>
+                                            </div>
+                                            <h5 style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">Tidak Ada Pengajuan Keringanan Baru</h5>
+                                            <p style="font-size: 13px; color: #64748b; margin: 0;">Semua permohonan keringanan telah selesai ditinjau dan diproses.</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <table class="table table-verif mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 50px;">No</th>
+                                                    <th>Mahasiswa</th>
+                                                    <th>Tagihan</th>
+                                                    <th>Bentuk Keringanan</th>
+                                                    <th>Detail Permohonan</th>
+                                                    <th>Alasan & Berkas</th>
+                                                    <th style="width: 130px;">Tgl Pengajuan</th>
+                                                    <th class="text-center" style="width: 170px;">Aksi Verifikasi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $no_kr = 1; foreach ($keringanan_pending as $kr): ?>
+                                                    <tr>
+                                                        <td class="text-center" style="color: #94a3b8; font-weight: 700;"><?= $no_kr++ ?></td>
+                                                        <td>
+                                                            <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;"><?= htmlspecialchars($kr->nama_mahasiswa) ?></div>
+                                                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                                                <span class="badge badge-light" style="font-weight: 600;"><?= htmlspecialchars($kr->nim) ?></span>
+                                                                <span class="badge-prodi ml-1"><?= htmlspecialchars($kr->program_studi) ?></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div style="font-weight: 700; color: #1e293b; font-size: 13px;"><?= htmlspecialchars($kr->nama_tagihan) ?></div>
+                                                            <div style="font-size: 12px; color: #475569; margin-top: 2px;">
+                                                                Nominal: <strong>Rp <?= number_format($kr->nominal_asli, 0, ',', '.') ?></strong>
+                                                            </div>
+                                                            <div style="font-size: 11px; color: #dc2626;">
+                                                                Jatuh tempo asli: <?= date('d M Y', strtotime($kr->jatuh_tempo_asli)) ?>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($kr->jenis_keringanan === 'PENUNDAAN'): ?>
+                                                                <span class="badge" style="background:#e0f2fe; color:#0284c7; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
+                                                                    <i class="fa fa-calendar mr-1"></i> Penundaan Tempo
+                                                                </span>
+                                                            <?php elseif ($kr->jenis_keringanan === 'PENGURANGAN'): ?>
+                                                                <span class="badge" style="background:#fef3c7; color:#d97706; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
+                                                                    <i class="fa fa-percent mr-1"></i> Keringanan Nominal
+                                                                </span>
+                                                            <?php else: ?>
+                                                                <span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
+                                                                    <i class="fa fa-calculator mr-1"></i> Cicilan / Angsuran
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($kr->jenis_keringanan === 'PENUNDAAN'): ?>
+                                                                <div style="font-size: 12px; color: #334155;">
+                                                                    Tempo Diminta:<br>
+                                                                    <strong style="color: #0284c7; font-size: 13px;">
+                                                                        <?= !empty($kr->tanggal_jatuh_tempo_diminta) ? date('d M Y', strtotime($kr->tanggal_jatuh_tempo_diminta)) : '-' ?>
+                                                                    </strong>
+                                                                </div>
+                                                            <?php elseif ($kr->jenis_keringanan === 'PENGURANGAN'): ?>
+                                                                <div style="font-size: 12px; color: #334155;">
+                                                                    Nominal Diminta:<br>
+                                                                    <strong style="color: #d97706; font-size: 13px;">
+                                                                        Rp <?= number_format($kr->nominal_pengajuan, 0, ',', '.') ?>
+                                                                    </strong>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <div style="font-size: 12px; color: #334155;">Skema Angsuran Bertahap</div>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td style="max-width: 250px;">
+                                                            <div style="font-size: 12.5px; color: #334155; line-height: 1.4; margin-bottom: 6px;">
+                                                                <?= nl2br(htmlspecialchars($kr->alasan)) ?>
+                                                            </div>
+                                                            <?php if (!empty($kr->berkas_pendukung)): ?>
+                                                                <a href="<?= base_url('keuangan/lihat_berkas_keringanan/' . $kr->id) ?>" target="_blank" class="btn btn-xs btn-outline-info" style="border-radius: 6px; font-size: 11px; font-weight: 600; padding: 3px 8px;">
+                                                                    <i class="fa fa-paperclip mr-1"></i> Lihat Berkas Pendukung
+                                                                </a>
+                                                            <?php else: ?>
+                                                                <span style="font-size: 11px; color: #94a3b8; font-style: italic;">Tidak ada berkas lampiran</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td style="font-size: 12px; color: #64748b;">
+                                                            <?= date('d M Y', strtotime($kr->tanggal_pengajuan)) ?><br>
+                                                            <small class="text-muted"><?= date('H:i', strtotime($kr->tanggal_pengajuan)) ?> WIB</small>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="d-flex justify-content-center" style="gap: 6px;">
+                                                                <button type="button" class="btn-approve-action" onclick="bukaModalSetujuiKeringanan(<?= htmlspecialchars(json_encode($kr), ENT_QUOTES, 'UTF-8') ?>)" title="Setujui Keringanan">
+                                                                    <i class="fa fa-check"></i> Setujui
+                                                                </button>
+                                                                <button type="button" class="btn-reject-action" onclick="bukaModalTolakKeringanan('<?= $kr->id ?>', '<?= htmlspecialchars(addslashes($kr->nama_mahasiswa), ENT_QUOTES, 'UTF-8') ?>', '<?= htmlspecialchars(addslashes($kr->nama_tagihan), ENT_QUOTES, 'UTF-8') ?>')" title="Tolak Keringanan">
+                                                                    <i class="fa fa-times"></i> Tolak
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- Sub-bagian: Riwayat Keringanan Selesai -->
+                                <div style="padding: 24px 24px 8px; background: #fff; border-top: 2px dashed #e2e8f0; margin-top: 16px;">
+                                    <h6 style="font-weight: 700; color: #334155; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center;">
+                                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:8px;"></span>
+                                        Riwayat Keputusan Pengajuan Keringanan (<?= count($keringanan_selesai ?? []) ?> Selesai)
+                                    </h6>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <?php if (empty($keringanan_selesai)): ?>
+                                        <div style="text-align:center; padding: 32px 24px; color: #94a3b8;">
+                                            <p style="font-size: 13px; color: #64748b; margin: 0;">Belum ada riwayat permohonan keringanan yang telah diputuskan.</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <table class="table table-verif mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 50px;">No</th>
+                                                    <th>Mahasiswa</th>
+                                                    <th>Tagihan</th>
+                                                    <th>Bentuk Keringanan</th>
+                                                    <th>Status Keputusan</th>
+                                                    <th>Hasil / Catatan Admin</th>
+                                                    <th>Diverifikasi Oleh</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $no_ks = 1; foreach ($keringanan_selesai as $ks): ?>
+                                                    <tr>
+                                                        <td class="text-center" style="color: #94a3b8; font-weight: 700;"><?= $no_ks++ ?></td>
+                                                        <td>
+                                                            <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;"><?= htmlspecialchars($ks->nama_mahasiswa) ?></div>
+                                                            <div style="font-size: 12px; color: #64748b;"><?= htmlspecialchars($ks->nim) ?> &bull; <?= htmlspecialchars($ks->program_studi) ?></div>
+                                                        </td>
+                                                        <td>
+                                                            <div style="font-weight: 700; color: #1e293b; font-size: 13px;"><?= htmlspecialchars($ks->nama_tagihan) ?></div>
+                                                            <div style="font-size: 11.5px; color: #64748b;">Rp <?= number_format($ks->nominal_asli, 0, ',', '.') ?></div>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge badge-light" style="font-weight:600;"><?= htmlspecialchars($ks->jenis_keringanan) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($ks->status_pengajuan === 'DISETUJUI'): ?>
+                                                                <span class="badge" style="background:#d1fae5; color:#065f46; font-weight:700; padding:6px 10px; border-radius:6px; font-size:12px;">
+                                                                    <i class="fa fa-check-circle mr-1"></i> DISETUJUI
+                                                                </span>
+                                                            <?php else: ?>
+                                                                <span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700; padding:6px 10px; border-radius:6px; font-size:12px;">
+                                                                    <i class="fa fa-times-circle mr-1"></i> DITOLAK
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($ks->status_pengajuan === 'DISETUJUI'): ?>
+                                                                <?php if ($ks->jenis_keringanan === 'PENUNDAAN' && !empty($ks->tanggal_jatuh_tempo_diminta)): ?>
+                                                                    <div style="font-size: 12.5px; color: #059669; font-weight: 600;">
+                                                                        Jatuh Tempo Baru: <?= date('d M Y', strtotime($ks->tanggal_jatuh_tempo_diminta)) ?>
+                                                                    </div>
+                                                                <?php elseif ($ks->jenis_keringanan === 'PENGURANGAN' && !empty($ks->nominal_pengajuan)): ?>
+                                                                    <div style="font-size: 12.5px; color: #059669; font-weight: 600;">
+                                                                        Nominal Baru: Rp <?= number_format($ks->nominal_pengajuan, 0, ',', '.') ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($ks->catatan_admin)): ?>
+                                                                <div style="font-size: 12px; color: #475569; margin-top: 3px; font-style: italic;">
+                                                                    &ldquo;<?= htmlspecialchars($ks->catatan_admin) ?>&rdquo;
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td style="font-size: 12px; color: #64748b;">
+                                                            <strong><?= htmlspecialchars($ks->disetujui_oleh_nama ?? 'Admin Keuangan') ?></strong><br>
+                                                            <small class="text-muted"><?= !empty($ks->tanggal_disetujui) ? date('d M Y H:i', strtotime($ks->tanggal_disetujui)) : '-' ?></small>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -545,6 +831,97 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- =======================================================
+     MODAL SETUJUI KERINGANAN PEMBAYARAN
+======================================================= -->
+<div class="modal fade" id="modalSetujuiKeringanan" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius:16px; border:none; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow:hidden;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:18px 24px; border:none;">
+                <h5 class="modal-title" style="font-weight:700; font-size:16px;">
+                    <i class="fa fa-handshake-o mr-2"></i>Persetujuan Keringanan Pembayaran
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:0.9;"><span>&times;</span></button>
+            </div>
+            <form method="POST" action="<?= base_url('keuangan/proses_keringanan') ?>">
+                <input type="hidden" name="dispensasi_id" id="setujui_dispensasi_id" value="">
+                <input type="hidden" name="aksi" value="SETUJUI">
+                <div class="modal-body" style="padding:24px 28px;">
+                    <div style="background:#f0fdf4; border-radius:12px; padding:16px; border:1px solid #bbf7d0; margin-bottom:18px;">
+                        <div style="font-size:12px; color:#166534; font-weight:700; text-transform:uppercase; margin-bottom:8px;">Ringkasan Permohonan:</div>
+                        <div style="font-size:13px; margin-bottom:4px;"><strong>Mahasiswa:</strong> <span id="setujui_mhs_nama">-</span></div>
+                        <div style="font-size:13px; margin-bottom:4px;"><strong>Tagihan:</strong> <span id="setujui_tagihan_nama">-</span></div>
+                        <div style="font-size:13px; margin-bottom:4px;"><strong>Bentuk:</strong> <span id="setujui_jenis_keringanan" class="badge badge-info">-</span></div>
+                        <div style="font-size:12.5px; color:#475569; margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1;">
+                            <strong>Alasan Mahasiswa:</strong>
+                            <p id="setujui_alasan_teks" style="margin:2px 0 0; font-style:italic; color:#334155; font-size:12px;">-</p>
+                        </div>
+                    </div>
+
+                    <div id="field_jatuh_tempo_baru" class="form-group mb-3">
+                        <label style="font-weight:700; font-size:13px; color:#1e293b;">Tetapkan Tanggal Jatuh Tempo Baru</label>
+                        <input type="date" name="jatuh_tempo_baru" id="input_jatuh_tempo_baru" class="form-control" style="border-radius:8px; height:40px;">
+                        <small class="form-text text-muted">Tanggal jatuh tempo tagihan akan diperpanjang sesuai tanggal ini.</small>
+                    </div>
+
+                    <div id="field_nominal_baru" class="form-group mb-3" style="display:none;">
+                        <label style="font-weight:700; font-size:13px; color:#1e293b;">Nominal Baru yang Disetujui (Rp)</label>
+                        <input type="number" name="nominal_baru" id="input_nominal_baru" class="form-control" style="border-radius:8px; height:40px;">
+                        <small class="form-text text-muted">Nominal tagihan mahasiswa akan disesuaikan menjadi nominal ini.</small>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label style="font-weight:700; font-size:13px; color:#1e293b;">Catatan Persetujuan (Opsional)</label>
+                        <textarea name="catatan_admin" class="form-control" rows="2" placeholder="Contoh: Disetujui penundaan hingga tanggal tersebut sesuai pertimbangan berkas." style="border-radius:8px; resize:none; font-size:13px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding:14px 28px 20px; border:none; background:#fafafa;">
+                    <button type="button" class="btn btn-sm btn-light" data-dismiss="modal" style="border-radius:8px; font-weight:600;">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px; font-weight:700; padding:8px 18px;">
+                        <i class="fa fa-check mr-1"></i> Setujui Permohonan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- =======================================================
+     MODAL TOLAK KERINGANAN PEMBAYARAN
+======================================================= -->
+<div class="modal fade" id="modalTolakKeringanan" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius:16px; border:none; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow:hidden;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; padding:18px 24px; border:none;">
+                <h5 class="modal-title" style="font-weight:700; font-size:16px;">
+                    <i class="fa fa-times-circle mr-2"></i>Tolak Pengajuan Keringanan
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" style="color:#fff; opacity:0.9;"><span>&times;</span></button>
+            </div>
+            <form method="POST" action="<?= base_url('keuangan/proses_keringanan') ?>">
+                <input type="hidden" name="dispensasi_id" id="tolak_dispensasi_id" value="">
+                <input type="hidden" name="aksi" value="TOLAK">
+                <div class="modal-body" style="padding:24px 28px;">
+                    <div style="background:#fef2f2; border-radius:12px; padding:14px 18px; border:1px solid #fecaca; margin-bottom:16px;">
+                        <div style="font-size:13px; color:#991b1b; margin-bottom:4px;"><strong>Mahasiswa:</strong> <span id="tolak_mhs_nama">-</span></div>
+                        <div style="font-size:13px; color:#991b1b;"><strong>Tagihan:</strong> <span id="tolak_tagihan_nama">-</span></div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label style="font-weight:700; font-size:13px; color:#1e293b;">Alasan Penolakan <span class="text-danger">*</span></label>
+                        <textarea name="catatan_admin" id="tolak_catatan_admin" class="form-control" rows="3" required placeholder="Tuliskan alasan penolakan secara jelas agar dapat dipahami oleh mahasiswa..." style="border-radius:8px; resize:none; font-size:13px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding:14px 28px 20px; border:none; background:#fafafa;">
+                    <button type="button" class="btn btn-sm btn-light" data-dismiss="modal" style="border-radius:8px; font-weight:600;">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px; font-weight:700; padding:8px 18px;">
+                        <i class="fa fa-times mr-1"></i> Tolak Pengajuan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -752,7 +1129,51 @@ document.addEventListener('DOMContentLoaded', function() {
                     row.style.display = 'none';
                 }
             });
-        });
+    // Auto Switch tab jika URL memiliki parameter ?tab=keringanan
+    if (window.location.search.indexOf('tab=keringanan') > -1) {
+        if (typeof $ !== 'undefined' && $('#tab-keringanan-nav').tab) {
+            $('#tab-keringanan-nav').tab('show');
+        }
     }
 });
+
+// Modal Keringanan Handlers
+function bukaModalSetujuiKeringanan(data) {
+    if (!data) return;
+    document.getElementById('setujui_dispensasi_id').value = data.id;
+    document.getElementById('setujui_mhs_nama').innerText = data.nama_mahasiswa + ' (' + data.nim + ')';
+    document.getElementById('setujui_tagihan_nama').innerText = data.nama_tagihan;
+    document.getElementById('setujui_jenis_keringanan').innerText = data.jenis_keringanan;
+    document.getElementById('setujui_alasan_teks').innerText = data.alasan || '-';
+
+    var containerJatuhTempo = document.getElementById('field_jatuh_tempo_baru');
+    var inputJatuhTempo = document.getElementById('input_jatuh_tempo_baru');
+    var containerNominal = document.getElementById('field_nominal_baru');
+    var inputNominal = document.getElementById('input_nominal_baru');
+
+    if (data.jenis_keringanan === 'PENGURANGAN') {
+        containerNominal.style.display = 'block';
+        inputNominal.value = data.nominal_pengajuan ? parseInt(data.nominal_pengajuan) : '';
+        containerJatuhTempo.style.display = 'none';
+    } else {
+        containerJatuhTempo.style.display = 'block';
+        inputJatuhTempo.value = data.tanggal_jatuh_tempo_diminta || '';
+        containerNominal.style.display = 'none';
+    }
+
+    if (typeof $ !== 'undefined' && $('#modalSetujuiKeringanan').modal) {
+        $('#modalSetujuiKeringanan').modal('show');
+    }
+}
+
+function bukaModalTolakKeringanan(id, nama, tagihan) {
+    document.getElementById('tolak_dispensasi_id').value = id;
+    document.getElementById('tolak_mhs_nama').innerText = nama;
+    document.getElementById('tolak_tagihan_nama').innerText = tagihan;
+    document.getElementById('tolak_catatan_admin').value = '';
+
+    if (typeof $ !== 'undefined' && $('#modalTolakKeringanan').modal) {
+        $('#modalTolakKeringanan').modal('show');
+    }
+}
 </script>

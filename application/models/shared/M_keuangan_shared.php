@@ -302,15 +302,21 @@ class M_keuangan_shared extends CI_Model {
 
     public function buat_pengajuan_dispensasi($akun_id, $tagihan_id, $alasan, $tanggal_diminta)
     {
+        return $this->ajukan_dispensasi($akun_id, $tagihan_id, $alasan, $tanggal_diminta);
+    }
+
+    public function ajukan_dispensasi($akun_id, $tagihan_id, $alasan, $tanggal_diminta = null, $jenis_keringanan = 'PENUNDAAN', $nominal_pengajuan = null, $berkas = null)
+    {
         $tagihan = $this->db->where('id', (int)$tagihan_id)
                             ->where('akun_id', (int)$akun_id)
                             ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
                             ->get($this->table_tagihan)
                             ->row();
-        if (!$tagihan || $tanggal_diminta <= $tagihan->jatuh_tempo || $tanggal_diminta <= date('Y-m-d')) {
+        if (!$tagihan) {
             return false;
         }
 
+        // Cek apakah sudah ada permohonan yang masih MENUNGGU untuk tagihan ini
         $pending = $this->db->where('akun_id', (int)$akun_id)
                             ->where('tagihan_id', (int)$tagihan_id)
                             ->where('status', 'MENUNGGU')
@@ -319,34 +325,75 @@ class M_keuangan_shared extends CI_Model {
             return false;
         }
 
-        return $this->db->insert('dispensasi_tagihan', [
-            'akun_id' => (int)$akun_id,
-            'tagihan_id' => (int)$tagihan_id,
-            'alasan' => trim($alasan),
-            'tanggal_jatuh_tempo_diminta' => $tanggal_diminta,
-            'status' => 'MENUNGGU',
-        ]);
+        $data_insert = [
+            'akun_id'                     => (int)$akun_id,
+            'tagihan_id'                  => (int)$tagihan_id,
+            'jenis_keringanan'            => $jenis_keringanan ?: 'PENUNDAAN',
+            'nominal_pengajuan'           => $nominal_pengajuan ? (float)$nominal_pengajuan : null,
+            'alasan'                      => trim($alasan),
+            'berkas_pendukung'            => $berkas ?: null,
+            'tanggal_jatuh_tempo_diminta' => !empty($tanggal_diminta) ? $tanggal_diminta : null,
+            'status'                      => 'MENUNGGU',
+            'diajukan_at'                 => date('Y-m-d H:i:s'),
+        ];
+
+        return $this->db->insert('dispensasi_tagihan', $data_insert);
     }
 
     public function get_dispensasi_mahasiswa($akun_id)
     {
-        return $this->db->select('dispensasi_tagihan.*, tagihan.jenis_tagihan, tagihan.nominal, tagihan.jatuh_tempo as jatuh_tempo_sekarang')
+        return $this->db->select('dispensasi_tagihan.*, tagihan.jenis_tagihan, tagihan.nominal, tagihan.jatuh_tempo as jatuh_tempo_sekarang, tagihan.tahun_akademik, tagihan.semester as semester_tagihan, verifikator.nama_lengkap as nama_verifikator')
                         ->from('dispensasi_tagihan')
                         ->join('tagihan', 'tagihan.id = dispensasi_tagihan.tagihan_id', 'inner')
+                        ->join('akun as verifikator', 'verifikator.id = dispensasi_tagihan.diproses_oleh', 'left')
                         ->where('dispensasi_tagihan.akun_id', (int)$akun_id)
                         ->order_by('dispensasi_tagihan.diajukan_at', 'DESC')
                         ->get()
                         ->result();
     }
 
-    public function get_daftar_dispensasi($status = null)
+    public function get_daftar_dispensasi($status = null, $fakultas = null, $prodi = null)
     {
-        $this->db->select('dispensasi_tagihan.*, akun.nim, akun.nama_lengkap, akun.fakultas, akun.prodi, tagihan.jenis_tagihan, tagihan.nominal, tagihan.jatuh_tempo as jatuh_tempo_sekarang');
+        $this->db->select('dispensasi_tagihan.*, 
+            dispensasi_tagihan.status as status_pengajuan,
+            dispensasi_tagihan.diajukan_at as tanggal_pengajuan,
+            dispensasi_tagihan.diproses_at as tanggal_disetujui,
+            akun.nim, 
+            akun.nama_lengkap, 
+            akun.nama_lengkap as nama_mahasiswa, 
+            akun.fakultas, 
+            akun.prodi, 
+            akun.prodi as program_studi, 
+            akun.semester as semester_mhs, 
+            tagihan.jenis_tagihan, 
+            tagihan.jenis_tagihan as nama_tagihan, 
+            tagihan.nominal, 
+            tagihan.nominal as nominal_asli, 
+            tagihan.jatuh_tempo as jatuh_tempo_sekarang, 
+            tagihan.jatuh_tempo as jatuh_tempo_asli, 
+            tagihan.tahun_akademik, 
+            tagihan.semester as semester_tagihan, 
+            verifikator.nama_lengkap as nama_verifikator,
+            verifikator.nama_lengkap as disetujui_oleh_nama');
         $this->db->from('dispensasi_tagihan');
         $this->db->join('akun', 'akun.id = dispensasi_tagihan.akun_id', 'inner');
         $this->db->join('tagihan', 'tagihan.id = dispensasi_tagihan.tagihan_id', 'inner');
+        $this->db->join('akun as verifikator', 'verifikator.id = dispensasi_tagihan.diproses_oleh', 'left');
+
         if ($status !== null) {
-            $this->db->where('dispensasi_tagihan.status', $status);
+            if ($status === 'PENDING' || $status === 'MENUNGGU') {
+                $this->db->where('dispensasi_tagihan.status', 'MENUNGGU');
+            } elseif ($status === 'SELESAI') {
+                $this->db->where_in('dispensasi_tagihan.status', ['DISETUJUI', 'DITOLAK']);
+            } else {
+                $this->db->where('dispensasi_tagihan.status', $status);
+            }
+        }
+        if ($fakultas !== null && $fakultas !== '') {
+            $this->db->where('akun.fakultas', $fakultas);
+        }
+        if ($prodi !== null && $prodi !== '') {
+            $this->db->where('akun.prodi', $prodi);
         }
         return $this->db->order_by('dispensasi_tagihan.diajukan_at', 'DESC')->get()->result();
     }
@@ -356,7 +403,7 @@ class M_keuangan_shared extends CI_Model {
         return $this->db->where('status', 'MENUNGGU')->count_all_results('dispensasi_tagihan');
     }
 
-    public function putuskan_dispensasi($id, $setujui, $admin_id, $catatan = null)
+    public function putuskan_dispensasi($id, $setujui, $admin_id, $catatan = null, $jatuh_tempo_baru = null, $nominal_baru = null)
     {
         $permohonan = $this->db->where('id', (int)$id)
                                ->where('status', 'MENUNGGU')
@@ -368,29 +415,33 @@ class M_keuangan_shared extends CI_Model {
 
         $this->db->trans_begin();
         if ($setujui) {
-            $this->db->where('id', (int)$permohonan->tagihan_id)
-                     ->where('akun_id', (int)$permohonan->akun_id)
-                     ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
-                     ->update($this->table_tagihan, [
-                         'jatuh_tempo' => $permohonan->tanggal_jatuh_tempo_diminta,
-                         'updated_at' => date('Y-m-d H:i:s'),
-                     ]);
-            if ($this->db->affected_rows() !== 1) {
-                $this->db->trans_rollback();
-                return false;
+            $update_tagihan = ['updated_at' => date('Y-m-d H:i:s')];
+            $tgl = !empty($jatuh_tempo_baru) ? $jatuh_tempo_baru : $permohonan->tanggal_jatuh_tempo_diminta;
+            if (!empty($tgl)) {
+                $update_tagihan['jatuh_tempo'] = $tgl;
+            }
+            if (!empty($nominal_baru) && (float)$nominal_baru > 0) {
+                $update_tagihan['nominal'] = (float)$nominal_baru;
+            }
+
+            if (count($update_tagihan) > 1) {
+                $this->db->where('id', (int)$permohonan->tagihan_id)
+                         ->where('akun_id', (int)$permohonan->akun_id)
+                         ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
+                         ->update($this->table_tagihan, $update_tagihan);
             }
         }
 
         $this->db->where('id', (int)$id)
                  ->where('status', 'MENUNGGU')
                  ->update('dispensasi_tagihan', [
-                     'status' => $setujui ? 'DISETUJUI' : 'DITOLAK',
+                     'status'        => $setujui ? 'DISETUJUI' : 'DITOLAK',
                      'diproses_oleh' => (int)$admin_id,
-                     'diproses_at' => date('Y-m-d H:i:s'),
+                     'diproses_at'   => date('Y-m-d H:i:s'),
                      'catatan_admin' => $catatan,
                  ]);
 
-        if (!$this->db->trans_status() || $this->db->affected_rows() !== 1) {
+        if (!$this->db->trans_status()) {
             $this->db->trans_rollback();
             return false;
         }
