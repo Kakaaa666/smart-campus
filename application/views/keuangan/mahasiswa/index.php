@@ -453,6 +453,38 @@
                     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
                 }
 
+                /* ── Button Stepper Progres di Kolom Progres ── */
+                .btn-stepper-action {
+                    background: #eff6ff;
+                    color: #0284c7;
+                    border: 1.5px solid #bae6fd;
+                    border-radius: 8px;
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    padding: 6px 13px;
+                    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    white-space: nowrap;
+                    line-height: 1.25;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+                }
+                .btn-stepper-action:hover {
+                    background: #0284c7;
+                    color: #ffffff !important;
+                    border-color: #0284c7;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28);
+                }
+                .btn-stepper-action:active {
+                    transform: translateY(0);
+                }
+                .btn-stepper-action i {
+                    font-size: 13px;
+                }
+
                 /* ── Toast ── */
                 #realtimeToast {
                     position: fixed;
@@ -925,20 +957,21 @@
                                 <table class="table table-hover table-keuangan">
                                     <thead>
                                         <tr>
-                                            <th style="width: 50px;">No</th>
-                                            <th>Jenis Kewajiban / Tagihan</th>
-                                            <th>Tahun Akademik</th>
-                                            <th>Semester</th>
-                                            <th>Nominal</th>
-                                            <th>Jatuh Tempo</th>
-                                            <th>Status</th>
-                                            <th style="width: 170px;" class="text-center">Aksi Pembayaran</th>
+                                            <th style="width: 45px;" class="text-center">No</th>
+                                            <th style="min-width: 200px;">Jenis Kewajiban / Tagihan</th>
+                                            <th style="white-space: nowrap;">Tahun Akademik</th>
+                                            <th style="white-space: nowrap;" class="text-center">Semester</th>
+                                            <th style="white-space: nowrap; min-width: 130px;">Nominal</th>
+                                            <th style="white-space: nowrap; min-width: 135px;">Jatuh Tempo</th>
+                                            <th class="text-center" style="white-space: nowrap; width: 135px;">Status</th>
+                                            <th class="text-center" style="white-space: nowrap; width: 145px;">Progres</th>
+                                            <th class="text-center" style="white-space: nowrap; width: 165px;">Aksi Pembayaran</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (empty($daftar_tagihan)): ?>
                                             <tr>
-                                                <td colspan="8" class="text-center py-4 text-muted">
+                                                <td colspan="9" class="text-center py-4 text-muted">
                                                     <i class="bi bi-check-circle text-success mr-2" style="font-size: 24px;"></i>
                                                     <p class="mb-0 mt-2 font-weight-bold">Tidak ada tagihan tertagih untuk akun Anda saat ini.</p>
                                                 </td>
@@ -977,33 +1010,39 @@
                                                     <td>
                                                         <strong style="color: #1e293b; font-size: 14px;"><?= htmlspecialchars($item->jenis_tagihan) ?></strong>
                                                         <?php if (stripos($item->jenis_tagihan, 'SPP') !== false): ?>
-                                                            <span class="badge badge-info ml-1" style="font-size: 10.5px;">Syarat KRS</span>
+                                                             <span class="badge badge-info ml-1" style="font-size: 10.5px;">Syarat KRS</span>
                                                         <?php endif; ?>
                                                         <?php if (stripos($item->jenis_tagihan, 'Tugas Akhir') !== false): ?>
                                                             <span class="badge badge-warning text-dark ml-1" style="font-size: 10.5px;">Semester Akhir</span>
                                                         <?php endif; ?>
                                                     </td>
-                                                    <td><?= htmlspecialchars($item->tahun_akademik) ?></td>
-                                                    <td>
+                                                    <td style="white-space: nowrap;"><?= htmlspecialchars($item->tahun_akademik) ?></td>
+                                                    <td class="text-center" style="white-space: nowrap;">
                                                         <span class="badge badge-light px-2 py-1" style="border: 1px solid #e2e8f0; font-size: 12px;">
                                                             <?= htmlspecialchars($item->semester) ?>
                                                         </span>
                                                     </td>
-                                                    <td>
-                                                        <strong style="color: #1565c0; font-size: 14.5px;">
+                                                    <td style="white-space: nowrap;">
+                                                        <strong style="color: #1565c0; font-size: 14.5px; font-weight: 700; white-space: nowrap;">
                                                             Rp <?= number_format($item->nominal, 0, ',', '.') ?>
                                                         </strong>
                                                     </td>
-                                                    <td>
-                                                        <i class="bi bi-calendar3 mr-1 text-muted"></i>
-                                                        <?= date('d M Y', strtotime($item->jatuh_tempo)) ?>
+                                                    <td style="white-space: nowrap;">
+                                                        <div style="display: inline-flex; align-items: center; gap: 7px; color: #475569; font-size: 13px; font-weight: 500; white-space: nowrap;">
+                                                            <i class="bi bi-calendar3 text-muted"></i>
+                                                            <span><?= date('d M Y', strtotime($item->jatuh_tempo)) ?></span>
+                                                        </div>
                                                     </td>
-                                                    <td>
+                                                    <td class="text-center">
                                                         <span class="badge-status <?= $badge_cls ?>">
                                                             <i class="bi <?= $icon_cls ?>"></i> <?= $label_st ?>
                                                         </span>
+                                                    </td>
+                                                    <td class="text-center">
                                                         <?php $latest_payment = $latest_payment_by_tagihan[(int)$item->id] ?? null; ?>
-                                                        <button type="button" class="btn btn-link btn-sm d-block p-0 mt-1 btn-lihat-progres"
+                                                        <button type="button" 
+                                                                class="btn-stepper-action btn-lihat-progres"
+                                                                title="Lihat alur &amp; stepper progres verifikasi pembayaran"
                                                                 data-jenis="<?= htmlspecialchars($item->jenis_tagihan, ENT_QUOTES, 'UTF-8') ?>"
                                                                 data-status="<?= htmlspecialchars($item->status, ENT_QUOTES, 'UTF-8') ?>"
                                                                 data-tagihan-dibuat="<?= !empty($item->created_at) ? date('d M Y, H:i', strtotime($item->created_at)) . ' WIB' : '-' ?>"
@@ -1011,7 +1050,8 @@
                                                                 data-diverifikasi="<?= $latest_payment && !empty($latest_payment->diverifikasi_at) ? date('d M Y, H:i', strtotime($latest_payment->diverifikasi_at)) . ' WIB' : '' ?>"
                                                                 data-admin="<?= htmlspecialchars($latest_payment->nama_verifikator ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                                                 data-alasan="<?= htmlspecialchars($latest_payment->alasan_penolakan ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                                            <i class="bi bi-diagram-3 mr-1"></i>Lihat Progres
+                                                            <i class="bi bi-diagram-3"></i>
+                                                            <span>Lihat Progres</span>
                                                         </button>
                                                     </td>
                                                     <td class="text-center">
@@ -1076,15 +1116,15 @@
                                 <table class="table table-hover table-keuangan">
                                     <thead>
                                         <tr>
-                                            <th style="width: 40px;">No</th>
-                                            <th>Tanggal &amp; Jam Pembayaran</th>
-                                            <th>Kewajiban / Tagihan</th>
-                                            <th>Metode Bayar</th>
-                                            <th>Nominal</th>
-                                            <th>Rekening Pengirim</th>
-                                            <th>Bukti</th>
-                                            <th>Status</th>
-                                            <th style="width: 160px;" class="text-center">Aksi / Koreksi</th>
+                                            <th style="width: 45px;" class="text-center">No</th>
+                                            <th style="min-width: 155px;">Tanggal Pembayaran</th>
+                                            <th style="min-width: 170px;">Kewajiban / Tagihan</th>
+                                            <th style="min-width: 160px;">Metode Bayar</th>
+                                            <th style="min-width: 130px;">Nominal</th>
+                                            <th style="min-width: 180px;">Rekening / Pengirim</th>
+                                            <th class="text-center" style="width: 110px;">Bukti</th>
+                                            <th class="text-center" style="width: 135px;">Status</th>
+                                            <th class="text-center" style="width: 140px;">Aksi / Koreksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1098,74 +1138,98 @@
                                         <?php else: ?>
                                             <?php $no = 1; foreach ($riwayat_pembayaran as $r): ?>
                                                 <?php 
-                                                    $r_badge = 'badge-pending';
-                                                    $r_icon  = 'bi-hourglass-split';
-                                                    if ($r->status === 'LUNAS') {
-                                                        $r_badge = 'badge-lunas';
-                                                        $r_icon  = 'bi-check-circle-fill';
-                                                    } elseif ($r->status === 'DITOLAK') {
-                                                        $r_badge = 'badge-ditolak';
-                                                        $r_icon  = 'bi-x-circle-fill';
-                                                    }
+                                                    $is_dispensasi = (stripos($r->metode_pembayaran, 'Dispensasi') !== false || stripos($r->metode_pembayaran, 'Pembebasan') !== false || $r->bukti_pembayaran === 'DISPENSASI_DISETUJUI');
                                                 ?>
                                                 <tr>
-                                                    <td class="font-weight-bold text-center"><?= $no++ ?></td>
+                                                    <td class="font-weight-bold text-center" style="color: #94a3b8;"><?= $no++ ?></td>
                                                     <td>
-                                                        <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;"><?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?></div>
-                                                        <div style="font-size: 11.5px; color: #64748b; margin-top: 3px; line-height: 1.4;">
-                                                            <span>Jam bayar: <?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : 'Belum dicatat' ?></span><br>
-                                                            <span>Dikirim: <?= date('H:i', strtotime($r->created_at)) ?> WIB</span>
+                                                        <div style="font-weight: 700; color: #0f172a; font-size: 13px;">
+                                                            <?= date('d M Y', strtotime($r->tanggal_pembayaran)) ?>
+                                                        </div>
+                                                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                                                            <i class="bi bi-clock text-muted mr-1"></i><?= !empty($r->jam_pembayaran) ? date('H:i', strtotime($r->jam_pembayaran)) . ' WIB' : date('H:i', strtotime($r->created_at)) . ' WIB' ?>
                                                         </div>
                                                     </td>
                                                     <td>
                                                         <div style="font-weight: 700; color: #1e293b; font-size: 13.5px;"><?= htmlspecialchars($r->jenis_tagihan) ?></div>
-                                                        <span class="badge badge-light mt-1" style="border: 1px solid #e2e8f0; font-size: 11px; color: #475569;">
-                                                            <?= htmlspecialchars($r->semester) ?> <?= htmlspecialchars($r->tahun_akademik) ?>
-                                                        </span>
+                                                        <div style="margin-top: 3px;">
+                                                            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px;">
+                                                                <?= htmlspecialchars($r->semester) ?> <?= htmlspecialchars($r->tahun_akademik) ?>
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <span class="badge badge-light px-2 py-1" style="border: 1px solid #cbd5e1; font-size: 11.5px;">
-                                                            <?= htmlspecialchars($r->metode_pembayaran) ?>
-                                                        </span>
+                                                        <?php if ($is_dispensasi): ?>
+                                                            <span class="badge" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-weight: 600; padding: 6px 12px; border-radius: 20px; font-size: 12px;">
+                                                                <i class="bi bi-gift mr-1"></i> Pembebasan Biaya
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; font-weight: 600; padding: 6px 12px; border-radius: 20px; font-size: 12px;">
+                                                                <i class="bi bi-bank mr-1 text-primary"></i> <?= htmlspecialchars($r->metode_pembayaran) ?>
+                                                            </span>
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td>
-                                                        <strong style="color: #1565c0; font-size: 14px;">
+                                                        <strong style="color: #0f172a; font-size: 13.5px; font-weight: 700;">
                                                             Rp <?= number_format($r->nominal_pembayaran, 0, ',', '.') ?>
                                                         </strong>
                                                     </td>
                                                     <td>
-                                                        <?php if (!empty($r->nomor_rekening) || !empty($r->nama_rekening)): ?>
-                                                            <small class="d-block text-muted" style="font-size: 11px;">No. Rekening</small>
-                                                            <code style="font-size: 12px;"><?= htmlspecialchars($r->nomor_rekening ?: '-') ?></code><br>
-                                                            <small class="d-block text-muted mt-1" style="font-size: 11px;">Nama Pemilik</small>
-                                                            <small style="color: #334155; font-weight: 600;"><?= htmlspecialchars($r->nama_rekening ?: '-') ?></small>
+                                                        <?php if ($is_dispensasi): ?>
+                                                            <div style="font-weight: 600; color: #047857; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                <i class="bi bi-shield-check text-success"></i> SK Dispensasi Resmi
+                                                            </div>
+                                                            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                                                                Dispensasi Kampus
+                                                            </div>
+                                                        <?php elseif (!empty($r->nomor_rekening) && $r->nomor_rekening !== '-'): ?>
+                                                            <div style="font-weight: 600; color: #1e293b; font-size: 12.5px; font-family: monospace; letter-spacing: 0.3px;">
+                                                                <i class="bi bi-hash text-muted mr-1"></i><?= htmlspecialchars($r->nomor_rekening) ?>
+                                                            </div>
+                                                            <?php if (!empty($r->nama_rekening) && $r->nama_rekening !== '-'): ?>
+                                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                                                                    <i class="bi bi-person mr-1 text-muted"></i><?= htmlspecialchars($r->nama_rekening) ?>
+                                                                </div>
+                                                            <?php endif; ?>
                                                         <?php else: ?>
-                                                            <span class="text-muted">-</span>
+                                                            <span style="font-size: 12px; color: #94a3b8; font-style: italic;">Transfer Mahasiswa</span>
                                                         <?php endif; ?>
                                                     </td>
-                                                    <td>
-                                                        <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn-bukti-action" title="Lihat berkas bukti transfer">
-                                                            <i class="bi bi-file-earmark-image"></i>
-                                                            <span>Bukti</span>
-                                                        </a>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge-status <?= $r_badge ?>">
-                                                            <i class="bi <?= $r_icon ?>"></i> <?= $r->status ?>
-                                                        </span>
-                                                        <?php if ($r->status === 'DITOLAK' && !empty($r->alasan_penolakan)): ?>
-                                                            <div class="mt-1">
-                                                                <small class="text-danger font-weight-bold d-block" style="font-size: 11.5px; line-height: 1.35;">
-                                                                    <i class="bi bi-info-circle mr-1"></i> <?= htmlspecialchars($r->alasan_penolakan) ?>
-                                                                </small>
-                                                            </div>
+                                                    <td class="text-center">
+                                                        <?php if ($is_dispensasi): ?>
+                                                            <span class="badge" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-size: 11.5px; padding: 5px 10px; border-radius: 8px; font-weight: 600;">
+                                                                <i class="bi bi-file-earmark-check text-success mr-1"></i> SK Disetujui
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <a href="<?= base_url('keuangan/lihat_bukti/' . $r->id) ?>" target="_blank" class="btn-bukti-action" title="Lihat berkas bukti transfer">
+                                                                <i class="bi bi-file-earmark-image"></i>
+                                                                <span>Bukti</span>
+                                                            </a>
                                                         <?php endif; ?>
-                                                        <?php if ($r->status === 'LUNAS' && !empty($r->nama_verifikator)): ?>
-                                                            <div class="mt-1">
-                                                                <small class="text-muted d-block" style="font-size: 11px;">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <?php if ($r->status === 'LUNAS'): ?>
+                                                            <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 700; padding: 5px 12px; border-radius: 20px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                <i class="bi bi-check-circle-fill"></i> Lunas
+                                                            </span>
+                                                            <?php if (!empty($r->nama_verifikator)): ?>
+                                                                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
                                                                     Oleh: <?= htmlspecialchars($r->nama_verifikator) ?>
-                                                                </small>
-                                                            </div>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        <?php elseif ($r->status === 'DITOLAK'): ?>
+                                                            <span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 5px 12px; border-radius: 20px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                <i class="bi bi-x-circle-fill"></i> Ditolak
+                                                            </span>
+                                                            <?php if (!empty($r->alasan_penolakan)): ?>
+                                                                <div style="font-size: 11px; color: #dc2626; margin-top: 4px; line-height: 1.3;">
+                                                                    <?= htmlspecialchars($r->alasan_penolakan) ?>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        <?php else: ?>
+                                                            <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 700; padding: 5px 12px; border-radius: 20px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                <i class="bi bi-hourglass-split"></i> Menunggu
+                                                            </span>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td class="text-center">
@@ -1207,8 +1271,8 @@
                                                                 <i class="bi bi-arrow-repeat mr-1"></i> Kirim Ulang
                                                             </button>
                                                         <?php else: ?>
-                                                            <span class="text-success font-weight-bold" style="font-size: 12.5px;">
-                                                                <i class="bi bi-check-all"></i> Terverifikasi
+                                                            <span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                                                <i class="bi bi-check2-all" style="font-size: 13px;"></i> Terverifikasi
                                                             </span>
                                                         <?php endif; ?>
                                                     </td>

@@ -415,21 +415,65 @@ class M_keuangan_shared extends CI_Model {
 
         $this->db->trans_begin();
         if ($setujui) {
+            $tagihan = $this->db->where('id', (int)$permohonan->tagihan_id)
+                                ->where('akun_id', (int)$permohonan->akun_id)
+                                ->get($this->table_tagihan)
+                                ->row();
+
+            $jenis = strtoupper(trim((string)$permohonan->jenis_keringanan));
             $update_tagihan = ['updated_at' => date('Y-m-d H:i:s')];
-            $tgl = !empty($jatuh_tempo_baru) ? $jatuh_tempo_baru : $permohonan->tanggal_jatuh_tempo_diminta;
-            if (!empty($tgl)) {
-                $update_tagihan['jatuh_tempo'] = $tgl;
-            }
-            if (!empty($nominal_baru) && (float)$nominal_baru > 0) {
-                $update_tagihan['nominal'] = (float)$nominal_baru;
+
+            // Cek apakah jenis keringanan adalah pembebasan biaya (BEBAS_SPP) atau nominal baru diset menjadi 0
+            $is_pembebasan = ($jenis === 'BEBAS_SPP' || ($nominal_baru !== null && (string)$nominal_baru !== '' && (float)$nominal_baru == 0 && $jenis !== 'PENUNDAAN'));
+
+            if ($is_pembebasan) {
+                // 1. Tagihan langsung otomatis divalidasi menjadi LUNAS
+                $update_tagihan['status'] = 'LUNAS';
+
+                // 2. Buat record di tabel pembayaran dengan status LUNAS
+                $this->db->insert($this->table_pembayaran, [
+                    'tagihan_id'         => (int)$permohonan->tagihan_id,
+                    'akun_id'            => (int)$permohonan->akun_id,
+                    'metode_pembayaran'  => 'Pembebasan Biaya (Dispensasi)',
+                    'tanggal_pembayaran' => date('Y-m-d'),
+                    'jam_pembayaran'     => date('H:i:s'),
+                    'nominal_pembayaran' => $tagihan ? (float)$tagihan->nominal : 0.0,
+                    'nomor_referensi'    => 'DISP-' . date('Ymd') . '-' . (int)$id,
+                    'nomor_rekening'     => '-',
+                    'nama_rekening'      => 'Dispensasi Pembebasan Kampus',
+                    'bukti_pembayaran'   => !empty($permohonan->berkas_pendukung) ? $permohonan->berkas_pendukung : 'DISPENSASI_DISETUJUI',
+                    'status'             => 'LUNAS',
+                    'alasan_penolakan'   => null,
+                    'diverifikasi_oleh'  => (int)$admin_id,
+                    'diverifikasi_at'    => date('Y-m-d H:i:s'),
+                    'created_at'         => date('Y-m-d H:i:s'),
+                    'updated_at'         => date('Y-m-d H:i:s')
+                ]);
+            } else {
+                // Cek penyesuaian nominal tagihan (POTONGAN / PENGURANGAN / ANGSURAN)
+                $nominal_final = null;
+                if ($nominal_baru !== null && (string)$nominal_baru !== '' && is_numeric($nominal_baru) && (float)$nominal_baru > 0) {
+                    $nominal_final = (float)$nominal_baru;
+                } elseif (!empty($permohonan->nominal_pengajuan) && (float)$permohonan->nominal_pengajuan > 0) {
+                    $nominal_final = (float)$permohonan->nominal_pengajuan;
+                }
+
+                if ($nominal_final !== null && in_array($jenis, ['POTONGAN', 'PENGURANGAN', 'ANGSURAN'])) {
+                    // Nominal tagihan langsung berubah sesuai pengajuan / keputusan persetujuan
+                    $update_tagihan['nominal'] = $nominal_final;
+                }
+
+                // Cek penyesuaian jatuh tempo (PENUNDAAN / ANGSURAN)
+                $tgl = !empty($jatuh_tempo_baru) ? $jatuh_tempo_baru : $permohonan->tanggal_jatuh_tempo_diminta;
+                if (!empty($tgl)) {
+                    $update_tagihan['jatuh_tempo'] = $tgl;
+                }
             }
 
-            if (count($update_tagihan) > 1) {
-                $this->db->where('id', (int)$permohonan->tagihan_id)
-                         ->where('akun_id', (int)$permohonan->akun_id)
-                         ->where_in('status', ['BELUM_BAYAR', 'DITOLAK'])
-                         ->update($this->table_tagihan, $update_tagihan);
-            }
+            // Update tagihan di database
+            $this->db->where('id', (int)$permohonan->tagihan_id)
+                     ->where('akun_id', (int)$permohonan->akun_id)
+                     ->update($this->table_tagihan, $update_tagihan);
         }
 
         $this->db->where('id', (int)$id)
@@ -447,7 +491,116 @@ class M_keuangan_shared extends CI_Model {
         }
 
         $this->db->trans_commit();
+        $this->sinkronkan_dispensasi_disetujui($permohonan->akun_id);
         return true;
+    }
+
+    /**
+     * Memastikan semua permohonan keringanan yang telah DISETUJUI
+     * langsung tersinkronisasi ke status dan nominal tagihan mahasiswa.
+     */
+    public function sinkronkan_dispensasi_disetujui($akun_id = null)
+    {
+        $this->db->select('dispensasi_tagihan.*')
+                 ->from('dispensasi_tagihan')
+                 ->where('dispensasi_tagihan.status', 'DISETUJUI');
+
+        if (!empty($akun_id)) {
+            $this->db->where('dispensasi_tagihan.akun_id', (int)$akun_id);
+        }
+
+        $list = $this->db->get()->result();
+        if (empty($list)) {
+            return;
+        }
+
+        foreach ($list as $kr) {
+            $tagihan = $this->db->where('id', (int)$kr->tagihan_id)
+                                ->where('akun_id', (int)$kr->akun_id)
+                                ->get($this->table_tagihan)
+                                ->row();
+            if (!$tagihan) {
+                continue;
+            }
+
+            $jenis = strtoupper(trim((string)$kr->jenis_keringanan));
+            $is_pembebasan = ($jenis === 'BEBAS_SPP' || ($kr->nominal_pengajuan !== null && (string)$kr->nominal_pengajuan !== '' && (float)$kr->nominal_pengajuan == 0 && $jenis !== 'PENUNDAAN'));
+
+            if ($is_pembebasan) {
+                // 1. Tagihan harus berstatus LUNAS
+                if ($tagihan->status !== 'LUNAS') {
+                    $this->db->where('id', (int)$tagihan->id)
+                             ->update($this->table_tagihan, [
+                                 'status'     => 'LUNAS',
+                                 'updated_at' => date('Y-m-d H:i:s')
+                             ]);
+                }
+
+                // 2. Pastikan tercatat di tabel pembayaran dengan status LUNAS tanpa duplikat
+                $existing_pembayaran = $this->db->where('tagihan_id', (int)$tagihan->id)
+                                                ->where('akun_id', (int)$kr->akun_id)
+                                                ->order_by('id', 'DESC')
+                                                ->get($this->table_pembayaran)
+                                                ->row();
+
+                $waktu_proses = !empty($kr->diproses_at) ? $kr->diproses_at : (!empty($kr->diajukan_at) ? $kr->diajukan_at : date('Y-m-d H:i:s'));
+
+                if ($existing_pembayaran) {
+                    $this->db->where('id', (int)$existing_pembayaran->id)
+                             ->update($this->table_pembayaran, [
+                                 'status'            => 'LUNAS',
+                                 'metode_pembayaran' => 'Pembebasan Biaya (Dispensasi)',
+                                 'nominal_pembayaran'=> (float)$tagihan->nominal,
+                                 'diverifikasi_oleh' => (int)$kr->diproses_oleh,
+                                 'diverifikasi_at'   => $waktu_proses,
+                                 'updated_at'        => date('Y-m-d H:i:s')
+                             ]);
+
+                    // Hapus baris duplikat lain untuk tagihan ini jika ada
+                    $this->db->where('tagihan_id', (int)$tagihan->id)
+                             ->where('akun_id', (int)$kr->akun_id)
+                             ->where('id !=', (int)$existing_pembayaran->id)
+                             ->delete($this->table_pembayaran);
+                } else {
+                    $this->db->insert($this->table_pembayaran, [
+                        'tagihan_id'         => (int)$tagihan->id,
+                        'akun_id'            => (int)$kr->akun_id,
+                        'metode_pembayaran'  => 'Pembebasan Biaya (Dispensasi)',
+                        'tanggal_pembayaran' => date('Y-m-d', strtotime($waktu_proses)),
+                        'jam_pembayaran'     => date('H:i:s', strtotime($waktu_proses)),
+                        'nominal_pembayaran' => (float)$tagihan->nominal,
+                        'nomor_referensi'    => 'DISP-' . date('Ymd', strtotime($kr->diajukan_at)) . '-' . (int)$kr->id,
+                        'nomor_rekening'     => '-',
+                        'nama_rekening'      => 'Dispensasi Pembebasan Kampus',
+                        'bukti_pembayaran'   => !empty($kr->berkas_pendukung) ? $kr->berkas_pendukung : 'DISPENSASI_DISETUJUI',
+                        'status'             => 'LUNAS',
+                        'alasan_penolakan'   => null,
+                        'diverifikasi_oleh'  => (int)$kr->diproses_oleh,
+                        'diverifikasi_at'    => $waktu_proses,
+                        'created_at'         => $waktu_proses,
+                        'updated_at'         => date('Y-m-d H:i:s')
+                    ]);
+                }
+            } else {
+                $update_tagihan = [];
+                // Keringanan nominal
+                if (in_array($jenis, ['POTONGAN', 'PENGURANGAN', 'ANGSURAN']) && !empty($kr->nominal_pengajuan) && (float)$kr->nominal_pengajuan > 0) {
+                    if ((float)$tagihan->nominal !== (float)$kr->nominal_pengajuan) {
+                        $update_tagihan['nominal'] = (float)$kr->nominal_pengajuan;
+                    }
+                }
+                // Penundaan jatuh tempo
+                if (!empty($kr->tanggal_jatuh_tempo_diminta) && $tagihan->jatuh_tempo !== $kr->tanggal_jatuh_tempo_diminta) {
+                    $update_tagihan['jatuh_tempo'] = $kr->tanggal_jatuh_tempo_diminta;
+                }
+
+                if (!empty($update_tagihan)) {
+                    $update_tagihan['updated_at'] = date('Y-m-d H:i:s');
+                    $this->db->where('id', (int)$tagihan->id)
+                             ->update($this->table_tagihan, $update_tagihan);
+                }
+            }
+        }
     }
 
     public function kirim_progres_penagihan($tahun_akademik, $semester, $admin_id)

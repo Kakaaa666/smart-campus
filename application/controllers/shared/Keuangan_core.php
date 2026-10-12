@@ -126,6 +126,7 @@ class Keuangan_core extends CI_Controller {
         // Semua mahasiswa memakai susunan tagihan yang sama, termasuk Tugas Akhir.
         // Method ini idempoten: tagihan yang sudah ada tidak akan diduplikasi.
         $this->M_keuangan->sinkronkan_tagihan_ta_semua_mahasiswa();
+        $this->M_keuangan->sinkronkan_dispensasi_disetujui($akun_id);
         if ($user_role === 3) {
             $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
         }
@@ -317,6 +318,8 @@ class Keuangan_core extends CI_Controller {
     {
         $user_role = $this->current_role();
         if (!$this->require_roles([1, 2])) return;
+
+        $this->M_keuangan->sinkronkan_dispensasi_disetujui();
 
         $current_user_id = (int)$this->session->userdata('id');
 
@@ -555,7 +558,7 @@ class Keuangan_core extends CI_Controller {
 
         if ($res) {
             $msg = $setujui
-                ? 'Pengajuan keringanan pembayaran berhasil DISETUJUI.'
+                ? 'Pengajuan keringanan pembayaran berhasil DISETUJUI. Sistem telah otomatis memperbarui status dan nominal tagihan mahasiswa.'
                 : 'Pengajuan keringanan pembayaran berhasil DITOLAK.';
             if ($this->input->is_ajax_request()) {
                 $this->output->set_content_type('application/json')->set_output(json_encode(['success' => true, 'message' => $msg]));
@@ -1001,8 +1004,15 @@ class Keuangan_core extends CI_Controller {
         }
 
         $this->db->trans_begin();
+
+        // 1. Bersihkan pembayaran duplikat jika ada untuk tagihan & akun yang sama
+        $this->db->where('tagihan_id', (int)$pembayaran->tagihan_id)
+                 ->where('akun_id', (int)$pembayaran->akun_id)
+                 ->where('id !=', $pembayaran_id)
+                 ->delete('pembayaran');
+
+        // 2. Ubah status pembayaran ini kembali menjadi PENDING
         $this->db->where('id', $pembayaran_id)
-                 ->where('status', 'LUNAS')
                  ->update('pembayaran', [
                      'status'            => 'PENDING',
                      'alasan_penolakan'  => null,
@@ -1011,20 +1021,21 @@ class Keuangan_core extends CI_Controller {
                      'updated_at'        => date('Y-m-d H:i:s')
                  ]);
 
-        if ($this->db->affected_rows() !== 1) {
-            $this->db->trans_rollback();
-            $this->session->set_flashdata('error', 'Pembayaran sudah berubah status atau dibatalkan oleh admin lain.');
-            redirect('keuangan/verifikasi');
-            return;
-        }
-
-        $pembayaran_lunas_lain = $this->db->where('tagihan_id', (int)$pembayaran->tagihan_id)
-                                          ->where('status', 'LUNAS')
-                                          ->count_all_results('pembayaran') > 0;
+        // 3. Update status tagihan terkait menjadi PENDING (Menunggu Verifikasi)
         $this->M_keuangan->update_status_tagihan(
             $pembayaran->tagihan_id,
-            $pembayaran_lunas_lain ? 'LUNAS' : 'PENDING'
+            'PENDING'
         );
+
+        // 4. Jika pembayaran ini berasal dari dispensasi / pembebasan, kembalikan dispensasi ke MENUNGGU
+        $this->db->where('tagihan_id', (int)$pembayaran->tagihan_id)
+                 ->where('akun_id', (int)$pembayaran->akun_id)
+                 ->where('status', 'DISETUJUI')
+                 ->update('dispensasi_tagihan', [
+                     'status'        => 'MENUNGGU',
+                     'diproses_oleh' => null,
+                     'diproses_at'   => null
+                 ]);
 
         if ($this->db->trans_status() === false) {
             $this->db->trans_rollback();
@@ -1034,7 +1045,7 @@ class Keuangan_core extends CI_Controller {
         }
 
         $this->db->trans_commit();
-        $this->session->set_flashdata('success', 'Verifikasi dibatalkan. Pembayaran kembali menunggu tindakan admin.');
+        $this->session->set_flashdata('success', 'Verifikasi pembayaran berhasil dibatalkan. Status di sistem dan mahasiswa telah sinkron kembali menjadi Menunggu Verifikasi.');
         redirect('keuangan/verifikasi');
     }
 

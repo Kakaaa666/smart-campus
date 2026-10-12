@@ -579,9 +579,13 @@
                                                                 <span class="badge" style="background:#e0f2fe; color:#0284c7; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
                                                                     <i class="fa fa-calendar mr-1"></i> Penundaan Tempo
                                                                 </span>
-                                                            <?php elseif ($kr->jenis_keringanan === 'PENGURANGAN'): ?>
+                                                            <?php elseif (in_array($kr->jenis_keringanan, ['PENGURANGAN', 'POTONGAN'])): ?>
                                                                 <span class="badge" style="background:#fef3c7; color:#d97706; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
                                                                     <i class="fa fa-percent mr-1"></i> Keringanan Nominal
+                                                                </span>
+                                                            <?php elseif ($kr->jenis_keringanan === 'BEBAS_SPP'): ?>
+                                                                <span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
+                                                                    <i class="fa fa-gift mr-1"></i> Pembebasan Biaya (100%)
                                                                 </span>
                                                             <?php else: ?>
                                                                 <span class="badge" style="background:#f3e8ff; color:#7e22ce; font-weight:700; padding:6px 10px; border-radius:6px; font-size:11.5px;">
@@ -597,12 +601,16 @@
                                                                         <?= !empty($kr->tanggal_jatuh_tempo_diminta) ? date('d M Y', strtotime($kr->tanggal_jatuh_tempo_diminta)) : '-' ?>
                                                                     </strong>
                                                                 </div>
-                                                            <?php elseif ($kr->jenis_keringanan === 'PENGURANGAN'): ?>
+                                                            <?php elseif (in_array($kr->jenis_keringanan, ['PENGURANGAN', 'POTONGAN'])): ?>
                                                                 <div style="font-size: 12px; color: #334155;">
                                                                     Nominal Diminta:<br>
                                                                     <strong style="color: #d97706; font-size: 13px;">
                                                                         Rp <?= number_format($kr->nominal_pengajuan, 0, ',', '.') ?>
                                                                     </strong>
+                                                                </div>
+                                                            <?php elseif ($kr->jenis_keringanan === 'BEBAS_SPP'): ?>
+                                                                <div style="font-size: 12px; color: #15803d; font-weight:700;">
+                                                                    <i class="fa fa-check-circle mr-1"></i> Pembebasan 100% (Lunas Otomatis)
                                                                 </div>
                                                             <?php else: ?>
                                                                 <div style="font-size: 12px; color: #334155;">Skema Angsuran Bertahap</div>
@@ -626,10 +634,18 @@
                                                         </td>
                                                         <td class="text-center">
                                                             <div class="d-flex justify-content-center" style="gap: 6px;">
-                                                                <button type="button" class="btn-approve-action" onclick="bukaModalSetujuiKeringanan(<?= htmlspecialchars(json_encode($kr), ENT_QUOTES, 'UTF-8') ?>)" title="Setujui Keringanan">
+                                                                <button type="button" class="btn-approve-action btn-keringanan-setujui" 
+                                                                        data-keringanan='<?= htmlspecialchars(json_encode($kr), ENT_QUOTES, 'UTF-8') ?>'
+                                                                        onclick="bukaModalSetujuiKeringanan(<?= htmlspecialchars(json_encode($kr), ENT_QUOTES, 'UTF-8') ?>)" 
+                                                                        title="Setujui Keringanan">
                                                                     <i class="fa fa-check"></i> Setujui
                                                                 </button>
-                                                                <button type="button" class="btn-reject-action" onclick="bukaModalTolakKeringanan('<?= $kr->id ?>', '<?= htmlspecialchars(addslashes($kr->nama_mahasiswa), ENT_QUOTES, 'UTF-8') ?>', '<?= htmlspecialchars(addslashes($kr->nama_tagihan), ENT_QUOTES, 'UTF-8') ?>')" title="Tolak Keringanan">
+                                                                <button type="button" class="btn-reject-action btn-keringanan-tolak" 
+                                                                        data-id="<?= (int)$kr->id ?>" 
+                                                                        data-nama="<?= htmlspecialchars($kr->nama_mahasiswa, ENT_QUOTES, 'UTF-8') ?>" 
+                                                                        data-tagihan="<?= htmlspecialchars($kr->nama_tagihan, ENT_QUOTES, 'UTF-8') ?>" 
+                                                                        onclick="bukaModalTolakKeringanan('<?= (int)$kr->id ?>', '<?= htmlspecialchars(addslashes($kr->nama_mahasiswa), ENT_QUOTES, 'UTF-8') ?>', '<?= htmlspecialchars(addslashes($kr->nama_tagihan), ENT_QUOTES, 'UTF-8') ?>')" 
+                                                                        title="Tolak Keringanan">
                                                                     <i class="fa fa-times"></i> Tolak
                                                                 </button>
                                                             </div>
@@ -695,11 +711,15 @@
                                                         </td>
                                                         <td>
                                                             <?php if ($ks->status_pengajuan === 'DISETUJUI'): ?>
-                                                                <?php if ($ks->jenis_keringanan === 'PENUNDAAN' && !empty($ks->tanggal_jatuh_tempo_diminta)): ?>
+                                                                <?php if ($ks->jenis_keringanan === 'BEBAS_SPP'): ?>
+                                                                    <div style="font-size: 12.5px; color: #059669; font-weight: 700;">
+                                                                        <i class="fa fa-check-circle mr-1"></i> Tagihan Bebas (Lunas Otomatis)
+                                                                    </div>
+                                                                <?php elseif ($ks->jenis_keringanan === 'PENUNDAAN' && !empty($ks->tanggal_jatuh_tempo_diminta)): ?>
                                                                     <div style="font-size: 12.5px; color: #059669; font-weight: 600;">
                                                                         Jatuh Tempo Baru: <?= date('d M Y', strtotime($ks->tanggal_jatuh_tempo_diminta)) ?>
                                                                     </div>
-                                                                <?php elseif ($ks->jenis_keringanan === 'PENGURANGAN' && !empty($ks->nominal_pengajuan)): ?>
+                                                                <?php elseif (in_array($ks->jenis_keringanan, ['PENGURANGAN', 'POTONGAN']) && !empty($ks->nominal_pengajuan)): ?>
                                                                     <div style="font-size: 12.5px; color: #059669; font-weight: 600;">
                                                                         Nominal Baru: Rp <?= number_format($ks->nominal_pengajuan, 0, ',', '.') ?>
                                                                     </div>
@@ -862,16 +882,26 @@
                         </div>
                     </div>
 
+                    <!-- Info Pembebasan Biaya Penuh (Lunas Otomatis) -->
+                    <div id="field_bebas_spp_info" style="display:none; background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:14px 16px; margin-bottom:16px;">
+                        <div style="font-weight:700; font-size:13px; color:#065f46; display:flex; align-items:center;">
+                            <i class="fa fa-check-circle mr-2" style="font-size:18px; color:#10b981;"></i> Validasi Tagihan Otomatis LUNAS
+                        </div>
+                        <p style="margin:6px 0 0; font-size:12px; color:#047857; line-height:1.4;">
+                            Setelah Anda menyetujui permohonan ini, sistem akan <strong>langsung otomatis memvalidasi tagihan mahasiswa menjadi LUNAS</strong> dan mencatatkan bukti dispensasi resmi ke dalam riwayat pembayaran.
+                        </p>
+                    </div>
+
                     <div id="field_jatuh_tempo_baru" class="form-group mb-3">
                         <label style="font-weight:700; font-size:13px; color:#1e293b;">Tetapkan Tanggal Jatuh Tempo Baru</label>
                         <input type="date" name="jatuh_tempo_baru" id="input_jatuh_tempo_baru" class="form-control" style="border-radius:8px; height:40px;">
-                        <small class="form-text text-muted">Tanggal jatuh tempo tagihan akan diperpanjang sesuai tanggal ini.</small>
+                        <small class="form-text text-muted">Tanggal jatuh tempo tagihan akan langsung diperpanjang sesuai tanggal ini.</small>
                     </div>
 
                     <div id="field_nominal_baru" class="form-group mb-3" style="display:none;">
                         <label style="font-weight:700; font-size:13px; color:#1e293b;">Nominal Baru yang Disetujui (Rp)</label>
-                        <input type="number" name="nominal_baru" id="input_nominal_baru" class="form-control" style="border-radius:8px; height:40px;">
-                        <small class="form-text text-muted">Nominal tagihan mahasiswa akan disesuaikan menjadi nominal ini.</small>
+                        <input type="number" name="nominal_baru" id="input_nominal_baru" class="form-control" style="border-radius:8px; height:40px;" placeholder="Nominal yang disetujui">
+                        <small class="form-text text-muted">Jumlah tagihan mahasiswa di sistem akan langsung otomatis berubah sesuai nominal ini.</small>
                     </div>
 
                     <div class="form-group mb-0">
@@ -1129,51 +1159,128 @@ document.addEventListener('DOMContentLoaded', function() {
                     row.style.display = 'none';
                 }
             });
+        });
+    }
+
     // Auto Switch tab jika URL memiliki parameter ?tab=keringanan
     if (window.location.search.indexOf('tab=keringanan') > -1) {
         if (typeof $ !== 'undefined' && $('#tab-keringanan-nav').tab) {
             $('#tab-keringanan-nav').tab('show');
         }
     }
+
+    // Event Delegation tombol Setujui & Tolak Keringanan
+    document.addEventListener('click', function(e) {
+        var btnSetujui = e.target.closest('.btn-keringanan-setujui');
+        if (btnSetujui) {
+            var rawData = btnSetujui.getAttribute('data-keringanan');
+            if (rawData) {
+                try {
+                    var data = JSON.parse(rawData);
+                    window.bukaModalSetujuiKeringanan(data);
+                } catch (err) {
+                    console.error('Error parsing data keringanan:', err);
+                }
+            }
+            return;
+        }
+
+        var btnTolak = e.target.closest('.btn-keringanan-tolak');
+        if (btnTolak) {
+            var id = btnTolak.getAttribute('data-id');
+            var nama = btnTolak.getAttribute('data-nama');
+            var tagihan = btnTolak.getAttribute('data-tagihan');
+            window.bukaModalTolakKeringanan(id, nama, tagihan);
+            return;
+        }
+    });
 });
 
 // Modal Keringanan Handlers
-function bukaModalSetujuiKeringanan(data) {
+window.bukaModalSetujuiKeringanan = function(data) {
     if (!data) return;
-    document.getElementById('setujui_dispensasi_id').value = data.id;
-    document.getElementById('setujui_mhs_nama').innerText = data.nama_mahasiswa + ' (' + data.nim + ')';
-    document.getElementById('setujui_tagihan_nama').innerText = data.nama_tagihan;
-    document.getElementById('setujui_jenis_keringanan').innerText = data.jenis_keringanan;
-    document.getElementById('setujui_alasan_teks').innerText = data.alasan || '-';
+    var inputId = document.getElementById('setujui_dispensasi_id');
+    if (inputId) inputId.value = data.id || '';
+
+    var elMhs = document.getElementById('setujui_mhs_nama');
+    if (elMhs) elMhs.innerText = (data.nama_mahasiswa || '') + (data.nim ? ' (' + data.nim + ')' : '');
+
+    var elTagihan = document.getElementById('setujui_tagihan_nama');
+    if (elTagihan) {
+        var nomAsli = data.nominal_asli ? ' (Nominal Tagihan: Rp ' + parseInt(data.nominal_asli).toLocaleString('id-ID') + ')' : '';
+        elTagihan.innerText = (data.nama_tagihan || '-') + nomAsli;
+    }
+
+    var jenis = (data.jenis_keringanan || '').toUpperCase();
+    var labelJenis = data.jenis_keringanan || '-';
+    if (jenis === 'PENUNDAAN') labelJenis = 'Perpanjangan Jatuh Tempo';
+    else if (jenis === 'POTONGAN' || jenis === 'PENGURANGAN') labelJenis = 'Keringanan / Pengurangan Nominal';
+    else if (jenis === 'ANGSURAN') labelJenis = 'Pembayaran Bertahap / Cicilan';
+    else if (jenis === 'BEBAS_SPP') labelJenis = 'Pembebasan Biaya (100% Bebas Tagihan)';
+
+    var elJenis = document.getElementById('setujui_jenis_keringanan');
+    if (elJenis) elJenis.innerText = labelJenis;
+
+    var elAlasan = document.getElementById('setujui_alasan_teks');
+    if (elAlasan) elAlasan.innerText = data.alasan || '-';
 
     var containerJatuhTempo = document.getElementById('field_jatuh_tempo_baru');
     var inputJatuhTempo = document.getElementById('input_jatuh_tempo_baru');
     var containerNominal = document.getElementById('field_nominal_baru');
     var inputNominal = document.getElementById('input_nominal_baru');
+    var containerBebas = document.getElementById('field_bebas_spp_info');
 
-    if (data.jenis_keringanan === 'PENGURANGAN') {
-        containerNominal.style.display = 'block';
-        inputNominal.value = data.nominal_pengajuan ? parseInt(data.nominal_pengajuan) : '';
-        containerJatuhTempo.style.display = 'none';
+    // Reset visibility
+    if (containerJatuhTempo) containerJatuhTempo.style.display = 'none';
+    if (containerNominal) containerNominal.style.display = 'none';
+    if (containerBebas) containerBebas.style.display = 'none';
+
+    if (jenis === 'BEBAS_SPP') {
+        if (containerBebas) containerBebas.style.display = 'block';
+    } else if (jenis === 'PENGURANGAN' || jenis === 'POTONGAN') {
+        if (containerNominal) containerNominal.style.display = 'block';
+        if (inputNominal) {
+            inputNominal.value = data.nominal_pengajuan ? parseInt(data.nominal_pengajuan) : '';
+        }
+    } else if (jenis === 'PENUNDAAN') {
+        if (containerJatuhTempo) containerJatuhTempo.style.display = 'block';
+        if (inputJatuhTempo) {
+            inputJatuhTempo.value = data.tanggal_jatuh_tempo_diminta || '';
+        }
+    } else if (jenis === 'ANGSURAN') {
+        if (containerNominal) containerNominal.style.display = 'block';
+        if (inputNominal) {
+            inputNominal.value = data.nominal_pengajuan ? parseInt(data.nominal_pengajuan) : '';
+        }
+        if (containerJatuhTempo) containerJatuhTempo.style.display = 'block';
+        if (inputJatuhTempo) {
+            inputJatuhTempo.value = data.tanggal_jatuh_tempo_diminta || '';
+        }
     } else {
-        containerJatuhTempo.style.display = 'block';
-        inputJatuhTempo.value = data.tanggal_jatuh_tempo_diminta || '';
-        containerNominal.style.display = 'none';
+        if (containerJatuhTempo) containerJatuhTempo.style.display = 'block';
+        if (inputJatuhTempo) inputJatuhTempo.value = data.tanggal_jatuh_tempo_diminta || '';
     }
 
     if (typeof $ !== 'undefined' && $('#modalSetujuiKeringanan').modal) {
         $('#modalSetujuiKeringanan').modal('show');
     }
-}
+};
 
-function bukaModalTolakKeringanan(id, nama, tagihan) {
-    document.getElementById('tolak_dispensasi_id').value = id;
-    document.getElementById('tolak_mhs_nama').innerText = nama;
-    document.getElementById('tolak_tagihan_nama').innerText = tagihan;
-    document.getElementById('tolak_catatan_admin').value = '';
+window.bukaModalTolakKeringanan = function(id, nama, tagihan) {
+    var inputId = document.getElementById('tolak_dispensasi_id');
+    if (inputId) inputId.value = id || '';
+
+    var elMhs = document.getElementById('tolak_mhs_nama');
+    if (elMhs) elMhs.innerText = nama || '-';
+
+    var elTagihan = document.getElementById('tolak_tagihan_nama');
+    if (elTagihan) elTagihan.innerText = tagihan || '-';
+
+    var elCatatan = document.getElementById('tolak_catatan_admin');
+    if (elCatatan) elCatatan.value = '';
 
     if (typeof $ !== 'undefined' && $('#modalTolakKeringanan').modal) {
         $('#modalTolakKeringanan').modal('show');
     }
-}
+};
 </script>
