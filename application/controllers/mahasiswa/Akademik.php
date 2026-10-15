@@ -35,9 +35,9 @@ class Akademik extends MY_Role_Controller {
 
         // Jika diakses oleh Admin atau Dosen, tampilkan data mahasiswa (default Arthur atau mahasiswa pertama)
         if ($user_role !== 3) {
-            $mhs = $this->db->where('role', 3)->where('nim', '241221009')->get('akun')->row();
+            $mhs = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
             if (!$mhs) {
-                $mhs = $this->db->where('role', 3)->get('akun')->row();
+                $mhs = $this->db->get('akun_mahasiswa')->row();
             }
             if ($mhs) {
                 $akun_id = (int)$mhs->id;
@@ -83,7 +83,7 @@ class Akademik extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun')->row();
+                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
                 $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
             }
         }
@@ -130,7 +130,7 @@ class Akademik extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun')->row();
+                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
                 $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
             }
         }

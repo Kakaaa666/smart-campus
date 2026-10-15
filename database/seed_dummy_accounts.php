@@ -15,83 +15,142 @@ $connection->set_charset($config['char_set']);
 $connection->begin_transaction();
 
 try {
-    $column = $connection->query("SHOW COLUMNS FROM akun LIKE 'biro'");
-    if (!$column || $column->num_rows === 0) {
-        if (!$connection->query("ALTER TABLE akun ADD COLUMN biro VARCHAR(50) NOT NULL DEFAULT 'keuangan' AFTER role")) {
-            throw new RuntimeException($connection->error);
-        }
-    }
+    // Pastikan tabel akun_biro tersedia
+    $connection->query("CREATE TABLE IF NOT EXISTS `akun_biro` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `nim` VARCHAR(100) NOT NULL,
+        `nama_lengkap` VARCHAR(150) NOT NULL,
+        `email` VARCHAR(100) NOT NULL,
+        `password` VARCHAR(255) NOT NULL,
+        `role` TINYINT(2) NOT NULL DEFAULT 2,
+        `biro` VARCHAR(50) NOT NULL DEFAULT 'keuangan',
+        `fakultas` VARCHAR(100) NULL DEFAULT 'Rektorat',
+        `prodi` VARCHAR(100) NULL DEFAULT 'Administrasi Kampus',
+        `jenjang` VARCHAR(50) NULL DEFAULT NULL,
+        `telepon` VARCHAR(25) NULL DEFAULT NULL,
+        `alamat` TEXT NULL DEFAULT NULL,
+        `foto` VARCHAR(255) NULL DEFAULT 'avatar-4.png',
+        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `deleted_at` DATETIME NULL DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_akun_biro_nim` (`nim`),
+        KEY `idx_akun_biro_email` (`email`),
+        KEY `idx_akun_biro_role` (`role`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-    $accounts = [
-        ['superadmin@staff.campus.ac.id', 'Super Admin Smart Campus', 1, 'semua', 'Rektorat', 'Administrasi Kampus', null, null],
-        ['adminKeuangan@staff.campus.ac.id', 'Admin Keuangan', 2, 'keuangan', 'Fakultas Administrasi', 'Keuangan', null, null],
-        ['adminAkademik@staff.campus.ac.id', 'Admin Akademik', 2, 'akademik', 'Fakultas Administrasi', 'Akademik', null, null],
-        ['adminKemahasiswaan@staff.campus.ac.id', 'Admin Kemahasiswaan', 2, 'kemahasiswaan', 'Fakultas Administrasi', 'Kemahasiswaan', null, null],
-        ['adminPenjaminanMutu@staff.campus.ac.id', 'Admin Penjaminan Mutu', 2, 'penjaminan_mutu', 'Fakultas Administrasi', 'Penjaminan Mutu', null, null],
-        ['dosen@staff.campus.ac.id', 'Dosen Dummy', 4, 'dosen', 'Fakultas Teknologi Informasi', 'Informatika', null, null],
-        ['2001@mhs.campuss.ac.id', 'Muhammad Arkan Pratama', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2001, 1],
-        ['2002@mhs.campuss.ac.id', 'Salsabila Putri Ramadhani', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2002, 2],
-        ['2003@mhs.campuss.ac.id', 'Rizky Aditya Saputra', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2003, 3],
-        ['2004@mhs.campuss.ac.id', 'Nabila Ayu Lestari', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2004, 4],
-        ['2005@mhs.campuss.ac.id', 'Daffa Maulana Firmansyah', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2005, 5],
+    // Pastikan tabel akun_mahasiswa tersedia (TANPA ROLE & BIRO)
+    $connection->query("CREATE TABLE IF NOT EXISTS `akun_mahasiswa` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `nim` VARCHAR(100) NOT NULL,
+        `nama_lengkap` VARCHAR(150) NOT NULL,
+        `email` VARCHAR(100) NOT NULL,
+        `password` VARCHAR(255) NOT NULL,
+        `fakultas` VARCHAR(100) NULL DEFAULT 'Fakultas Teknologi Informasi',
+        `prodi` VARCHAR(100) NULL DEFAULT 'Teknik Informatika',
+        `jenjang` VARCHAR(50) NULL DEFAULT 'Strata 1',
+        `semester` INT(11) NOT NULL DEFAULT 1,
+        `status_akademik` ENUM('Aktif','Cuti','Non-Aktif','Lulus','Drop Out') NOT NULL DEFAULT 'Aktif',
+        `angkatan` VARCHAR(4) NULL DEFAULT NULL,
+        `jenis_kelamin` ENUM('L','P') NULL DEFAULT 'L',
+        `ipk` DECIMAL(3,2) NOT NULL DEFAULT 3.25,
+        `telepon` VARCHAR(25) NULL DEFAULT NULL,
+        `alamat` TEXT NULL DEFAULT NULL,
+        `foto` VARCHAR(255) NULL DEFAULT 'avatar-4.png',
+        `akses_ta` TINYINT(1) NOT NULL DEFAULT 0,
+        `ambil_semester_pendek` TINYINT(1) NOT NULL DEFAULT 0,
+        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `deleted_at` DATETIME NULL DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_akun_mhs_nim` (`nim`),
+        KEY `idx_akun_mhs_email` (`email`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // 1. Seed Akun Biro & Staf & Dosen
+    $biro_accounts = [
+        ['superadmin@staff.campus.ac.id', 'Super Admin Smart Campus', 1, 'semua', 'Rektorat', 'Administrasi Kampus', 'superadmin'],
+        ['adminKeuangan@staff.campus.ac.id', 'Admin Keuangan', 2, 'keuangan', 'Fakultas Administrasi', 'Keuangan', 'adminKeuangan'],
+        ['adminAkademik@staff.campus.ac.id', 'Admin Akademik', 2, 'akademik', 'Fakultas Administrasi', 'Akademik', 'adminAkademik'],
+        ['adminKemahasiswaan@staff.campus.ac.id', 'Admin Kemahasiswaan', 2, 'kemahasiswaan', 'Fakultas Administrasi', 'Kemahasiswaan', 'adminKemahasiswaan'],
+        ['adminPenjaminanMutu@staff.campus.ac.id', 'Admin Penjaminan Mutu', 2, 'penjaminan_mutu', 'Fakultas Administrasi', 'Penjaminan Mutu', 'adminPenjaminanMutu'],
+        ['sugeng@staff.campus.ac.id', 'Sugeng Widodo, S.Kom., M.Kom', 4, 'dosen', 'Fakultas Teknologi Informasi', 'Teknik Informatika', 'sugeng'],
+        ['dosen@staff.campus.ac.id', 'Dr. Ir. Hendra Setiawan, M.T.', 4, 'dosen', 'Fakultas Teknologi Informasi', 'Teknik Informatika', 'dosen'],
+        ['maya.sartika@smartcampus.ac.id', 'Dr. Maya Sartika, S.E., M.Ak.', 4, 'dosen', 'Fakultas Ekonomi & Bisnis', 'Akuntansi', 'maya'],
     ];
 
-    $find = $connection->prepare('SELECT id FROM akun WHERE email = ? OR nim = ? ORDER BY (email = ?) DESC, id ASC');
-    $update = $connection->prepare('UPDATE akun SET nim = ?, nama_lengkap = ?, email = ?, password = ?, role = ?, biro = ?, fakultas = ?, prodi = ?, semester = ?, updated_at = NOW(), deleted_at = NULL WHERE id = ?');
-    $insert = $connection->prepare('INSERT INTO akun (nim, nama_lengkap, email, password, role, biro, fakultas, prodi, semester, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL)');
-    $verify = $connection->prepare('SELECT password FROM akun WHERE email = ?');
-    if (!$find || !$update || !$insert || !$verify) {
-        throw new RuntimeException($connection->error);
-    }
+    $find_biro = $connection->prepare('SELECT id FROM akun_biro WHERE email = ? OR nim = ? ORDER BY (email = ?) DESC, id ASC');
+    $update_biro = $connection->prepare('UPDATE akun_biro SET nim = ?, nama_lengkap = ?, email = ?, password = ?, role = ?, biro = ?, fakultas = ?, prodi = ?, updated_at = NOW(), deleted_at = NULL WHERE id = ?');
+    $insert_biro = $connection->prepare('INSERT INTO akun_biro (nim, nama_lengkap, email, password, role, biro, fakultas, prodi, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL)');
 
-    foreach ($accounts as $account) {
-        list($email, $name, $role, $bureau, $faculty, $program, $student_number, $semester) = $account;
-        $nim = $student_number === null ? $email : (string)$student_number;
-        $plain_password = $role === 1 ? 'superadmin123' : ($role === 2 ? 'admin123' : ($role === 4 ? 'dosen123' : 'user123'));
-        $password = password_hash($plain_password, PASSWORD_DEFAULT);
-        $find->bind_param('sss', $email, $nim, $email);
-        if (!$find->execute()) {
-            throw new RuntimeException($find->error);
-        }
-        $find->bind_result($account_id);
+    foreach ($biro_accounts as $acc) {
+        list($email, $name, $role, $bureau, $faculty, $program, $nim) = $acc;
+        $plain = $role === 1 ? 'superadmin123' : ($role === 2 ? 'admin123' : 'dosen123');
+        $pass = password_hash($plain, PASSWORD_DEFAULT);
+
+        $find_biro->bind_param('sss', $email, $nim, $email);
+        $find_biro->execute();
+        $find_biro->bind_result($aid);
         $matches = [];
-        while ($find->fetch()) {
-            $matches[] = $account_id;
+        while ($find_biro->fetch()) {
+            $matches[] = $aid;
         }
-        $find->free_result();
-
-        if (count($matches) > 1) {
-            throw new RuntimeException('Email/NIM target cocok ke lebih dari satu akun: ' . $email . '. Tidak ada data yang disimpan.');
-        }
+        $find_biro->free_result();
 
         if ($matches) {
-            $account_id = $matches[0];
-            $update->bind_param('ssssisssii', $nim, $name, $email, $password, $role, $bureau, $faculty, $program, $semester, $account_id);
-            if (!$update->execute()) {
-                throw new RuntimeException($update->error);
-            }
-            echo 'Diperbarui: ' . $email . PHP_EOL;
+            $aid = $matches[0];
+            $update_biro->bind_param('ssssisssi', $nim, $name, $email, $pass, $role, $bureau, $faculty, $program, $aid);
+            $update_biro->execute();
+            echo 'Diperbarui (Biro): ' . $email . PHP_EOL;
         } else {
-            $insert->bind_param('ssssisssi', $nim, $name, $email, $password, $role, $bureau, $faculty, $program, $semester);
-            if (!$insert->execute()) {
-                throw new RuntimeException($insert->error);
-            }
-            echo 'Dibuat: ' . $email . PHP_EOL;
+            $insert_biro->bind_param('ssssisss', $nim, $name, $email, $pass, $role, $bureau, $faculty, $program);
+            $insert_biro->execute();
+            echo 'Dibuat (Biro): ' . $email . PHP_EOL;
         }
+    }
 
-        $verify->bind_param('s', $email);
-        if (!$verify->execute()) {
-            throw new RuntimeException($verify->error);
+    // 2. Seed Akun Mahasiswa (TANPA ROLE & BIRO)
+    $mhs_accounts = [
+        ['2001@mhs.campuss.ac.id', 'Muhammad Arkan Pratama', 'Fakultas Teknologi Informasi', 'Teknik Informatika', '2001', 1],
+        ['2002@mhs.campuss.ac.id', 'Salsabila Putri Ramadhani', 'Fakultas Teknologi Informasi', 'Teknik Informatika', '2002', 2],
+        ['2003@mhs.campuss.ac.id', 'Rizky Aditya Saputra', 'Fakultas Teknologi Informasi', 'Sistem Informasi', '2003', 3],
+        ['2004@mhs.campuss.ac.id', 'Nabila Ayu Lestari', 'Fakultas Teknologi Informasi', 'Teknik Informatika', '2004', 4],
+        ['2005@mhs.campuss.ac.id', 'Daffa Maulana Firmansyah', 'Fakultas Teknologi Informasi', 'Teknik Informatika', '2005', 5],
+        ['241221009@mhs.campuss.ac.id', 'MOCHAMMAD ARTHUR ARIESTA TAMPI', 'Fakultas Teknologi Informasi', 'Sistem Informasi', '241221009', 4],
+    ];
+
+    $find_mhs = $connection->prepare('SELECT id FROM akun_mahasiswa WHERE email = ? OR nim = ? ORDER BY (email = ?) DESC, id ASC');
+    $update_mhs = $connection->prepare('UPDATE akun_mahasiswa SET nim = ?, nama_lengkap = ?, email = ?, password = ?, fakultas = ?, prodi = ?, semester = ?, updated_at = NOW(), deleted_at = NULL WHERE id = ?');
+    $insert_mhs = $connection->prepare('INSERT INTO akun_mahasiswa (nim, nama_lengkap, email, password, fakultas, prodi, semester, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL)');
+
+    foreach ($mhs_accounts as $acc) {
+        list($email, $name, $faculty, $program, $nim, $semester) = $acc;
+        $plain = 'user123';
+        $pass = password_hash($plain, PASSWORD_DEFAULT);
+
+        $find_mhs->bind_param('sss', $email, $nim, $email);
+        $find_mhs->execute();
+        $find_mhs->bind_result($aid);
+        $matches = [];
+        while ($find_mhs->fetch()) {
+            $matches[] = $aid;
         }
-        $verify->bind_result($stored_password);
-        if (!$verify->fetch() || !password_verify($plain_password, $stored_password)) {
-            throw new RuntimeException('Password tersimpan tidak cocok: ' . $email);
+        $find_mhs->free_result();
+
+        if ($matches) {
+            $aid = $matches[0];
+            $update_mhs->bind_param('ssssssii', $nim, $name, $email, $pass, $faculty, $program, $semester, $aid);
+            $update_mhs->execute();
+            echo 'Diperbarui (Mahasiswa): ' . $email . PHP_EOL;
+        } else {
+            $insert_mhs->bind_param('ssssssi', $nim, $name, $email, $pass, $faculty, $program, $semester);
+            $insert_mhs->execute();
+            echo 'Dibuat (Mahasiswa): ' . $email . PHP_EOL;
         }
-        $verify->free_result();
     }
 
     $connection->commit();
-    echo 'Seeder akun dummy selesai.' . PHP_EOL;
+    echo 'Seeder akun_biro dan akun_mahasiswa selesai.' . PHP_EOL;
 } catch (Throwable $error) {
     $connection->rollback();
     fwrite(STDERR, 'Seeder dibatalkan: ' . $error->getMessage() . PHP_EOL);

@@ -37,7 +37,7 @@ class Akademik extends MY_Role_Controller
         $all_students = $this->M_akademik->get_all_students_for_khs();
         $student_id = (int)$this->input->get('student_id');
         if (!$student_id) {
-            $arthur = $this->db->where('nim', '241221009')->get('akun')->row();
+            $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
             $student_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : 0);
         }
 

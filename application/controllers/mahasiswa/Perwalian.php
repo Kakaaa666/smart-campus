@@ -32,13 +32,12 @@ class Perwalian extends CI_Controller {
         if ($user_role === 1) {
             $target_akun_id = (int)$this->input->get('mahasiswa_id');
             $target_mhs = $target_akun_id > 0
-                ? $this->db->where('id', $target_akun_id)->where('role', 3)->where('deleted_at IS NULL', null, false)->get('akun')->row()
+                ? $this->db->where('id', $target_akun_id)->where('deleted_at IS NULL', null, false)->get('akun_mahasiswa')->row()
                 : null;
             if (!$target_mhs) {
-                $target_mhs = $this->db->where('role', 3)
-                                       ->where('deleted_at IS NULL', null, false)
+                $target_mhs = $this->db->where('deleted_at IS NULL', null, false)
                                        ->order_by('id', 'ASC')
-                                       ->get('akun')->row();
+                                       ->get('akun_mahasiswa')->row();
             }
             if (!$target_mhs) {
                 show_error('Belum ada data mahasiswa aktif untuk pratinjau perwalian.', 404);
@@ -184,7 +183,7 @@ class Perwalian extends CI_Controller {
 
         $success = $this->M_akademik->assign_advisor($akun_id, $dosen_id, $akun_id);
         if ($success) {
-            $dosen = $this->db->get_where('akun', ['id' => $dosen_id])->row();
+            $dosen = $this->db->get_where('akun_biro', ['id' => $dosen_id])->row();
             $nama_dosen = $dosen ? $dosen->nama_lengkap : 'Dosen Wali';
             $this->session->set_flashdata('success', 'Berhasil memilih ' . $nama_dosen . ' sebagai Dosen Wali Anda.');
         } else {

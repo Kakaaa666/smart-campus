@@ -236,10 +236,10 @@ class M_akademik extends CI_Model
     private function seed_comprehensive_offerings()
     {
         // Cari dosen aktif atau akun admin sebagai pengampu
-        $dosen = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->get('akun')->row();
+        $dosen = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->get('akun_biro')->row();
         $dosen_id = $dosen ? (int)$dosen->id : 0;
         if (!$dosen_id) {
-            $admin = $this->db->where_in('role', [1, 2])->where('deleted_at IS NULL', null, false)->get('akun')->row();
+            $admin = $this->db->where_in('role', [1, 2])->where('deleted_at IS NULL', null, false)->get('akun_biro')->row();
             $dosen_id = $admin ? (int)$admin->id : 1;
         }
 
@@ -514,9 +514,9 @@ class M_akademik extends CI_Model
      */
     public function get_offerings($prodi, $semester, $period)
     {
-        $offerings = $this->db->select('penawaran_matakuliah.*, akun.nama_lengkap AS nama_dosen')
+        $offerings = $this->db->select('penawaran_matakuliah.*, dosen.nama_lengkap AS nama_dosen')
                               ->from('penawaran_matakuliah')
-                              ->join('akun', 'akun.id = penawaran_matakuliah.dosen_id', 'left')
+                              ->join('akun_biro AS dosen', 'dosen.id = penawaran_matakuliah.dosen_id', 'left')
                               ->where('penawaran_matakuliah.tahun_akademik', $period['tahun_akademik'])
                               ->where('penawaran_matakuliah.aktif', 1)
                               ->order_by("FIELD(penawaran_matakuliah.semester_akademik, '{$period['semester_akademik']}')", 'DESC', false)
@@ -590,10 +590,10 @@ class M_akademik extends CI_Model
             return null;
         }
 
-        $krs->mata_kuliah = $this->db->select('penawaran_matakuliah.*, akun.nama_lengkap AS nama_dosen')
+        $krs->mata_kuliah = $this->db->select('penawaran_matakuliah.*, dosen.nama_lengkap AS nama_dosen')
                                      ->from('krs_detail')
                                      ->join('penawaran_matakuliah', 'penawaran_matakuliah.id = krs_detail.penawaran_id', 'inner')
-                                     ->join('akun', 'akun.id = penawaran_matakuliah.dosen_id', 'left')
+                                     ->join('akun_biro AS dosen', 'dosen.id = penawaran_matakuliah.dosen_id', 'left')
                                      ->where('krs_detail.krs_id', (int)$krs->id)
                                      ->order_by("FIELD(penawaran_matakuliah.hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')", '', false)
                                      ->order_by('penawaran_matakuliah.waktu_mulai', 'ASC')
@@ -617,41 +617,43 @@ class M_akademik extends CI_Model
     public function get_all_students_for_preview()
     {
         return $this->db->select('id, nim, nama_lengkap, prodi, fakultas, semester')
-                        ->where('role', 3)
                         ->where('deleted_at IS NULL', null, false)
                         ->order_by('prodi', 'ASC')
                         ->order_by('nama_lengkap', 'ASC')
-                        ->get('akun')
+                        ->get('akun_mahasiswa')
                         ->result();
     }
 
     public function get_account($akun_id)
     {
-        return $this->db->select('id, nim, nama_lengkap, fakultas, prodi, jenjang, semester, role')
+        $acc = $this->db->select('id, nim, nama_lengkap, fakultas, prodi, jenjang, semester')
                         ->where('id', (int)$akun_id)
-                        ->where('role', 3)
                         ->where('deleted_at IS NULL', null, false)
-                        ->get('akun')
+                        ->get('akun_mahasiswa')
                         ->row();
+        if ($acc) {
+            $acc->role = 3;
+        }
+        return $acc;
     }
 
     public function get_advisor_for_student($akun_id)
     {
-        return $this->db->select('akun.id, akun.nim, akun.nama_lengkap')
+        return $this->db->select('dosen.id, dosen.nim, dosen.nama_lengkap')
                         ->from('dosen_wali')
-                        ->join('akun', 'akun.id = dosen_wali.dosen_id', 'inner')
+                        ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'inner')
                         ->where('dosen_wali.mahasiswa_id', (int)$akun_id)
-                        ->where('akun.role', 4)
-                        ->where('akun.deleted_at IS NULL', null, false)
+                        ->where('dosen.role', 4)
+                        ->where('dosen.deleted_at IS NULL', null, false)
                         ->get()
                         ->row();
     }
 
     public function get_admin_offerings()
     {
-        return $this->db->select('penawaran_matakuliah.*, akun.nama_lengkap AS nama_dosen')
+        return $this->db->select('penawaran_matakuliah.*, dosen.nama_lengkap AS nama_dosen')
                         ->from('penawaran_matakuliah')
-                        ->join('akun', 'akun.id = penawaran_matakuliah.dosen_id', 'left')
+                        ->join('akun_biro AS dosen', 'dosen.id = penawaran_matakuliah.dosen_id', 'left')
                         ->order_by('penawaran_matakuliah.tahun_akademik', 'DESC')
                         ->order_by('penawaran_matakuliah.semester_akademik', 'ASC')
                         ->order_by('penawaran_matakuliah.prodi', 'ASC')
@@ -686,13 +688,12 @@ class M_akademik extends CI_Model
 
     public function get_students()
     {
-        return $this->db->select('akun.id, akun.nim, akun.nama_lengkap, akun.prodi, akun.semester, dosen_wali.dosen_id')
-                        ->from('akun')
-                        ->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun.id', 'left')
-                        ->where('akun.role', 3)
-                        ->where('akun.deleted_at IS NULL', null, false)
-                        ->order_by('akun.prodi', 'ASC')
-                        ->order_by('akun.nim', 'ASC')
+        return $this->db->select('mhs.id, mhs.nim, mhs.nama_lengkap, mhs.prodi, mhs.semester, dosen_wali.dosen_id')
+                        ->from('akun_mahasiswa AS mhs')
+                        ->join('dosen_wali', 'dosen_wali.mahasiswa_id = mhs.id', 'left')
+                        ->where('mhs.deleted_at IS NULL', null, false)
+                        ->order_by('mhs.prodi', 'ASC')
+                        ->order_by('mhs.nim', 'ASC')
                         ->get()
                         ->result();
     }
@@ -703,7 +704,7 @@ class M_akademik extends CI_Model
                         ->where('role', 4)
                         ->where('deleted_at IS NULL', null, false)
                         ->order_by('nama_lengkap', 'ASC')
-                        ->get('akun')
+                        ->get('akun_biro')
                         ->result();
     }
 
@@ -712,7 +713,7 @@ class M_akademik extends CI_Model
         $lecturer = $this->db->where('id', (int)$offering['dosen_id'])
                              ->where('role', 4)
                              ->where('deleted_at IS NULL', null, false)
-                             ->count_all_results('akun');
+                             ->count_all_results('akun_biro');
         $duplicate = $this->db->where('kode_mk', $offering['kode_mk'])
                               ->where('kelas', $offering['kelas'])
                               ->where('prodi', $offering['prodi'])
@@ -757,13 +758,12 @@ class M_akademik extends CI_Model
     public function assign_advisor($student_id, $lecturer_id, $admin_id)
     {
         $student = $this->db->where('id', (int)$student_id)
-                            ->where('role', 3)
                             ->where('deleted_at IS NULL', null, false)
-                            ->count_all_results('akun');
+                            ->count_all_results('akun_mahasiswa');
         $lecturer = $this->db->where('id', (int)$lecturer_id)
                              ->where('role', 4)
                              ->where('deleted_at IS NULL', null, false)
-                             ->count_all_results('akun');
+                             ->count_all_results('akun_biro');
         if ($student !== 1 || $lecturer !== 1) {
             return false;
         }
@@ -943,12 +943,12 @@ class M_akademik extends CI_Model
         ];
 
         foreach ($lecturers as $lec) {
-            $existing_lec = $this->db->where('nim', $lec['nim'])->or_where('email', $lec['email'])->get('akun')->row();
+            $existing_lec = $this->db->where('nim', $lec['nim'])->or_where('email', $lec['email'])->get('akun_biro')->row();
             if (!$existing_lec) {
-                $this->db->insert('akun', $lec);
+                $this->db->insert('akun_biro', $lec);
             } else {
                 // Pastikan role dan biro murni Dosen
-                $this->db->where('id', (int)$existing_lec->id)->update('akun', [
+                $this->db->where('id', (int)$existing_lec->id)->update('akun_biro', [
                     'role' => 4,
                     'biro' => 'dosen',
                     'nama_lengkap' => $lec['nama_lengkap'],
@@ -957,13 +957,13 @@ class M_akademik extends CI_Model
             }
         }
 
-        // Ambil ID dosen Pak Sugeng, Pak Hendra, dan Bu Maya
-        $dosen_sugeng = $this->db->where('role', 4)->group_start()->where('nim', 'sugeng')->or_like('nama_lengkap', 'Sugeng')->group_end()->get('akun')->row();
-        $dosen_hendra = $this->db->where('role', 4)->group_start()->where('nim', 'dosen')->or_like('nama_lengkap', 'Hendra')->group_end()->get('akun')->row();
-        $dosen_maya   = $this->db->where('role', 4)->group_start()->where('nim', 'maya')->or_like('nama_lengkap', 'Maya')->group_end()->get('akun')->row();
+        // Ambil ID dosen Pak Sugeng, Pak Hendra, dan Bu Maya dari akun_biro
+        $dosen_sugeng = $this->db->where('role', 4)->group_start()->where('nim', 'sugeng')->or_like('nama_lengkap', 'Sugeng')->group_end()->get('akun_biro')->row();
+        $dosen_hendra = $this->db->where('role', 4)->group_start()->where('nim', 'dosen')->or_like('nama_lengkap', 'Hendra')->group_end()->get('akun_biro')->row();
+        $dosen_maya   = $this->db->where('role', 4)->group_start()->where('nim', 'maya')->or_like('nama_lengkap', 'Maya')->group_end()->get('akun_biro')->row();
 
         // 1. Khusus Nabila (NIM 2004) memilih Pak Sugeng sebagai Dosen Wali
-        $mhs_nabila = $this->db->where('role', 3)->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun')->row();
+        $mhs_nabila = $this->db->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun_mahasiswa')->row();
         if ($mhs_nabila && $dosen_sugeng) {
             $check_dw = $this->db->where('mahasiswa_id', (int)$mhs_nabila->id)->get('dosen_wali')->row();
             if ($check_dw) {
@@ -998,7 +998,7 @@ class M_akademik extends CI_Model
         }
 
         // 1b. Khusus Arthur Tampi (241221009) memilih Pak Sugeng sebagai Dosen Wali
-        $mhs_arthur = $this->db->where('role', 3)->group_start()->where('nim', '241221009')->or_like('nama_lengkap', 'Arthur')->group_end()->get('akun')->row();
+        $mhs_arthur = $this->db->group_start()->where('nim', '241221009')->or_like('nama_lengkap', 'Arthur')->group_end()->get('akun_mahasiswa')->row();
         if ($mhs_arthur && $dosen_sugeng) {
             $check_dw_art = $this->db->where('mahasiswa_id', (int)$mhs_arthur->id)->get('dosen_wali')->row();
             if ($check_dw_art) {
@@ -1014,9 +1014,8 @@ class M_akademik extends CI_Model
 
         // 2. Hubungkan mahasiswa lain ke Pak Hendra atau Bu Maya
         $other_students = $this->db->select('id, nim')
-                                   ->where('role', 3)
                                    ->where('deleted_at IS NULL', null, false)
-                                   ->get('akun')->result();
+                                   ->get('akun_mahasiswa')->result();
 
         foreach ($other_students as $stu) {
             if ($mhs_nabila && (int)$stu->id === (int)$mhs_nabila->id) {
@@ -1330,11 +1329,11 @@ class M_akademik extends CI_Model
     public function ensure_default_khs_data()
     {
         // 1. Sinkronisasi Arthur Tampi (241221009) berada di Semester 4 (karena KHS Semester 3 dari foto resmi sudah selesai)
-        $this->db->where('nim', '241221009')->update('akun', ['semester' => 4]);
+        $this->db->where('nim', '241221009')->update('akun_mahasiswa', ['semester' => 4]);
 
         // 2. Bersihkan SELURUH nilai KHS pada semester yang sedang berjalan (semester_mhs >= semester_aktif mahasiswa)
         // Mahasiswa di Semester S baru saja KRS-an / sedang kuliah, sehingga KHS HANYA ADA untuk Semester 1 s/d (S - 1)
-        $all_students_db = $this->db->where('role', 3)->get('akun')->result();
+        $all_students_db = $this->db->get('akun_mahasiswa')->result();
         foreach ($all_students_db as $st_db) {
             $cur_active_smt = max(1, (int)($st_db->semester ?: 1));
             // Hapus rekaman nilai KHS untuk semester berjalan ke atas
@@ -1343,7 +1342,7 @@ class M_akademik extends CI_Model
 
         // 3. Arthur Tampi (241221009) - D3 Sistem Informasi (Aktif Semester 4)
         // Nilai KHS selesai: Semester 1, 2, dan 3 (Total SKS ditempuh = 63 SKS)
-        $arthur = $this->db->where('role', 3)->group_start()->where('nim', '241221009')->or_like('nama_lengkap', 'Arthur')->group_end()->get('akun')->row();
+        $arthur = $this->db->group_start()->where('nim', '241221009')->or_like('nama_lengkap', 'Arthur')->group_end()->get('akun_mahasiswa')->row();
         if ($arthur) {
             $count = $this->db->where('akun_id', (int)$arthur->id)->count_all_results('khs_nilai');
             if ($count < 20) {
@@ -1408,7 +1407,7 @@ class M_akademik extends CI_Model
         // 4. Nabila Ayu Lestari (NIM 2004) - Semester 4 Aktif Teknik Informatika
         // Karena Nabila ada di Semester 4 (baru saja KRS-an), KHS yang ada HANYA Semester 1, 2, dan 3!
         // Total SKS ditempuh dari Semester 1 s/d 3 = 63 SKS. Semester 4 belum ada nilai di KHS.
-        $nabila = $this->db->where('role', 3)->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun')->row();
+        $nabila = $this->db->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun_mahasiswa')->row();
         if ($nabila) {
             $cnt = $this->db->where('akun_id', (int)$nabila->id)->count_all_results('khs_nilai');
             if ($cnt < 22) {
@@ -1473,7 +1472,7 @@ class M_akademik extends CI_Model
 
         // 5. Salsabila Putri Ramadhani (NIM 2002) - Semester 2 Aktif Teknik Informatika
         // Karena Salsabila di Semester 2 (baru saja KRS-an), KHS yang ada HANYA Semester 1 (Paket 20 SKS)
-        $salsabila = $this->db->where('role', 3)->group_start()->where('nim', '2002')->or_like('nama_lengkap', 'Salsabila')->group_end()->get('akun')->row();
+        $salsabila = $this->db->group_start()->where('nim', '2002')->or_like('nama_lengkap', 'Salsabila')->group_end()->get('akun_mahasiswa')->row();
         if ($salsabila) {
             $cnt = $this->db->where('akun_id', (int)$salsabila->id)->count_all_results('khs_nilai');
             if ($cnt < 8) {
@@ -1503,7 +1502,7 @@ class M_akademik extends CI_Model
         // 6. Rizky Aditya Saputra (NIM 2003) - Semester 3 Aktif Sistem Informasi
         // Karena Rizky di Semester 3 (baru saja KRS-an), KHS yang ada HANYA Semester 1 dan 2!
         // Total SKS ditempuh dari Semester 1 s/d 2 = 41 SKS. Semester 3 belum ada nilai di KHS.
-        $rizky = $this->db->where('role', 3)->group_start()->where('nim', '2003')->or_like('nama_lengkap', 'Rizky')->group_end()->get('akun')->row();
+        $rizky = $this->db->group_start()->where('nim', '2003')->or_like('nama_lengkap', 'Rizky')->group_end()->get('akun_mahasiswa')->row();
         if ($rizky) {
             $cnt = $this->db->where('akun_id', (int)$rizky->id)->count_all_results('khs_nilai');
             if ($cnt < 13) {
@@ -1549,7 +1548,7 @@ class M_akademik extends CI_Model
         // 7. Daffa Maulana Firmansyah (NIM 2005) - Semester 5 Aktif Teknik Informatika
         // Karena Daffa di Semester 5 (baru saja KRS-an), KHS yang ada HANYA Semester 1, 2, 3, dan 4!
         // Total SKS ditempuh dari Semester 1 s/d 4 = 85 SKS. Semester 5 belum ada nilai di KHS.
-        $daffa = $this->db->where('role', 3)->group_start()->where('nim', '2005')->or_like('nama_lengkap', 'Daffa')->group_end()->get('akun')->row();
+        $daffa = $this->db->group_start()->where('nim', '2005')->or_like('nama_lengkap', 'Daffa')->group_end()->get('akun_mahasiswa')->row();
         if ($daffa) {
             $cnt = $this->db->where('akun_id', (int)$daffa->id)->count_all_results('khs_nilai');
             if ($cnt < 28) {
@@ -1630,9 +1629,9 @@ class M_akademik extends CI_Model
             }
         }
 
-        // 8. Loop Otomatis untuk Seluruh Mahasiswa Aktif Lainnya (Role = 3)
+        // 8. Loop Otomatis untuk Seluruh Mahasiswa Aktif Lainnya
         // Hanya membuat KHS untuk semester yang telah selesai ditempuh (s < semester_aktif)
-        $all_students = $this->db->where('role', 3)->get('akun')->result();
+        $all_students = $this->db->get('akun_mahasiswa')->result();
         foreach ($all_students as $st) {
             $student_id = (int)$st->id;
             $active_smt = max(1, (int)($st->semester ?: 1));
@@ -1853,10 +1852,9 @@ class M_akademik extends CI_Model
     public function get_all_students_for_khs()
     {
         return $this->db->select('id, nim, nama_lengkap, prodi, jenjang, semester')
-                        ->where('role', 3)
                         ->where('deleted_at IS NULL', null, false)
                         ->order_by('nama_lengkap', 'ASC')
-                        ->get('akun')
+                        ->get('akun_mahasiswa')
                         ->result();
     }
 }

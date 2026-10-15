@@ -5,7 +5,8 @@ class M_keuangan_shared extends CI_Model {
 
     protected $table_tagihan    = 'tagihan';
     protected $table_pembayaran = 'pembayaran';
-    protected $table_akun       = 'akun';
+    protected $table_akun       = 'akun_mahasiswa';
+    protected $table_akun_biro  = 'akun_biro';
     protected $settings_file;
 
     public function __construct()
@@ -140,7 +141,6 @@ class M_keuangan_shared extends CI_Model {
     {
         $akun = $this->db->select('semester, prodi')
                          ->where('id', (int)$akun_id)
-                         ->where('role', 3)
                          ->where('deleted_at IS NULL', null, false)
                          ->get($this->table_akun)
                          ->row();
@@ -208,7 +208,6 @@ class M_keuangan_shared extends CI_Model {
     {
         list($tahun_akademik, $semester) = $this->periode_akademik_aktif();
         $mahasiswa = $this->db->select('id, semester, prodi')
-                              ->where('role', 3)
                               ->where('deleted_at IS NULL', null, false)
                               ->get($this->table_akun)
                               ->result();
@@ -231,7 +230,7 @@ class M_keuangan_shared extends CI_Model {
     {
         $this->db->select('validasi_tagihan_akhir.*, akun.nim, akun.nama_lengkap, akun.email, akun.fakultas, akun.prodi, akun.semester as semester_mahasiswa')
                  ->from('validasi_tagihan_akhir')
-                 ->join('akun', 'akun.id = validasi_tagihan_akhir.akun_id', 'inner')
+                 ->join($this->table_akun . ' as akun', 'akun.id = validasi_tagihan_akhir.akun_id', 'inner')
                  ->where('akun.deleted_at IS NULL', null, false);
         if ($status !== null) {
             $this->db->where('validasi_tagihan_akhir.status', $status);
@@ -268,7 +267,6 @@ class M_keuangan_shared extends CI_Model {
 
         $akun = $this->db->select('id, semester, prodi')
                          ->where('id', (int)$permohonan->akun_id)
-                         ->where('role', 3)
                          ->where('deleted_at IS NULL', null, false)
                          ->get($this->table_akun)
                          ->row();
@@ -376,9 +374,9 @@ class M_keuangan_shared extends CI_Model {
             verifikator.nama_lengkap as nama_verifikator,
             verifikator.nama_lengkap as disetujui_oleh_nama');
         $this->db->from('dispensasi_tagihan');
-        $this->db->join('akun', 'akun.id = dispensasi_tagihan.akun_id', 'inner');
+        $this->db->join($this->table_akun . ' as akun', 'akun.id = dispensasi_tagihan.akun_id', 'inner');
         $this->db->join('tagihan', 'tagihan.id = dispensasi_tagihan.tagihan_id', 'inner');
-        $this->db->join('akun as verifikator', 'verifikator.id = dispensasi_tagihan.diproses_oleh', 'left');
+        $this->db->join($this->table_akun_biro . ' as verifikator', 'verifikator.id = dispensasi_tagihan.diproses_oleh', 'left');
 
         if ($status !== null) {
             if ($status === 'PENDING' || $status === 'MENUNGGU') {
@@ -645,7 +643,7 @@ class M_keuangan_shared extends CI_Model {
     {
         return $this->db->select('laporan_progres_penagihan.*, akun.nama_lengkap as nama_pengirim')
                         ->from('laporan_progres_penagihan')
-                        ->join('akun', 'akun.id = laporan_progres_penagihan.dikirim_oleh', 'left')
+                        ->join($this->table_akun_biro . ' as akun', 'akun.id = laporan_progres_penagihan.dikirim_oleh', 'left')
                         ->order_by('laporan_progres_penagihan.dikirim_at', 'DESC')
                         ->limit((int)$limit)
                         ->get()
@@ -958,7 +956,6 @@ class M_keuangan_shared extends CI_Model {
         $this->db->join($this->table_tagihan . ' as tagihan_ta',
                         "akun.id = tagihan_ta.akun_id AND tagihan_ta.jenis_tagihan = 'Bimbingan & Ujian Tugas Akhir'",
                         'left');
-        $this->db->where('akun.role', 3);
         $this->db->where('akun.deleted_at IS NULL');
 
         if ($fakultas !== null && $fakultas !== '') {
@@ -1103,7 +1100,7 @@ class M_keuangan_shared extends CI_Model {
                            verif.nama_lengkap as nama_verifikator');
         $this->db->from($this->table_pembayaran);
         $this->db->join($this->table_tagihan, 'pembayaran.tagihan_id = tagihan.id', 'inner');
-        $this->db->join($this->table_akun . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
+        $this->db->join($this->table_akun_biro . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
         $this->db->where('pembayaran.akun_id', (int)$akun_id);
         $this->db->order_by('pembayaran.created_at', 'DESC');
         return $this->db->get()->result();

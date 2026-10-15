@@ -99,23 +99,21 @@ class Keuangan_core extends CI_Controller {
                 $target_akun_id = 3; // Default: Muhammad Eka
             }
             $target_mhs = $this->db->where('id', $target_akun_id)
-                                   ->where('role', 3)
                                    ->where('deleted_at IS NULL', null, false)
-                                   ->get('akun')->row();
+                                   ->get('akun_mahasiswa')->row();
             if (!$target_mhs) {
-                $target_mhs = $this->db->where('role', 3)
-                                       ->where('deleted_at IS NULL', null, false)
+                $target_mhs = $this->db->where('deleted_at IS NULL', null, false)
                                        ->order_by('id', 'ASC')
-                                       ->get('akun')->row();
+                                       ->get('akun_mahasiswa')->row();
                 $target_akun_id = $target_mhs ? (int)$target_mhs->id : 0;
             }
             $data['is_admin_preview'] = true;
             $data['target_mahasiswa'] = $target_mhs;
-            $data['daftar_mahasiswa'] = $this->db->get_where('akun', ['role' => 3, 'deleted_at' => null])->result();
+            $data['daftar_mahasiswa'] = $this->db->get_where('akun_mahasiswa', ['deleted_at' => null])->result();
             $akun_id = $target_akun_id;
         } else {
             // Mahasiswa biasa hanya melihat datanya sendiri
-            $target_mhs = $this->db->get_where('akun', ['id' => $current_user_id])->row();
+            $target_mhs = $this->db->get_where('akun_mahasiswa', ['id' => $current_user_id])->row();
             $data['is_admin_preview'] = false;
             $data['target_mahasiswa'] = $target_mhs;
             $data['daftar_mahasiswa'] = [];
@@ -687,7 +685,7 @@ class Keuangan_core extends CI_Controller {
         if (!$this->require_roles([1, 2])) return;
 
         $akun_id = (int)$this->input->post('akun_id', true);
-        $target  = $this->db->get_where('akun', ['id' => $akun_id, 'role' => 3])->row();
+        $target  = $this->db->get_where('akun_mahasiswa', ['id' => $akun_id])->row();
 
         if (!$target) {
             $this->output->set_status_header(404)->set_content_type('application/json')
@@ -757,7 +755,7 @@ class Keuangan_core extends CI_Controller {
 
         $akun_id = (int)$this->input->post('akun_id', true);
         $status = (int)$this->input->post('status', true) ? 1 : 0;
-        $target = $this->db->get_where('akun', ['id' => $akun_id, 'role' => 3])->row();
+        $target = $this->db->get_where('akun_mahasiswa', ['id' => $akun_id])->row();
         if (!$target || !$this->M_keuangan->set_status_semester_pendek($akun_id, $status)) {
             $this->session->set_flashdata('error', 'Status Semester Pendek tidak dapat diperbarui.');
             redirect('keuangan/kontrol_ta');
@@ -784,9 +782,8 @@ class Keuangan_core extends CI_Controller {
             return;
         }
         $mhs = $this->db->where('id', $akun_id)
-                ->where('role', 3)
                 ->where('deleted_at IS NULL', null, false)
-                ->get('akun')
+                ->get('akun_mahasiswa')
                 ->row();
         if (!$mhs) {
             $this->output->set_status_header(404)->set_content_type('application/json')
@@ -868,10 +865,9 @@ class Keuangan_core extends CI_Controller {
         $semester_min = (int)$this->input->post('semester_min') ?: 5;
 
         // Ambil mahasiswa dengan semester >= minimum
-        $mhs_list = $this->db->where('role', 3)
-                             ->where('semester >=', $semester_min)
+        $mhs_list = $this->db->where('semester >=', $semester_min)
                              ->where('deleted_at IS NULL')
-                             ->get('akun')->result();
+                             ->get('akun_mahasiswa')->result();
 
         $count = 0;
         $failed = 0;
@@ -1468,9 +1464,8 @@ class Keuangan_core extends CI_Controller {
         }
 
         $target = $this->db->where('id', $akun_id)
-                           ->where('role', 3)
                            ->where('deleted_at IS NULL', null, false)
-                           ->get('akun')->row();
+                           ->get('akun_mahasiswa')->row();
         if (!$target) {
             $this->output->set_status_header(404)
                          ->set_content_type('application/json')
@@ -1959,8 +1954,8 @@ class Keuangan_core extends CI_Controller {
             return;
         }
 
-        // Ambil data mahasiswa dari tabel akun
-        $mahasiswa = $this->db->get_where('akun', ['id' => (int)$pembayaran->akun_id])->row();
+        // Ambil data mahasiswa dari tabel akun_mahasiswa
+        $mahasiswa = $this->db->get_where('akun_mahasiswa', ['id' => (int)$pembayaran->akun_id])->row();
 
         // Ambil data tagihan terkait
         $tagihan = $this->db->get_where('tagihan', ['id' => (int)$pembayaran->tagihan_id])->row();
@@ -1979,11 +1974,11 @@ class Keuangan_core extends CI_Controller {
                                    ->row();
         }
 
-        // Ambil data petugas verifikator (admin/superadmin)
+        // Ambil data petugas verifikator (admin/superadmin) dari akun_biro
         $verifikator = null;
         $verifikator_id = !empty($pembayaran->diverifikasi_oleh) ? (int)$pembayaran->diverifikasi_oleh : (!empty($dispensasi->diproses_oleh) ? (int)$dispensasi->diproses_oleh : null);
         if ($verifikator_id) {
-            $verifikator = $this->db->get_where('akun', ['id' => $verifikator_id])->row();
+            $verifikator = $this->db->get_where('akun_biro', ['id' => $verifikator_id])->row();
         }
 
         $data = [

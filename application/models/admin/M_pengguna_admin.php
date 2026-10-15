@@ -5,7 +5,8 @@ require_once APPPATH . 'models/shared/M_pengguna.php';
 
 class M_pengguna_admin extends M_pengguna
 {
-    protected $table = 'akun';
+    protected $table = 'akun_mahasiswa';
+    protected $table_dosen = 'akun_biro';
 
     public function __construct()
     {
@@ -15,7 +16,7 @@ class M_pengguna_admin extends M_pengguna
     }
 
     /**
-     * Memastikan kolom-kolom penunjang data mahasiswa ada di tabel akun
+     * Memastikan kolom-kolom penunjang data mahasiswa ada di tabel akun_mahasiswa (tanpa kolom role)
      */
     public function ensure_columns()
     {
@@ -25,10 +26,18 @@ class M_pengguna_admin extends M_pengguna
 
         $fields = $this->db->list_fields($this->table);
 
+        // Jika kolom role tidak sengaja ada, hapus
+        if (in_array('role', $fields, true)) {
+            try {
+                $this->db->query("ALTER TABLE `{$this->table}` DROP COLUMN `role`");
+            } catch (\Throwable $e) {}
+        }
+
         $columns_to_add = [
-            'prodi' => "ALTER TABLE `{$this->table}` ADD COLUMN `prodi` VARCHAR(100) NULL DEFAULT 'Teknik Informatika' AFTER `role`",
+            'prodi' => "ALTER TABLE `{$this->table}` ADD COLUMN `prodi` VARCHAR(100) NULL DEFAULT 'Teknik Informatika' AFTER `nama_lengkap`",
             'fakultas' => "ALTER TABLE `{$this->table}` ADD COLUMN `fakultas` VARCHAR(100) NULL DEFAULT 'Fakultas Ilmu Komputer' AFTER `prodi`",
-            'semester' => "ALTER TABLE `{$this->table}` ADD COLUMN `semester` INT(11) NOT NULL DEFAULT 1 AFTER `fakultas`",
+            'jenjang' => "ALTER TABLE `{$this->table}` ADD COLUMN `jenjang` VARCHAR(50) NULL DEFAULT 'Strata 1' AFTER `fakultas`",
+            'semester' => "ALTER TABLE `{$this->table}` ADD COLUMN `semester` INT(11) NOT NULL DEFAULT 1 AFTER `jenjang`",
             'status_akademik' => "ALTER TABLE `{$this->table}` ADD COLUMN `status_akademik` ENUM('Aktif','Cuti','Non-Aktif','Lulus','Drop Out') NOT NULL DEFAULT 'Aktif' AFTER `semester`",
             'angkatan' => "ALTER TABLE `{$this->table}` ADD COLUMN `angkatan` VARCHAR(4) NULL DEFAULT NULL AFTER `status_akademik`",
             'jenis_kelamin' => "ALTER TABLE `{$this->table}` ADD COLUMN `jenis_kelamin` ENUM('L','P') NULL DEFAULT 'L' AFTER `angkatan`",
@@ -39,7 +48,9 @@ class M_pengguna_admin extends M_pengguna
 
         foreach ($columns_to_add as $col => $sql) {
             if (!in_array($col, $fields, true)) {
-                $this->db->query($sql);
+                try {
+                    $this->db->query($sql);
+                } catch (\Throwable $e) {}
             }
         }
     }
@@ -50,22 +61,22 @@ class M_pengguna_admin extends M_pengguna
     public function get_mahasiswa_list($filter = [])
     {
         $this->db->select("
-            akun.id,
-            akun.nim,
-            akun.nama_lengkap,
-            akun.email,
-            akun.role,
-            COALESCE(NULLIF(akun.prodi, ''), 'Teknik Informatika') AS prodi,
-            COALESCE(NULLIF(akun.fakultas, ''), 'Fakultas Ilmu Komputer') AS fakultas,
-            COALESCE(akun.semester, 1) AS semester,
-            COALESCE(NULLIF(akun.status_akademik, ''), 'Aktif') AS status_akademik,
-            akun.angkatan,
-            akun.jenis_kelamin,
-            akun.ipk,
-            akun.telepon,
-            akun.alamat,
-            akun.foto,
-            akun.created_at,
+            akun_mahasiswa.id,
+            akun_mahasiswa.nim,
+            akun_mahasiswa.nama_lengkap,
+            akun_mahasiswa.email,
+            3 AS role,
+            COALESCE(NULLIF(akun_mahasiswa.prodi, ''), 'Teknik Informatika') AS prodi,
+            COALESCE(NULLIF(akun_mahasiswa.fakultas, ''), 'Fakultas Ilmu Komputer') AS fakultas,
+            COALESCE(akun_mahasiswa.semester, 1) AS semester,
+            COALESCE(NULLIF(akun_mahasiswa.status_akademik, ''), 'Aktif') AS status_akademik,
+            akun_mahasiswa.angkatan,
+            akun_mahasiswa.jenis_kelamin,
+            akun_mahasiswa.ipk,
+            akun_mahasiswa.telepon,
+            akun_mahasiswa.alamat,
+            akun_mahasiswa.foto,
+            akun_mahasiswa.created_at,
             dosen_wali.dosen_id,
             dosen.nama_lengkap AS nama_dosen_wali,
             dosen.nim AS nidn_dosen_wali,
@@ -73,8 +84,8 @@ class M_pengguna_admin extends M_pengguna
             krs.total_sks AS krs_total_sks
         ");
         $this->db->from($this->table);
-        $this->db->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun.id', 'left');
-        $this->db->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left');
+        $this->db->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun_mahasiswa.id', 'left');
+        $this->db->join("{$this->table_dosen} AS dosen", 'dosen.id = dosen_wali.dosen_id', 'left');
         
         // Ambil info KRS mahasiswa untuk periode berjalan (jika ada)
         $month = (int)date('n');
@@ -84,48 +95,46 @@ class M_pengguna_admin extends M_pengguna
 
         $this->db->join(
             "krs",
-            "krs.akun_id = akun.id AND krs.tahun_akademik = '{$thn_akademik}' AND krs.semester_akademik = '{$sem_akademik}'",
+            "krs.akun_id = akun_mahasiswa.id AND krs.tahun_akademik = '{$thn_akademik}' AND krs.semester_akademik = '{$sem_akademik}'",
             'left'
         );
 
-        // Hanya role Mahasiswa (role = 3) dan belum dihapus
-        $this->db->where('akun.role', 3);
-        $this->db->where('akun.deleted_at IS NULL', null, false);
+        $this->db->where('akun_mahasiswa.deleted_at IS NULL', null, false);
 
         // Filter Program Studi (Prodi)
         if (!empty($filter['prodi'])) {
-            $this->db->where('akun.prodi', $filter['prodi']);
+            $this->db->where('akun_mahasiswa.prodi', $filter['prodi']);
         }
 
         // Filter Semester
         if (!empty($filter['semester'])) {
-            $this->db->where('akun.semester', (int)$filter['semester']);
+            $this->db->where('akun_mahasiswa.semester', (int)$filter['semester']);
         }
 
         // Filter Status Akademik
         if (!empty($filter['status'])) {
-            $this->db->where('akun.status_akademik', $filter['status']);
+            $this->db->where('akun_mahasiswa.status_akademik', $filter['status']);
         }
 
         // Filter Angkatan
         if (!empty($filter['angkatan'])) {
-            $this->db->where('akun.angkatan', $filter['angkatan']);
+            $this->db->where('akun_mahasiswa.angkatan', $filter['angkatan']);
         }
 
         // Filter Pencarian (Keyword NIM / Nama / Email)
         if (!empty($filter['search'])) {
             $search = trim($filter['search']);
             $this->db->group_start();
-            $this->db->like('akun.nim', $search);
-            $this->db->or_like('akun.nama_lengkap', $search);
-            $this->db->or_like('akun.email', $search);
+            $this->db->like('akun_mahasiswa.nim', $search);
+            $this->db->or_like('akun_mahasiswa.nama_lengkap', $search);
+            $this->db->or_like('akun_mahasiswa.email', $search);
             $this->db->group_end();
         }
 
         // Urutkan berdasarkan Prodi, Semester, lalu Nama Lengkap
-        $this->db->order_by('akun.prodi', 'ASC');
-        $this->db->order_by('akun.semester', 'ASC');
-        $this->db->order_by('akun.nama_lengkap', 'ASC');
+        $this->db->order_by('akun_mahasiswa.prodi', 'ASC');
+        $this->db->order_by('akun_mahasiswa.semester', 'ASC');
+        $this->db->order_by('akun_mahasiswa.nama_lengkap', 'ASC');
 
         $result = $this->db->get()->result();
 
@@ -151,7 +160,6 @@ class M_pengguna_admin extends M_pengguna
     {
         $rows = $this->db->distinct()
             ->select('prodi')
-            ->where('role', 3)
             ->where('deleted_at IS NULL', null, false)
             ->where('prodi IS NOT NULL', null, false)
             ->where("prodi != ''", null, false)
@@ -161,7 +169,6 @@ class M_pengguna_admin extends M_pengguna
 
         $prodi_db = array_filter(array_column($rows, 'prodi'));
 
-        // Fallback prodi default jika data di database masih minim
         $defaults = [
             'Teknik Informatika',
             'Sistem Informasi',
@@ -183,7 +190,6 @@ class M_pengguna_admin extends M_pengguna
     {
         $rows = $this->db->distinct()
             ->select('semester')
-            ->where('role', 3)
             ->where('deleted_at IS NULL', null, false)
             ->where('semester IS NOT NULL', null, false)
             ->order_by('semester', 'ASC')
@@ -204,7 +210,6 @@ class M_pengguna_admin extends M_pengguna
     {
         $rows = $this->db->distinct()
             ->select('angkatan')
-            ->where('role', 3)
             ->where('deleted_at IS NULL', null, false)
             ->where('angkatan IS NOT NULL', null, false)
             ->where("angkatan != ''", null, false)
@@ -224,20 +229,17 @@ class M_pengguna_admin extends M_pengguna
      */
     public function get_summary_stats()
     {
-        $total_mahasiswa = $this->db->where('role', 3)
-            ->where('deleted_at IS NULL', null, false)
+        $total_mahasiswa = $this->db->where('deleted_at IS NULL', null, false)
             ->count_all_results($this->table);
 
-        $total_aktif = $this->db->where('role', 3)
-            ->where('deleted_at IS NULL', null, false)
+        $total_aktif = $this->db->where('deleted_at IS NULL', null, false)
             ->group_start()
                 ->where('status_akademik', 'Aktif')
                 ->or_where('status_akademik IS NULL', null, false)
             ->group_end()
             ->count_all_results($this->table);
 
-        $total_cuti = $this->db->where('role', 3)
-            ->where('deleted_at IS NULL', null, false)
+        $total_cuti = $this->db->where('deleted_at IS NULL', null, false)
             ->where('status_akademik', 'Cuti')
             ->count_all_results($this->table);
 
@@ -246,9 +248,8 @@ class M_pengguna_admin extends M_pengguna
 
         // Mahasiswa yang telah memiliki Dosen Wali
         $with_advisor = $this->db->from('dosen_wali')
-            ->join('akun', 'akun.id = dosen_wali.mahasiswa_id', 'inner')
-            ->where('akun.role', 3)
-            ->where('akun.deleted_at IS NULL', null, false)
+            ->join('akun_mahasiswa', 'akun_mahasiswa.id = dosen_wali.mahasiswa_id', 'inner')
+            ->where('akun_mahasiswa.deleted_at IS NULL', null, false)
             ->count_all_results();
 
         return [
@@ -266,18 +267,18 @@ class M_pengguna_admin extends M_pengguna
     public function get_detail_mahasiswa($id)
     {
         $this->db->select("
-            akun.*,
+            akun_mahasiswa.*,
+            3 AS role,
             dosen_wali.dosen_id,
             dosen.nama_lengkap AS nama_dosen_wali,
             dosen.nim AS nidn_dosen_wali,
             dosen.email AS email_dosen_wali
         ");
         $this->db->from($this->table);
-        $this->db->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun.id', 'left');
-        $this->db->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left');
-        $this->db->where('akun.id', (int)$id);
-        $this->db->where('akun.role', 3);
-        $this->db->where('akun.deleted_at IS NULL', null, false);
+        $this->db->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun_mahasiswa.id', 'left');
+        $this->db->join("{$this->table_dosen} AS dosen", 'dosen.id = dosen_wali.dosen_id', 'left');
+        $this->db->where('akun_mahasiswa.id', (int)$id);
+        $this->db->where('akun_mahasiswa.deleted_at IS NULL', null, false);
         return $this->db->get()->row();
     }
 
@@ -287,7 +288,7 @@ class M_pengguna_admin extends M_pengguna
     public function update_mahasiswa($id, $data)
     {
         $this->db->where('id', (int)$id);
-        $this->db->where('role', 3);
+        unset($data['role'], $data['biro']); // Hindari kolom role dan biro di akun_mahasiswa
         $data['updated_at'] = date('Y-m-d H:i:s');
         return $this->db->update($this->table, $data);
     }

@@ -54,12 +54,15 @@ class Beranda extends CI_Controller {
         // Jika Mahasiswa (Role 3): Muat Data Profil Lengkap & Informasi Perkuliahan
         if ($role === 3) {
             // Ambil Profil Mahasiswa beserta Dosen Wali
-            $student = $this->db->select('akun.*, dosen.id AS dosen_id, dosen.nama_lengkap AS nama_dosen_wali, dosen.nim AS nidn_dosen_wali, dosen.email AS email_dosen_wali, dosen.telepon AS telepon_dosen_wali, dosen.foto AS foto_dosen_wali')
-                                ->from('akun')
-                                ->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun.id', 'left')
-                                ->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
-                                ->where('akun.id', $akun_id)
+            $student = $this->db->select('akun_mahasiswa.*, dosen.id AS dosen_id, dosen.nama_lengkap AS nama_dosen_wali, dosen.nim AS nidn_dosen_wali, dosen.email AS email_dosen_wali, dosen.telepon AS telepon_dosen_wali, dosen.foto AS foto_dosen_wali')
+                                ->from('akun_mahasiswa')
+                                ->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun_mahasiswa.id', 'left')
+                                ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                                ->where('akun_mahasiswa.id', $akun_id)
                                 ->get()->row();
+            if ($student) {
+                $student->role = 3;
+            }
 
             $academic_period = $this->M_akademik->get_active_period();
             $krs = $this->M_akademik->get_krs($akun_id, $academic_period);
