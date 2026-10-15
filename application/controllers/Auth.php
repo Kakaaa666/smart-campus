@@ -49,22 +49,22 @@ class Auth extends CI_Controller {
             return;
         }
 
-        $identifier = $this->input->post('nim', true);
-        $password   = $this->input->post('password', true);
+        $identifier = trim((string)$this->input->post('nim', true));
+        $password   = (string)$this->input->post('password', true);
 
         // Cari user aktif (deleted_at IS NULL)
         $user = $this->M_auth->get_active_user($identifier);
 
         if ($user) {
-            // Cek password hash
-            if (password_verify($password, $user->password)) {
+            // Cek password hash atau plain/rehash secara aman dan kompatibel
+            if ($this->M_auth->verify_user_password($password, $user)) {
                 // Buat data session
                 $session_data = [
                     'id'           => $user->id,
                     'nim'          => $user->nim,
                     'nama_lengkap' => $user->nama_lengkap,
                     'email'        => $user->email,
-                    'role'         => (int)$user->role, // 1: Super Admin, 2: Admin, 3: User
+                    'role'         => (int)$user->role, // 1: Super Admin, 2: Admin, 3: User, 4: Dosen
                     'role_name'    => M_auth::role_label($user->role),
                     'biro'         => (int)$user->role === 2 ? M_auth::normalize_biro($user->biro) : ((int)$user->role === 1 ? 'semua' : ((int)$user->role === 4 ? 'dosen' : 'mahasiswa')),
                     'biro_name'    => (int)$user->role === 2 ? M_auth::biro_label($user->biro) : ((int)$user->role === 1 ? 'Seluruh Biro' : ((int)$user->role === 4 ? 'Dosen' : 'Mahasiswa')),
@@ -77,7 +77,7 @@ class Auth extends CI_Controller {
                 
                 redirect('beranda');
             } else {
-                $this->session->set_flashdata('error', 'Password yang Anda masukkan salah.');
+                $this->session->set_flashdata('error', 'Password yang Anda masukkan salah. Pastikan password yang diisi sesuai.');
                 redirect('auth');
             }
         } else {

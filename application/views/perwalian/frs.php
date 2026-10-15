@@ -67,7 +67,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <tr>
                                                     <td><?= $index + 1 ?></td>
                                                     <td><?= html_escape($offering->kode_mk) ?></td>
-                                                    <td><?= html_escape($offering->nama_mk) ?></td>
+                                                    <td>
+                                                        <div class="font-weight-bold text-dark"><?= html_escape($offering->nama_mk) ?></div>
+                                                        <?php if (!empty($offering->kategori_label)): ?>
+                                                            <small class="badge badge-light border text-secondary mt-1">
+                                                                <?= html_escape($offering->kategori_label) ?>
+                                                            </small>
+                                                        <?php endif; ?>
+                                                    </td>
                                                     <td><?= (int)$offering->sks ?></td>
                                                     <td><?= html_escape($offering->kelas) ?></td>
                                                     <td><?= html_escape($offering->hari) ?>, <?= html_escape(substr($offering->waktu_mulai, 0, 5)) ?>–<?= html_escape(substr($offering->waktu_selesai, 0, 5)) ?></td>

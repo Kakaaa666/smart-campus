@@ -8,7 +8,9 @@ class Beranda extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
         $this->load->model('M_auth');
-        $this->load->helper('url');
+        $this->load->model('shared/M_akademik', 'M_akademik');
+        $this->load->model('mahasiswa/M_keuangan_mahasiswa', 'M_keuangan');
+        $this->load->helper(['url', 'form']);
 
         // Cek apakah user sudah login, jika belum redirect ke halaman login
         if (!$this->session->userdata('is_logged_in')) {
@@ -29,11 +31,7 @@ class Beranda extends CI_Controller {
                 'sarana_prasarana' => 'admin/sarana-prasarana',
                 'penjaminan_mutu' => 'admin/penjaminan-mutu',
             ];
-            redirect($routes[$biro]);
-            return;
-        }
-        if ($role === 3) {
-            redirect('ringkasan');
+            redirect($routes[$biro] ?? 'keuangan/admin');
             return;
         }
         if ($role === 4) {
@@ -41,15 +39,59 @@ class Beranda extends CI_Controller {
             return;
         }
 
+        $akun_id = (int)$this->session->userdata('id');
+
         $data['title'] = 'Beranda - Smart Campus';
         $data['user'] = [
-            'id'           => $this->session->userdata('id'),
+            'id'           => $akun_id,
             'nim'          => $this->session->userdata('nim'),
             'nama_lengkap' => $this->session->userdata('nama_lengkap'),
-            'role'         => $this->session->userdata('role'),
+            'role'         => $role,
             'role_name'    => $this->session->userdata('role_name'),
             'foto'         => $this->session->userdata('foto')
         ];
+
+        // Jika Mahasiswa (Role 3): Muat Data Profil Lengkap & Informasi Perkuliahan
+        if ($role === 3) {
+            // Ambil Profil Mahasiswa beserta Dosen Wali
+            $student = $this->db->select('akun.*, dosen.id AS dosen_id, dosen.nama_lengkap AS nama_dosen_wali, dosen.nim AS nidn_dosen_wali, dosen.email AS email_dosen_wali, dosen.telepon AS telepon_dosen_wali, dosen.foto AS foto_dosen_wali')
+                                ->from('akun')
+                                ->join('dosen_wali', 'dosen_wali.mahasiswa_id = akun.id', 'left')
+                                ->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                                ->where('akun.id', $akun_id)
+                                ->get()->row();
+
+            $academic_period = $this->M_akademik->get_active_period();
+            $krs = $this->M_akademik->get_krs($akun_id, $academic_period);
+            $advisor = $this->M_akademik->get_advisor_for_student($akun_id);
+            $status_keuangan = $this->M_keuangan->cek_status_krs($akun_id);
+            $all_lecturers = $this->M_akademik->get_lecturers();
+
+            // Mapping jadwal kuliah hari ini
+            $hari_indonesia = [
+                'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+            ];
+            $today = $hari_indonesia[date('l')] ?? 'Senin';
+
+            $courses = (!empty($krs) && !empty($krs->mata_kuliah)) ? $krs->mata_kuliah : [];
+            $today_courses = [];
+            foreach ($courses as $c) {
+                if (strcasecmp($c->hari ?? '', $today) === 0) {
+                    $today_courses[] = $c;
+                }
+            }
+
+            $data['student'] = $student;
+            $data['academic_period'] = $academic_period;
+            $data['krs'] = $krs;
+            $data['advisor'] = $advisor;
+            $data['status_keuangan'] = $status_keuangan;
+            $data['all_lecturers'] = $all_lecturers;
+            $data['today'] = $today;
+            $data['today_courses'] = $today_courses;
+            $data['courses'] = $courses;
+        }
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);

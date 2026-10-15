@@ -5,8 +5,8 @@ require_once APPPATH . 'core/MY_Role_Controller.php';
 
 class Akademik extends MY_Role_Controller
 {
-    protected $allowed_roles = [2];
-    protected $allowed_bureaus = ['akademik'];
+    protected $allowed_roles = [1, 2, 3, 4];
+    protected $allowed_bureaus = [];
 
     public function __construct()
     {
@@ -34,6 +34,11 @@ class Akademik extends MY_Role_Controller
         $this->load->view('templates/sidebar', $data);
         $this->load->view('akademik/admin', $data);
         $this->load->view('templates/footer', $data);
+    }
+
+    public function khs()
+    {
+        redirect('akademik/khs' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     }
 
     public function save_offering()

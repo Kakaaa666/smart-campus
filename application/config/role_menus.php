@@ -32,6 +32,7 @@ $config['role_menus'] = [
     3 => [
         'label' => 'Mahasiswa',
         'menus' => [
+            'beranda' => ['label' => 'Beranda', 'route' => 'beranda', 'bureau' => 'Rektorat'],
             'ringkasan' => ['label' => 'Ringkasan', 'route' => 'mahasiswa/ringkasan', 'bureau' => 'Akademik'],
             'akademik' => ['label' => 'Akademik', 'route' => 'mahasiswa/akademik', 'bureau' => 'Akademik'],
             'kehadiran' => ['label' => 'Kehadiran Kuliah', 'route' => 'mahasiswa/kehadiran', 'bureau' => 'Akademik'],

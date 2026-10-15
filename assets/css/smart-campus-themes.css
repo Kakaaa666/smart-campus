@@ -445,9 +445,50 @@ body .custom-select {
 }
 
 body .table thead th {
-    color: var(--sc-ink) !important;
-    background: color-mix(in srgb, var(--sc-accent) 8%, var(--sc-surface)) !important;
-    border-bottom: 1px solid var(--sc-line) !important;
+    color: #475569 !important;
+    background: #f8fafc !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    padding: 13px 16px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    font-size: 12px !important;
+}
+
+body .table tbody td {
+    padding: 13px 16px !important;
+    vertical-align: middle !important;
+}
+
+body .card .card-block,
+body .card .card-body {
+    padding: 22px 24px !important;
+}
+
+body .modal-content {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: none !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16) !important;
+}
+
+body .modal-header {
+    padding: 18px 24px !important;
+}
+
+body .modal-body {
+    padding: 24px !important;
+}
+
+body .modal-footer {
+    padding: 16px 24px !important;
+}
+
+body .badge {
+    padding: 5px 10px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
 }
 
 body.theme-mahasiswa .pcoded-header {
