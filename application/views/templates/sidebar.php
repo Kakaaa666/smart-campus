@@ -110,14 +110,8 @@ if ($current_role === 2) {
                                     </ul>
                                 </li>
                                 <li><a href="<?= base_url('superadmin/sarana-prasarana') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-building"></i></span><span class="pcoded-mtext">Biro Sarana Prasarana</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="pcoded-hasmenu <?= ($seg1 == 'penjaminan-mutu' || ($seg1 == 'superadmin' && $seg2 == 'penjaminan-mutu')) ? 'pcoded-trigger active' : '' ?>">
-                                    <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Biro Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a>
-                                    <ul class="pcoded-submenu">
-                                        <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
-                                        <li class="<?= (($seg1 == 'superadmin' && $seg2 == 'penjaminan-mutu' && $this->uri->segment(3) != 'skpi') || ($seg1 == 'penjaminan-mutu' && $this->uri->segment(2) != 'skpi')) ? 'active' : '' ?>"><a href="<?= base_url('superadmin/penjaminan-mutu') ?>"><span class="pcoded-mtext">Dashboard Penjaminan Mutu</span></a></li>
-                                        <li class="<?= (($seg1 == 'superadmin' && $seg2 == 'penjaminan-mutu' && $this->uri->segment(3) == 'skpi') || ($seg1 == 'penjaminan-mutu' && $this->uri->segment(2) == 'skpi')) ? 'active' : '' ?>"><a href="<?= base_url('superadmin/penjaminan-mutu/skpi') ?>"><span class="pcoded-mtext">Pengajuan SKPI</span></a></li>
-                                    </ul>
-                                </li>
+                                <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'penjaminan-mutu') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Biro Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 == 'skpi' || ($seg1 == 'superadmin' && $seg2 == 'skpi')) ? 'active' : '' ?>"><a href="<?= base_url('superadmin/skpi') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">Pengajuan SKPI</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'keuangan' && $seg2 == '') ? 'active' : '' ?>"><a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Mode Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                 <?php endif; ?>
 
@@ -206,8 +200,7 @@ if ($current_role === 2) {
                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
 
                                 <?php elseif ($current_bureau === 'penjaminan_mutu'): ?>
-                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu' && $this->uri->segment(3) != 'skpi') ? 'active' : '' ?>"><a href="<?= base_url('admin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Operasional Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu' && $this->uri->segment(3) == 'skpi') ? 'active' : '' ?>"><a href="<?= base_url('admin/penjaminan-mutu/skpi') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">Pengajuan SKPI</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu') ? 'active' : '' ?>"><a href="<?= base_url('admin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Operasional Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'profil') ? 'active' : '' ?>"><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
                                 <?php elseif ($current_bureau === 'kemahasiswaan'): ?>
                                 <li class="<?= ($seg1 == 'admin' && $seg2 == 'kemahasiswaan') ? 'active' : '' ?>"><a href="<?= base_url('admin/kemahasiswaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Layanan Kemahasiswaan</span><span class="pcoded-mcaret"></span></a></li>
