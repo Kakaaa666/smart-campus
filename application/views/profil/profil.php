@@ -238,11 +238,11 @@
                                                 <div class="form-group mb-2">
                                                     <label for="foto_profil" class="font-weight-bold" style="font-size: 13.5px;">Pilih Berkas Foto Baru</label>
                                                     <div class="custom-file">
-                                                        <input type="file" name="foto_profil" class="custom-file-input" id="foto_profil" accept="image/png, image/jpeg, image/jpg" required>
-                                                        <label class="custom-file-label" for="foto_profil" id="customFileLabel" style="border-radius: 8px;">Pilih foto (JPG, JPEG, PNG)</label>
+                                                        <input type="file" name="foto_profil" class="custom-file-input" id="foto_profil" accept="image/png, image/jpeg, image/jpg, image/webp" required>
+                                                        <label class="custom-file-label" for="foto_profil" id="customFileLabel" style="border-radius: 8px;">Pilih foto (JPG, JPEG, PNG, WEBP)</label>
                                                     </div>
                                                     <small class="text-muted d-block mt-1">
-                                                        <i class="bi bi-info-circle mr-1"></i> Format didukung: JPG, JPEG, PNG. Maksimal ukuran 3MB. Disarankan foto rasio 1:1.
+                                                        <i class="bi bi-info-circle mr-1"></i> Format didukung: JPG, JPEG, PNG, WEBP. Maksimal ukuran 10MB (otomatis dioptimalkan). Disarankan rasio 1:1.
                                                     </small>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary px-4 mt-2" style="border-radius: 8px; font-weight: 600;">

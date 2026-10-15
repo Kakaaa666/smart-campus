@@ -318,6 +318,7 @@
                     <i class="bi bi-arrow-right-short" style="font-size: 20px;"></i>
                 </button>
             <?= form_close() ?>
+
         </div>
 
         <!-- Footer -->
@@ -328,6 +329,7 @@
 
     <!-- Scripts -->
     <script>
+
         // Toggle Show / Hide Password
         const toggleBtn = document.getElementById('togglePasswordBtn');
         const passwordInput = document.getElementById('password');

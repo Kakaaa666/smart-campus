@@ -47,6 +47,7 @@ class Perwalian extends CI_Controller {
             $target_akun_id = (int)$target_mhs->id;
             $data['is_admin_preview'] = true;
             $data['target_mahasiswa'] = $target_mhs;
+            $data['all_students'] = $this->M_akademik->get_all_students_for_preview();
             $akun_id = $target_akun_id;
         } else {
             $target_mhs = $this->M_akademik->get_account($current_user_id);
@@ -84,6 +85,7 @@ class Perwalian extends CI_Controller {
         $data['academic_period']   = $this->M_akademik->get_active_period();
         $data['krs']               = $this->M_akademik->get_krs($akun_id, $data['academic_period']);
         $data['advisor']           = $this->M_akademik->get_advisor_for_student($akun_id);
+        $data['all_lecturers']     = $this->M_akademik->get_lecturers();
         $data['offerings']         = $this->M_akademik->get_offerings(
             $target_mhs->prodi,
             $target_mhs->semester,
@@ -155,5 +157,40 @@ class Perwalian extends CI_Controller {
         $result = $this->M_akademik->save_student_krs($akun_id, $offering_ids, $action === 'ajukan');
         $this->session->set_flashdata($result['success'] ? 'success' : 'error', $result['message']);
         redirect($result['success'] && $action === 'ajukan' ? 'perwalian/frs' : 'perwalian');
+    }
+
+    public function pilih_dosen_wali()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('perwalian');
+            return;
+        }
+
+        $user_role = (int)$this->session->userdata('role');
+        $akun_id = (int)$this->session->userdata('id');
+
+        if ($user_role !== 3) {
+            $this->session->set_flashdata('error', 'Hanya mahasiswa yang dapat memilih dosen wali.');
+            redirect('perwalian');
+            return;
+        }
+
+        $dosen_id = (int)$this->input->post('dosen_id', true);
+        if ($dosen_id < 1) {
+            $this->session->set_flashdata('error', 'Silakan pilih Dosen Wali yang valid.');
+            redirect('perwalian');
+            return;
+        }
+
+        $success = $this->M_akademik->assign_advisor($akun_id, $dosen_id, $akun_id);
+        if ($success) {
+            $dosen = $this->db->get_where('akun', ['id' => $dosen_id])->row();
+            $nama_dosen = $dosen ? $dosen->nama_lengkap : 'Dosen Wali';
+            $this->session->set_flashdata('success', 'Berhasil memilih ' . $nama_dosen . ' sebagai Dosen Wali Anda.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal memilih dosen wali. Pastikan dosen berstatus aktif.');
+        }
+
+        redirect('perwalian');
     }
 }

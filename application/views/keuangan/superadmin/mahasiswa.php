@@ -48,29 +48,70 @@
                     }
                 }
 
-                /* Metric Stat Card */
+                /* Metric Stat Card Modern & Responsive */
                 .fin-stat-card {
-                    padding: 22px 24px;
+                    padding: 18px 20px;
                     border-radius: 16px;
-                    border: 1px solid #e2e8f0;
+                    border: 1px solid rgba(226,232,240,0.85);
                     background: #ffffff;
                     position: relative;
                     overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+                    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+                    min-height: 126px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
                 }
                 .fin-stat-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+                }
+                .fin-stat-header {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                }
+                .fin-stat-label {
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    color: #64748b;
+                    line-height: 1.35;
+                    margin-top: 2px;
                 }
                 .fin-stat-icon {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 14px;
+                    width: 42px;
+                    height: 42px;
+                    border-radius: 12px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 22px;
+                    font-size: 19px;
+                    flex-shrink: 0;
+                }
+                .fin-stat-body {
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+                }
+                .fin-stat-value {
+                    font-size: clamp(18px, 1.4vw, 21px);
+                    font-weight: 800;
+                    line-height: 1.2;
+                    margin-bottom: 4px;
+                    letter-spacing: -0.2px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .fin-stat-sub {
+                    font-size: 12px;
+                    font-weight: 500;
+                    line-height: 1.3;
                 }
 
                 /* Nav Tabs Styling */
@@ -461,70 +502,70 @@
 
                 <!-- Ringkasan Finansial Mahasiswa (4 Stat Cards) -->
                 <div class="row mb-3">
-                    <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Tagihan Aktif</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #0f172a; font-size: 20px;">
-                                        Rp <?= number_format($ringkasan['total_tagihan'], 0, ',', '.') ?>
-                                    </h4>
-                                    <small class="text-muted"><?= count($daftar_tagihan) ?> Item Kewajiban</small>
-                                </div>
+                            <div class="fin-stat-header">
+                                <span class="fin-stat-label">Total Tagihan Aktif</span>
                                 <div class="fin-stat-icon" style="background-color: #eff6ff; color: #1d4ed8;">
                                     <i class="bi bi-calculator"></i>
                                 </div>
                             </div>
+                            <div class="fin-stat-body">
+                                <h4 class="fin-stat-value" style="color: #0f172a;" title="Rp <?= number_format($ringkasan['total_tagihan'], 0, ',', '.') ?>">
+                                    Rp <?= number_format($ringkasan['total_tagihan'], 0, ',', '.') ?>
+                                </h4>
+                                <small class="fin-stat-sub text-muted"><?= count($daftar_tagihan) ?> Item Kewajiban</small>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Sisa Belum Dibayar</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #dc2626; font-size: 20px;" id="statBelumNominal">
-                                        Rp <?= number_format($ringkasan['total_belum_bayar'], 0, ',', '.') ?>
-                                    </h4>
-                                    <small class="text-danger font-weight-bold" id="statBelumCount"><?= $ringkasan['count_belum_bayar'] ?> Tagihan Menunggu</small>
-                                </div>
+                            <div class="fin-stat-header">
+                                <span class="fin-stat-label">Sisa Belum Dibayar</span>
                                 <div class="fin-stat-icon" style="background-color: #fef2f2; color: #dc2626;">
                                     <i class="bi bi-clock-history"></i>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 mb-3">
-                        <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Total Lunas</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #059669; font-size: 20px;" id="statLunasNominal">
-                                        Rp <?= number_format($ringkasan['total_terbayar'], 0, ',', '.') ?>
-                                    </h4>
-                                    <small class="text-success font-weight-bold" id="statLunasCount"><?= $ringkasan['count_lunas'] ?> Tagihan Terverifikasi</small>
-                                </div>
-                                <div class="fin-stat-icon" style="background-color: #ecfdf5; color: #059669;">
-                                    <i class="bi bi-check2-circle"></i>
-                                </div>
+                            <div class="fin-stat-body">
+                                <h4 class="fin-stat-value" style="color: #dc2626;" id="statBelumNominal" title="Rp <?= number_format($ringkasan['total_belum_bayar'], 0, ',', '.') ?>">
+                                    Rp <?= number_format($ringkasan['total_belum_bayar'], 0, ',', '.') ?>
+                                </h4>
+                                <small class="fin-stat-sub text-danger font-weight-bold" id="statBelumCount"><?= $ringkasan['count_belum_bayar'] ?> Tagihan Menunggu</small>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
                         <div class="fin-stat-card">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-muted" style="font-size: 13px; font-weight: 600;">Dalam Verifikasi</span>
-                                    <h4 class="mb-0 mt-1 font-weight-bold" style="color: #d97706; font-size: 20px;" id="statPendingCount">
-                                        <?= $ringkasan['count_pending'] ?> Tagihan
-                                    </h4>
-                                    <small class="text-warning font-weight-bold">Menunggu Verifikasi Admin</small>
+                            <div class="fin-stat-header">
+                                <span class="fin-stat-label">Total Lunas</span>
+                                <div class="fin-stat-icon" style="background-color: #ecfdf5; color: #059669;">
+                                    <i class="bi bi-check2-circle"></i>
                                 </div>
+                            </div>
+                            <div class="fin-stat-body">
+                                <h4 class="fin-stat-value" style="color: #059669;" id="statLunasNominal" title="Rp <?= number_format($ringkasan['total_terbayar'], 0, ',', '.') ?>">
+                                    Rp <?= number_format($ringkasan['total_terbayar'], 0, ',', '.') ?>
+                                </h4>
+                                <small class="fin-stat-sub text-success font-weight-bold" id="statLunasCount"><?= $ringkasan['count_lunas'] ?> Tagihan Terverifikasi</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
+                        <div class="fin-stat-card">
+                            <div class="fin-stat-header">
+                                <span class="fin-stat-label">Dalam Verifikasi</span>
                                 <div class="fin-stat-icon" style="background-color: #fffbeb; color: #d97706;">
                                     <i class="bi bi-hourglass-split"></i>
                                 </div>
+                            </div>
+                            <div class="fin-stat-body">
+                                <h4 class="fin-stat-value" style="color: #d97706;" id="statPendingCount">
+                                    <?= $ringkasan['count_pending'] ?> Tagihan
+                                </h4>
+                                <small class="fin-stat-sub text-warning font-weight-bold">Menunggu Verifikasi Admin</small>
                             </div>
                         </div>
                     </div>
@@ -1152,9 +1193,14 @@
                             <input type="date" name="tanggal_pembayaran" id="tanggal_pembayaran" class="form-control" value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                         </div>
                         <div class="col-md-4 form-group mb-3">
-                            <label for="jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
-                                Jam Transfer / Bayar <span class="text-danger">*</span>
-                            </label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="jam_pembayaran" class="font-weight-bold mb-0" style="font-size: 13.5px;">
+                                    Jam Transfer / Bayar <span class="text-danger">*</span>
+                                </label>
+                                <button type="button" class="btn btn-link p-0 text-primary font-weight-bold" id="btnSyncJamNow" title="Sesuaikan dengan jam sekarang" style="font-size: 11px; text-decoration: none; cursor: pointer;">
+                                    <i class="bi bi-clock-history mr-1"></i>Jam Sekarang
+                                </button>
+                            </div>
                             <input type="time" name="jam_pembayaran" id="jam_pembayaran" class="form-control" value="<?= date('H:i') ?>" required style="height: 44px; border-radius: 8px; font-size: 14px;">
                         </div>
                     </div>
@@ -1178,12 +1224,12 @@
                             Unggah Bukti Transfer <span class="text-danger">*</span>
                         </label>
                         <div class="custom-file">
-                            <input type="file" name="bukti_pembayaran" class="custom-file-input" id="buktiPembayaranInput" accept="image/png, image/jpeg, image/jpg, application/pdf" required>
+                            <input type="file" name="bukti_pembayaran" class="custom-file-input" id="buktiPembayaranInput" accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf" required>
                             <label class="custom-file-label" for="buktiPembayaranInput" id="buktiFileLabel" style="border-radius: 8px; height: 44px; line-height: 30px;">
-                                Pilih berkas bukti transfer (JPG, PNG, PDF maks. 3MB)
+                                Pilih berkas bukti transfer (JPG, PNG, WEBP, PDF maks. 10MB)
                             </label>
                         </div>
-                        <small class="text-muted mt-1 d-block">Mendukung format JPG, JPEG, PNG, dan PDF (maks. 3MB).</small>
+                        <small class="text-muted mt-1 d-block">Mendukung format JPG, JPEG, PNG, WEBP, dan PDF (maks. 10MB).</small>
                     </div>
 
                 </div>
@@ -1259,9 +1305,14 @@
                             <input type="date" name="tanggal_pembayaran" id="edit_tanggal_pembayaran" class="form-control" max="<?= date('Y-m-d') ?>" required style="height: 44px; border-radius: 8px;">
                         </div>
                         <div class="col-md-4 form-group mb-3">
-                            <label for="edit_jam_pembayaran" class="font-weight-bold" style="font-size: 13.5px;">
-                                Jam Transfer / Bayar <span class="text-danger">*</span>
-                            </label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="edit_jam_pembayaran" class="font-weight-bold mb-0" style="font-size: 13.5px;">
+                                    Jam Transfer / Bayar <span class="text-danger">*</span>
+                                </label>
+                                <button type="button" class="btn btn-link p-0 text-primary font-weight-bold" id="btnSyncEditJamNow" title="Sesuaikan dengan jam sekarang" style="font-size: 11px; text-decoration: none; cursor: pointer;">
+                                    <i class="bi bi-clock-history mr-1"></i>Jam Sekarang
+                                </button>
+                            </div>
                             <input type="time" name="jam_pembayaran" id="edit_jam_pembayaran" class="form-control" required style="height: 44px; border-radius: 8px;">
                         </div>
                     </div>
@@ -1285,7 +1336,7 @@
                             Unggah Bukti Baru <small class="text-muted">(Kosongkan jika tidak ingin mengganti file bukti saat ini)</small>
                         </label>
                         <div class="custom-file">
-                            <input type="file" name="bukti_pembayaran" class="custom-file-input" id="editBuktiInput" accept="image/png, image/jpeg, image/jpg, application/pdf">
+                            <input type="file" name="bukti_pembayaran" class="custom-file-input" id="editBuktiInput" accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf">
                             <label class="custom-file-label" for="editBuktiInput" id="editBuktiLabel" style="border-radius: 8px; height: 44px; line-height: 30px;">
                                 Pilih berkas bukti baru (opsional)
                             </label>
@@ -1485,9 +1536,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 8. REAL-TIME VERIFICATION SYNC (POLLING AJAX)
     // =======================================================
     let lastHash = '';
+    let isRealtimeReloading = false;
     const activeAkunId = <?= isset($akun_id_aktif) ? (int)$akun_id_aktif : (int)$user['id'] ?>;
 
     function checkRealtimeStatus() {
+        if (isRealtimeReloading) return;
         $.ajax({
             url: '<?= base_url('keuangan/status_realtime?mahasiswa_id=') ?>' + activeAkunId,
             type: 'GET',
@@ -1496,7 +1549,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (resp && resp.success && resp.data) {
                     const d = resp.data;
                     
-                    if (lastHash && lastHash !== d.hash) {
+                    if (!lastHash) {
+                        lastHash = d.hash;
+                        return;
+                    }
+
+                    if (lastHash !== d.hash && !isRealtimeReloading) {
+                        isRealtimeReloading = true;
+                        lastHash = d.hash;
+
                         // Terjadi perubahan status dari Admin Keuangan!
                         $('#toastTitle').text('Status Pembayaran Diperbarui!');
                         if (d.status_krs === 'LUNAS') {
@@ -1515,7 +1576,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.location.reload();
                         }, 2500);
                     }
-                    lastHash = d.hash;
                 }
             },
             error: function() {
@@ -1524,13 +1584,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Jalankan polling setiap 5 detik
-    setInterval(checkRealtimeStatus, 5000);
+    // Jalankan polling setiap 6 detik
+    setInterval(checkRealtimeStatus, 6000);
     // Jalankan satu kali segera saat halaman dimuat
     checkRealtimeStatus();
 
+    // =======================================================
+    // 9. SINKRONISASI JAM & TANGGAL OTOMATIS WAKTU SEKARANG
+    // =======================================================
+    function syncAutoJam(targetInputId) {
+        const input = document.getElementById(targetInputId);
+        if (!input) return;
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        input.value = `${hours}:${minutes}`;
+
+        input.style.transition = 'all 0.3s ease';
+        input.style.borderColor = '#0284c7';
+        input.style.boxShadow = '0 0 0 3px rgba(2, 132, 199, 0.18)';
+        setTimeout(function() {
+            input.style.borderColor = '';
+            input.style.boxShadow = '';
+        }, 1200);
+    }
+
+    function syncAutoTanggal(targetInputId) {
+        const input = document.getElementById(targetInputId);
+        if (!input) return;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        input.value = `${year}-${month}-${day}`;
+    }
+
+    // Set waktu saat inisialisasi awal
+    syncAutoJam('jam_pembayaran');
+    syncAutoTanggal('tanggal_pembayaran');
+
+    // Setiap kali modal konfirmasi dibuka, otomatis update ke jam & tanggal sekarang
+    $('#modalKonfirmasiBayar').on('show.bs.modal', function () {
+        syncAutoJam('jam_pembayaran');
+        syncAutoTanggal('tanggal_pembayaran');
+    });
+
     $('#modalKonfirmasiBayar').on('shown.bs.modal', function () {
+        syncAutoJam('jam_pembayaran');
         updateModalDetailFromSelect();
+    });
+
+    // Handler klik tombol "Jam Sekarang"
+    $(document).on('click', '#btnSyncJamNow', function(e) {
+        e.preventDefault();
+        syncAutoJam('jam_pembayaran');
+    });
+
+    $(document).on('click', '#btnSyncEditJamNow', function(e) {
+        e.preventDefault();
+        syncAutoJam('edit_jam_pembayaran');
     });
 });
 </script>

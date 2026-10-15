@@ -474,10 +474,11 @@ class Keuangan_core extends CI_Controller {
                 @mkdir($upload_path, 0777, true);
             }
 
-            $config['upload_path']   = $upload_path;
-            $config['allowed_types'] = 'jpg|jpeg|png|pdf';
-            $config['max_size']      = 5120; // 5MB
-            $config['file_name']     = 'keringanan_' . $akun_id . '_' . time();
+            $config['upload_path']      = $upload_path;
+            $config['allowed_types']    = 'jpg|jpeg|png|webp|pdf|JPG|JPEG|PNG|WEBP|PDF';
+            $config['file_ext_tolower'] = TRUE;
+            $config['max_size']         = 10240; // 10MB
+            $config['file_name']        = 'keringanan_' . $akun_id . '_' . time();
 
             $this->load->library('upload');
             $this->upload->initialize($config);
@@ -1603,21 +1604,22 @@ class Keuangan_core extends CI_Controller {
         // Cek berkas bukti baru
         if (!empty($_FILES['bukti_pembayaran']['name'])) {
             $ext = strtolower(pathinfo($_FILES['bukti_pembayaran']['name'], PATHINFO_EXTENSION));
-            $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
             if (!in_array($ext, $allowed_extensions)) {
-                $this->session->set_flashdata('error', 'Format berkas bukti baru tidak valid. Hanya JPG, JPEG, PNG, dan PDF yang diperbolehkan.');
+                $this->session->set_flashdata('error', 'Format berkas bukti baru tidak valid. Hanya JPG, JPEG, PNG, WEBP, dan PDF yang diperbolehkan.');
                 redirect('keuangan');
                 return;
             }
 
             $upload_dir = FCPATH . 'uploads/bukti_pembayaran/';
             if (!is_dir($upload_dir)) {
-                @mkdir($upload_dir, 0755, true);
+                @mkdir($upload_dir, 0777, true);
+                @chmod($upload_dir, 0777);
             }
 
-            $config['upload_path']      = './uploads/bukti_pembayaran/';
-            $config['allowed_types']    = 'jpg|jpeg|png|pdf';
-            $config['max_size']         = 3072;
+            $config['upload_path']      = $upload_dir;
+            $config['allowed_types']    = 'jpg|jpeg|png|webp|pdf|JPG|JPEG|PNG|WEBP|PDF';
+            $config['max_size']         = 10240; // 10MB
             $config['file_name']        = 'bukti_edit_' . $pembayaran->akun_id . '_' . $pembayaran->tagihan_id . '_' . time();
             $config['file_ext_tolower'] = TRUE;
             $config['overwrite']        = FALSE;
@@ -1823,21 +1825,22 @@ class Keuangan_core extends CI_Controller {
         }
 
         $ext = strtolower(pathinfo($_FILES['bukti_pembayaran']['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
         if (!in_array($ext, $allowed_extensions)) {
-            $this->session->set_flashdata('error', 'Format berkas tidak diizinkan. Hanya berkas JPG, JPEG, PNG, dan PDF yang diperbolehkan.');
+            $this->session->set_flashdata('error', 'Format berkas tidak diizinkan. Hanya berkas JPG, JPEG, PNG, WEBP, dan PDF yang diperbolehkan.');
             redirect('keuangan');
             return;
         }
 
         $upload_dir = FCPATH . 'uploads/bukti_pembayaran/';
         if (!is_dir($upload_dir)) {
-            @mkdir($upload_dir, 0755, true);
+            @mkdir($upload_dir, 0777, true);
+            @chmod($upload_dir, 0777);
         }
 
-        $config['upload_path']      = './uploads/bukti_pembayaran/';
-        $config['allowed_types']    = 'jpg|jpeg|png|pdf';
-        $config['max_size']         = 3072;
+        $config['upload_path']      = $upload_dir;
+        $config['allowed_types']    = 'jpg|jpeg|png|webp|pdf|JPG|JPEG|PNG|WEBP|PDF';
+        $config['max_size']         = 10240; // 10MB
         $config['file_name']        = 'bukti_' . $akun_id . '_' . $tagihan->id . '_' . time();
         $config['file_ext_tolower'] = TRUE;
         $config['overwrite']        = FALSE;
@@ -1878,7 +1881,9 @@ class Keuangan_core extends CI_Controller {
     }
 
     /**
-     * Tampilkan atau Unduh Bukti Pembayaran dengan Proteksi Akun
+     * Tampilkan atau Unduh Bukti Pembayaran dengan Proteksi Akun.
+     * Jika transaksi merupakan pembebasan biaya/dispensasi yang disetujui,
+     * secara otomatis menampilkan dokumen Surat Keputusan (SK) Resmi Dispensasi.
      */
     public function lihat_bukti($pembayaran_id)
     {
@@ -1895,6 +1900,19 @@ class Keuangan_core extends CI_Controller {
 
         if (!$pembayaran) {
             show_404();
+            return;
+        }
+
+        // Cek apakah pembayaran merupakan pembebasan biaya / dispensasi
+        $is_dispensasi = (
+            $pembayaran->bukti_pembayaran === 'DISPENSASI_DISETUJUI' ||
+            stripos((string)$pembayaran->metode_pembayaran, 'Dispensasi') !== false ||
+            stripos((string)$pembayaran->metode_pembayaran, 'Pembebasan') !== false ||
+            (isset($pembayaran->nomor_referensi) && strpos((string)$pembayaran->nomor_referensi, 'DISP-') === 0)
+        );
+
+        if ($is_dispensasi) {
+            $this->sk_dispensasi($pembayaran->id);
             return;
         }
 
@@ -1918,5 +1936,65 @@ class Keuangan_core extends CI_Controller {
         header('Content-Disposition: inline; filename="' . $file_name . '"');
         readfile($file_path);
         exit;
+    }
+
+    /**
+     * Tampilkan Dokumen Resmi Surat Keputusan (SK) Dispensasi & Pembebasan Biaya
+     */
+    public function sk_dispensasi($pembayaran_id)
+    {
+        if (!$this->require_roles([1, 2, 3])) return;
+
+        $current_user_id = (int)$this->session->userdata('id');
+        $user_role       = $this->current_role();
+
+        if ($user_role !== 3) {
+            $pembayaran = $this->db->get_where('pembayaran', ['id' => (int)$pembayaran_id])->row();
+        } else {
+            $pembayaran = $this->M_keuangan->get_pembayaran_by_id_and_akun($pembayaran_id, $current_user_id);
+        }
+
+        if (!$pembayaran) {
+            show_404();
+            return;
+        }
+
+        // Ambil data mahasiswa dari tabel akun
+        $mahasiswa = $this->db->get_where('akun', ['id' => (int)$pembayaran->akun_id])->row();
+
+        // Ambil data tagihan terkait
+        $tagihan = $this->db->get_where('tagihan', ['id' => (int)$pembayaran->tagihan_id])->row();
+
+        // Ambil data dispensasi terkait
+        $dispensasi = null;
+        if (!empty($pembayaran->nomor_referensi) && preg_match('/^DISP-\d+-(\d+)$/', $pembayaran->nomor_referensi, $m)) {
+            $disp_id = (int)$m[1];
+            $dispensasi = $this->db->get_where('dispensasi_tagihan', ['id' => $disp_id])->row();
+        }
+        if (!$dispensasi) {
+            $dispensasi = $this->db->where('tagihan_id', (int)$pembayaran->tagihan_id)
+                                   ->where('akun_id', (int)$pembayaran->akun_id)
+                                   ->order_by('id', 'DESC')
+                                   ->get('dispensasi_tagihan')
+                                   ->row();
+        }
+
+        // Ambil data petugas verifikator (admin/superadmin)
+        $verifikator = null;
+        $verifikator_id = !empty($pembayaran->diverifikasi_oleh) ? (int)$pembayaran->diverifikasi_oleh : (!empty($dispensasi->diproses_oleh) ? (int)$dispensasi->diproses_oleh : null);
+        if ($verifikator_id) {
+            $verifikator = $this->db->get_where('akun', ['id' => $verifikator_id])->row();
+        }
+
+        $data = [
+            'pembayaran'  => $pembayaran,
+            'mahasiswa'   => $mahasiswa,
+            'tagihan'     => $tagihan,
+            'dispensasi'  => $dispensasi,
+            'verifikator' => $verifikator,
+            'user_role'   => $user_role
+        ];
+
+        $this->load->view('keuangan/dokumen_sk_dispensasi', $data);
     }
 }
