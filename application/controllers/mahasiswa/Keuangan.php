@@ -8,7 +8,8 @@ class Keuangan extends Keuangan_core
     public function __construct()
     {
         parent::__construct();
-        if ((int)$this->session->userdata('role') !== 3) {
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($this->session->userdata('role') === null);
+        if (!$is_mahasiswa) {
             show_error('Halaman ini hanya dapat diakses oleh Mahasiswa.', 403);
         }
     }

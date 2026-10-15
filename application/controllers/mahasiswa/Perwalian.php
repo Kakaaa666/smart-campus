@@ -18,15 +18,24 @@ class Perwalian extends CI_Controller {
             return;
         }
 
-        if (!in_array((int)$this->session->userdata('role'), [1, 3], true)) {
+        $role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($role === null);
+
+        if (!$is_mahasiswa && (int)$role !== 1) {
             show_error('Menu perwalian hanya dapat diakses mahasiswa dan Superadmin.', 403);
             return;
         }
     }
 
+    private function is_mahasiswa()
+    {
+        return ($this->session->userdata('account_type') === 'mahasiswa') || ($this->session->userdata('role') === null);
+    }
+
     private function _render($page_title, $page_desc, $card_subtitle = '', $view_name = 'ambil_matakuliah') {
         $current_user_id = (int)$this->session->userdata('id');
-        $user_role       = (int)$this->session->userdata('role');
+        $is_mahasiswa    = $this->is_mahasiswa();
+        $user_role       = $is_mahasiswa ? null : (int)$this->session->userdata('role');
 
         // Tentukan akun mahasiswa yang dicek
         if ($user_role === 1) {
@@ -63,7 +72,7 @@ class Perwalian extends CI_Controller {
         $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
 
         // Simulasi status hanya untuk preview admin, bukan mahasiswa.
-        if ($user_role !== 3) {
+        if (!$is_mahasiswa) {
             $simulasi = $this->input->get('status', true) ?: $this->input->get('simulasi', true);
             if ($simulasi === 'terkunci') {
                 $status_krs['buka_krs'] = false;
@@ -129,7 +138,7 @@ class Perwalian extends CI_Controller {
             redirect('perwalian');
             return;
         }
-        if ((int)$this->session->userdata('role') !== 3) {
+        if (!$this->is_mahasiswa()) {
             show_error('Hanya mahasiswa yang dapat mengubah KRS.', 403);
             return;
         }
@@ -165,10 +174,9 @@ class Perwalian extends CI_Controller {
             return;
         }
 
-        $user_role = (int)$this->session->userdata('role');
         $akun_id = (int)$this->session->userdata('id');
 
-        if ($user_role !== 3) {
+        if (!$this->is_mahasiswa()) {
             $this->session->set_flashdata('error', 'Hanya mahasiswa yang dapat memilih dosen wali.');
             redirect('perwalian');
             return;

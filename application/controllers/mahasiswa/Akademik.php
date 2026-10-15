@@ -30,11 +30,13 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function jadwal() {
-        $user_role = (int)$this->session->userdata('role');
+        $raw_role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
 
         // Jika diakses oleh Admin atau Dosen, tampilkan data mahasiswa (default Arthur atau mahasiswa pertama)
-        if ($user_role !== 3) {
+        if (!$is_mahasiswa) {
             $mhs = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
             if (!$mhs) {
                 $mhs = $this->db->get('akun_mahasiswa')->row();
@@ -71,7 +73,9 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function khs() {
-        $user_role = (int)$this->session->userdata('role');
+        $raw_role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
         $is_dosen = ($user_role === 4);
@@ -118,7 +122,9 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function transkrip() {
-        $user_role = (int)$this->session->userdata('role');
+        $raw_role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
         $is_dosen = ($user_role === 4);

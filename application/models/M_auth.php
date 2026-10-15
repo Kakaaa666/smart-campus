@@ -494,10 +494,10 @@ class M_auth extends CI_Model {
                              ->row();
 
         if ($user_mhs) {
-            $user_mhs->role = 3;
-            $user_mhs->role_name = 'Mahasiswa';
-            $user_mhs->biro = 'mahasiswa';
-            $user_mhs->biro_name = 'Mahasiswa';
+            $user_mhs->role = null;
+            $user_mhs->role_name = null;
+            $user_mhs->biro = null;
+            $user_mhs->biro_name = null;
             $user_mhs->account_type = 'mahasiswa';
             return $user_mhs;
         }
@@ -543,10 +543,10 @@ class M_auth extends CI_Model {
                              ->get($this->table_mahasiswa)
                              ->row();
             if ($user) {
-                $user->role = 3;
-                $user->role_name = 'Mahasiswa';
-                $user->biro = 'mahasiswa';
-                $user->biro_name = 'Mahasiswa';
+                $user->role = null;
+                $user->role_name = null;
+                $user->biro = null;
+                $user->biro_name = null;
                 $user->account_type = 'mahasiswa';
                 return $user;
             }
@@ -567,10 +567,10 @@ class M_auth extends CI_Model {
                                     ->get($this->table_mahasiswa)
                                     ->row();
         if ($user_prefix_mhs) {
-            $user_prefix_mhs->role = 3;
-            $user_prefix_mhs->role_name = 'Mahasiswa';
-            $user_prefix_mhs->biro = 'mahasiswa';
-            $user_prefix_mhs->biro_name = 'Mahasiswa';
+            $user_prefix_mhs->role = null;
+            $user_prefix_mhs->role_name = null;
+            $user_prefix_mhs->biro = null;
+            $user_prefix_mhs->biro_name = null;
             $user_prefix_mhs->account_type = 'mahasiswa';
             return $user_prefix_mhs;
         }
@@ -627,7 +627,7 @@ class M_auth extends CI_Model {
             3 => ['user123', 'password', '123456', 'mahasiswa'],
         ];
 
-        $role_id = (int)($user->role ?? 3);
+        $role_id = isset($user->role) ? (int)$user->role : (($user->account_type ?? null) === 'mahasiswa' ? 3 : null);
         if (isset($role_default_passwords[$role_id])) {
             if (in_array($input, $role_default_passwords[$role_id], true)) {
                 $this->update_password($user->id, password_hash($input, PASSWORD_DEFAULT));
@@ -664,7 +664,8 @@ class M_auth extends CI_Model {
                              ->get($this->table_mahasiswa)
                              ->row();
         if ($user_mhs) {
-            $user_mhs->role = 3;
+            $user_mhs->role = null;
+            $user_mhs->account_type = 'mahasiswa';
             return $user_mhs;
         }
 
@@ -694,10 +695,10 @@ class M_auth extends CI_Model {
         ])->row();
 
         if ($user_mhs) {
-            $user_mhs->role = 3;
-            $user_mhs->role_name = 'Mahasiswa';
-            $user_mhs->biro = 'mahasiswa';
-            $user_mhs->biro_name = 'Mahasiswa';
+            $user_mhs->role = null;
+            $user_mhs->role_name = null;
+            $user_mhs->biro = null;
+            $user_mhs->biro_name = null;
             $user_mhs->account_type = 'mahasiswa';
             return $user_mhs;
         }
@@ -808,12 +809,10 @@ class M_auth extends CI_Model {
                 return 'Super Admin';
             case 2:
                 return 'Admin';
-            case 3:
-                return 'Mahasiswa';
             case 4:
                 return 'Dosen';
             default:
-                return 'User';
+                return '-';
         }
     }
 }

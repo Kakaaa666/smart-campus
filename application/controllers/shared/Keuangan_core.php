@@ -3,8 +3,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Keuangan_core extends CI_Controller {
 
+    private function is_mahasiswa()
+    {
+        return ($this->session->userdata('account_type') === 'mahasiswa') || ($this->session->userdata('role') === null);
+    }
+
     private function current_role()
     {
+        if ($this->is_mahasiswa()) {
+            return null;
+        }
         return (int)$this->session->userdata('role');
     }
 
@@ -14,8 +22,15 @@ class Keuangan_core extends CI_Controller {
      */
     private function require_roles(array $allowed_roles, $redirect_to = 'keuangan')
     {
-        if (in_array($this->current_role(), $allowed_roles, true)) {
-            return true;
+        if ($this->is_mahasiswa()) {
+            if (in_array(3, $allowed_roles, true) || in_array('mahasiswa', $allowed_roles, true)) {
+                return true;
+            }
+        } else {
+            $role = $this->current_role();
+            if ($role !== null && in_array($role, $allowed_roles, true)) {
+                return true;
+            }
         }
 
         $message = 'Anda tidak memiliki akses ke fitur keuangan ini.';
@@ -49,24 +64,25 @@ class Keuangan_core extends CI_Controller {
             exit;
         }
 
-        $role_models = [
-            1 => 'superadmin/M_keuangan_superadmin',
-            2 => 'admin/M_keuangan_admin',
-            3 => 'mahasiswa/M_keuangan_mahasiswa'
-        ];
-        $role = (int)$this->session->userdata('role');
-        if (!isset($role_models[$role])) {
+        $role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($role === null);
+
+        if ($is_mahasiswa) {
+            $model = 'mahasiswa/M_keuangan_mahasiswa';
+        } elseif ((int)$role === 1) {
+            $model = 'superadmin/M_keuangan_superadmin';
+        } elseif ((int)$role === 2) {
+            $biro = strtolower((string)$this->session->userdata('biro')) ?: 'keuangan';
+            if ($biro !== 'keuangan') {
+                show_error('Admin ini tidak memiliki kewenangan untuk biro keuangan.', 403);
+                return;
+            }
+            $model = 'admin/M_keuangan_admin';
+        } else {
             show_error('Role pengguna tidak valid untuk modul keuangan.', 403);
             return;
         }
 
-        $biro = strtolower((string)$this->session->userdata('biro')) ?: 'keuangan';
-        if ($role === 2 && $biro !== 'keuangan') {
-            show_error('Admin ini tidak memiliki kewenangan untuk biro keuangan.', 403);
-            return;
-        }
-
-        $model = $role_models[$role];
         $this->load->model($model, 'M_keuangan');
     }
 
@@ -75,15 +91,16 @@ class Keuangan_core extends CI_Controller {
      * HALAMAN UTAMA MAHASISWA - Informasi Keuangan
      * =====================================================
      * Role 2 (Admin Keuangan) diarahkan ke dashboard admin keuangan.
-     * Role 3 (Mahasiswa) melihat tagihan & pembayaran sendiri.
+     * Mahasiswa melihat tagihan & pembayaran sendiri.
      * Role 1 (Super Admin) dapat pratinjau data mahasiswa terpilih.
      */
     public function index()
     {
-        $user_role = (int)$this->session->userdata('role');
+        $is_mahasiswa = $this->is_mahasiswa();
+        $user_role = $is_mahasiswa ? null : (int)$this->session->userdata('role');
 
         // Admin Keuangan (role 2) langsung diarahkan ke dashboard admin keuangan
-        if ($user_role === 2) {
+        if (!$is_mahasiswa && $user_role === 2) {
             redirect('keuangan/admin');
             return;
         }
@@ -125,7 +142,7 @@ class Keuangan_core extends CI_Controller {
         // Method ini idempoten: tagihan yang sudah ada tidak akan diduplikasi.
         $this->M_keuangan->sinkronkan_tagihan_ta_semua_mahasiswa();
         $this->M_keuangan->sinkronkan_dispensasi_disetujui($akun_id);
-        if ($user_role === 3) {
+        if ($is_mahasiswa) {
             $this->M_keuangan->sinkronkan_antrian_tagihan_akhir();
         }
         $data['ambil_semester_pendek'] = $target_mhs ? (bool)$target_mhs->ambil_semester_pendek : false;
@@ -137,7 +154,7 @@ class Keuangan_core extends CI_Controller {
             'nama_lengkap' => $this->session->userdata('nama_lengkap'),
             'email'        => $this->session->userdata('email'),
             'role'         => $user_role,
-            'role_name'    => $this->session->userdata('role_name'),
+            'role_name'    => $is_mahasiswa ? null : $this->session->userdata('role_name'),
             'foto'         => $this->session->userdata('foto')
         ];
 
@@ -153,13 +170,13 @@ class Keuangan_core extends CI_Controller {
 
         $is_semester_akhir = $target_mhs && $this->M_keuangan->is_mahasiswa_semester_akhir($target_mhs);
         $data['is_semester_akhir'] = $is_semester_akhir;
-        $data['validasi_tagihan_akhir'] = $user_role === 3 && $is_semester_akhir
+        $data['validasi_tagihan_akhir'] = $is_mahasiswa && $is_semester_akhir
             ? $this->M_keuangan->get_status_antrian_tagihan_akhir($akun_id)
             : null;
-        $data['dispensasi_requests'] = $user_role === 3
+        $data['dispensasi_requests'] = $is_mahasiswa
             ? $this->M_keuangan->get_dispensasi_mahasiswa($akun_id)
             : [];
-        $data['bisa_ajukan_dispensasi'] = $user_role === 3;
+        $data['bisa_ajukan_dispensasi'] = $is_mahasiswa;
 
         // Ambil Pengaturan Akses Pembayaran Tugas Akhir Spesifik Mahasiswa Ini
         $akses_ta_mahasiswa = $this->M_keuangan->get_status_akses_ta_mahasiswa($akun_id);
@@ -590,7 +607,7 @@ class Keuangan_core extends CI_Controller {
         $current_role    = $this->current_role();
         $current_user_id = (int)$this->session->userdata('id');
         // Mahasiswa hanya boleh melihat berkas miliknya sendiri
-        if ($current_role === 3 && (int)$row->akun_id !== $current_user_id) {
+        if (($this->is_mahasiswa() || $current_role === 3) && (int)$row->akun_id !== $current_user_id) {
             show_error('Anda tidak memiliki akses ke berkas ini.', 403);
             return;
         }

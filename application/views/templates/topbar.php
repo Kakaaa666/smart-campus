@@ -47,16 +47,18 @@
                                 </ul>
                             </li>
                             <?php
-                                $current_role_id = (int)$this->session->userdata('role');
-                                $userName = $this->session->userdata('nama_lengkap') ? $this->session->userdata('nama_lengkap') : ($current_role_id === 3 ? 'Muhammad Eka' : 'Admin Smart Campus');
+                                $raw_role = $this->session->userdata('role');
+                                $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+                                $current_role_id = $is_mahasiswa ? null : (int)$raw_role;
+                                $userName = $this->session->userdata('nama_lengkap') ? $this->session->userdata('nama_lengkap') : ($is_mahasiswa ? 'Muhammad Eka' : 'Admin Smart Campus');
                                 $userNim  = $this->session->userdata('nim');
                                 $userRole = $this->session->userdata('role_name');
                                 $userBiro = $this->session->userdata('biro');
                                 $userFoto = $this->session->userdata('foto') ? $this->session->userdata('foto') : 'avatar-4.png';
 
-                                if ($current_role_id === 3) {
+                                if ($is_mahasiswa) {
                                     $subTitle = $userNim ? 'NIM: ' . $userNim : 'Mahasiswa Aktif';
-                                    $roleBadgeName = 'Mahasiswa';
+                                    $roleBadgeName = '';
                                 } elseif ($current_role_id === 2) {
                                     $subTitle = $userRole ? $userRole : ($userBiro ? 'Admin ' . ucfirst($userBiro) : 'Admin Biro');
                                     $roleBadgeName = $subTitle;
@@ -86,7 +88,7 @@
                                 <ul class="show-notification profile-notification">
                                     <li class="waves-effect waves-light">
                                         <a href="<?= base_url('profil') ?>">
-                                            <i class="ti-user"></i> Profil (<?= htmlspecialchars($roleBadgeName) ?>)
+                                            <i class="ti-user"></i> Profil<?= !empty($roleBadgeName) ? ' (' . htmlspecialchars($roleBadgeName) . ')' : '' ?>
                                         </a>
                                     </li>
                                     <li class="waves-effect waves-light">

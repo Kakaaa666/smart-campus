@@ -65,7 +65,6 @@ class M_pengguna_admin extends M_pengguna
             akun_mahasiswa.nim,
             akun_mahasiswa.nama_lengkap,
             akun_mahasiswa.email,
-            3 AS role,
             COALESCE(NULLIF(akun_mahasiswa.prodi, ''), 'Teknik Informatika') AS prodi,
             COALESCE(NULLIF(akun_mahasiswa.fakultas, ''), 'Fakultas Ilmu Komputer') AS fakultas,
             COALESCE(akun_mahasiswa.semester, 1) AS semester,
@@ -268,7 +267,6 @@ class M_pengguna_admin extends M_pengguna
     {
         $this->db->select("
             akun_mahasiswa.*,
-            3 AS role,
             dosen_wali.dosen_id,
             dosen.nama_lengkap AS nama_dosen_wali,
             dosen.nim AS nidn_dosen_wali,

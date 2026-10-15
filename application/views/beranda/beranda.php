@@ -185,7 +185,7 @@
                         </section>
                     <?php endif; ?>
 
-                    <?php if ((int)$this->session->userdata('role') === 3 && !empty($student)): ?>
+                    <?php if (!empty($student)): ?>
                         <!-- ======================================================== -->
                         <!-- BERANDA UTAMA MAHASISWA (PROFIL & PERKULIAHAN)          -->
                         <!-- ======================================================== -->

@@ -626,15 +626,11 @@ class M_akademik extends CI_Model
 
     public function get_account($akun_id)
     {
-        $acc = $this->db->select('id, nim, nama_lengkap, fakultas, prodi, jenjang, semester')
+        return $this->db->select('id, nim, nama_lengkap, fakultas, prodi, jenjang, semester')
                         ->where('id', (int)$akun_id)
                         ->where('deleted_at IS NULL', null, false)
                         ->get('akun_mahasiswa')
                         ->row();
-        if ($acc) {
-            $acc->role = 3;
-        }
-        return $acc;
     }
 
     public function get_advisor_for_student($akun_id)

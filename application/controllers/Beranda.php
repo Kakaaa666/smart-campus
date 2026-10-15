@@ -20,8 +20,11 @@ class Beranda extends CI_Controller {
     }
 
     public function index() {
-        $role = (int)$this->session->userdata('role');
-        if ($role === 2) {
+        $role = $this->session->userdata('role');
+        $account_type = $this->session->userdata('account_type');
+        $is_mahasiswa = ($account_type === 'mahasiswa') || ($role === null);
+
+        if (!$is_mahasiswa && (int)$role === 2) {
             $biro = M_auth::normalize_biro($this->session->userdata('biro'));
             $routes = [
                 'keuangan' => 'keuangan/admin',
@@ -34,7 +37,7 @@ class Beranda extends CI_Controller {
             redirect($routes[$biro] ?? 'keuangan/admin');
             return;
         }
-        if ($role === 4) {
+        if (!$is_mahasiswa && (int)$role === 4) {
             redirect('dosen');
             return;
         }
@@ -46,13 +49,13 @@ class Beranda extends CI_Controller {
             'id'           => $akun_id,
             'nim'          => $this->session->userdata('nim'),
             'nama_lengkap' => $this->session->userdata('nama_lengkap'),
-            'role'         => $role,
-            'role_name'    => $this->session->userdata('role_name'),
+            'role'         => $is_mahasiswa ? null : (int)$role,
+            'role_name'    => $is_mahasiswa ? null : $this->session->userdata('role_name'),
             'foto'         => $this->session->userdata('foto')
         ];
 
-        // Jika Mahasiswa (Role 3): Muat Data Profil Lengkap & Informasi Perkuliahan
-        if ($role === 3) {
+        // Jika Mahasiswa: Muat Data Profil Lengkap & Informasi Perkuliahan
+        if ($is_mahasiswa) {
             // Ambil Profil Mahasiswa beserta Dosen Wali
             $student = $this->db->select('akun_mahasiswa.*, dosen.id AS dosen_id, dosen.nama_lengkap AS nama_dosen_wali, dosen.nim AS nidn_dosen_wali, dosen.email AS email_dosen_wali, dosen.telepon AS telepon_dosen_wali, dosen.foto AS foto_dosen_wali')
                                 ->from('akun_mahasiswa')
@@ -60,9 +63,6 @@ class Beranda extends CI_Controller {
                                 ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
                                 ->where('akun_mahasiswa.id', $akun_id)
                                 ->get()->row();
-            if ($student) {
-                $student->role = 3;
-            }
 
             $academic_period = $this->M_akademik->get_active_period();
             $krs = $this->M_akademik->get_krs($akun_id, $academic_period);
