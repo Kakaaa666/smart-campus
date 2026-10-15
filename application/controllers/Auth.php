@@ -58,8 +58,7 @@ class Auth extends CI_Controller {
         if ($user) {
             // Cek password hash atau plain/rehash secara aman dan kompatibel
             if ($this->M_auth->verify_user_password($password, $user)) {
-                // Cek apakah akun adalah mahasiswa (akun_mahasiswa tidak memiliki role)
-                $is_mahasiswa = (($user->account_type ?? null) === 'mahasiswa') || empty($user->role);
+                $role = (int)($user->role ?? (($user->account_type ?? null) === 'mahasiswa' ? 3 : 3));
 
                 // Buat data session
                 $session_data = [
@@ -67,11 +66,11 @@ class Auth extends CI_Controller {
                     'nim'          => $user->nim,
                     'nama_lengkap' => $user->nama_lengkap,
                     'email'        => $user->email,
-                    'account_type' => $is_mahasiswa ? 'mahasiswa' : 'biro',
-                    'role'         => $is_mahasiswa ? null : (int)$user->role, // Mahasiswa TIDAK memiliki role
-                    'role_name'    => $is_mahasiswa ? null : M_auth::role_label($user->role),
-                    'biro'         => $is_mahasiswa ? null : ((int)$user->role === 2 ? M_auth::normalize_biro($user->biro) : ((int)$user->role === 1 ? 'semua' : 'dosen')),
-                    'biro_name'    => $is_mahasiswa ? null : ((int)$user->role === 2 ? M_auth::biro_label($user->biro) : ((int)$user->role === 1 ? 'Seluruh Biro' : 'Dosen')),
+                    'account_type' => $user->account_type ?? ($role === 3 ? 'mahasiswa' : 'biro'),
+                    'role'         => $role,
+                    'role_name'    => M_auth::role_label($role),
+                    'biro'         => $role === 2 ? M_auth::normalize_biro($user->biro) : ($role === 1 ? 'semua' : ($role === 4 ? 'dosen' : 'mahasiswa')),
+                    'biro_name'    => $role === 2 ? M_auth::biro_label($user->biro) : ($role === 1 ? 'Seluruh Biro' : ($role === 4 ? 'Dosen' : 'Mahasiswa')),
                     'foto'         => !empty($user->foto) ? $user->foto : 'avatar-4.png',
                     'is_logged_in' => TRUE
                 ];

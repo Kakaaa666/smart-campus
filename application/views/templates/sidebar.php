@@ -1,19 +1,17 @@
 <?php
 $seg1 = $this->uri->segment(1);
 $seg2 = $this->uri->segment(2);
-$raw_role = $this->session->userdata('role');
-$is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
-$current_role = $is_mahasiswa ? null : (int)$raw_role;
+$current_role = (int)$this->session->userdata('role');
+if ($current_role === 0 && $this->session->userdata('account_type') === 'mahasiswa') {
+    $current_role = 3;
+}
 $current_bureau = strtolower((string)$this->session->userdata('biro'));
 if ($current_role === 2 && $current_bureau === '') {
     $current_bureau = 'keuangan';
 }
 $dashboard_route = 'beranda';
 $dashboard_label = 'Pusat Kendali';
-if ($is_mahasiswa) {
-    $dashboard_route = 'ringkasan';
-    $dashboard_label = 'Ringkasan';
-} elseif ($current_role === 2) {
+if ($current_role === 2) {
     $dashboard_routes = [
         'keuangan' => ['keuangan/admin', 'Dashboard Keuangan'],
         'akademik' => ['admin/akademik', 'Dashboard Akademik'],
@@ -26,6 +24,9 @@ if ($is_mahasiswa) {
         $dashboard_route = $dashboard_routes[$current_bureau][0];
         $dashboard_label = $dashboard_routes[$current_bureau][1];
     }
+} elseif ($current_role === 3) {
+    $dashboard_route = 'ringkasan';
+    $dashboard_label = 'Ringkasan';
 } elseif ($current_role === 4) {
     $dashboard_route = 'dosen';
     $dashboard_label = 'Dashboard';
@@ -45,7 +46,7 @@ if ($is_mahasiswa) {
                         <div class="pcoded-inner-navbar main-menu">
                             <ul class="pcoded-item pcoded-left-item">
 
-                                <?php if ($is_mahasiswa): ?>
+                                <?php if ($current_role === 3): ?>
                                 <li class="<?= ($seg1 === 'beranda' || $this->uri->uri_string() === '' || $this->uri->uri_string() === 'beranda') ? 'active' : '' ?>">
                                     <a href="<?= base_url('beranda') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-home icon-blue"></i></span>
@@ -190,9 +191,28 @@ if ($is_mahasiswa) {
                                 </li>
 
                                                                 <?php elseif ($current_bureau === 'akademik'): ?>
+                                <?php
+                                    $ci =& get_instance();
+                                    $ci->load->model('mahasiswa/M_skpi_mahasiswa', 'M_skpi_sidebar');
+                                    $skpi_pending_count = 0;
+                                    try {
+                                        $skpi_summary = $ci->M_skpi_sidebar->get_admin_summary();
+                                        $skpi_pending_count = (int)($skpi_summary['waiting'] ?? 0);
+                                    } catch (\Throwable $e) {}
+                                ?>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) !== 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Operasional Akademik</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) === 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik/khs') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">KHS Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'pengguna') ? 'active' : '' ?>"><a href="<?= base_url('admin/pengguna') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Data Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'skpi') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('admin/skpi') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-certificate"></i></span>
+                                        <span class="pcoded-mtext">Validasi SKPI</span>
+                                        <?php if ($skpi_pending_count > 0): ?>
+                                            <span class="badge badge-warning text-dark ml-2" style="font-size:11px;padding:3px 8px;border-radius:12px;font-weight:700;"><?= $skpi_pending_count ?></span>
+                                        <?php endif; ?>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
                                 <li class="<?= ($seg1 === 'profil') ? 'active' : '' ?>"><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
 
                                 <?php elseif ($current_bureau === 'perpustakaan'): ?>
@@ -237,9 +257,9 @@ if ($is_mahasiswa) {
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'perkuliahan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/perkuliahan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Perkuliahan</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= (($seg1 === 'dosen' && $seg2 === 'profil') || $seg1 === 'profil') ? 'active' : '' ?>"><a href="<?= base_url('dosen/profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Profile</span><span class="pcoded-mcaret"></span></a></li>
 
-                                  <?php elseif ($is_mahasiswa): ?>
+                                  <?php elseif ($current_role === 3): ?>
                                 <!-- =============================================
-                                      MENU KHUSUS MAHASISWA
+                                      MENU KHUSUS MAHASISWA (role 3)
                                 ============================================= -->
 
                                 <li class="<?= ($seg1 == 'kuisioner') ? 'active' : '' ?>">

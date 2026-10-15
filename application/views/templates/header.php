@@ -271,24 +271,49 @@
             color: #1976d2 !important;
         }
 
-        /* Menjamin konten halaman tidak tertindih oleh sidebar yang fixed */
-        .pcoded[theme-layout="vertical"] .pcoded-content,
-        .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
-        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
-            margin-left: 235px !important;
-            transition: margin-left 0.25s ease-in-out;
-        }
-        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="collapsed"] .pcoded-content {
-            margin-left: 70px !important;
-        }
-        .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="offcanvas"] .pcoded-content {
-            margin-left: 0 !important;
+        /* Menjamin konten halaman tidak tertindih oleh sidebar yang fixed baik saat terbuka maupun ciut */
+        @media only screen and (min-width: 769px) {
+            .pcoded[theme-layout="vertical"] .pcoded-content,
+            .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
+            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content,
+            .pcoded[theme-layout="vertical"]:not([vertical-nav-type="collapsed"]) .pcoded-content,
+            .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-wrapper > .pcoded-inner-content {
+                margin-left: 280px !important;
+                margin-right: 0 !important;
+                width: calc(100% - 280px) !important;
+                max-width: calc(100% - 280px) !important;
+                box-sizing: border-box !important;
+                left: auto !important;
+                right: auto !important;
+                float: none !important;
+                transition: margin-left 0.25s ease-in-out, width 0.25s ease-in-out;
+            }
+            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="collapsed"] .pcoded-content,
+            .pcoded[vertical-nav-type="collapsed"] .pcoded-wrapper > .pcoded-inner-content {
+                margin-left: 70px !important;
+                margin-right: 0 !important;
+                width: calc(100% - 70px) !important;
+                max-width: calc(100% - 70px) !important;
+                box-sizing: border-box !important;
+                left: auto !important;
+                right: auto !important;
+                float: none !important;
+                transition: margin-left 0.25s ease-in-out, width 0.25s ease-in-out;
+            }
+            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="offcanvas"] .pcoded-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
         }
         @media only screen and (max-width: 768px) {
             .pcoded[theme-layout="vertical"] .pcoded-content,
             .pcoded[theme-layout="vertical"][vertical-placement="left"] .pcoded-content,
-            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content {
+            .pcoded[theme-layout="vertical"][vertical-placement="left"][vertical-nav-type="expanded"] .pcoded-content,
+            .pcoded .pcoded-wrapper > .pcoded-inner-content {
                 margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
         }
     </style>

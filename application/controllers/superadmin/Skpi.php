@@ -15,6 +15,6 @@ class Skpi extends MY_Role_Controller
 
     public function index()
     {
-        $this->render_module('Pengajuan SKPI', 'Pantau, validasi, dan kelola pengajuan Surat Keterangan Pendamping Ijazah (SKPI) mahasiswa.', 'SKPI');
+        redirect('admin/skpi');
     }
 }

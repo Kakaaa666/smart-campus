@@ -18,28 +18,19 @@ class MY_Role_Controller extends CI_Controller
             return;
         }
 
-        $role = $this->session->userdata('role');
-        $account_type = $this->session->userdata('account_type');
-        $is_mahasiswa = ($account_type === 'mahasiswa') || ($role === null);
+        $role = (int)$this->session->userdata('role');
+        if ($role === 0 && $this->session->userdata('account_type') === 'mahasiswa') {
+            $role = 3;
+        }
 
-        if ($is_mahasiswa) {
-            $mhs_allowed = in_array(3, $this->allowed_roles, true)
-                        || in_array('mahasiswa', $this->allowed_roles, true)
-                        || empty($this->allowed_roles);
-            if (!$mhs_allowed) {
-                show_error('Anda tidak memiliki hak akses ke modul ini.', 403);
-            }
-        } else {
-            $role_int = (int)$role;
-            if (!in_array($role_int, $this->allowed_roles, true)) {
-                show_error('Anda tidak memiliki hak akses ke modul ini.', 403);
-            }
+        if (!in_array($role, $this->allowed_roles, true)) {
+            show_error('Anda tidak memiliki hak akses ke modul ini.', 403);
+        }
 
-            if ($role_int === 2 && $this->allowed_bureaus) {
-                $biro = strtolower((string)$this->session->userdata('biro')) ?: 'keuangan';
-                if (!in_array($biro, $this->allowed_bureaus, true)) {
-                    show_error('Admin ini tidak memiliki kewenangan untuk biro tersebut.', 403);
-                }
+        if ($role === 2 && $this->allowed_bureaus) {
+            $biro = strtolower((string)$this->session->userdata('biro')) ?: 'keuangan';
+            if (!in_array($biro, $this->allowed_bureaus, true)) {
+                show_error('Admin ini tidak memiliki kewenangan untuk biro tersebut.', 403);
             }
         }
     }

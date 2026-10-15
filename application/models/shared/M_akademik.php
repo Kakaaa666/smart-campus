@@ -1086,11 +1086,10 @@ class M_akademik extends CI_Model
 
         $qb = $this->db->select('krs.*, mahasiswa.nim, mahasiswa.nama_lengkap, mahasiswa.prodi, mahasiswa.semester, mahasiswa.foto, dosen.nama_lengkap AS nama_dosen_wali, validator.nama_lengkap AS nama_validator')
                        ->from('krs')
-                       ->join('akun AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
+                       ->join('akun_mahasiswa AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
                        ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
-                       ->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
-                       ->join('akun AS validator', 'validator.id = krs.diproses_oleh', 'left')
-                       ->where('mahasiswa.role', 3)
+                       ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                       ->join('akun_biro AS validator', 'validator.id = krs.diproses_oleh', 'left')
                        ->where('mahasiswa.deleted_at IS NULL', null, false);
 
         if ($lecturer_id > 0) {
@@ -1177,10 +1176,9 @@ class M_akademik extends CI_Model
             COALESCE(SUM(CASE WHEN krs.status = 'DISETUJUI' THEN 1 ELSE 0 END), 0) AS approved,
             COALESCE(SUM(CASE WHEN krs.status = 'DITOLAK' THEN 1 ELSE 0 END), 0) AS rejected
         FROM krs
-        INNER JOIN akun AS mahasiswa ON mahasiswa.id = krs.akun_id
+        INNER JOIN akun_mahasiswa AS mahasiswa ON mahasiswa.id = krs.akun_id
         LEFT JOIN dosen_wali ON dosen_wali.mahasiswa_id = krs.akun_id
-        WHERE mahasiswa.role = 3 
-          AND mahasiswa.deleted_at IS NULL" . $where_krs_lec;
+        WHERE mahasiswa.deleted_at IS NULL" . $where_krs_lec;
 
         $res_krs = $this->db->query($sql_krs)->row();
 
@@ -1191,9 +1189,8 @@ class M_akademik extends CI_Model
 
         $sql_students = "SELECT COUNT(DISTINCT dosen_wali.mahasiswa_id) AS total_students
         FROM dosen_wali
-        INNER JOIN akun AS mahasiswa ON mahasiswa.id = dosen_wali.mahasiswa_id
-        WHERE mahasiswa.role = 3 
-          AND mahasiswa.deleted_at IS NULL" . $where_stu_lec;
+        INNER JOIN akun_mahasiswa AS mahasiswa ON mahasiswa.id = dosen_wali.mahasiswa_id
+        WHERE mahasiswa.deleted_at IS NULL" . $where_stu_lec;
 
         $res_students = $this->db->query($sql_students)->row();
 
@@ -1210,7 +1207,7 @@ class M_akademik extends CI_Model
         $period = $this->get_active_period();
         $qb = $this->db->select('mahasiswa.id, mahasiswa.nim, mahasiswa.nama_lengkap, mahasiswa.prodi, mahasiswa.semester, krs.status AS status_krs, krs.total_sks, krs.tahun_akademik, krs.semester_akademik')
                        ->from('dosen_wali')
-                       ->join('akun AS mahasiswa', 'mahasiswa.id = dosen_wali.mahasiswa_id', 'inner')
+                       ->join('akun_mahasiswa AS mahasiswa', 'mahasiswa.id = dosen_wali.mahasiswa_id', 'inner')
                        ->join(
                            'krs',
                            'krs.akun_id = mahasiswa.id'
@@ -1219,7 +1216,6 @@ class M_akademik extends CI_Model
                            'left',
                            false
                        )
-                       ->where('mahasiswa.role', 3)
                        ->where('mahasiswa.deleted_at IS NULL', null, false);
 
         if ($lecturer_id > 0) {
@@ -1240,10 +1236,9 @@ class M_akademik extends CI_Model
         $this->db->trans_begin();
         $qb = $this->db->select('krs.id, krs.akun_id, krs.status, krs.total_sks')
                        ->from('krs')
-                       ->join('akun AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
+                       ->join('akun_mahasiswa AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
                        ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
                        ->where('krs.id', (int)$krs_id)
-                       ->where('mahasiswa.role', 3)
                        ->where('mahasiswa.deleted_at IS NULL', null, false);
 
         // Dosen hanya berwenang menyetujui mahasiswa bimbingan perwaliannya sendiri

@@ -816,7 +816,6 @@ class M_keuangan_shared extends CI_Model {
         $status_int = $status ? 1 : 0;
         $akun = $this->db->select('semester, prodi')
                          ->where('id', (int)$akun_id)
-                         ->where('role', 3)
                          ->where('deleted_at IS NULL', null, false)
                          ->get($this->table_akun)
                          ->row();
@@ -861,7 +860,6 @@ class M_keuangan_shared extends CI_Model {
     public function sinkronkan_tagihan_ta_semua_mahasiswa()
     {
         $mahasiswa = $this->db->select('id')
-                              ->where('role', 3)
                               ->where('deleted_at IS NULL', null, false)
                               ->get($this->table_akun)
                               ->result();
@@ -888,7 +886,6 @@ class M_keuangan_shared extends CI_Model {
     {
         $akun_id = (int)$akun_id;
         $akun = $this->db->where('id', $akun_id)
-                         ->where('role', 3)
                          ->where('deleted_at IS NULL', null, false)
                          ->get($this->table_akun)
                          ->row();
@@ -1250,7 +1247,7 @@ class M_keuangan_shared extends CI_Model {
         $target_students = $this->db->select('id, nim')
                                     ->from($this->table_akun)
                                     ->where_in('nim', ['2001', '2004'])
-                                    ->where('role', 3)
+                                    ->where('deleted_at IS NULL', null, false)
                                     ->get()
                                     ->result();
         foreach ($target_students as $st) {
@@ -1489,8 +1486,7 @@ class M_keuangan_shared extends CI_Model {
      */
     public function count_mahasiswa_aktif()
     {
-        return $this->db->where('role', 3)
-                        ->where('deleted_at IS NULL')
+        return $this->db->where('deleted_at IS NULL')
                         ->count_all_results($this->table_akun);
     }
 
@@ -1501,7 +1497,6 @@ class M_keuangan_shared extends CI_Model {
     {
         $fakultas = $this->db->distinct()
                              ->select('fakultas')
-                             ->where('role', 3)
                              ->where('deleted_at IS NULL')
                              ->where('fakultas IS NOT NULL')
                              ->get($this->table_akun)
@@ -1509,7 +1504,6 @@ class M_keuangan_shared extends CI_Model {
 
         $prodi = $this->db->distinct()
                           ->select('prodi, fakultas')
-                          ->where('role', 3)
                           ->where('deleted_at IS NULL')
                           ->where('prodi IS NOT NULL')
                           ->get($this->table_akun)
@@ -1541,7 +1535,7 @@ class M_keuangan_shared extends CI_Model {
         $this->db->from($this->table_pembayaran);
         $this->db->join($this->table_tagihan, 'pembayaran.tagihan_id = tagihan.id', 'inner');
         $this->db->join($this->table_akun . ' as mhs', 'pembayaran.akun_id = mhs.id', 'inner');
-        $this->db->join($this->table_akun . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
+        $this->db->join($this->table_akun_biro . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
 
         if ($status !== null && $status !== '') {
             $this->db->where('pembayaran.status', $status);
@@ -1576,7 +1570,7 @@ class M_keuangan_shared extends CI_Model {
         $this->db->from($this->table_pembayaran);
         $this->db->join($this->table_tagihan, 'pembayaran.tagihan_id = tagihan.id', 'inner');
         $this->db->join($this->table_akun . ' as mhs', 'pembayaran.akun_id = mhs.id', 'inner');
-        $this->db->join($this->table_akun . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
+        $this->db->join($this->table_akun_biro . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
         $this->db->where_in('pembayaran.status', ['LUNAS', 'DITOLAK']);
 
         if ($fakultas !== null && $fakultas !== '') {
@@ -1611,7 +1605,7 @@ class M_keuangan_shared extends CI_Model {
         $this->db->from($this->table_pembayaran);
         $this->db->join($this->table_tagihan, 'pembayaran.tagihan_id = tagihan.id', 'inner');
         $this->db->join($this->table_akun . ' as mhs', 'pembayaran.akun_id = mhs.id', 'inner');
-        $this->db->join($this->table_akun . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
+        $this->db->join($this->table_akun_biro . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
         $this->db->where('pembayaran.id', (int)$pembayaran_id);
         return $this->db->get()->row();
     }
@@ -1631,7 +1625,6 @@ class M_keuangan_shared extends CI_Model {
                            SUM(CASE WHEN tagihan.status = "LUNAS" THEN tagihan.nominal ELSE 0 END) as nominal_lunas');
         $this->db->from($this->table_akun . ' as akun');
         $this->db->join($this->table_tagihan . ' as tagihan', 'akun.id = tagihan.akun_id', 'left');
-        $this->db->where('akun.role', 3);
         $this->db->where('akun.deleted_at IS NULL');
 
         if ($fakultas !== null && $fakultas !== '') {
@@ -1695,7 +1688,7 @@ class M_keuangan_shared extends CI_Model {
         $this->db->from($this->table_pembayaran . ' as pembayaran');
         $this->db->join($this->table_tagihan . ' as tagihan', 'pembayaran.tagihan_id = tagihan.id', 'inner');
         $this->db->join($this->table_akun . ' as mhs', 'pembayaran.akun_id = mhs.id', 'inner');
-        $this->db->join($this->table_akun . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
+        $this->db->join($this->table_akun_biro . ' as verif', 'pembayaran.diverifikasi_oleh = verif.id', 'left');
         $this->db->where('tagihan.tahun_akademik', $tahun_akademik);
         $this->db->where('tagihan.semester', $semester);
 
