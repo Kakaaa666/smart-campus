@@ -64,7 +64,7 @@
                                                         <div class="col-xl-4 col-md-6 mb-3 mb-xl-0">
                                                             <a class="superadmin-mode" href="<?= base_url('superadmin/penjaminan-mutu') ?>">
                                                                 <span class="mode-icon" style="background:#be123c;"><i class="fa fa-check-square-o"></i></span>
-                                                                <span><strong>Biro Penjaminan Mutu</strong><small>Standar, audit, evaluasi, dan tindak lanjut mutu</small></span>
+                                                                <span><strong>Biro Penjaminan Mutu</strong><small>Standar, audit, evaluasi, dan pengajuan SKPI</small></span>
                                                             </a>
                                                         </div>
                                                     </div>

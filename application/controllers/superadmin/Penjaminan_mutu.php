@@ -17,4 +17,9 @@ class Penjaminan_mutu extends MY_Role_Controller
     {
         $this->render_module('Pusat Kendali Penjaminan Mutu', 'Pantau standar, audit, evaluasi, dan tindak lanjut mutu seluruh biro.', 'Penjaminan Mutu');
     }
+
+    public function skpi()
+    {
+        $this->render_module('Pengajuan SKPI', 'Pantau, validasi, dan kelola pengajuan Surat Keterangan Pendamping Ijazah (SKPI) mahasiswa.', 'Penjaminan Mutu');
+    }
 }

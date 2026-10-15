@@ -27,6 +27,7 @@ try {
         ['adminKeuangan@staff.campus.ac.id', 'Admin Keuangan', 2, 'keuangan', 'Fakultas Administrasi', 'Keuangan', null, null],
         ['adminAkademik@staff.campus.ac.id', 'Admin Akademik', 2, 'akademik', 'Fakultas Administrasi', 'Akademik', null, null],
         ['adminKemahasiswaan@staff.campus.ac.id', 'Admin Kemahasiswaan', 2, 'kemahasiswaan', 'Fakultas Administrasi', 'Kemahasiswaan', null, null],
+        ['adminPenjaminanMutu@staff.campus.ac.id', 'Admin Penjaminan Mutu', 2, 'penjaminan_mutu', 'Fakultas Administrasi', 'Penjaminan Mutu', null, null],
         ['dosen@staff.campus.ac.id', 'Dosen Dummy', 4, 'dosen', 'Fakultas Teknologi Informasi', 'Informatika', null, null],
         ['2001@mhs.campuss.ac.id', 'Muhammad Arkan Pratama', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2001, 1],
         ['2002@mhs.campuss.ac.id', 'Salsabila Putri Ramadhani', 3, 'mahasiswa', 'Fakultas Teknologi Informasi', 'D3 Informatika', 2002, 2],

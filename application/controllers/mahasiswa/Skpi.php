@@ -15,6 +15,7 @@ class Skpi extends MY_Role_Controller {
         $data['page_title'] = 'Surat Keterangan Pendamping Ijazah (SKPI)';
         $data['page_desc'] = 'Pengajuan sertifikat, prestasi, dan kegiatan pendamping ijazah';
         $data['card_subtitle'] = 'Daftar Portofolio & Pengajuan SKPI';
+        $data['module_bureau'] = 'Penjaminan Mutu';
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);

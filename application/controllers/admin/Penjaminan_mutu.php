@@ -21,4 +21,8 @@ class Penjaminan_mutu extends MY_Role_Controller
 
     public function standar() { $this->index(); }
     public function audit() { $this->index(); }
+    public function skpi()
+    {
+        $this->render_module('Pengajuan SKPI', 'Kelola dan verifikasi pengajuan Surat Keterangan Pendamping Ijazah (SKPI) mahasiswa.', 'Penjaminan Mutu');
+    }
 }
