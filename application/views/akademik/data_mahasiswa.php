@@ -852,12 +852,84 @@
                         </div>
                     </div>
 
+                    <div class="mhs-table-card">
+                        <div class="mhs-table-header">
+                            <div>
+                                <h6 style="font-weight: 800; color: #0f172a; margin: 0 0 2px 0;">
+                                    Persetujuan Semester Pendek
+                                </h6>
+                                <small class="text-muted">Persetujuan otomatis membuat tagihan pada menu Keuangan mahasiswa.</small>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-mhs">
+                                <thead>
+                                    <tr>
+                                        <th>Mahasiswa</th>
+                                        <th>Fakultas / Program Studi</th>
+                                        <th style="text-align: center;">Semester</th>
+                                        <th>Status Semester Pendek</th>
+                                        <th style="text-align: center;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($short_semester_students)): ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Belum ada data mahasiswa.</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($short_semester_students as $student): ?>
+                                            <?php $short_semester_status = $student->status_semester_pendek ?: 'BELUM_DIPROSES'; ?>
+                                            <tr>
+                                                <td>
+                                                    <?= html_escape($student->nama_lengkap) ?><br>
+                                                    <small><?= html_escape($student->nim) ?></small>
+                                                </td>
+                                                <td>
+                                                    <?= html_escape($student->fakultas ?: '-') ?><br>
+                                                    <?= html_escape($student->prodi ?: '-') ?>
+                                                </td>
+                                                <td style="text-align: center;"><?= (int)$student->semester ?></td>
+                                                <td>
+                                                    <?php if ($short_semester_status === 'DISETUJUI'): ?>
+                                                        <span class="badge badge-success">Disetujui</span>
+                                                    <?php elseif ($short_semester_status === 'DITOLAK'): ?>
+                                                        <span class="badge badge-danger">Ditolak</span>
+                                                    <?php else: ?>
+                                                        <span class="badge badge-secondary">Belum diproses</span>
+                                                    <?php endif; ?>
+                                                    <?php if ($student->semester_pendek_diproses_at): ?>
+                                                        <br><small><?= html_escape($student->semester_pendek_diproses_at) ?></small>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td style="text-align: center; white-space: nowrap;">
+                                                    <?php if ($short_semester_status !== 'DISETUJUI'): ?>
+                                                        <?= form_open('admin/pengguna/proses-semester-pendek', ['class' => 'd-inline']) ?>
+                                                            <input type="hidden" name="mahasiswa_id" value="<?= (int)$student->id ?>">
+                                                            <input type="hidden" name="keputusan" value="DISETUJUI">
+                                                            <button type="submit" class="btn btn-sm btn-success">Setujui</button>
+                                                        <?= form_close() ?>
+                                                    <?php endif; ?>
+                                                    <?php if ($short_semester_status !== 'DISETUJUI' && $short_semester_status !== 'DITOLAK'): ?>
+                                                        <?= form_open('admin/pengguna/proses-semester-pendek', ['class' => 'd-inline']) ?>
+                                                            <input type="hidden" name="mahasiswa_id" value="<?= (int)$student->id ?>">
+                                                            <input type="hidden" name="keputusan" value="DITOLAK">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Tolak</button>
+                                                        <?= form_close() ?>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <!-- Modal Detail Mahasiswa -->
 <div class="modal fade" id="modalDetailMhs" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
