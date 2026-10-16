@@ -229,6 +229,9 @@
                 }
 
                 /* Table Design */
+                .table-keuangan {
+                    min-width: 850px;
+                }
                 .table-keuangan thead th {
                     background-color: #f8fafc;
                     color: #475569;
@@ -239,6 +242,7 @@
                     text-transform: uppercase;
                     letter-spacing: 0.6px;
                     padding: 14px 16px;
+                    white-space: nowrap;
                 }
                 .table-keuangan tbody td {
                     vertical-align: middle;

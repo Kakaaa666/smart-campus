@@ -30,6 +30,10 @@
                     gap: 12px;
                 }
 
+                .table-verif {
+                    min-width: 950px;
+                }
+
                 .table-verif thead th {
                     background: #f8fafc;
                     color: #475569;

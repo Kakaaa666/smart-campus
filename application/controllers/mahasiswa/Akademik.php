@@ -69,7 +69,50 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function nilai() {
-        $this->_render('Nilai Perkuliahan', 'Daftar nilai evaluasi hasil belajar', 'Transkrip nilai semester aktif');
+        $raw_role = $this->session->userdata('role');
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $user_role = $is_mahasiswa ? null : (int)$raw_role;
+        $akun_id = (int)$this->session->userdata('id');
+        $is_admin = in_array($user_role, [1, 2], true);
+        $is_dosen = ($user_role === 4);
+
+        $all_students = [];
+        if ($is_admin || $is_dosen) {
+            $all_students = $this->M_akademik->get_all_students_for_khs();
+            $req_student_id = (int)$this->input->get('student_id');
+            if ($req_student_id) {
+                $akun_id = $req_student_id;
+            } else {
+                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
+                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+            }
+        }
+
+        $selected_period = $this->input->get('periode', true);
+
+        $nilai_data = $this->M_akademik->get_student_nilai_data($akun_id, $selected_period);
+        if (!$nilai_data) {
+            show_error('Data mahasiswa tidak ditemukan.', 404);
+            return;
+        }
+
+        $data = [
+            'title' => 'Nilai - Smart Campus',
+            'page_title' => 'Nilai Perkuliahan',
+            'page_desc' => 'Daftar nilai evaluasi hasil belajar mata kuliah yang telah selesai ditempuh.',
+            'card_subtitle' => 'Daftar Nilai Mahasiswa',
+            'nilai_data' => $nilai_data,
+            'all_students' => $all_students,
+            'selected_student_id' => $akun_id,
+            'is_admin' => $is_admin,
+            'is_dosen' => $is_dosen,
+        ];
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('akademik/nilai', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function khs() {

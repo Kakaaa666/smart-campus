@@ -11,6 +11,7 @@ class MY_Role_Controller extends CI_Controller
         parent::__construct();
         $this->load->library('session');
         $this->load->helper(['url', 'html']);
+        $this->load->model('M_auth');
         $this->config->load('role_menus');
 
         if (!$this->session->userdata('is_logged_in')) {

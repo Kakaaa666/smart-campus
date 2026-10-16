@@ -32,7 +32,7 @@ class Akademik extends MY_Role_Controller
     }
 
     public function jadwal() { $this->index(); }
-    public function nilai() { $this->index(); }
+    public function nilai() { redirect('akademik/nilai' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')); }
     public function khs() {
         $all_students = $this->M_akademik->get_all_students_for_khs();
         $student_id = (int)$this->input->get('student_id');

@@ -253,6 +253,7 @@
         margin-bottom: 0;
         border-collapse: separate;
         border-spacing: 0;
+        min-width: 980px; /* Cegah tabel data mahasiswa terhimpit */
     }
 
     .table-mhs thead th {
@@ -262,7 +263,7 @@
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.6px !important;
-        padding: 13px 14px !important;
+        padding: 14px 16px !important;
         border-bottom: 2px solid #e2e8f0 !important;
         border-top: none !important;
         vertical-align: middle !important;
@@ -270,11 +271,12 @@
     }
 
     .table-mhs tbody td {
-        padding: 14px 14px;
+        padding: 14px 16px;
         vertical-align: middle;
         font-size: 13px;
         border-bottom: 1px solid #f1f5f9;
         color: #1e293b;
+        line-height: 1.5;
     }
 
     .table-mhs tbody tr:hover {
