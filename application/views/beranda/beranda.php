@@ -545,30 +545,30 @@
                                             </div>
                                         <?php else: ?>
                                             <div class="table-responsive">
-                                                <table class="table table-hover table-sm border mb-0" style="font-size: 12.5px;">
+                                                <table class="table table-hover table-sm border mb-0" style="min-width: 600px; font-size: 13px;">
                                                     <thead class="bg-light">
                                                         <tr>
-                                                            <th>Kode & Nama Mata Kuliah</th>
-                                                            <th class="text-center">SKS</th>
-                                                            <th>Jadwal Kuliah</th>
-                                                            <th>Ruang</th>
-                                                            <th>Kelas</th>
+                                                            <th style="padding: 11px 14px; white-space: nowrap;">Kode & Nama Mata Kuliah</th>
+                                                            <th class="text-center" style="padding: 11px 14px; white-space: nowrap;">SKS</th>
+                                                            <th style="padding: 11px 14px; white-space: nowrap;">Jadwal Kuliah</th>
+                                                            <th style="padding: 11px 14px; white-space: nowrap;">Ruang</th>
+                                                            <th style="padding: 11px 14px; white-space: nowrap;">Kelas</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($courses as $c): ?>
                                                             <tr>
-                                                                <td>
-                                                                    <strong class="text-dark d-block"><?= html_escape($c->nama_mk) ?></strong>
-                                                                    <small class="text-muted"><?= html_escape($c->kode_mk) ?></small>
+                                                                <td style="padding: 11px 14px; vertical-align: middle;">
+                                                                    <strong class="text-dark d-block" style="line-height: 1.4;"><?= html_escape($c->nama_mk) ?></strong>
+                                                                    <small class="text-muted" style="font-family: monospace; font-size: 11.5px;"><?= html_escape($c->kode_mk) ?></small>
                                                                 </td>
-                                                                <td class="text-center font-weight-bold text-primary"><?= (int)$c->sks ?></td>
-                                                                <td>
+                                                                <td class="text-center font-weight-bold text-primary" style="padding: 11px 14px; vertical-align: middle;"><?= (int)$c->sks ?></td>
+                                                                <td style="padding: 11px 14px; vertical-align: middle;">
                                                                     <span class="font-weight-bold text-dark"><?= html_escape($c->hari) ?></span><br>
-                                                                    <small class="text-muted"><?= substr($c->waktu_mulai, 0, 5) ?> - <?= substr($c->waktu_selesai, 0, 5) ?></small>
+                                                                    <small class="text-muted"><?= substr($c->waktu_mulai, 0, 5) ?> - <?= substr($c->waktu_selesai, 0, 5) ?> WIB</small>
                                                                 </td>
-                                                                <td><?= html_escape($c->ruangan ?: 'Lab') ?></td>
-                                                                <td><span class="badge badge-light border"><?= html_escape($c->kelas ?: 'Reguler') ?></span></td>
+                                                                <td style="padding: 11px 14px; vertical-align: middle;"><?= html_escape($c->ruangan ?: 'Lab') ?></td>
+                                                                <td style="padding: 11px 14px; vertical-align: middle;"><span class="badge badge-light border font-weight-bold"><?= html_escape($c->kelas ?: 'Reguler') ?></span></td>
                                                             </tr>
                                                         <?php endforeach; ?>
                                                     </tbody>

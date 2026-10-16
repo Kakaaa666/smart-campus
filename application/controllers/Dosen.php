@@ -51,6 +51,11 @@ class Dosen extends MY_Role_Controller
         $this->render_module('Revisi Nilai', 'Ajukan dan pantau revisi nilai mahasiswa.', 'Akademik');
     }
 
+    public function nilai()
+    {
+        redirect('akademik/nilai' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
+    }
+
     public function khs()
     {
         $user_id = (int)$this->session->userdata('id');

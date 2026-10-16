@@ -67,6 +67,33 @@ try {
         KEY `idx_akun_mhs_email` (`email`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Pastikan tabel pengajuan_skpi tersedia
+    $connection->query("CREATE TABLE IF NOT EXISTS `pengajuan_skpi` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `mahasiswa_id` INT(11) NOT NULL,
+        `kategori_id` INT(11) NOT NULL,
+        `kategori_nama` VARCHAR(150) NULL,
+        `nama_kegiatan` VARCHAR(255) NOT NULL,
+        `penyelenggara` VARCHAR(255) NULL,
+        `tingkat` VARCHAR(100) NULL DEFAULT 'Lokal / Kampus',
+        `peran` VARCHAR(100) NULL,
+        `prestasi` VARCHAR(100) NULL,
+        `tanggal_kegiatan` DATE NULL,
+        `tahun` INT(4) NULL,
+        `no_sertifikat` VARCHAR(100) NULL,
+        `file_bukti` VARCHAR(255) NULL,
+        `status` ENUM('WAITING','YES','NO') NOT NULL DEFAULT 'WAITING',
+        `catatan_validasi` TEXT NULL,
+        `divalidasi_oleh` INT(11) NULL,
+        `tanggal_validasi` DATETIME NULL,
+        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `idx_skpi_mahasiswa` (`mahasiswa_id`),
+        KEY `idx_skpi_kategori` (`kategori_id`),
+        KEY `idx_skpi_status` (`status`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // 1. Seed Akun Biro & Staf & Dosen
     $biro_accounts = [
         ['superadmin@staff.campus.ac.id', 'Super Admin Smart Campus', 1, 'semua', 'Rektorat', 'Administrasi Kampus', 'superadmin'],

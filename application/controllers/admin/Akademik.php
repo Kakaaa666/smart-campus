@@ -41,6 +41,11 @@ class Akademik extends MY_Role_Controller
         redirect('akademik/khs' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     }
 
+    public function nilai()
+    {
+        redirect('akademik/nilai' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
+    }
+
     public function save_offering()
     {
         if (!$this->require_post()) return;

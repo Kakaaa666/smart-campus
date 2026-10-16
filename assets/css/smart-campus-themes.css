@@ -753,3 +753,65 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
         animation-iteration-count: 1 !important;
     }
 }
+
+/* ======================================================== */
+/* PERAPIHAN GLOBAL: TYPOGRAPHY, TABEL & SPACING KONTEN     */
+/* ======================================================== */
+
+/* Mencegah teks mepet dan meningkatkan keterbacaan */
+body p, body td, body th, body span, body label {
+    line-height: 1.55;
+}
+
+/* Tabel responsive dengan padding lega dan tidak terhimpit */
+.table-responsive {
+    border-radius: 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table th, .table td {
+    vertical-align: middle !important;
+}
+
+/* Pastikan sel tabel memiliki breathing room yang nyaman */
+.table:not(.table-sm) th, 
+.table:not(.table-sm) td {
+    padding: 13px 16px !important;
+}
+
+/* Header tabel rapi dan tidak bertumpuk mepet */
+.table thead th {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Card kontainer tidak mepet ke tepi */
+.card {
+    border-radius: 14px;
+}
+
+.card .card-block, 
+.card .card-body {
+    padding: 22px 24px;
+}
+
+@media (max-width: 576px) {
+    .card .card-block, 
+    .card .card-body {
+        padding: 16px;
+    }
+}
+
+/* Form controls (input, select, textarea) lega dan konsisten */
+.form-control {
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+/* Badges tidak mepet teks */
+.badge {
+    padding: 5px 10px;
+    line-height: 1.3;
+    letter-spacing: 0.2px;
+}

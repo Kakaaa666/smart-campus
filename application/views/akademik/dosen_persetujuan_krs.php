@@ -588,16 +588,16 @@
 
                                         <!-- COURSE TABLE -->
                                         <div class="table-responsive bg-white rounded border mb-3 shadow-sm" style="border-radius: 10px; overflow: hidden;">
-                                            <table class="table table-hover table-sm mb-0" style="font-size: 13px;">
+                                            <table class="table table-hover table-sm mb-0" style="min-width: 750px; font-size: 13px;">
                                                 <thead class="thead-light">
                                                     <tr>
-                                                        <th class="py-2" style="width: 100px;">Kode MK</th>
-                                                        <th class="py-2">Mata Kuliah</th>
-                                                        <th class="py-2 text-center" style="width: 70px;">SKS</th>
-                                                        <th class="py-2" style="width: 130px;">Kategori</th>
-                                                        <th class="py-2">Jadwal & Hari</th>
-                                                        <th class="py-2">Ruangan</th>
-                                                        <th class="py-2">Dosen Pengampu</th>
+                                                        <th class="py-2 px-3" style="width: 100px; white-space: nowrap;">Kode MK</th>
+                                                        <th class="py-2 px-3" style="white-space: nowrap;">Mata Kuliah</th>
+                                                        <th class="py-2 px-3 text-center" style="width: 70px; white-space: nowrap;">SKS</th>
+                                                        <th class="py-2 px-3" style="width: 130px; white-space: nowrap;">Kategori</th>
+                                                        <th class="py-2 px-3" style="white-space: nowrap;">Jadwal & Hari</th>
+                                                        <th class="py-2 px-3" style="white-space: nowrap;">Ruangan</th>
+                                                        <th class="py-2 px-3" style="white-space: nowrap;">Dosen Pengampu</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>

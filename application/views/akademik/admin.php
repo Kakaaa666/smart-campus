@@ -103,30 +103,58 @@
                                 <?= form_close() ?>
                             <?php endif; ?>
 
-                            <hr>
-                            <h6 class="font-weight-bold">Penawaran Mata Kuliah</h6>
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr><th>Periode</th><th>Program / Semester</th><th>Mata Kuliah</th><th>Jadwal / Ruang</th><th>Dosen</th><th>Status</th><th>Aksi</th></tr>
+                            <hr class="my-4">
+                            <h6 class="font-weight-bold mb-3"><i class="fa fa-list-alt text-primary mr-1"></i> Penawaran Mata Kuliah</h6>
+                            <div class="table-responsive border rounded" style="border-radius: 10px;">
+                                <table class="table table-hover table-striped mb-0" style="min-width: 900px; vertical-align: middle;">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th style="white-space: nowrap; padding: 12px 16px;">Periode</th>
+                                            <th style="white-space: nowrap; padding: 12px 16px;">Program / Semester</th>
+                                            <th style="padding: 12px 16px;">Mata Kuliah</th>
+                                            <th style="white-space: nowrap; padding: 12px 16px;">Jadwal / Ruang</th>
+                                            <th style="padding: 12px 16px;">Dosen Pengampu</th>
+                                            <th style="white-space: nowrap; padding: 12px 16px; text-align: center;">Status</th>
+                                            <th style="white-space: nowrap; padding: 12px 16px; text-align: center;">Aksi</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (!$offerings): ?>
-                                            <tr><td colspan="7" class="text-center text-muted">Belum ada penawaran mata kuliah.</td></tr>
+                                            <tr><td colspan="7" class="text-center py-4 text-muted">Belum ada penawaran mata kuliah.</td></tr>
                                         <?php else: ?>
                                             <?php foreach ($offerings as $offering): ?>
                                                 <tr>
-                                                    <td><?= html_escape($offering->semester_akademik) ?><br><?= html_escape($offering->tahun_akademik) ?></td>
-                                                    <td><?= html_escape($offering->prodi) ?><br>Semester <?= (int)$offering->semester ?></td>
-                                                    <td><strong><?= html_escape($offering->kode_mk) ?></strong><br><?= html_escape($offering->nama_mk) ?> (<?= (int)$offering->sks ?> SKS) &mdash; Kelas <?= html_escape($offering->kelas) ?></td>
-                                                    <td><?= html_escape($offering->hari) ?>, <?= html_escape(substr($offering->waktu_mulai, 0, 5)) ?>-<?= html_escape(substr($offering->waktu_selesai, 0, 5)) ?><br><?= html_escape($offering->ruangan) ?></td>
-                                                    <td><?= html_escape($offering->nama_dosen ?: '-') ?></td>
-                                                    <td><?= $offering->aktif ? 'Aktif' : 'Nonaktif' ?></td>
-                                                    <td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <span class="font-weight-bold text-dark"><?= html_escape($offering->semester_akademik) ?></span><br>
+                                                        <small class="text-muted"><?= html_escape($offering->tahun_akademik) ?></small>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <span class="badge badge-light border font-weight-bold"><?= html_escape($offering->prodi) ?></span><br>
+                                                        <small class="text-muted font-weight-bold">Semester <?= (int)$offering->semester ?></small>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <strong class="text-dark d-block"><?= html_escape($offering->nama_mk) ?></strong>
+                                                        <small class="text-muted font-monospace mr-1"><?= html_escape($offering->kode_mk) ?></small>
+                                                        <span class="badge badge-primary px-1.5 py-0.5" style="font-size: 10px;"><?= (int)$offering->sks ?> SKS</span>
+                                                        <span class="badge badge-secondary px-1.5 py-0.5" style="font-size: 10px;">Kelas <?= html_escape($offering->kelas) ?></span>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <span class="font-weight-bold text-dark"><?= html_escape($offering->hari) ?></span>, <?= html_escape(substr($offering->waktu_mulai, 0, 5)) ?>-<?= html_escape(substr($offering->waktu_selesai, 0, 5)) ?> WIB<br>
+                                                        <small class="text-muted"><i class="fa fa-building-o mr-1"></i><?= html_escape($offering->ruangan) ?></small>
+                                                    </td>
+                                                    <td style="padding: 12px 16px;">
+                                                        <?= html_escape($offering->nama_dosen ?: '-') ?>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; text-align: center;">
+                                                        <span class="badge <?= $offering->aktif ? 'badge-success' : 'badge-secondary' ?> px-2 py-1 font-weight-bold" style="border-radius: 6px;">
+                                                            <?= $offering->aktif ? 'Aktif' : 'Nonaktif' ?>
+                                                        </span>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; text-align: center;">
                                                         <?= form_open('admin/akademik/toggle-offering', ['class' => 'd-inline']) ?>
                                                             <input type="hidden" name="penawaran_id" value="<?= (int)$offering->id ?>">
                                                             <input type="hidden" name="aktif" value="<?= $offering->aktif ? '0' : '1' ?>">
-                                                            <button class="btn btn-sm <?= $offering->aktif ? 'btn-outline-danger' : 'btn-outline-success' ?>" type="submit">
+                                                            <button class="btn btn-sm <?= $offering->aktif ? 'btn-outline-danger' : 'btn-outline-success' ?> font-weight-bold" type="submit" style="border-radius: 6px;">
                                                                 <?= $offering->aktif ? 'Nonaktifkan' : 'Aktifkan' ?>
                                                             </button>
                                                         <?= form_close() ?>
@@ -138,23 +166,35 @@
                                 </table>
                             </div>
 
-                            <hr>
-                            <h6 class="font-weight-bold">Penetapan Dosen Wali</h6>
+                            <hr class="my-4">
+                            <h6 class="font-weight-bold mb-3"><i class="fa fa-users text-primary mr-1"></i> Penetapan Dosen Wali</h6>
                             <?php if (!$students || !$lecturers): ?>
                                 <div class="alert alert-secondary">Penetapan Dosen Wali memerlukan akun mahasiswa dan Dosen aktif.</div>
                             <?php else: ?>
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead><tr><th>Mahasiswa</th><th>Program Studi / Semester</th><th>Penugasan Dosen Wali</th></tr></thead>
+                                <div class="table-responsive border rounded" style="border-radius: 10px;">
+                                    <table class="table table-hover table-striped mb-0" style="min-width: 700px; vertical-align: middle;">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th style="white-space: nowrap; padding: 12px 16px;">Mahasiswa</th>
+                                                <th style="white-space: nowrap; padding: 12px 16px;">Program Studi / Semester</th>
+                                                <th style="white-space: nowrap; padding: 12px 16px;">Penugasan Dosen Wali</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                             <?php foreach ($students as $student): ?>
                                                 <tr>
-                                                    <td><?= html_escape($student->nama_lengkap) ?><br><small><?= html_escape($student->nim) ?></small></td>
-                                                    <td><?= html_escape($student->prodi ?: '-') ?> / <?= (int)$student->semester ?></td>
-                                                    <td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <strong class="text-dark d-block"><?= html_escape($student->nama_lengkap) ?></strong>
+                                                        <small class="text-muted font-monospace">NIM: <?= html_escape($student->nim) ?></small>
+                                                    </td>
+                                                    <td style="padding: 12px 16px; line-height: 1.4;">
+                                                        <span class="font-weight-bold"><?= html_escape($student->prodi ?: '-') ?></span><br>
+                                                        <span class="badge badge-light border">Semester <?= (int)$student->semester ?></span>
+                                                    </td>
+                                                    <td style="padding: 12px 16px;">
                                                         <?= form_open('admin/akademik/assign-advisor', ['class' => 'form-inline']) ?>
                                                             <input type="hidden" name="mahasiswa_id" value="<?= (int)$student->id ?>">
-                                                            <select class="form-control form-control-sm mr-2" name="dosen_id" required>
+                                                            <select class="form-control form-control-sm mr-2" name="dosen_id" required style="border-radius: 6px; min-width: 220px;">
                                                                 <option value="">Pilih Dosen Wali</option>
                                                                 <?php foreach ($lecturers as $lecturer): ?>
                                                                     <option value="<?= (int)$lecturer->id ?>" <?= (int)$student->dosen_id === (int)$lecturer->id ? 'selected' : '' ?>>
@@ -162,7 +202,7 @@
                                                                     </option>
                                                                 <?php endforeach; ?>
                                                             </select>
-                                                            <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+                                                            <button type="submit" class="btn btn-sm btn-primary font-weight-bold" style="border-radius: 6px;">Simpan</button>
                                                         <?= form_close() ?>
                                                     </td>
                                                 </tr>

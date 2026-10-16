@@ -92,6 +92,249 @@ class M_skpi_mahasiswa extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->ensure_schema();
+    }
+
+    /**
+     * Memastikan tabel pengajuan_skpi dan direktori uploads tersedia
+     */
+    public function ensure_schema()
+    {
+        $this->db->query("CREATE TABLE IF NOT EXISTS `{$this->table}` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `mahasiswa_id` INT(11) NOT NULL,
+            `kategori_id` INT(11) NOT NULL,
+            `kategori_nama` VARCHAR(150) NULL,
+            `nama_kegiatan` VARCHAR(255) NOT NULL,
+            `penyelenggara` VARCHAR(255) NULL,
+            `tingkat` VARCHAR(100) NULL DEFAULT 'Lokal / Kampus',
+            `peran` VARCHAR(100) NULL,
+            `prestasi` VARCHAR(100) NULL,
+            `tanggal_kegiatan` DATE NULL,
+            `tahun` INT(4) NULL,
+            `no_sertifikat` VARCHAR(100) NULL,
+            `file_bukti` VARCHAR(255) NULL,
+            `status` ENUM('WAITING','YES','NO') NOT NULL DEFAULT 'WAITING',
+            `catatan_validasi` TEXT NULL,
+            `divalidasi_oleh` INT(11) NULL,
+            `tanggal_validasi` DATETIME NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_skpi_mahasiswa` (`mahasiswa_id`),
+            KEY `idx_skpi_kategori` (`kategori_id`),
+            KEY `idx_skpi_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        // Pastikan folder upload uploads/skpi tersedia
+        $upload_dir = FCPATH . 'uploads/skpi/';
+        if (!is_dir($upload_dir)) {
+            @mkdir($upload_dir, 0777, true);
+        }
+
+        $this->ensure_default_skpi_data();
+    }
+
+    /**
+     * Mengisi data awal dummy SKPI yang realistis untuk mahasiswa aktif jika tabel masih kosong
+     */
+    public function ensure_default_skpi_data()
+    {
+        if (!$this->db->table_exists($this->table)) {
+            return;
+        }
+
+        $count = $this->db->count_all_results($this->table);
+        if ($count > 0) {
+            return;
+        }
+
+        if (!$this->db->table_exists('akun_mahasiswa')) {
+            return;
+        }
+
+        // Cari ID admin untuk validator contoh
+        $admin_id = null;
+        if ($this->db->table_exists('akun_biro')) {
+            $adm = $this->db->where_in('role', [1, 2])->get('akun_biro')->row();
+            if ($adm) $admin_id = (int)$adm->id;
+        }
+
+        $students = $this->db->get('akun_mahasiswa')->result();
+        $student_map = [];
+        foreach ($students as $st) {
+            $student_map[$st->nim] = (int)$st->id;
+        }
+
+        $default_data = [];
+
+        // 1. Arthur Tampi (241221009)
+        if (isset($student_map['241221009'])) {
+            $sid = $student_map['241221009'];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 5,
+                'kategori_nama'    => 'Sertifikasi Keahlian & Profesi',
+                'nama_kegiatan'    => 'Sertifikasi Database Administrator Terlisensi BNSP',
+                'penyelenggara'    => 'Lembaga Sertifikasi Profesi Telematika (LSP-IT)',
+                'tingkat'          => 'Nasional',
+                'peran'            => 'Peserta Uji Kompetensi',
+                'prestasi'         => 'Kompeten (Certified)',
+                'tanggal_kegiatan' => '2023-11-20',
+                'tahun'            => 2023,
+                'no_sertifikat'    => 'BNSP-LSP-2023-88902',
+                'file_bukti'       => 'sample_cert_arthur_1.pdf',
+                'status'           => 'YES',
+                'catatan_validasi' => 'Sertifikat keahlian valid dan terdaftar resmi di basis data BNSP.',
+                'divalidasi_oleh'  => $admin_id,
+                'tanggal_validasi' => '2023-11-28 10:15:00'
+            ];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 2,
+                'kategori_nama'    => 'Pengalaman Organisasi',
+                'nama_kegiatan'    => 'Staff Divisi Pengembangan TI Himpunan Mahasiswa Sistem Informasi',
+                'penyelenggara'    => 'HIMASI Smart Campus Surabaya',
+                'tingkat'          => 'Jurusan / Kampus',
+                'peran'            => 'Staff Ahli Divisi Web',
+                'prestasi'         => 'Pengurus Aktif Periode 2023/2024',
+                'tanggal_kegiatan' => '2024-02-15',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'SK-HIMASI-2024-08',
+                'file_bukti'       => 'sample_sk_arthur_2.pdf',
+                'status'           => 'YES',
+                'catatan_validasi' => 'Surat keputusan kepengurusan organisasi terverifikasi oleh Dosen Pembina.',
+                'divalidasi_oleh'  => $admin_id,
+                'tanggal_validasi' => '2024-03-01 14:30:00'
+            ];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 3,
+                'kategori_nama'    => 'Kepanitiaan Kegiatan',
+                'nama_kegiatan'    => 'Koordinator Acara Seminar Nasional Information System Expo (ISE) 2024',
+                'penyelenggara'    => 'Fakultas Teknologi Informasi',
+                'tingkat'          => 'Nasional',
+                'peran'            => 'Koordinator Sie Acara',
+                'prestasi'         => 'Panitia Inti',
+                'tanggal_kegiatan' => '2024-08-25',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'PAN-ISE-2024-041',
+                'file_bukti'       => 'sample_panitia_arthur.pdf',
+                'status'           => 'WAITING',
+                'catatan_validasi' => null,
+                'divalidasi_oleh'  => null,
+                'tanggal_validasi' => null
+            ];
+        }
+
+        // 2. Nabila Ayu Lestari (2004)
+        if (isset($student_map['2004'])) {
+            $sid = $student_map['2004'];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 1,
+                'kategori_nama'    => 'Prestasi dan Penghargaan',
+                'nama_kegiatan'    => 'Juara 2 National UI/UX Design & Innovation Hackathon 2024',
+                'penyelenggara'    => 'Kementerian Komunikasi dan Digital RI',
+                'tingkat'          => 'Nasional',
+                'peran'            => 'Ketua Tim / Lead Product Designer',
+                'prestasi'         => 'Juara 2 Nasional',
+                'tanggal_kegiatan' => '2024-05-18',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'KOMDIGI-HACK-2024-022',
+                'file_bukti'       => 'sertifikat_juara_nabila.pdf',
+                'status'           => 'YES',
+                'catatan_validasi' => 'Prestasi kejuaraan tingkat nasional terverifikasi sangat memuaskan.',
+                'divalidasi_oleh'  => $admin_id,
+                'tanggal_validasi' => '2024-06-02 09:20:00'
+            ];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 2,
+                'kategori_nama'    => 'Pengalaman Organisasi',
+                'nama_kegiatan'    => 'Kepala Departemen Media & Publikasi BEM FTI',
+                'penyelenggara'    => 'BEM Fakultas Teknologi Informasi',
+                'tingkat'          => 'Fakultas',
+                'peran'            => 'Kepala Departemen',
+                'prestasi'         => 'Pengurus Inti',
+                'tanggal_kegiatan' => '2024-01-20',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'SK-BEM-FTI-2024-03',
+                'file_bukti'       => 'sk_bem_nabila.pdf',
+                'status'           => 'YES',
+                'catatan_validasi' => 'SK Organisasi sah.',
+                'divalidasi_oleh'  => $admin_id,
+                'tanggal_validasi' => '2024-02-05 11:00:00'
+            ];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 6,
+                'kategori_nama'    => 'Magang dan Praktik Kerja (PKL)',
+                'nama_kegiatan'    => 'Program Magang Industri UI/UX Designer di Startup Edukasi',
+                'penyelenggara'    => 'PT Edukasi Cerdas Nusantara',
+                'tingkat'          => 'Nasional',
+                'peran'            => 'UI/UX Intern',
+                'prestasi'         => 'Magang 6 Bulan',
+                'tanggal_kegiatan' => '2024-09-01',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'MAGANG-ECN-2024-90',
+                'file_bukti'       => 'surat_magang_nabila.pdf',
+                'status'           => 'WAITING',
+                'catatan_validasi' => null,
+                'divalidasi_oleh'  => null,
+                'tanggal_validasi' => null
+            ];
+        }
+
+        // 3. Rizky Aditya Saputra (2003)
+        if (isset($student_map['2003'])) {
+            $sid = $student_map['2003'];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 4,
+                'kategori_nama'    => 'Seminar, Workshop dan Pelatihan',
+                'nama_kegiatan'    => 'Bootcamp Cloud Architecture & Modern DevOps Practices',
+                'penyelenggara'    => 'AWS User Group Indonesia',
+                'tingkat'          => 'Nasional',
+                'peran'            => 'Peserta Pelatihan Intensif',
+                'prestasi'         => 'Lulus Predikat Sangat Baik',
+                'tanggal_kegiatan' => '2024-04-12',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'AWS-ID-2024-1189',
+                'file_bukti'       => 'sertifikat_aws_rizky.pdf',
+                'status'           => 'YES',
+                'catatan_validasi' => 'Sertifikat keikutsertaan pelatihan tervalidasi.',
+                'divalidasi_oleh'  => $admin_id,
+                'tanggal_validasi' => '2024-04-20 15:45:00'
+            ];
+        }
+
+        // 4. Muhammad Arkan Pratama (2001)
+        if (isset($student_map['2001'])) {
+            $sid = $student_map['2001'];
+            $default_data[] = [
+                'mahasiswa_id'     => $sid,
+                'kategori_id'      => 4,
+                'kategori_nama'    => 'Seminar, Workshop dan Pelatihan',
+                'nama_kegiatan'    => 'Orientasi Akademik & Workshop Algoritma Pemrograman Dasar',
+                'penyelenggara'    => 'Pusat Komputer & Robotika Smart Campus',
+                'tingkat'          => 'Lokal / Kampus',
+                'peran'            => 'Peserta',
+                'prestasi'         => 'Peserta Terbaik',
+                'tanggal_kegiatan' => '2024-09-12',
+                'tahun'            => 2024,
+                'no_sertifikat'    => 'PKR-2024-MHS-001',
+                'file_bukti'       => 'sertifikat_arkan.pdf',
+                'status'           => 'WAITING',
+                'catatan_validasi' => null,
+                'divalidasi_oleh'  => null,
+                'tanggal_validasi' => null
+            ];
+        }
+
+        foreach ($default_data as $row) {
+            $this->db->insert($this->table, $row);
+        }
     }
 
     /**
@@ -117,6 +360,13 @@ class M_skpi_mahasiswa extends CI_Model
     public function get_summary($mahasiswa_id)
     {
         $mahasiswa_id = (int)$mahasiswa_id;
+        if (!$this->db->table_exists($this->table)) {
+            $this->ensure_schema();
+        }
+        if (!$this->db->table_exists($this->table)) {
+            return ['total' => 0, 'waiting' => 0, 'valid' => 0, 'invalid' => 0];
+        }
+
         $q = $this->db->select("
             COUNT(*) as total,
             SUM(CASE WHEN status = 'WAITING' THEN 1 ELSE 0 END) as waiting,
@@ -141,6 +391,9 @@ class M_skpi_mahasiswa extends CI_Model
     public function get_grouped_by_kategori($mahasiswa_id, $filter = [])
     {
         $mahasiswa_id = (int)$mahasiswa_id;
+        if (!$this->db->table_exists($this->table)) {
+            $this->ensure_schema();
+        }
 
         $this->db->where('mahasiswa_id', $mahasiswa_id);
 
@@ -250,6 +503,13 @@ class M_skpi_mahasiswa extends CI_Model
      */
     public function get_admin_summary()
     {
+        if (!$this->db->table_exists($this->table)) {
+            $this->ensure_schema();
+        }
+        if (!$this->db->table_exists($this->table)) {
+            return ['total' => 0, 'waiting' => 0, 'valid' => 0, 'invalid' => 0, 'total_mahasiswa' => 0];
+        }
+
         $q = $this->db->select("
             COUNT(*) as total,
             SUM(CASE WHEN status = 'WAITING' THEN 1 ELSE 0 END) as waiting,
@@ -274,6 +534,12 @@ class M_skpi_mahasiswa extends CI_Model
      */
     public function get_mahasiswa_rekap($filter = [])
     {
+        if (!$this->db->table_exists($this->table)) {
+            $this->ensure_schema();
+        }
+        if (!$this->db->table_exists($this->table) || !$this->db->table_exists('akun_mahasiswa')) {
+            return [];
+        }
         $this->db->select("
             m.id as mahasiswa_id,
             m.nim,
@@ -329,6 +595,12 @@ class M_skpi_mahasiswa extends CI_Model
      */
     public function get_all_pengajuan_admin($filter = [])
     {
+        if (!$this->db->table_exists($this->table)) {
+            $this->ensure_schema();
+        }
+        if (!$this->db->table_exists($this->table)) {
+            return [];
+        }
         $this->db->select('
             p.*,
             m.nim,

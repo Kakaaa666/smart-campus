@@ -77,16 +77,16 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-hover mb-0" style="vertical-align: middle;">
+                                <table class="table table-hover mb-0" style="vertical-align: middle; min-width: 850px;">
                                     <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                                         <tr>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; width: 60px;">No</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700;">Mahasiswa</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700;">Program Studi</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center;">Semester</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center;">Beban SKS</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center;">Status KRS</th>
-                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center; width: 140px;">Aksi</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; width: 60px; white-space: nowrap;">No</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; white-space: nowrap;">Mahasiswa</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; white-space: nowrap;">Program Studi</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center; white-space: nowrap;">Semester</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center; white-space: nowrap;">Beban SKS</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center; white-space: nowrap;">Status KRS</th>
+                                            <th style="padding: 14px 20px; font-size: 12px; text-transform: uppercase; color: #475569; font-weight: 700; text-align: center; width: 140px; white-space: nowrap;">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>

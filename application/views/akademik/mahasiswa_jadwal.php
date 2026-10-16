@@ -106,6 +106,56 @@ $active_days_count = count($unique_days);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+/* Segmented View Mode Switcher (Mode Tabel / Mode Kartu Hari) */
+.view-mode-btn-group {
+    display: inline-flex !important;
+    align-items: stretch;
+    border: 1.5px solid #0288d1 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(2, 136, 209, 0.12) !important;
+}
+
+.view-mode-btn-group .btn-mode-switch,
+.view-mode-btn-group .btn {
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    padding: 8px 18px !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+.view-mode-btn-group .btn-mode-switch.active,
+.view-mode-btn-group .btn.btn-primary {
+    background-color: #0288d1 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.view-mode-btn-group .btn-mode-switch:not(.active),
+.view-mode-btn-group .btn.btn-outline-primary {
+    background-color: #ffffff !important;
+    color: #0288d1 !important;
+    border: none !important;
+}
+
+.view-mode-btn-group .btn-mode-switch:not(.active):hover,
+.view-mode-btn-group .btn.btn-outline-primary:hover {
+    background-color: #f0f9ff !important;
+    color: #0288d1 !important;
+}
+
 /* Search Box Container */
 .search-jadwal-input {
     border-radius: 12px;
@@ -155,6 +205,7 @@ $active_days_count = count($unique_days);
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
+    min-width: 950px; /* Cegah tabel jadwal terhimpit */
 }
 .table-jadwal-modern thead th {
     background: #f8fafc;
@@ -166,6 +217,7 @@ $active_days_count = count($unique_days);
     padding: 14px 16px;
     border-top: 1px solid #e2e8f0;
     border-bottom: 2px solid #cbd5e1;
+    white-space: nowrap;
 }
 .table-jadwal-modern tbody tr {
     transition: background 0.15s ease;
@@ -178,6 +230,7 @@ $active_days_count = count($unique_days);
     vertical-align: middle;
     border-bottom: 1px solid #edf2f7;
     font-size: 13.5px;
+    line-height: 1.5;
 }
 
 /* Pulse animation for today indicator */
@@ -414,12 +467,12 @@ $active_days_count = count($unique_days);
 
                                     <!-- Switch Mode Tampilan & Info Hari Ini -->
                                     <div class="col-lg-7 col-md-6 text-md-right view-mode-controls">
-                                        <div class="btn-group" role="group" style="box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden;">
-                                            <button type="button" id="btnModeTable" class="btn btn-primary px-3 py-2 font-weight-bold" onclick="switchViewMode('table')" style="font-size: 13px;">
-                                                <i class="fa fa-table mr-1"></i> Mode Tabel
+                                        <div class="btn-group view-mode-btn-group" role="group">
+                                            <button type="button" id="btnModeTable" class="btn btn-mode-switch active" onclick="switchViewMode('table')">
+                                                <i class="fa fa-table mr-1.5"></i> Mode Tabel
                                             </button>
-                                            <button type="button" id="btnModeCards" class="btn btn-outline-primary px-3 py-2 font-weight-bold" onclick="switchViewMode('cards')" style="font-size: 13px;">
-                                                <i class="fa fa-th-large mr-1"></i> Mode Kartu Hari
+                                            <button type="button" id="btnModeCards" class="btn btn-mode-switch" onclick="switchViewMode('cards')">
+                                                <i class="fa fa-th-large mr-1.5"></i> Mode Kartu Hari
                                             </button>
                                         </div>
                                     </div>
@@ -691,13 +744,13 @@ function switchViewMode(mode) {
     if (mode === 'table') {
         tableEl.style.display = 'block';
         cardsEl.style.display = 'none';
-        btnTable.className = 'btn btn-primary px-3 py-2 font-weight-bold';
-        btnCards.className = 'btn btn-outline-primary px-3 py-2 font-weight-bold';
+        btnTable.className = 'btn btn-mode-switch active';
+        btnCards.className = 'btn btn-mode-switch';
     } else {
         tableEl.style.display = 'none';
         cardsEl.style.display = 'block';
-        btnTable.className = 'btn btn-outline-primary px-3 py-2 font-weight-bold';
-        btnCards.className = 'btn btn-primary px-3 py-2 font-weight-bold';
+        btnTable.className = 'btn btn-mode-switch';
+        btnCards.className = 'btn btn-mode-switch active';
     }
     filterJadwalInteractive();
 }

@@ -117,6 +117,7 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
     width: 100%;
     margin-bottom: 0;
     border-collapse: collapse;
+    min-width: 880px; /* Cegah tabel KHS terhimpit */
 }
 
 .table-khs thead th {
@@ -124,18 +125,20 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
     color: #0f3d64 !important;
     font-size: 13px !important;
     font-weight: 700 !important;
-    padding: 11px 12px !important;
+    padding: 12px 14px !important;
     border-top: none !important;
     border-bottom: 1px solid #90cdf4 !important;
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 .table-khs tbody td {
-    padding: 11px 12px !important;
+    padding: 12px 14px !important;
     font-size: 13px !important;
     color: #334155;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
+    line-height: 1.5;
 }
 
 .table-khs tbody tr:hover {

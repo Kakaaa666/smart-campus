@@ -10,6 +10,13 @@ class M_akademik extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $ci =& get_instance();
+        if (!isset($ci->M_auth)) {
+            $ci->load->model('M_auth');
+        }
+        if (isset($ci->M_auth) && method_exists($ci->M_auth, 'ensure_schema_and_accounts')) {
+            $ci->M_auth->ensure_schema_and_accounts();
+        }
         $this->ensure_schema();
     }
 
@@ -121,6 +128,19 @@ class M_akademik extends CI_Model
             KEY `idx_khs_mahasiswa_periode` (`akun_id`,`tahun_akademik`,`semester_akademik`),
             KEY `idx_khs_semester_mhs` (`akun_id`,`semester_mhs`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        if ($this->db->table_exists('khs_nilai')) {
+            $khs_fields = $this->db->list_fields('khs_nilai');
+            if (!in_array('kelas', $khs_fields, true)) {
+                $this->db->query("ALTER TABLE `khs_nilai` ADD COLUMN `kelas` VARCHAR(10) NOT NULL DEFAULT 'A' AFTER `sks`");
+            }
+            if (!in_array('dosen_pengampu', $khs_fields, true)) {
+                $this->db->query("ALTER TABLE `khs_nilai` ADD COLUMN `dosen_pengampu` VARCHAR(255) NULL AFTER `kelas`");
+            }
+            if (!in_array('nilai_angka', $khs_fields, true)) {
+                $this->db->query("ALTER TABLE `khs_nilai` ADD COLUMN `nilai_angka` DECIMAL(5,2) NULL AFTER `dosen_pengampu`");
+            }
+        }
 
         // Seeder otomatis katalog mata kuliah multi-jurusan
         $this->seed_comprehensive_offerings();
@@ -235,12 +255,31 @@ class M_akademik extends CI_Model
      */
     private function seed_comprehensive_offerings()
     {
-        // Cari dosen aktif atau akun admin sebagai pengampu
-        $dosen = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->get('akun_biro')->row();
-        $dosen_id = $dosen ? (int)$dosen->id : 0;
+        // Pastikan tabel akun_biro / akun sudah ada sebelum melakukan query
+        $table_biro = $this->db->table_exists('akun_biro') ? 'akun_biro' : ($this->db->table_exists('akun') ? 'akun' : null);
+        if (!$table_biro) {
+            $ci =& get_instance();
+            if (!isset($ci->M_auth)) {
+                $ci->load->model('M_auth');
+            }
+            if (isset($ci->M_auth) && method_exists($ci->M_auth, 'ensure_schema_and_accounts')) {
+                $ci->M_auth->ensure_schema_and_accounts();
+            }
+            $table_biro = $this->db->table_exists('akun_biro') ? 'akun_biro' : ($this->db->table_exists('akun') ? 'akun' : null);
+        }
+
+        $dosen_id = 0;
+        if ($table_biro && $this->db->table_exists($table_biro)) {
+            // Cari dosen aktif atau akun admin sebagai pengampu
+            $dosen = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->get($table_biro)->row();
+            $dosen_id = $dosen ? (int)$dosen->id : 0;
+            if (!$dosen_id) {
+                $admin = $this->db->where_in('role', [1, 2])->where('deleted_at IS NULL', null, false)->get($table_biro)->row();
+                $dosen_id = $admin ? (int)$admin->id : 1;
+            }
+        }
         if (!$dosen_id) {
-            $admin = $this->db->where_in('role', [1, 2])->where('deleted_at IS NULL', null, false)->get('akun_biro')->row();
-            $dosen_id = $admin ? (int)$admin->id : 1;
+            $dosen_id = 1;
         }
 
         $period = $this->get_active_period();
@@ -902,6 +941,19 @@ class M_akademik extends CI_Model
      */
     public function ensure_default_lecturers_and_advisors()
     {
+        if (!$this->db->table_exists('akun_biro') || !$this->db->table_exists('akun_mahasiswa')) {
+            $ci =& get_instance();
+            if (!isset($ci->M_auth)) {
+                $ci->load->model('M_auth');
+            }
+            if (isset($ci->M_auth) && method_exists($ci->M_auth, 'ensure_schema_and_accounts')) {
+                $ci->M_auth->ensure_schema_and_accounts();
+            }
+        }
+        if (!$this->db->table_exists('akun_biro') || !$this->db->table_exists('akun_mahasiswa')) {
+            return;
+        }
+
         $lecturers = [
             [
                 'nim' => 'sugeng',
@@ -1319,6 +1371,19 @@ class M_akademik extends CI_Model
      */
     public function ensure_default_khs_data()
     {
+        if (!$this->db->table_exists('akun_mahasiswa')) {
+            $ci =& get_instance();
+            if (!isset($ci->M_auth)) {
+                $ci->load->model('M_auth');
+            }
+            if (isset($ci->M_auth) && method_exists($ci->M_auth, 'ensure_schema_and_accounts')) {
+                $ci->M_auth->ensure_schema_and_accounts();
+            }
+        }
+        if (!$this->db->table_exists('akun_mahasiswa')) {
+            return;
+        }
+
         // 1. Sinkronisasi Arthur Tampi (241221009) berada di Semester 4 (karena KHS Semester 3 dari foto resmi sudah selesai)
         $this->db->where('nim', '241221009')->update('akun_mahasiswa', ['semester' => 4]);
 
@@ -1339,15 +1404,15 @@ class M_akademik extends CI_Model
             if ($count < 20) {
                 $this->db->where('akun_id', (int)$arthur->id)->delete('khs_nilai');
                 
-                // Semester 3: 2025 / Genap (PERSIS SESUAI FOTO KHS USER - 23 SKS)
+                // Semester 3: 2025 / Genap (PERSIS SESUAI FOTO KHS & NILAI USER - 23 SKS)
                 $smt3_courses = [
-                    ['kode_mk' => 'IF24KK42', 'nama_mk' => 'KECERDASAN BUATAN', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MI20KB41', 'nama_mk' => 'ANALISA DAN PERANCANGAN SISTEM INFORMASI', 'sks' => 4, 'nilai_huruf' => 'C+', 'nilai_indeks' => 2.5, 'kategori' => 'Cukup Baik', 'nxk' => 10.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MI20KB42', 'nama_mk' => 'PEMROGRAMAN PERANGKAT BERGERAK', 'sks' => 4, 'nilai_huruf' => 'C', 'nilai_indeks' => 2.0, 'kategori' => 'Cukup', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MI20KB43', 'nama_mk' => 'INTERAKSI MANUSIA & KOMPUTER', 'sks' => 3, 'nilai_huruf' => 'B', 'nilai_indeks' => 3.0, 'kategori' => 'Baik', 'nxk' => 9.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MI20KB44', 'nama_mk' => 'KOMPUTER AKUNTANSI', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MI20KB45', 'nama_mk' => 'PEMROGRAMAN WEB LANJUT', 'sks' => 4, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 16.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'MU24PB41', 'nama_mk' => 'KEWIRAUSAHAAN II', 'sks' => 2, 'nilai_huruf' => 'C', 'nilai_indeks' => 2.0, 'kategori' => 'Cukup', 'nxk' => 4.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'IF24KK42', 'nama_mk' => 'KECERDASAN BUATAN', 'sks' => 3, 'kelas' => 'A', 'dosen_pengampu' => 'Mukhlis Amien, M.Kom', 'nilai_angka' => 96.22, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MI20KB41', 'nama_mk' => 'ANALISA DAN PERANCANGAN SISTEM INFORMASI', 'sks' => 4, 'kelas' => 'A', 'dosen_pengampu' => 'Koko Wahyu Prasetyo, S.Kom, M.TI', 'nilai_angka' => 66.00, 'nilai_huruf' => 'C+', 'nilai_indeks' => 2.5, 'kategori' => 'Cukup Baik', 'nxk' => 10.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MI20KB42', 'nama_mk' => 'PEMROGRAMAN PERANGKAT BERGERAK', 'sks' => 4, 'kelas' => 'A', 'dosen_pengampu' => 'Chaulina Alfianti Oktavia, S.Kom., M.T', 'nilai_angka' => 57.80, 'nilai_huruf' => 'C', 'nilai_indeks' => 2.0, 'kategori' => 'Cukup', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MI20KB43', 'nama_mk' => 'INTERAKSI MANUSIA & KOMPUTER', 'sks' => 3, 'kelas' => 'A', 'dosen_pengampu' => 'Setiabudi Sakaria, M.Kom', 'nilai_angka' => 74.25, 'nilai_huruf' => 'B', 'nilai_indeks' => 3.0, 'kategori' => 'Baik', 'nxk' => 9.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MI20KB44', 'nama_mk' => 'KOMPUTER AKUNTANSI', 'sks' => 3, 'kelas' => 'A', 'dosen_pengampu' => 'Windarini Cahyadiana, S.E., M.M', 'nilai_angka' => 87.25, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MI20KB45', 'nama_mk' => 'PEMROGRAMAN WEB LANJUT', 'sks' => 4, 'kelas' => 'A', 'dosen_pengampu' => 'Sugeng Widodo, S.Kom., M.Kom', 'nilai_angka' => 82.00, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 16.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'MU24PB41', 'nama_mk' => 'KEWIRAUSAHAAN II', 'sks' => 2, 'kelas' => 'A', 'dosen_pengampu' => 'Dr.Savitri, S.E., M.M.,Yekti Asmoro Kanthi, S.Si., M.A.B,Yosart Adi Suyoso, S.AB., MBA', 'nilai_angka' => 62.84, 'nilai_huruf' => 'C', 'nilai_indeks' => 2.0, 'kategori' => 'Cukup', 'nxk' => 4.0, 'keterangan' => '1', 'is_paket' => 0],
                 ];
                 foreach ($smt3_courses as $c) {
                     $c['akun_id'] = (int)$arthur->id;
@@ -1842,10 +1907,169 @@ class M_akademik extends CI_Model
      */
     public function get_all_students_for_khs()
     {
-        return $this->db->select('id, nim, nama_lengkap, prodi, jenjang, semester')
-                        ->where('deleted_at IS NULL', null, false)
-                        ->order_by('nama_lengkap', 'ASC')
-                        ->get('akun_mahasiswa')
-                        ->result();
+        $table_mhs = $this->db->table_exists('akun_mahasiswa') ? 'akun_mahasiswa' : ($this->db->table_exists('akun') ? 'akun' : null);
+        if (!$table_mhs) {
+            $ci =& get_instance();
+            if (!isset($ci->M_auth)) {
+                $ci->load->model('M_auth');
+            }
+            if (isset($ci->M_auth) && method_exists($ci->M_auth, 'ensure_schema_and_accounts')) {
+                $ci->M_auth->ensure_schema_and_accounts();
+            }
+            $table_mhs = $this->db->table_exists('akun_mahasiswa') ? 'akun_mahasiswa' : 'akun';
+        }
+
+        if (!$this->db->table_exists($table_mhs)) {
+            return [];
+        }
+
+        $builder = $this->db->select('id, nim, nama_lengkap, prodi, jenjang, semester')
+                            ->where('deleted_at IS NULL', null, false);
+        if ($table_mhs === 'akun') {
+            $builder->where('role', 3);
+        }
+        return $builder->order_by('nama_lengkap', 'ASC')->get($table_mhs)->result();
+    }
+
+    /**
+     * Mengambil data nilai perkuliahan mahasiswa untuk halaman Nilai (persis sesuai format foto SIAKAD)
+     */
+    public function get_student_nilai_data($akun_id, $selected_period = null)
+    {
+        $account = $this->get_account($akun_id);
+        if (!$account) {
+            return null;
+        }
+
+        // Ambil daftar semester/periode yang tersedia (hanya semester yang telah selesai < semester_mhs)
+        $available_periods = $this->get_student_khs_semesters($akun_id);
+        if (empty($available_periods)) {
+            return [
+                'student' => $account,
+                'available_periods' => [],
+                'selected_period' => null,
+                'courses' => [],
+            ];
+        }
+
+        // Format label dropdown persis sesuai gambar 2: "Semester 3 (2024 / Ganjil)", dst.
+        foreach ($available_periods as &$p) {
+            $p['dropdown_label'] = 'Semester ' . $p['semester_mhs'] . ' (' . $p['tahun_akademik'] . ' / ' . $p['semester_akademik'] . ')' . (!empty($p['is_paket']) ? ' (Paket)' : '');
+        }
+        unset($p);
+
+        // Tentukan periode yang dipilih (default semester terbaru yang selesai)
+        $chosen_period = null;
+        if (!empty($selected_period)) {
+            foreach ($available_periods as $p) {
+                if ($p['key'] === $selected_period || 
+                    $p['dropdown_label'] === $selected_period ||
+                    $p['label'] === $selected_period ||
+                    ($p['tahun_akademik'] . ' ' . $p['semester_akademik']) === $selected_period ||
+                    (string)$p['semester_mhs'] === (string)$selected_period ||
+                    ($p['tahun_akademik'] . '_' . strtolower($p['semester_akademik'])) === $selected_period) {
+                    $chosen_period = $p;
+                    break;
+                }
+            }
+        }
+        if (!$chosen_period) {
+            $chosen_period = $available_periods[0];
+        }
+
+        // Query matkul untuk semester tersebut
+        $this->db->where('akun_id', (int)$akun_id);
+        $this->db->where('semester_mhs', (int)$chosen_period['semester_mhs']);
+        $raw_courses = $this->db->order_by('id', 'ASC')->get('khs_nilai')->result();
+
+        // Siapkan mapping dosen default
+        $dosen_lookup = [
+            'IF24KK42' => 'Mukhlis Amien, M.Kom',
+            'MI20KB41' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
+            'MI20KB42' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
+            'MI20KB43' => 'Setiabudi Sakaria, M.Kom',
+            'MI20KB44' => 'Windarini Cahyadiana, S.E., M.M',
+            'MI20KB45' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'MU24PB41' => 'Dr.Savitri, S.E., M.M.,Yekti Asmoro Kanthi, S.Si., M.A.B,Yosart Adi Suyoso, S.AB., MBA',
+            'TI-101' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'TI-102' => 'Mukhlis Amien, M.Kom',
+            'TI-103' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
+            'TI-104' => 'Setiabudi Sakaria, M.Kom',
+            'KU-101' => 'Dr. Ir. Hendra Setiawan, M.T.',
+            'KU-102' => 'Dr. Maya Sartika, S.E., M.Ak.',
+            'KU-103' => 'Windarini Cahyadiana, S.E., M.M',
+            'KU-104' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'TI-201' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'TI-202' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
+            'TI-203' => 'Mukhlis Amien, M.Kom',
+            'TI-204' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
+            'TI-205' => 'Setiabudi Sakaria, M.Kom',
+            'TI-206' => 'Dr. Ir. Hendra Setiawan, M.T.',
+            'KU-201' => 'Dr. Maya Sartika, S.E., M.Ak.',
+            'TI-301' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'TI-302' => 'Setiabudi Sakaria, M.Kom',
+            'TI-303' => 'Mukhlis Amien, M.Kom',
+            'TI-304' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
+            'TI-305' => 'Dr. Ir. Hendra Setiawan, M.T.',
+            'TI-306' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
+            'TI-307' => 'Dr. Maya Sartika, S.E., M.Ak.',
+        ];
+
+        $courses = [];
+        $no = 1;
+        foreach ($raw_courses as $c) {
+            $grade = strtoupper(trim($c->nilai_huruf));
+
+            // Nilai angka
+            $nilai_angka = !empty($c->nilai_angka) ? (float)$c->nilai_angka : null;
+            if ($nilai_angka === null) {
+                $seed = abs(crc32($c->kode_mk . $c->id));
+                if ($grade === 'A') {
+                    $nilai_angka = 85.00 + round(fmod($seed, 11.5), 2);
+                } elseif ($grade === 'A-') {
+                    $nilai_angka = 80.00 + round(fmod($seed, 4.5), 2);
+                } elseif ($grade === 'B+') {
+                    $nilai_angka = 75.00 + round(fmod($seed, 4.5), 2);
+                } elseif ($grade === 'B') {
+                    $nilai_angka = 70.00 + round(fmod($seed, 4.5), 2);
+                } elseif ($grade === 'C+') {
+                    $nilai_angka = 65.00 + round(fmod($seed, 4.5), 2);
+                } elseif ($grade === 'C') {
+                    $nilai_angka = 56.00 + round(fmod($seed, 8.5), 2);
+                } elseif ($grade === 'D') {
+                    $nilai_angka = 45.00 + round(fmod($seed, 9.5), 2);
+                } else {
+                    $nilai_angka = 30.00;
+                }
+            }
+
+            // Dosen
+            $dosen = !empty($c->dosen_pengampu) ? $c->dosen_pengampu : ($dosen_lookup[$c->kode_mk] ?? 'Sugeng Widodo, S.Kom., M.Kom');
+
+            // Kelas
+            $kelas = !empty($c->kelas) ? $c->kelas : 'A';
+
+            // Format angka
+            $display_angka = ((int)$nilai_angka == $nilai_angka) ? (string)(int)$nilai_angka : number_format($nilai_angka, 2, '.', '');
+            if (substr($display_angka, -1) === '0' && strpos($display_angka, '.') !== false) {
+                $display_angka = rtrim(rtrim($display_angka, '0'), '.');
+            }
+
+            $c->no = $no++;
+            $c->kelas = $kelas;
+            $c->dosen = $dosen;
+            $c->nilai_angka_val = $nilai_angka;
+            $c->display_angka = $display_angka;
+            $c->grade_nilai = $grade;
+
+            $courses[] = $c;
+        }
+
+        return [
+            'student' => $account,
+            'available_periods' => $available_periods,
+            'selected_period' => $chosen_period,
+            'courses' => $courses,
+        ];
     }
 }
