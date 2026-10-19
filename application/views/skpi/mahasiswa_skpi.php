@@ -747,11 +747,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     $('#modalFormTitle').html('<i class="fa fa-pencil-square mr-2"></i> Edit Kegiatan SKPI');
                     $('#modalFormKegiatan').modal('show');
                 } else {
-                    alert('Gagal mengambil data kegiatan: ' + (res.message || 'Kesalahan sistem'));
+                    SCDialog.alert('Gagal mengambil data kegiatan: ' + (res.message || 'Kesalahan sistem'), { title: 'Gagal Memuat Data', type: 'error' });
                 }
             },
             error: function() {
-                alert('Terjadi kesalahan saat memuat data kegiatan.');
+                SCDialog.alert('Terjadi kesalahan saat memuat data kegiatan.', { title: 'Kesalahan Sistem', type: 'error' });
             }
         });
     });

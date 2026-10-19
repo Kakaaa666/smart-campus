@@ -1,76 +1,195 @@
-.sc-dialog .modal-content {
-    overflow: hidden;
-    border: 1px solid #dbeafe;
-    border-radius: 12px;
-    box-shadow: 0 20px 55px rgba(15, 23, 42, 0.24);
-}
+/* ==========================================================================
+   Smart Campus Web Dialog System (SCDialog) Styles
+   Menjamin modal konfirmasi & alert tampil serasi, modern, dan bebas dari popup browser.
+   ========================================================================== */
 
-.sc-dialog .modal-header {
+/* 1. Standalone Overlay */
+.sc-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999999;
+    display: flex;
     align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #dbeafe;
-    background: #eff6ff;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease-out, visibility 0.22s ease-out;
+}
+.sc-dialog-overlay.sc-dialog-active {
+    opacity: 1;
+    visibility: visible;
 }
 
-.sc-dialog .modal-title {
-    color: #173b75;
-    font-size: 16px;
-    font-weight: 700;
+/* 2. Dialog Card */
+.sc-dialog-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    max-width: 460px;
+    width: 100%;
+    overflow: hidden;
+    transform: scale(0.92) translateY(-8px);
+    opacity: 0;
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+    font-family: inherit;
 }
-
-.sc-dialog .modal-header .close {
-    color: #64748b;
-    text-shadow: none;
+.sc-dialog-card.sc-dialog-active {
+    transform: scale(1) translateY(0);
     opacity: 1;
 }
 
-.sc-dialog .modal-body {
-    padding: 20px;
-    color: #334155;
+/* 3. Header */
+.sc-dialog-header {
+    display: flex;
+    align-items: center;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
 }
 
+.sc-dialog-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+.sc-dialog-icon-info, .sc-dialog-icon-confirm { background: #e0f2fe; }
+.sc-dialog-icon-success { background: #dcfce7; }
+.sc-dialog-icon-warning { background: #fef3c7; }
+.sc-dialog-icon-danger, .sc-dialog-icon-error { background: #fee2e2; }
+
+.sc-dialog-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.35;
+    flex-grow: 1;
+}
+
+.sc-dialog-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+.sc-dialog-close:hover {
+    color: #1e293b;
+    background: #f1f5f9;
+}
+
+/* 4. Body */
+.sc-dialog-body {
+    padding: 20px 22px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
 .sc-dialog-message {
     margin: 0;
-    line-height: 1.6;
-    white-space: pre-line;
+    word-break: break-word;
 }
-
-.sc-dialog .form-control {
-    min-height: 42px;
-    border-color: #cbd5e1;
-    border-radius: 7px;
-}
-
-.sc-dialog .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
-}
-
-.sc-dialog .modal-footer {
-    gap: 8px;
-    padding: 12px 20px;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
-}
-
-.sc-dialog .modal-footer .btn {
-    min-width: 92px;
-    border-radius: 7px;
-    font-weight: 600;
-}
-
-.sc-dialog .sc-dialog-cancel {
+.sc-dialog-input {
+    border-radius: 8px;
     border: 1px solid #cbd5e1;
+    padding: 9px 12px;
+    font-size: 14px;
+    width: 100%;
+}
+.sc-dialog-input:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    outline: none;
+}
+
+/* 5. Footer */
+.sc-dialog-footer {
+    padding: 14px 22px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+}
+
+.sc-dialog-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+}
+.sc-dialog-cancel {
+    background: #e2e8f0;
     color: #475569;
 }
-
-.sc-dialog .sc-dialog-accept {
-    border-color: #1d4ed8;
-    background: #2563eb;
+.sc-dialog-cancel:hover {
+    background: #cbd5e1;
+    color: #1e293b;
 }
 
-@media (max-width: 575.98px) {
-    .sc-dialog .modal-dialog {
-        margin: 12px;
-    }
+/* Bootstrap Modal Integration Fallback */
+.sc-dialog .modal-content {
+    overflow: hidden;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(15, 23, 42, 0.28);
+}
+.sc-dialog .modal-header {
+    align-items: center;
+    padding: 16px 22px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+}
+.sc-dialog .modal-title {
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 700;
+}
+.sc-dialog .modal-header .close {
+    color: #94a3b8;
+    text-shadow: none;
+    opacity: 1;
+}
+.sc-dialog .modal-body {
+    padding: 20px 22px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.sc-dialog .modal-footer {
+    gap: 10px;
+    padding: 14px 22px 18px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+}
+.sc-dialog .modal-footer .btn {
+    min-width: 90px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
 }

@@ -183,6 +183,56 @@
     margin-right: 4px;
     margin-bottom: 4px;
 }
+
+/* ADVISOR EDIT MODAL & RESPONSIVE IMPROVEMENTS */
+#modalAdvisorEditKrs .modal-xl {
+    max-width: 95vw;
+    width: 1240px;
+    margin: 1.5rem auto;
+}
+@media (max-width: 1280px) {
+    #modalAdvisorEditKrs .modal-xl {
+        max-width: 96vw;
+        width: 96vw;
+    }
+}
+.adv-cat-filter {
+    transition: all 0.2s ease;
+    border-color: #cbd5e1;
+    color: #475569;
+    background: #ffffff;
+}
+.adv-cat-filter:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+.adv-cat-filter.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.25);
+}
+#advTableCourses th {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    background: #f8fafc;
+    border-top: none;
+    border-bottom: 2px solid #e2e8f0;
+}
+#advTableCourses td {
+    vertical-align: middle;
+    border-top: 1px solid #f1f5f9;
+}
+#advTableCourses tbody tr:hover {
+    background-color: #f8fafc;
+}
+#advTableCourses tbody tr.table-info {
+    background-color: #eff6ff !important;
+}
 </style>
 
 <div class="pcoded-content">
@@ -434,106 +484,113 @@
                                 <!-- CARD HEADER / PROFILE SECTION -->
                                 <div class="p-3 p-md-4 border-bottom bg-white">
                                     <div class="row align-items-center">
-                                        <div class="col-lg-6 mb-3 mb-lg-0">
+                                        <div class="col-xl-6 col-lg-5 mb-3 mb-lg-0">
                                             <div class="d-flex align-items-center">
-                                                <div class="student-avatar mr-3">
+                                                <div class="student-avatar mr-3 flex-shrink-0" style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #3b82f6); color: #fff; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);">
                                                     <?= $initial ?>
                                                 </div>
                                                 <div>
-                                                    <div class="d-flex align-items-center flex-wrap mb-1">
-                                                        <h5 class="font-weight-bold mb-0 text-dark mr-2" style="font-size: 16px;">
+                                                    <div class="d-flex align-items-center flex-wrap mb-1" style="gap: 8px;">
+                                                        <h5 class="font-weight-bold mb-0 text-dark" style="font-size: 16.5px; letter-spacing: -0.2px;">
                                                             <?= html_escape($item->nama_lengkap) ?>
                                                         </h5>
-                                                        <span class="badge <?= $status_badge_class ?> font-weight-bold px-2 py-1" style="border-radius: 6px; font-size: 11px;">
+                                                        <span class="badge <?= $status_badge_class ?> font-weight-bold px-2.5 py-1" style="border-radius: 6px; font-size: 11px;">
                                                             <?= $status_text ?>
                                                         </span>
                                                         <?php if (!empty($item->has_conflict)): ?>
-                                                            <span class="badge badge-conflict ml-1">
+                                                            <span class="badge badge-conflict">
                                                                 <i class="fa fa-warning mr-1"></i> BENTROK JADWAL
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <div class="text-muted" style="font-size: 12px;">
-                                                        <span class="font-weight-bold text-dark">NIM: <?= html_escape($item->nim) ?></span>
-                                                        <span class="mx-1">&bull;</span>
+                                                    <div class="text-muted d-flex align-items-center flex-wrap" style="font-size: 12px; gap: 4px 6px;">
+                                                        <span>NIM: <strong class="text-dark font-monospace"><?= html_escape($item->nim) ?></strong></span>
+                                                        <span>&bull;</span>
                                                         <span><?= html_escape($item->prodi ?: '-') ?></span>
-                                                        <span class="mx-1">&bull;</span>
+                                                        <span>&bull;</span>
                                                         <span>Semester <?= (int)$item->semester ?></span>
                                                         <?php if (!empty($item->nama_dosen_wali)): ?>
-                                                            <span class="mx-1">&bull;</span>
-                                                            <span class="text-primary font-weight-bold"><i class="fa fa-user-circle-o mr-1"></i>Wali: <?= html_escape($item->nama_dosen_wali) ?></span>
+                                                            <span>&bull;</span>
+                                                            <span class="text-primary font-weight-bold" style="white-space: nowrap;"><i class="fa fa-user-circle-o mr-1"></i>Wali: <?= html_escape($item->nama_dosen_wali) ?></span>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- RIGHT SIDE: SKS METER & STATUS SPP -->
-                                        <div class="col-lg-6">
-                                            <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 10px;">
-                                                <!-- STATUS KEUANGAN -->
-                                                <div class="mr-3 mb-2 mb-md-0 text-right">
-                                                    <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">STATUS KEUANGAN</small>
-                                                    <?php 
-                                                        $is_lunas = !empty($item->status_keuangan['boleh_krs'])
-                                                                    || !empty($item->status_keuangan['buka_krs'])
-                                                                    || !empty($item->status_keuangan['is_lunas'])
-                                                                    || (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'LUNAS');
-                                                        $is_pending = (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'PENDING');
-                                                    ?>
-                                                    <?php if ($is_lunas): ?>
-                                                        <span class="badge badge-success px-2 py-1" style="font-size: 11px; border-radius: 6px;">
-                                                            <i class="fa fa-check mr-1"></i> LUNAS / DIIZINKAN
-                                                        </span>
-                                                    <?php elseif ($is_pending): ?>
-                                                        <span class="badge badge-warning text-dark px-2 py-1" style="font-size: 11px; border-radius: 6px;" title="Pembayaran sedang diverifikasi Admin Keuangan">
-                                                            <i class="fa fa-clock-o mr-1"></i> MENUNGGU VERIFIKASI
-                                                        </span>
-                                                    <?php else: ?>
-                                                        <span class="badge badge-danger px-2 py-1" style="font-size: 11px; border-radius: 6px;" title="<?= html_escape($item->status_keuangan['pesan'] ?? 'Belum Lunas') ?>">
-                                                            <i class="fa fa-times-circle mr-1"></i> TUNGGAKAN SPP
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </div>
+                                        <!-- RIGHT SIDE: SKS METER & STATUS SPP & ACTIONS -->
+                                        <div class="col-xl-6 col-lg-7">
+                                            <div class="d-flex flex-column align-items-lg-end justify-content-center" style="gap: 8px;">
+                                                <!-- ROW 1: STATUS KEUANGAN & TOTAL BEBAN -->
+                                                <div class="d-flex align-items-center" style="gap: 14px;">
+                                                    <div class="d-flex align-items-center" style="gap: 6px;">
+                                                        <small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px; letter-spacing: 0.3px;">STATUS KEUANGAN:</small>
+                                                        <?php 
+                                                            $is_lunas = !empty($item->status_keuangan['boleh_krs'])
+                                                                        || !empty($item->status_keuangan['buka_krs'])
+                                                                        || !empty($item->status_keuangan['is_lunas'])
+                                                                        || (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'LUNAS');
+                                                            $is_pending = (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'PENDING');
+                                                        ?>
+                                                        <?php if ($is_lunas): ?>
+                                                            <span class="badge badge-success px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;">
+                                                                <i class="fa fa-check mr-1"></i> LUNAS / DIIZINKAN
+                                                            </span>
+                                                        <?php elseif ($is_pending): ?>
+                                                            <span class="badge badge-warning text-dark px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;" title="Pembayaran sedang diverifikasi Admin Keuangan">
+                                                                <i class="fa fa-clock-o mr-1"></i> MENUNGGU VERIFIKASI
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="badge badge-danger px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;" title="<?= html_escape($item->status_keuangan['pesan'] ?? 'Belum Lunas') ?>">
+                                                                <i class="fa fa-times-circle mr-1"></i> TUNGGAKAN SPP
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </div>
 
-                                                <!-- TOTAL SKS METER -->
-                                                <div class="bg-light p-2 rounded text-center mr-3" style="min-width: 110px; border: 1px solid #e2e8f0;">
-                                                    <small class="text-muted d-block font-weight-bold" style="font-size: 10px;">TOTAL BEBAN</small>
-                                                    <span class="font-weight-bold text-primary" style="font-size: 18px; line-height: 1.2;">
-                                                        <?= $total_sks ?> <small class="text-muted" style="font-size: 12px;">/ <?= $max_sks ?> SKS</small>
-                                                    </span>
-                                                    <div class="progress progress-sks mt-1" style="height: 4px;">
-                                                        <div class="progress-bar <?= ($total_sks > 24) ? 'bg-danger' : (($total_sks >= 20) ? 'bg-success' : 'bg-primary') ?>" style="width: <?= $sks_pct ?>%;"></div>
+                                                    <div class="border-left pl-3 d-flex align-items-center" style="border-color: #cbd5e1 !important; gap: 8px;">
+                                                        <small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px; letter-spacing: 0.3px;">TOTAL BEBAN:</small>
+                                                        <span class="font-weight-bold text-primary" style="font-size: 13.5px; line-height: 1;">
+                                                            <?= $total_sks ?> <small class="text-muted" style="font-size: 11px;">/ <?= $max_sks ?> SKS</small>
+                                                        </span>
+                                                        <div class="progress progress-sks" style="width: 55px; height: 4px; margin-bottom: 0;">
+                                                            <div class="progress-bar <?= ($total_sks > 24) ? 'bg-danger' : (($total_sks >= 20) ? 'bg-success' : 'bg-primary') ?>" style="width: <?= $sks_pct ?>%;"></div>
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- QUICK ACTION BUTTONS -->
-                                                <button class="btn btn-outline-secondary btn-sm mr-2" type="button" data-toggle="collapse" data-target="#krs-collapse-<?= (int)$item->id ?>" aria-expanded="false" style="border-radius: 8px;">
-                                                    <i class="fa fa-list-alt mr-1"></i> Detail Matkul
-                                                </button>
+                                                <!-- ROW 2: ACTION BUTTONS TOOLBAR -->
+                                                <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                                    <button class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" type="button" data-toggle="collapse" data-target="#krs-collapse-<?= (int)$item->id ?>" aria-expanded="false" style="border-radius: 8px; font-size: 12px;">
+                                                        <i class="fa fa-list-alt mr-1"></i> Detail Matkul
+                                                    </button>
 
-                                                <?php if ($item->status === 'MENUNGGU'): ?>
-                                                    <button type="button" class="btn btn-success btn-sm px-3 font-weight-bold mr-1" style="border-radius: 8px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);" onclick="quickApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                        <i class="fa fa-check-circle mr-1"></i> Setujui KRS
+                                                    <button type="button" class="btn btn-warning btn-sm px-2.5 py-1.5 font-weight-bold text-dark" style="border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.25);" onclick="openAdvisorEditModal(<?= (int)$item->id ?>)" title="Pilihkan atau gantikan mata kuliah mahasiswa">
+                                                        <i class="fa fa-pencil-square-o mr-1"></i> Edit / Pilihkan Matkul
                                                     </button>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm px-2 font-weight-bold" style="border-radius: 8px;" onclick="openRejectModal(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                        <i class="fa fa-times-circle mr-1"></i> Tolak
-                                                    </button>
-                                                <?php elseif ($item->status === 'DISETUJUI'): ?>
-                                                    <span class="badge badge-success font-weight-bold py-2 px-3 mr-1" style="border-radius: 8px; font-size: 12px;">
-                                                        <i class="fa fa-check-circle mr-1"></i> Disetujui
-                                                    </span>
-                                                    <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                        <i class="fa fa-undo mr-1"></i> Batal
-                                                    </button>
-                                                <?php elseif ($item->status === 'DITOLAK'): ?>
-                                                    <span class="badge badge-danger font-weight-bold py-2 px-3 mr-1" style="border-radius: 8px; font-size: 12px;">
-                                                        <i class="fa fa-times-circle mr-1"></i> Perlu Revisi
-                                                    </span>
-                                                    <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                        <i class="fa fa-undo mr-1"></i> Batal
-                                                    </button>
-                                                <?php endif; ?>
+
+                                                    <?php if ($item->status === 'MENUNGGU'): ?>
+                                                        <button type="button" class="btn btn-success btn-sm px-3 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.25);" onclick="quickApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
+                                                            <i class="fa fa-check-circle mr-1"></i> Setujui KRS
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="openRejectModal(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
+                                                            <i class="fa fa-times-circle mr-1"></i> Tolak
+                                                        </button>
+                                                    <?php elseif ($item->status === 'DISETUJUI'): ?>
+                                                        <span class="badge badge-success font-weight-bold py-2 px-2.5" style="border-radius: 8px; font-size: 11.5px;">
+                                                            <i class="fa fa-check-circle mr-1"></i> Disetujui
+                                                        </span>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
+                                                            <i class="fa fa-undo mr-1"></i> Batal
+                                                        </button>
+                                                    <?php elseif ($item->status === 'DITOLAK'): ?>
+                                                        <span class="badge badge-danger font-weight-bold py-2 px-2.5" style="border-radius: 8px; font-size: 11.5px;">
+                                                            <i class="fa fa-times-circle mr-1"></i> Perlu Revisi
+                                                        </span>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
+                                                            <i class="fa fa-undo mr-1"></i> Batal
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -696,11 +753,11 @@
                                                                 <input type="text" name="catatan" id="catatan-<?= (int)$item->id ?>" class="form-control form-control-sm" placeholder="Contoh: Jadwal bentrok pada hari Selasa, silakan ganti matakuliah pilihan..." maxlength="400" style="border-radius: 8px;">
                                                             </div>
                                                             <div class="col-md-5 text-md-right mt-2 mt-md-0">
-                                                                <button type="submit" name="aksi" value="setujui" class="btn btn-success btn-sm px-3 mr-1" style="border-radius: 8px; font-weight: 600;" onclick="return confirm('Apakah Anda yakin ingin MENYETUJUI rencana studi untuk <?= html_escape(addslashes($item->nama_lengkap)) ?>?')">
+                                                                <button type="submit" name="aksi" value="setujui" class="btn btn-success btn-sm px-3 mr-1" style="border-radius: 8px; font-weight: 600;" data-sc-confirm="Apakah Anda yakin ingin MENYETUJUI rencana studi untuk <?= html_escape(addslashes($item->nama_lengkap)) ?>?">
                                                                     <i class="fa fa-check mr-1"></i> Setujui (Validasi KRS)
                                                                 </button>
-                                                                <button type="submit" name="aksi" value="tolak" class="btn btn-outline-danger btn-sm px-3" style="border-radius: 8px; font-weight: 600;" onclick="return validateReject(<?= (int)$item->id ?>)">
-                                                                    <i class="fa fa-times mr-1"></i> Tolak & Minta Revisi
+                                                                <button type="button" class="btn btn-outline-danger btn-sm px-3 font-weight-bold" style="border-radius: 8px;" onclick="handleCardReject(<?= (int)$item->id ?>)">
+                                                                    <i class="fa fa-times mr-1"></i> Tolak &amp; Minta Revisi
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -714,7 +771,7 @@
                                                                 <?php endif; ?>
                                                             </div>
                                                             <div>
-                                                                <button type="submit" name="aksi" value="batalkan" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;" onclick="return confirm('Batalkan persetujuan KRS dan kembalikan ke antrean peninjauan?')">
+                                                                <button type="submit" name="aksi" value="batalkan" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;" data-sc-confirm="Batalkan persetujuan KRS dan kembalikan ke antrean peninjauan?">
                                                                     <i class="fa fa-undo mr-1"></i> Batalkan Persetujuan
                                                                 </button>
                                                             </div>
@@ -726,7 +783,7 @@
                                                                 <i class="fa fa-exclamation-circle mr-1"></i> Rencana studi ditolak & meminta perbaikan mahasiswa.
                                                             </div>
                                                             <div>
-                                                                <button type="submit" name="aksi" value="batalkan" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;" onclick="return confirm('Kembalikan status KRS ke antrean peninjauan?')">
+                                                                <button type="submit" name="aksi" value="batalkan" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;" data-sc-confirm="Kembalikan status KRS ke antrean peninjauan?">
                                                                     <i class="fa fa-undo mr-1"></i> Kembalikan ke Menunggu
                                                                 </button>
                                                             </div>
@@ -790,6 +847,197 @@
     </div>
 </div>
 
+<!-- MODAL DOSEN WALI: EDIT / PILIHKAN / GANTIKAN MATA KULIAH -->
+<div class="modal fade" id="modalAdvisorEditKrs" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 16px; overflow: hidden; max-height: 92vh; display: flex; flex-direction: column;">
+            <?= form_open('dosen/simpan_krs_mahasiswa', ['id' => 'formAdvisorEditKrs', 'style' => 'display: flex; flex-direction: column; max-height: 92vh; height: 100%; min-height: 0; margin: 0;']) ?>
+                <input type="hidden" name="krs_id" id="advEditKrsId" value="">
+                <input type="hidden" name="aksi" id="advEditAksi" value="simpan">
+
+                <!-- MODAL HEADER -->
+                <div class="modal-header py-3 px-4 bg-white align-items-center" style="border-bottom: 1px solid #e2e8f0; flex-shrink: 0;">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 44px; height: 44px; background: #eff6ff; color: #2563eb; font-size: 19px; border: 1px solid #bfdbfe;">
+                            <i class="fa fa-pencil-square-o"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-weight-bold text-dark mb-1" style="font-size: 17px; letter-spacing: -0.2px;">
+                                Hak Akses Dosen Wali: Edit &amp; Pilihkan Mata Kuliah
+                            </h5>
+                            <div class="text-muted d-flex align-items-center flex-wrap" style="font-size: 12.5px; gap: 8px;">
+                                <span>Mahasiswa: <strong class="text-dark" id="advStudentName">-</strong></span>
+                                <span>&bull;</span>
+                                <span>NIM: <strong class="text-dark font-monospace" id="advStudentNim">-</strong></span>
+                                <span>&bull;</span>
+                                <span>Prodi: <strong class="text-dark" id="advStudentProdi">-</strong></span>
+                                <span>&bull;</span>
+                                <span class="badge badge-primary px-2.5 py-1" style="font-size: 11px; border-radius: 6px;" id="advStudentSem">Semester -</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="close text-muted" data-dismiss="modal" aria-label="Close" style="font-size: 26px; outline: none; opacity: 0.6;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- MODAL BODY -->
+                <div class="modal-body p-4" style="background: #f8fafc; overflow-y: auto; flex: 1 1 auto; min-height: 0;">
+                    <!-- LOADING SPINNER -->
+                    <div id="advModalLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Memuat data penawaran...</span>
+                        </div>
+                        <p class="text-muted mt-3 mb-0 font-weight-bold">Memuat katalog mata kuliah dan rencana studi mahasiswa...</p>
+                    </div>
+
+                    <!-- MODAL CONTENT (SHOWN AFTER LOADED) -->
+                    <div id="advModalContent" style="display: none;">
+                        <!-- TOP STATUS & SKS STRIP -->
+                        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0 !important;">
+                            <div class="card-body py-2.5 px-3 d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px;">
+                                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                                    <span class="text-secondary small font-weight-bold">Total SKS Terpilih:</span>
+                                    <span id="advTotalSksBadge" class="badge badge-primary px-3 py-1 font-weight-bold" style="font-size: 14px; border-radius: 6px;">
+                                        0 / 24 SKS
+                                    </span>
+                                    <span id="advCountCoursesBadge" class="badge badge-light border text-muted px-2.5 py-1 font-weight-bold" style="font-size: 12px; border-radius: 6px;">
+                                        0 Mata Kuliah
+                                    </span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fa fa-info-circle text-primary mr-1"></i> Centang mata kuliah untuk menambahkan, atau hapus centang untuk mengganti/membatalkan.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIVE SCHEDULE CONFLICT ALERT -->
+                        <div id="advConflictAlert" class="alert alert-danger shadow-sm mb-3" style="border-radius: 10px; display: none; border-left: 5px solid #ef4444; background: #fef2f2;">
+                            <div class="d-flex align-items-start">
+                                <i class="fa fa-exclamation-triangle fa-2x text-danger mr-3 mt-1"></i>
+                                <div>
+                                    <strong class="text-danger" style="font-size: 13.5px;">Peringatan Benturan Jadwal Kuliah:</strong>
+                                    <div id="advConflictDetails" class="mt-1 small" style="color: #991b1b; line-height: 1.5;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SEARCH & CATEGORY FILTER BAR -->
+                        <div class="bg-white p-2.5 rounded-lg border shadow-sm mb-3 d-flex justify-content-between align-items-center flex-wrap" style="border-color: #e2e8f0 !important; border-radius: 10px; gap: 10px;">
+                            <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                <button type="button" class="btn btn-sm adv-cat-filter active" data-cat="all" style="border-radius: 20px; font-weight: 600; font-size: 11.5px; padding: 4px 12px;">Semua</button>
+                                <button type="button" class="btn btn-sm adv-cat-filter" data-cat="Wajib" style="border-radius: 20px; font-weight: 600; font-size: 11.5px; padding: 4px 12px;">Wajib Prodi</button>
+                                <button type="button" class="btn btn-sm adv-cat-filter" data-cat="Jurusan" style="border-radius: 20px; font-weight: 600; font-size: 11.5px; padding: 4px 12px;">Pilihan Jurusan</button>
+                                <button type="button" class="btn btn-sm adv-cat-filter" data-cat="Luar Jurusan" style="border-radius: 20px; font-weight: 600; font-size: 11.5px; padding: 4px 12px;">Luar Prodi</button>
+                                <button type="button" class="btn btn-sm adv-cat-filter" data-cat="Umum" style="border-radius: 20px; font-weight: 600; font-size: 11.5px; padding: 4px 12px;">Umum</button>
+                            </div>
+                            <div class="position-relative" style="min-width: 280px; flex-grow: 1; max-width: 360px;">
+                                <i class="fa fa-search position-absolute text-muted" style="left: 12px; top: 10px; font-size: 12px;"></i>
+                                <input type="text" id="advSearchInput" class="form-control form-control-sm pl-4" placeholder="Cari nama matkul / kode / dosen..." style="border-radius: 20px; font-size: 12px; height: 32px; border-color: #cbd5e1;">
+                            </div>
+                        </div>
+
+                        <!-- CATALOG TABLE -->
+                        <div class="table-responsive bg-white rounded border shadow-sm mb-3" style="border-radius: 10px; max-height: 360px; overflow-y: auto;">
+                            <table class="table table-hover table-sm mb-0" style="font-size: 12.5px;" id="advTableCourses">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-center" style="width: 45px;">Pilih</th>
+                                        <th class="py-2.5 px-2" style="width: 85px;">Kode MK</th>
+                                        <th class="py-2.5 px-3">Mata Kuliah</th>
+                                        <th class="py-2.5 px-2 text-center" style="width: 65px;">SKS</th>
+                                        <th class="py-2.5 px-2" style="width: 105px;">Kategori</th>
+                                        <th class="py-2.5 px-2" style="width: 170px;">Jadwal &amp; Hari</th>
+                                        <th class="py-2.5 px-2" style="width: 130px;">Ruangan</th>
+                                        <th class="py-2.5 px-2" style="width: 160px;">Dosen Pengampu</th>
+                                        <th class="py-2.5 px-3 text-center" style="width: 110px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="advCoursesTbody">
+                                    <!-- Injected via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- ADVISOR EVALUATION NOTE -->
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold text-dark small mb-1">
+                                <i class="fa fa-commenting-o mr-1 text-primary"></i> Catatan Penyesuaian Dosen Wali untuk Mahasiswa (Opsional):
+                            </label>
+                            <textarea name="catatan" id="advCatatanInput" class="form-control" rows="2" placeholder="Contoh: Mata kuliah Pengantar Akuntansi digantikan dengan Algoritma Pemrograman sesuai kurikulum semester 4..." style="border-radius: 8px; font-size: 12.5px; border-color: #cbd5e1;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL FOOTER -->
+                <div class="modal-footer py-2.5 px-4 bg-white d-flex justify-content-between align-items-center flex-wrap" style="border-top: 1px solid #e2e8f0; flex-shrink: 0;">
+                    <button type="button" class="btn btn-light btn-sm px-3 text-secondary border font-weight-bold" data-dismiss="modal" style="border-radius: 8px;">
+                        <i class="fa fa-times mr-1"></i> Batal
+                    </button>
+                    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                        <button type="button" class="btn btn-outline-primary btn-sm px-3 font-weight-bold" onclick="submitAdvisorEdit('simpan')" id="btnAdvSaveDraft" style="border-radius: 8px;">
+                            <i class="fa fa-save mr-1"></i> Simpan Pilihan (Status: Menunggu)
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm px-4 font-weight-bold" onclick="submitAdvisorEdit('setujui')" id="btnAdvSaveAndApprove" style="border-radius: 8px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);">
+                            <i class="fa fa-check-circle mr-1"></i> Simpan &amp; Langsung Setujui KRS
+                        </button>
+                    </div>
+                </div>
+            <?= form_close() ?>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI PERSETUJUAN KRS (WEB THEME) -->
+<div class="modal fade" id="modalConfirmKrsApproval" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 440px;">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 20px 45px rgba(0,0,0,0.22); overflow: hidden;">
+            <div class="modal-body text-center p-4">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #ecfdf5; color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px;">
+                    <i class="feather icon-check-circle"></i>
+                </div>
+                <h5 class="font-weight-bold text-dark mb-2">Konfirmasi Persetujuan KRS</h5>
+                <p class="text-muted small mb-4" id="confirmApproveMessage" style="line-height: 1.6; font-size: 13.5px;">
+                    Apakah Anda yakin ingin <strong>MENYETUJUI</strong> rencana studi (KRS) untuk mahasiswa ini?
+                </p>
+                <div class="d-flex justify-content-center" style="gap: 12px;">
+                    <button type="button" class="btn btn-light px-4 font-weight-bold" data-dismiss="modal" style="border-radius: 9px; min-width: 110px;">
+                        Batal
+                    </button>
+                    <button type="button" class="btn btn-success px-4 font-weight-bold" id="btnConfirmApproveSubmit" style="border-radius: 9px; min-width: 130px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                        <i class="fa fa-check mr-1"></i> Ya, Setujui
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI PEMBATALAN STATUS KRS (WEB THEME) -->
+<div class="modal fade" id="modalConfirmKrsCancel" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 440px;">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 20px 45px rgba(0,0,0,0.22); overflow: hidden;">
+            <div class="modal-body text-center p-4">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; color: #0284c7; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px;">
+                    <i class="feather icon-rotate-ccw"></i>
+                </div>
+                <h5 class="font-weight-bold text-dark mb-2">Konfirmasi Pembatalan Status</h5>
+                <p class="text-muted small mb-4" id="confirmCancelMessage" style="line-height: 1.6; font-size: 13.5px;">
+                    Batalkan status persetujuan KRS dan kembalikan ke antrean peninjauan?
+                </p>
+                <div class="d-flex justify-content-center" style="gap: 12px;">
+                    <button type="button" class="btn btn-light px-4 font-weight-bold" data-dismiss="modal" style="border-radius: 9px; min-width: 110px;">
+                        Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary px-4 font-weight-bold" id="btnConfirmCancelSubmit" style="border-radius: 9px; min-width: 130px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                        <i class="fa fa-undo mr-1"></i> Ya, Batalkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- FORM POST TERSEMBUNYI UNTUK AKSI CEPAT -->
 <?= form_open('dosen/proses-krs', ['id' => 'formQuickAction', 'style' => 'display:none;']) ?>
     <input type="hidden" name="krs_id" id="quickActionKrsId" value="">
@@ -798,19 +1046,48 @@
 <?= form_close() ?>
 
 <script>
+function scAlert(message, title, type) {
+    if (window.SCDialog && typeof window.SCDialog.alert === 'function') {
+        return window.SCDialog.alert(message, { title: title || 'Informasi', type: type || 'info' });
+    }
+    return Promise.resolve();
+}
+
+function scConfirm(message, title, acceptText, cancelText, type) {
+    if (window.SCDialog && typeof window.SCDialog.confirm === 'function') {
+        return window.SCDialog.confirm(message, {
+            title: title || 'Konfirmasi',
+            acceptText: acceptText || 'Lanjutkan',
+            cancelText: cancelText || 'Batal',
+            type: type || 'confirm'
+        });
+    }
+    return Promise.resolve(true);
+}
+
 function setKrsStatus(status) {
     document.getElementById('filterStatusInput').value = status;
     document.getElementById('krsFilterForm').submit();
 }
 
+var currentTargetKrsId = 0;
+
 function quickApprove(krsId, studentName) {
-    if (confirm('Apakah Anda yakin ingin MENYETUJUI rencana studi (KRS) untuk ' + studentName + '?')) {
-        document.getElementById('quickActionKrsId').value = krsId;
-        document.getElementById('quickActionAksi').value = 'setujui';
-        document.getElementById('quickActionCatatan').value = 'KRS telah diperiksa dan disetujui oleh Dosen Wali.';
-        document.getElementById('formQuickAction').submit();
+    currentTargetKrsId = krsId;
+    var msgEl = document.getElementById('confirmApproveMessage');
+    if (msgEl) {
+        msgEl.innerHTML = 'Apakah Anda yakin ingin <strong>MENYETUJUI</strong> rencana studi (KRS) untuk <strong>' + studentName + '</strong>?<br><span class="text-muted" style="font-size: 12px;">Data jadwal dan presensi kuliah mahasiswa akan langsung aktif dan tersinkronisasi.</span>';
     }
+    $('#modalConfirmKrsApproval').modal('show');
 }
+
+document.getElementById('btnConfirmApproveSubmit').addEventListener('click', function() {
+    $('#modalConfirmKrsApproval').modal('hide');
+    document.getElementById('quickActionKrsId').value = currentTargetKrsId;
+    document.getElementById('quickActionAksi').value = 'setujui';
+    document.getElementById('quickActionCatatan').value = 'KRS telah diperiksa dan disetujui oleh Dosen Wali.';
+    document.getElementById('formQuickAction').submit();
+});
 
 function openRejectModal(krsId, studentName) {
     document.getElementById('quickRejectKrsId').value = krsId;
@@ -820,21 +1097,336 @@ function openRejectModal(krsId, studentName) {
 }
 
 function cancelApprove(krsId, studentName) {
-    if (confirm('Batalkan status keputusan KRS untuk ' + studentName + ' dan kembalikan ke antrean peninjauan?')) {
-        document.getElementById('quickActionKrsId').value = krsId;
-        document.getElementById('quickActionAksi').value = 'batalkan';
-        document.getElementById('quickActionCatatan').value = '';
-        document.getElementById('formQuickAction').submit();
+    currentTargetKrsId = krsId;
+    var msgEl = document.getElementById('confirmCancelMessage');
+    if (msgEl) {
+        msgEl.innerHTML = 'Batalkan status keputusan KRS untuk <strong>' + studentName + '</strong> dan kembalikan ke antrean peninjauan?';
     }
+    $('#modalConfirmKrsCancel').modal('show');
+}
+
+document.getElementById('btnConfirmCancelSubmit').addEventListener('click', function() {
+    $('#modalConfirmKrsCancel').modal('hide');
+    document.getElementById('quickActionKrsId').value = currentTargetKrsId;
+    document.getElementById('quickActionAksi').value = 'batalkan';
+    document.getElementById('quickActionCatatan').value = '';
+    document.getElementById('formQuickAction').submit();
+});
+
+function handleCardReject(krsId) {
+    var noteInput = document.getElementById('catatan-' + krsId);
+    if (!noteInput || !noteInput.value.trim()) {
+        scAlert('Mohon isi alasan / catatan revisi terlebih dahulu sebelum menolak pengajuan KRS mahasiswa.', 'Catatan Revisi Wajib Diisi', 'warning');
+        if (noteInput) noteInput.focus();
+        return;
+    }
+    scConfirm('Apakah Anda yakin ingin MENOLAK dan meminta revisi rencana studi mahasiswa ini dengan catatan: "' + noteInput.value.trim() + '"?', 'Konfirmasi Tolak & Minta Revisi', 'Ya, Kirim Revisi', 'Batal')
+        .then(function(confirmed) {
+            if (confirmed) {
+                var form = document.getElementById('form-krs-' + krsId);
+                var inputAksi = document.createElement('input');
+                inputAksi.type = 'hidden';
+                inputAksi.name = 'aksi';
+                inputAksi.value = 'tolak';
+                form.appendChild(inputAksi);
+                form.submit();
+            }
+        });
 }
 
 function validateReject(krsId) {
-    var noteInput = document.getElementById('catatan-' + krsId);
-    if (!noteInput || !noteInput.value.trim()) {
-        alert('Mohon isi alasan / catatan revisi terlebih dahulu sebelum menolak pengajuan KRS mahasiswa.');
-        if (noteInput) noteInput.focus();
-        return false;
-    }
-    return confirm('Apakah Anda yakin ingin MENOLAK dan meminta revisi rencana studi mahasiswa ini dengan catatan: "' + noteInput.value.trim() + '"?');
+    handleCardReject(krsId);
+    return false;
 }
+
+// =========================================================================
+// FITUR DOSEN WALI: EDIT / PILIHKAN / GANTIKAN MATA KULIAH MAHASISWA
+// =========================================================================
+let advAllOfferings = [];
+let advInitialCourseIds = new Set();
+let advCurrentSelectedIds = new Set();
+let advMaxSks = 24;
+let advMinSks = 12;
+
+function timeToMinutes(timeStr) {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
+function openAdvisorEditModal(krsId) {
+    $('#modalAdvisorEditKrs').modal('show');
+    document.getElementById('advModalLoading').style.display = 'block';
+    document.getElementById('advModalContent').style.display = 'none';
+    document.getElementById('advEditKrsId').value = krsId;
+    document.getElementById('advCatatanInput').value = '';
+
+    fetch('<?= base_url('dosen/get_krs_offerings_ajax?krs_id=') ?>' + krsId)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                scAlert(data.message || 'Gagal memuat data penawaran mata kuliah.', 'Gagal Memuat Data', 'error');
+                $('#modalAdvisorEditKrs').modal('hide');
+                return;
+            }
+
+            const k = data.krs;
+            document.getElementById('advStudentName').textContent = k.nama_lengkap;
+            document.getElementById('advStudentNim').textContent = k.nim;
+            document.getElementById('advStudentProdi').textContent = k.prodi || 'Informatika';
+            document.getElementById('advStudentSem').textContent = 'Semester ' + (k.semester || 1);
+
+            advAllOfferings = data.offerings || [];
+            advInitialCourseIds = new Set(data.current_ids || []);
+            advCurrentSelectedIds = new Set(data.current_ids || []);
+            advMaxSks = data.max_sks || 24;
+            advMinSks = data.min_sks || 12;
+
+            renderAdvisorOfferingsTable();
+            recalculateAdvisorState();
+
+            document.getElementById('advModalLoading').style.display = 'none';
+            document.getElementById('advModalContent').style.display = 'block';
+        })
+        .catch(err => {
+            console.error('Error fetching offerings:', err);
+            scAlert('Terjadi kesalahan jaringan saat memuat data mata kuliah.', 'Kesalahan Jaringan', 'error');
+            $('#modalAdvisorEditKrs').modal('hide');
+        });
+}
+
+function renderAdvisorOfferingsTable() {
+    const tbody = document.getElementById('advCoursesTbody');
+    tbody.innerHTML = '';
+
+    const filterKeyword = (document.getElementById('advSearchInput').value || '').trim().toLowerCase();
+    const activeCatBtn = document.querySelector('.adv-cat-filter.active');
+    const filterCat = activeCatBtn ? activeCatBtn.dataset.cat : 'all';
+
+    advAllOfferings.forEach(item => {
+        const itemId = parseInt(item.id, 10);
+        const isChecked = advCurrentSelectedIds.has(itemId);
+        const isOriginallySelected = advInitialCourseIds.has(itemId);
+        const cat = item.kategori_kontekstual || item.jenis_mk || 'Wajib';
+
+        // Filtering
+        if (filterCat !== 'all' && cat !== filterCat) return;
+        if (filterKeyword !== '') {
+            const searchHaystack = (item.kode_mk + ' ' + item.nama_mk + ' ' + (item.nama_dosen || '') + ' ' + (item.ruangan || '')).toLowerCase();
+            if (!searchHaystack.includes(filterKeyword)) return;
+        }
+
+        let badgeCatClass = 'badge-primary';
+        if (cat === 'Jurusan') badgeCatClass = 'badge-info';
+        else if (cat === 'Luar Jurusan') badgeCatClass = 'badge-warning text-dark';
+        else if (cat === 'Umum') badgeCatClass = 'badge-success';
+
+        let badgeOrigin = '';
+        if (isOriginallySelected && isChecked) {
+            badgeOrigin = '<span class="badge badge-light border text-muted" style="font-size: 10px;">Asal Mahasiswa</span>';
+        } else if (!isOriginallySelected && isChecked) {
+            badgeOrigin = '<span class="badge badge-warning text-dark font-weight-bold" style="font-size: 10px;">+ Dipilihkan Dosen</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.id = 'adv-row-' + itemId;
+        if (isChecked) tr.classList.add('table-info');
+
+        tr.innerHTML = `
+            <td class="text-center align-middle py-2" style="width: 45px;">
+                <input type="checkbox" name="penawaran[]" value="${itemId}" class="adv-checkbox" data-id="${itemId}" data-sks="${item.sks}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563eb;">
+            </td>
+            <td class="font-weight-bold text-dark align-middle py-2 font-monospace" style="font-size: 12px; white-space: nowrap; width: 85px;">
+                ${item.kode_mk}
+            </td>
+            <td class="align-middle py-2">
+                <div class="font-weight-bold text-dark" style="font-size: 13px; line-height: 1.3;">${item.nama_mk}</div>
+                <div class="small text-muted" style="font-size: 11px;">Kelas: ${item.kelas || 'A'} &bull; Prodi: ${item.prodi || '-'}</div>
+            </td>
+            <td class="text-center align-middle py-2" style="width: 65px;">
+                <span class="badge badge-light border text-primary font-weight-bold px-2 py-1" style="font-size: 11.5px;">${item.sks} SKS</span>
+            </td>
+            <td class="align-middle py-2" style="width: 105px; white-space: nowrap;">
+                <span class="badge ${badgeCatClass} px-2 py-1" style="font-size: 10.5px; border-radius: 5px;">${cat}</span>
+            </td>
+            <td class="align-middle py-2" style="white-space: nowrap; width: 170px;">
+                <div><strong class="text-dark" style="font-size: 12px;">${item.hari}</strong></div>
+                <small class="text-muted" style="font-size: 11px;"><i class="fa fa-clock-o mr-1"></i>${(item.waktu_mulai || '').substring(0, 5)} - ${(item.waktu_selesai || '').substring(0, 5)} WIB</small>
+            </td>
+            <td class="align-middle py-2 text-muted small" style="white-space: nowrap; width: 130px;">
+                <i class="fa fa-building-o mr-1 text-muted"></i>${item.ruangan || '-'}
+            </td>
+            <td class="align-middle py-2 text-muted small" style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.nama_dosen || '-'}">
+                <i class="fa fa-user-o mr-1 text-muted"></i>${item.nama_dosen || '-'}
+            </td>
+            <td class="text-center align-middle py-2" id="adv-origin-${itemId}" style="width: 110px; white-space: nowrap;">
+                ${badgeOrigin}
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+
+    // Checkbox event listeners
+    document.querySelectorAll('.adv-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const id = parseInt(this.dataset.id, 10);
+            if (this.checked) {
+                advCurrentSelectedIds.add(id);
+                document.getElementById('adv-row-' + id)?.classList.add('table-info');
+            } else {
+                advCurrentSelectedIds.delete(id);
+                document.getElementById('adv-row-' + id)?.classList.remove('table-info');
+            }
+
+            // Update badge origin
+            const originCell = document.getElementById('adv-origin-' + id);
+            if (originCell) {
+                if (this.checked) {
+                    originCell.innerHTML = advInitialCourseIds.has(id)
+                        ? '<span class="badge badge-light border text-muted" style="font-size: 10px;">Asal Mahasiswa</span>'
+                        : '<span class="badge badge-warning text-dark font-weight-bold" style="font-size: 10px;">+ Dipilihkan Dosen</span>';
+                } else {
+                    originCell.innerHTML = '';
+                }
+            }
+
+            recalculateAdvisorState();
+        });
+    });
+}
+
+function recalculateAdvisorState() {
+    let totalSks = 0;
+    let selectedCourses = [];
+
+    advAllOfferings.forEach(item => {
+        if (advCurrentSelectedIds.has(parseInt(item.id, 10))) {
+            totalSks += parseInt(item.sks, 10);
+            selectedCourses.push(item);
+        }
+    });
+
+    const sksBadge = document.getElementById('advTotalSksBadge');
+    sksBadge.textContent = totalSks + ' / ' + advMaxSks + ' SKS';
+    if (totalSks > advMaxSks) {
+        sksBadge.className = 'badge badge-danger px-3 py-1 font-weight-bold';
+    } else if (totalSks >= 20) {
+        sksBadge.className = 'badge badge-success px-3 py-1 font-weight-bold';
+    } else {
+        sksBadge.className = 'badge badge-primary px-3 py-1 font-weight-bold';
+    }
+
+    document.getElementById('advCountCoursesBadge').textContent = selectedCourses.length + ' Mata Kuliah';
+
+    // Deteksi benturan jadwal
+    const conflicts = [];
+    for (let i = 0; i < selectedCourses.length; i++) {
+        for (let j = i + 1; j < selectedCourses.length; j++) {
+            const a = selectedCourses[i];
+            const b = selectedCourses[j];
+            if (a.hari && b.hari && a.hari.toLowerCase() === b.hari.toLowerCase()) {
+                const startA = timeToMinutes(a.waktu_mulai);
+                const endA   = timeToMinutes(a.waktu_selesai);
+                const startB = timeToMinutes(b.waktu_mulai);
+                const endB   = timeToMinutes(b.waktu_selesai);
+                if (Math.max(startA, startB) < Math.min(endA, endB)) {
+                    conflicts.push({
+                        a: a,
+                        b: b,
+                        hari: a.hari,
+                        jamA: (a.waktu_mulai || '').substring(0, 5) + '-' + (a.waktu_selesai || '').substring(0, 5),
+                        jamB: (b.waktu_mulai || '').substring(0, 5) + '-' + (b.waktu_selesai || '').substring(0, 5)
+                    });
+                }
+            }
+        }
+    }
+
+    const conflictAlert = document.getElementById('advConflictAlert');
+    const conflictDetails = document.getElementById('advConflictDetails');
+
+    if (conflicts.length > 0) {
+        conflictAlert.style.display = 'block';
+        let detailHtml = '';
+        conflicts.forEach(cf => {
+            detailHtml += `<div>&bull; <strong>${cf.a.kode_mk} (${cf.a.nama_mk})</strong> bertabrakan dengan <strong>${cf.b.kode_mk} (${cf.b.nama_mk})</strong> pada hari <strong>${cf.hari}</strong> (${cf.jamA} vs ${cf.jamB}).</div>`;
+        });
+        conflictDetails.innerHTML = detailHtml;
+    } else {
+        conflictAlert.style.display = 'none';
+        conflictDetails.innerHTML = '';
+    }
+
+    const btnApprove = document.getElementById('btnAdvSaveAndApprove');
+    const btnDraft = document.getElementById('btnAdvSaveDraft');
+
+    if (totalSks > advMaxSks || selectedCourses.length === 0) {
+        btnApprove.disabled = true;
+        btnDraft.disabled = (selectedCourses.length === 0);
+    } else {
+        btnApprove.disabled = false;
+        btnDraft.disabled = false;
+    }
+}
+
+function submitAdvisorEdit(action) {
+    if (advCurrentSelectedIds.size === 0) {
+        scAlert('Pilih minimal 1 mata kuliah untuk rencana studi mahasiswa.', 'Mata Kuliah Kosong', 'warning');
+        return;
+    }
+
+    let totalSks = 0;
+    advAllOfferings.forEach(item => {
+        if (advCurrentSelectedIds.has(parseInt(item.id, 10))) {
+            totalSks += parseInt(item.sks, 10);
+        }
+    });
+
+    if (totalSks > advMaxSks) {
+        scAlert('Total beban studi (' + totalSks + ' SKS) melebihi batas maksimal ' + advMaxSks + ' SKS.', 'Batas SKS Terlampaui', 'warning');
+        return;
+    }
+
+    const conflictAlert = document.getElementById('advConflictAlert');
+    const hasConflict = (conflictAlert && conflictAlert.style.display !== 'none');
+
+    function doSubmit() {
+        const confirmMsg = (action === 'setujui')
+            ? 'Simpan perubahan mata kuliah dan LANGSUNG SETUJUI rencana studi (KRS) mahasiswa ini?'
+            : 'Simpan perubahan mata kuliah mahasiswa ini (status tetap Menunggu persetujuan)?';
+        const confirmTitle = (action === 'setujui') ? 'Konfirmasi Simpan & Setujui' : 'Konfirmasi Simpan Rencana Studi';
+        const acceptBtnText = (action === 'setujui') ? 'Ya, Simpan & Setujui' : 'Ya, Simpan';
+
+        scConfirm(confirmMsg, confirmTitle, acceptBtnText, 'Batal').then(function(confirmed) {
+            if (confirmed) {
+                document.getElementById('advEditAksi').value = action;
+                document.getElementById('formAdvisorEditKrs').submit();
+            }
+        });
+    }
+
+    if (hasConflict) {
+        scConfirm('Peringatan: Terdapat benturan jadwal perkuliahan pada mata kuliah yang dipilih. Apakah Anda yakin ingin tetap menyimpannya?', 'Peringatan Benturan Jadwal', 'Tetap Simpan', 'Periksa Kembali').then(function(confirmed) {
+            if (confirmed) {
+                doSubmit();
+            }
+        });
+    } else {
+        doSubmit();
+    }
+}
+
+// Filter listeners for modal
+document.querySelectorAll('.adv-cat-filter').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.adv-cat-filter').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        renderAdvisorOfferingsTable();
+    });
+});
+
+document.getElementById('advSearchInput')?.addEventListener('input', function() {
+    renderAdvisorOfferingsTable();
+});
 </script>

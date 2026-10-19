@@ -87,7 +87,7 @@ class Perwalian extends CI_Controller {
         $data['page_title']        = $page_title;
         $data['page_desc']         = $page_desc;
         $data['card_subtitle']     = $card_subtitle;
-        $data['breadcrumb_parent'] = 'Perwalian';
+        $data['breadcrumb_parent'] = 'KRS dan Perwalian';
         $data['status_krs']        = $status_krs;
         $data['view_name']         = $view_name;
         $data['academic_period']   = $this->M_akademik->get_active_period();

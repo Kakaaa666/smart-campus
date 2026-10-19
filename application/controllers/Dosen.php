@@ -207,6 +207,114 @@ class Dosen extends MY_Role_Controller
         redirect('dosen/persetujuan-krs?status=' . $redirect_status);
     }
 
+    /**
+     * AJAX endpoint: Mengambil data katalog penawaran mata kuliah dan pilihan saat ini untuk modal Dosen Wali
+     */
+    public function get_krs_offerings_ajax()
+    {
+        $user_role = (int)$this->session->userdata('role');
+        $user_id   = (int)$this->session->userdata('id');
+        $is_admin  = in_array($user_role, [1, 2], true);
+
+        $krs_id = (int)$this->input->get('krs_id');
+        if ($krs_id < 1) {
+            return $this->output->set_content_type('application/json')
+                                ->set_output(json_encode(['success' => false, 'message' => 'Parameter KRS ID tidak valid.']));
+        }
+
+        $qb = $this->db->select('krs.*, mahasiswa.nim, mahasiswa.nama_lengkap, mahasiswa.prodi, mahasiswa.semester')
+                       ->from('krs')
+                       ->join('akun_mahasiswa AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
+                       ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
+                       ->where('krs.id', $krs_id)
+                       ->where('mahasiswa.deleted_at IS NULL', null, false);
+
+        if (!$is_admin && $user_id > 0) {
+            $qb->where('dosen_wali.dosen_id', $user_id);
+        }
+
+        $krs = $qb->get()->row();
+        if (!$krs) {
+            return $this->output->set_content_type('application/json')
+                                ->set_output(json_encode(['success' => false, 'message' => 'Data KRS mahasiswa tidak ditemukan atau bukan bimbingan Anda.']));
+        }
+
+        $active_period = [
+            'tahun_akademik' => $krs->tahun_akademik,
+            'semester_akademik' => $krs->semester_akademik,
+        ];
+
+        // Ambil semua katalog penawaran mata kuliah yang relevan
+        $offerings = $this->M_akademik->get_offerings(
+            $krs->prodi,
+            $krs->semester,
+            $active_period
+        );
+
+        // Ambil ID penawaran yang sedang terpilih di KRS saat ini
+        $current_details = $this->db->where('krs_id', $krs_id)->get('krs_detail')->result();
+        $current_ids = array_map('intval', array_column($current_details, 'penawaran_id'));
+
+        return $this->output->set_content_type('application/json')
+                            ->set_output(json_encode([
+                                'success' => true,
+                                'krs' => $krs,
+                                'current_ids' => $current_ids,
+                                'offerings' => $offerings,
+                                'max_sks' => M_akademik::MAX_SKS_PER_SEMESTER,
+                                'min_sks' => M_akademik::MIN_SKS_PER_SEMESTER,
+                            ]));
+    }
+
+    /**
+     * Menyimpan penyesuaian/pemilihan/penggantian mata kuliah mahasiswa oleh Dosen Wali
+     */
+    public function simpan_krs_mahasiswa()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            return $this->output->set_content_type('application/json')
+                                ->set_output(json_encode(['success' => false, 'message' => 'Metode permintaan tidak diizinkan.']));
+        }
+
+        $user_id   = (int)$this->session->userdata('id');
+        $user_role = (int)$this->session->userdata('role');
+        $is_admin  = in_array($user_role, [1, 2], true);
+
+        $krs_id       = (int)$this->input->post('krs_id');
+        $offering_ids = $this->input->post('penawaran');
+        $action       = $this->input->post('aksi') ?: 'simpan'; // 'simpan' atau 'setujui'
+        $note         = trim((string)$this->input->post('catatan'));
+
+        if ($offering_ids === null) {
+            $offering_ids = [];
+        }
+
+        $result = $this->M_akademik->advisor_update_krs_courses(
+            $krs_id,
+            $offering_ids,
+            $user_id,
+            $action,
+            $note,
+            $is_admin
+        );
+
+        // Respon AJAX jika diminta melalui XHR / JSON
+        if ($this->input->is_ajax_request() || $this->input->get('ajax') === '1') {
+            return $this->output->set_content_type('application/json')
+                                ->set_output(json_encode($result));
+        }
+
+        // Respon form standard
+        if ($result['success']) {
+            $this->session->set_flashdata('success', $result['message']);
+        } else {
+            $this->session->set_flashdata('error', $result['message']);
+        }
+
+        $redirect_status = ($action === 'setujui') ? 'disetujui' : 'menunggu';
+        redirect('dosen/persetujuan-krs?status=' . $redirect_status);
+    }
+
     public function akademik()
     {
         $this->render_module('Akademik', 'Akses informasi akademik dosen.', 'Akademik');

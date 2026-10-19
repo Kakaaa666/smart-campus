@@ -574,12 +574,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToastSuccess(res.message);
                 } else {
                     btn.html(originalHtml);
-                    alert(res.message || 'Gagal mengubah status validasi.');
+                    SCDialog.alert(res.message || 'Gagal mengubah status validasi.', { title: 'Gagal Validasi', type: 'error' });
                 }
             },
             error: function() {
                 btn.prop('disabled', false).html(originalHtml);
-                alert('Terjadi kesalahan jaringan atau server.');
+                SCDialog.alert('Terjadi kesalahan jaringan atau server.', { title: 'Kesalahan Sistem', type: 'error' });
             }
         });
     }

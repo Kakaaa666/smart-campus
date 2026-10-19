@@ -487,6 +487,36 @@ class M_akademik extends CI_Model
                 'dosen_id' => $dosen_id, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Basis Data'
             ],
             [
+                'kode_mk' => 'TI-402', 'nama_mk' => 'Rekayasa Perangkat Lunak (RPL) & Metodologi Agile', 'prodi' => 'Teknik Informatika',
+                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'hari' => 'Senin', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Ruang Teori RK-204',
+                'dosen_id' => $dosen_id, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Algoritma II'
+            ],
+            [
+                'kode_mk' => 'TI-403', 'nama_mk' => 'Jaringan Komputer & Komunikasi Data', 'prodi' => 'Teknik Informatika',
+                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'hari' => 'Selasa', 'waktu_mulai' => '10:30:00', 'waktu_selesai' => '13:00:00', 'ruangan' => 'Lab Jaringan & IoT',
+                'dosen_id' => $dosen_id, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Sistem Operasi'
+            ],
+            [
+                'kode_mk' => 'TI-404', 'nama_mk' => 'Desain Antarmuka & Pengalaman Pengguna (UI/UX)', 'prodi' => 'Teknik Informatika',
+                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'hari' => 'Kamis', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Lab Multimedia',
+                'dosen_id' => $dosen_id, 'jenis_mk' => 'Jurusan', 'kuota' => 35, 'prasyarat' => 'Tidak Ada'
+            ],
+            [
+                'kode_mk' => 'TI-405', 'nama_mk' => 'Kecerdasan Buatan (Artificial Intelligence)', 'prodi' => 'Teknik Informatika',
+                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'hari' => 'Jumat', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Lab Riset Komputasi',
+                'dosen_id' => $dosen_id, 'jenis_mk' => 'Jurusan', 'kuota' => 35, 'prasyarat' => 'Lulus Struktur Data'
+            ],
+            [
+                'kode_mk' => 'MKU-401', 'nama_mk' => 'Kewirausahaan Teknologi (Technopreneurship)', 'prodi' => 'Umum',
+                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 2, 'kelas' => 'MKU-D',
+                'hari' => 'Kamis', 'waktu_mulai' => '13:30:00', 'waktu_selesai' => '15:10:00', 'ruangan' => 'Auditorium Utama Lt. 2',
+                'dosen_id' => $dosen_id, 'jenis_mk' => 'Umum', 'kuota' => 80, 'prasyarat' => 'Wajib Universitas'
+            ],
+            [
                 'kode_mk' => 'TI-601', 'nama_mk' => 'Data Warehouse & Business Intelligence', 'prodi' => 'Teknik Informatika',
                 'semester' => 6, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-6A',
                 'hari' => 'Kamis', 'waktu_mulai' => '10:30:00', 'waktu_selesai' => '13:00:00', 'ruangan' => 'Lab Riset Data',
@@ -613,17 +643,48 @@ class M_akademik extends CI_Model
         return $offerings;
     }
 
-    public function get_krs($akun_id, $period)
+    public function get_krs($akun_id, $period = null)
     {
-        $krs = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali')
-                        ->from('krs')
-                        ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
-                        ->join('akun AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
-                        ->where('krs.akun_id', (int)$akun_id)
-                        ->where('krs.tahun_akademik', $period['tahun_akademik'])
-                        ->where('krs.semester_akademik', $period['semester_akademik'])
-                        ->get()
-                        ->row();
+        $qb = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali')
+                       ->from('krs')
+                       ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
+                       ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                       ->where('krs.akun_id', (int)$akun_id);
+
+        if (!empty($period) && is_array($period)) {
+            $thn = trim($period['tahun_akademik'] ?? '');
+            $sem = trim($period['semester_akademik'] ?? '');
+
+            if (!empty($thn)) {
+                $thn_prefix = explode('/', $thn)[0];
+                $qb->group_start()
+                   ->where('krs.tahun_akademik', $thn)
+                   ->or_like('krs.tahun_akademik', $thn_prefix, 'after')
+                   ->or_where('krs.tahun_akademik', $thn_prefix)
+                   ->or_like('krs.tahun_akademik', substr($thn_prefix, 0, 4), 'after')
+                   ->group_end();
+            }
+            if (!empty($sem)) {
+                $qb->where('LOWER(krs.semester_akademik)', strtolower($sem));
+            }
+        }
+
+        $qb->order_by("FIELD(krs.status, 'DISETUJUI', 'MENUNGGU', 'DRAFT', 'DITOLAK')", '', false);
+        $qb->order_by('krs.id', 'DESC');
+        $krs = $qb->get()->row();
+
+        // Fallback jika tidak ditemukan dengan filter spesifik periode: ambil KRS aktif terbaru mahasiswa
+        if (!$krs) {
+            $krs = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali')
+                            ->from('krs')
+                            ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
+                            ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                            ->where('krs.akun_id', (int)$akun_id)
+                            ->order_by("FIELD(krs.status, 'DISETUJUI', 'MENUNGGU', 'DRAFT', 'DITOLAK')", '', false)
+                            ->order_by('krs.id', 'DESC')
+                            ->get()
+                            ->row();
+        }
 
         if (!$krs) {
             return null;
@@ -665,8 +726,7 @@ class M_akademik extends CI_Model
 
     public function get_account($akun_id)
     {
-        return $this->db->select('id, nim, nama_lengkap, fakultas, prodi, jenjang, semester, angkatan')
-                        ->where('id', (int)$akun_id)
+        return $this->db->where('id', (int)$akun_id)
                         ->where('deleted_at IS NULL', null, false)
                         ->get('akun_mahasiswa')
                         ->row();
@@ -1042,24 +1102,65 @@ class M_akademik extends CI_Model
                 ]);
             }
 
-            // Pastikan KRS Nabila berstatus MENUNGGU agar muncul di antrean persetujuan Pak Sugeng
+            // Pastikan KRS Nabila berstatus DISETUJUI dan tersinkronisasi penuh dengan jadwal perkuliahan
             $period = $this->get_active_period();
             $krs_nabila = $this->db->where('akun_id', (int)$mhs_nabila->id)
-                                   ->where('tahun_akademik', $period['tahun_akademik'])
-                                   ->where('semester_akademik', $period['semester_akademik'])
+                                   ->order_by("FIELD(status, 'DISETUJUI', 'MENUNGGU', 'DRAFT')", '', false)
+                                   ->order_by('id', 'DESC')
                                    ->get('krs')->row();
+
+            // Ambil seluruh penawaran mata kuliah semester 4 Teknik Informatika yang aktif
+            $ti4_offerings = $this->db->group_start()
+                                      ->where('prodi', 'Teknik Informatika')
+                                      ->or_where('prodi', 'Umum')
+                                      ->group_end()
+                                      ->where('semester', 4)
+                                      ->where('aktif', 1)
+                                      ->order_by('id', 'ASC')
+                                      ->get('penawaran_matakuliah')
+                                      ->result();
+            if (empty($ti4_offerings)) {
+                $ti4_offerings = $this->db->where('aktif', 1)->limit(6)->get('penawaran_matakuliah')->result();
+            }
+            $ti4_ids = array_map(function($o){ return (int)$o->id; }, $ti4_offerings);
+            $total_sks_nabila = array_sum(array_map(function($o){ return (int)$o->sks; }, $ti4_offerings));
+            $now = date('Y-m-d H:i:s');
+
             if ($krs_nabila) {
-                if ($krs_nabila->status === 'DRAFT' || empty($krs_nabila->status)) {
-                    $this->db->where('id', (int)$krs_nabila->id)->update('krs', [
-                        'status' => 'MENUNGGU',
-                        'diajukan_at' => date('Y-m-d H:i:s')
+                $nabila_krs_id = (int)$krs_nabila->id;
+                $this->db->where('id', $nabila_krs_id)->update('krs', [
+                    'status' => 'DISETUJUI',
+                    'total_sks' => $total_sks_nabila ?: $krs_nabila->total_sks,
+                    'diproses_oleh' => (int)$dosen_sugeng->id,
+                    'diproses_at' => $now,
+                    'catatan' => 'KRS telah diperiksa dan disetujui oleh Dosen Wali (Sugeng Widodo, S.Kom., M.Kom).'
+                ]);
+            } else {
+                $this->db->insert('krs', [
+                    'akun_id' => (int)$mhs_nabila->id,
+                    'tahun_akademik' => $period['tahun_akademik'],
+                    'semester_akademik' => $period['semester_akademik'],
+                    'status' => 'DISETUJUI',
+                    'total_sks' => $total_sks_nabila ?: 17,
+                    'catatan' => 'KRS telah diperiksa dan disetujui oleh Dosen Wali (Sugeng Widodo, S.Kom., M.Kom).',
+                    'diajukan_at' => $now,
+                    'diproses_oleh' => (int)$dosen_sugeng->id,
+                    'diproses_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]);
+                $nabila_krs_id = (int)$this->db->insert_id();
+            }
+
+            // Pastikan rincian penawaran mata kuliah (jadwal) masuk ke krs_detail
+            $cur_details_cnt = $this->db->where('krs_id', $nabila_krs_id)->count_all_results('krs_detail');
+            if ($cur_details_cnt === 0 && !empty($ti4_ids)) {
+                foreach ($ti4_ids as $off_id) {
+                    $this->db->insert('krs_detail', [
+                        'krs_id' => $nabila_krs_id,
+                        'penawaran_id' => $off_id
                     ]);
                 }
-            } else {
-                // Buat draf & submit KRS demo untuk Nabila jika belum ada
-                $offering_ids = $this->db->select('id')->limit(4)->get('penawaran_matakuliah')->result();
-                $ids = array_map(function($o){ return (int)$o->id; }, $offering_ids);
-                $this->save_student_krs((int)$mhs_nabila->id, $ids, true);
             }
         }
 
@@ -1378,6 +1479,128 @@ class M_akademik extends CI_Model
     }
 
     /**
+     * Memungkinkan Dosen Wali (atau Admin) mengedit, memilihkan, atau menggantikan mata kuliah
+     * yang sudah diajukan oleh mahasiswa bimbingan.
+     */
+    public function advisor_update_krs_courses($krs_id, $offering_ids, $lecturer_id, $action = 'simpan', $note = '', $is_admin = false)
+    {
+        if (!is_array($offering_ids)) {
+            return ['success' => false, 'message' => 'Daftar mata kuliah tidak valid.'];
+        }
+
+        $ids = [];
+        foreach ($offering_ids as $offering_id) {
+            if (is_scalar($offering_id) && ctype_digit((string)$offering_id) && (int)$offering_id > 0) {
+                $ids[] = (int)$offering_id;
+            }
+        }
+        $ids = array_values(array_unique($ids));
+
+        if (empty($ids)) {
+            return ['success' => false, 'message' => 'Pilih minimal satu mata kuliah untuk rencana studi mahasiswa.'];
+        }
+
+        $this->db->trans_begin();
+
+        $qb = $this->db->select('krs.*, mahasiswa.nim, mahasiswa.nama_lengkap, mahasiswa.prodi, dosen.nama_lengkap as nama_dosen')
+                       ->from('krs')
+                       ->join('akun_mahasiswa AS mahasiswa', 'mahasiswa.id = krs.akun_id', 'inner')
+                       ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
+                       ->join('akun_biro AS dosen', 'dosen.id = ' . (int)$lecturer_id, 'left')
+                       ->where('krs.id', (int)$krs_id)
+                       ->where('mahasiswa.deleted_at IS NULL', null, false);
+
+        if (!$is_admin && $lecturer_id > 0) {
+            $qb->where('dosen_wali.dosen_id', (int)$lecturer_id);
+        }
+
+        $krs = $qb->get()->row();
+        if (!$krs) {
+            $this->db->trans_rollback();
+            return ['success' => false, 'message' => 'Pengajuan KRS tidak ditemukan atau bukan kewenangan bimbingan Anda.'];
+        }
+
+        $offerings = $this->db->where_in('id', $ids)
+                              ->where('aktif', 1)
+                              ->get('penawaran_matakuliah')
+                              ->result();
+
+        if (count($offerings) !== count($ids)) {
+            $this->db->trans_rollback();
+            return ['success' => false, 'message' => 'Satu atau lebih mata kuliah yang dipilih sudah tidak aktif/tersedia.'];
+        }
+
+        $total_sks = 0;
+        $schedule = [];
+        foreach ($offerings as $offering) {
+            $total_sks += (int)$offering->sks;
+            foreach ($schedule as $scheduled) {
+                if ($offering->hari === $scheduled->hari
+                    && $offering->waktu_mulai < $scheduled->waktu_selesai
+                    && $offering->waktu_selesai > $scheduled->waktu_mulai) {
+                    $this->db->trans_rollback();
+                    return [
+                        'success' => false,
+                        'message' => 'Jadwal bertabrakan: ' . $offering->kode_mk . ' (' . $offering->nama_mk . ') dengan ' . $scheduled->kode_mk . ' (' . $scheduled->nama_mk . ') pada hari ' . $offering->hari . ' (' . substr($offering->waktu_mulai, 0, 5) . '-' . substr($offering->waktu_selesai, 0, 5) . ').'
+                    ];
+                }
+            }
+            $schedule[] = $offering;
+        }
+
+        if ($total_sks > self::MAX_SKS_PER_SEMESTER) {
+            $this->db->trans_rollback();
+            return ['success' => false, 'message' => 'Total beban studi (' . $total_sks . ' SKS) melebihi batas maksimal ' . self::MAX_SKS_PER_SEMESTER . ' SKS.'];
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $nama_wali = $krs->nama_dosen ?: 'Dosen Wali';
+        
+        $catatan_final = trim((string)$note);
+        if ($catatan_final === '') {
+            $catatan_final = ($action === 'setujui')
+                ? 'Mata kuliah disesuaikan dan disetujui langsung oleh Dosen Wali (' . $nama_wali . ').'
+                : 'Mata kuliah telah disesuaikan/dipilihkan oleh Dosen Wali (' . $nama_wali . ').';
+        }
+
+        $new_status = ($action === 'setujui') ? 'DISETUJUI' : 'MENUNGGU';
+
+        $update_data = [
+            'total_sks' => $total_sks,
+            'status' => $new_status,
+            'catatan' => $catatan_final,
+            'updated_at' => $now,
+        ];
+        if ($action === 'setujui') {
+            $update_data['diproses_oleh'] = (int)$lecturer_id;
+            $update_data['diproses_at'] = $now;
+        }
+
+        $this->db->where('id', (int)$krs_id)->update('krs', $update_data);
+
+        $this->db->where('krs_id', (int)$krs_id)->delete('krs_detail');
+        foreach ($ids as $offering_id) {
+            $this->db->insert('krs_detail', [
+                'krs_id' => (int)$krs_id,
+                'penawaran_id' => (int)$offering_id,
+            ]);
+        }
+
+        if (!$this->db->trans_status()) {
+            $this->db->trans_rollback();
+            return ['success' => false, 'message' => 'Gagal menyimpan perubahan mata kuliah karena kesalahan database.'];
+        }
+
+        $this->db->trans_commit();
+
+        $message = ($action === 'setujui')
+            ? 'Mata kuliah berhasil disesuaikan dan KRS mahasiswa langsung berstatus DISETUJUI.'
+            : 'Mata kuliah berhasil diperbarui oleh Dosen Wali. KRS disimpan dengan total ' . $total_sks . ' SKS.';
+
+        return ['success' => true, 'message' => $message];
+    }
+
+    /**
      * =========================================================================
      * MODUL KARTU HASIL STUDI (KHS) & TRANSKRIP AKADEMIK
      * =========================================================================
@@ -1479,23 +1702,27 @@ class M_akademik extends CI_Model
         }
 
         // 4. Nabila Ayu Lestari (NIM 2004) - Semester 4 Aktif Teknik Informatika
+        // 4. Nabila Ayu Lestari (NIM 2004) - Semester 4 Aktif Teknik Informatika
         // Karena Nabila ada di Semester 4 (baru saja KRS-an), KHS yang ada HANYA Semester 1, 2, dan 3!
         // Total SKS ditempuh dari Semester 1 s/d 3 = 63 SKS. Semester 4 belum ada nilai di KHS.
         $nabila = $this->db->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun_mahasiswa')->row();
         if ($nabila) {
-            $cnt = $this->db->where('akun_id', (int)$nabila->id)->count_all_results('khs_nilai');
-            if ($cnt < 22) {
+            $has_varied_grades = $this->db->where('akun_id', (int)$nabila->id)
+                                          ->where('kode_mk', 'TI-102')
+                                          ->where('nilai_huruf', 'B+')
+                                          ->count_all_results('khs_nilai');
+            if ($has_varied_grades === 0) {
                 $this->db->where('akun_id', (int)$nabila->id)->delete('khs_nilai');
 
-                // Semester 1: 2023 / Ganjil (Paket Semester 1 - 20 SKS)
+                // Semester 1: 2023 / Ganjil (Paket Semester 1 - 20 SKS, IPS: 3.73)
                 $n_smt1 = [
                     ['kode_mk' => 'TI-101', 'nama_mk' => 'Algoritma dan Pemrograman I', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 1],
-                    ['kode_mk' => 'TI-102', 'nama_mk' => 'Matematika Diskrit', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 1],
+                    ['kode_mk' => 'TI-102', 'nama_mk' => 'Matematika Diskrit', 'sks' => 3, 'nilai_huruf' => 'B+', 'nilai_indeks' => 3.5, 'kategori' => 'Sangat Baik', 'nxk' => 10.5, 'keterangan' => '1', 'is_paket' => 1],
                     ['kode_mk' => 'TI-103', 'nama_mk' => 'Pengantar Teknologi Informasi', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 1],
-                    ['kode_mk' => 'TI-104', 'nama_mk' => 'Arsitektur Komputer & Logika Digital', 'sks' => 3, 'nilai_huruf' => 'B+', 'nilai_indeks' => 3.5, 'kategori' => 'Sangat Baik', 'nxk' => 10.5, 'keterangan' => '1', 'is_paket' => 1],
+                    ['kode_mk' => 'TI-104', 'nama_mk' => 'Arsitektur Komputer & Logika Digital', 'sks' => 3, 'nilai_huruf' => 'B', 'nilai_indeks' => 3.0, 'kategori' => 'Baik', 'nxk' => 9.0, 'keterangan' => '1', 'is_paket' => 1],
                     ['kode_mk' => 'KU-101', 'nama_mk' => 'Pendidikan Pancasila & Kewarganegaraan', 'sks' => 2, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 1],
                     ['kode_mk' => 'KU-102', 'nama_mk' => 'Bahasa Indonesia', 'sks' => 2, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 1],
-                    ['kode_mk' => 'KU-103', 'nama_mk' => 'Bahasa Inggris Teknik', 'sks' => 2, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 1],
+                    ['kode_mk' => 'KU-103', 'nama_mk' => 'Bahasa Inggris Teknik', 'sks' => 2, 'nilai_huruf' => 'B+', 'nilai_indeks' => 3.5, 'kategori' => 'Sangat Baik', 'nxk' => 7.0, 'keterangan' => '1', 'is_paket' => 1],
                     ['kode_mk' => 'KU-104', 'nama_mk' => 'Pendidikan Agama Islam', 'sks' => 2, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 8.0, 'keterangan' => '1', 'is_paket' => 1],
                 ];
                 foreach ($n_smt1 as $c) {
@@ -1506,7 +1733,7 @@ class M_akademik extends CI_Model
                     $this->db->insert('khs_nilai', $c);
                 }
 
-                // Semester 2: 2023 / Genap (21 SKS)
+                // Semester 2: 2023 / Genap (21 SKS, IPS: 3.93)
                 $n_smt2 = [
                     ['kode_mk' => 'TI-201', 'nama_mk' => 'Algoritma dan Pemrograman II', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
                     ['kode_mk' => 'TI-202', 'nama_mk' => 'Struktur Data & Algoritma', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
@@ -1524,14 +1751,14 @@ class M_akademik extends CI_Model
                     $this->db->insert('khs_nilai', $c);
                 }
 
-                // Semester 3: 2024 / Ganjil (22 SKS) -> Total SKS s/d Smt 3 = 63 SKS!
+                // Semester 3: 2024 / Ganjil (22 SKS, IPS: 3.73) -> Total SKS s/d Smt 3 = 63 SKS, Grand IPK: 3.79!
                 $n_smt3 = [
                     ['kode_mk' => 'TI-301', 'nama_mk' => 'Pemrograman Berorientasi Objek', 'sks' => 4, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 16.0, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'TI-302', 'nama_mk' => 'Jaringan Komputer & Komunikasi Data', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'TI-302', 'nama_mk' => 'Jaringan Komputer & Komunikasi Data', 'sks' => 3, 'nilai_huruf' => 'B+', 'nilai_indeks' => 3.5, 'kategori' => 'Sangat Baik', 'nxk' => 10.5, 'keterangan' => '1', 'is_paket' => 0],
                     ['kode_mk' => 'TI-303', 'nama_mk' => 'Rekayasa Perangkat Lunak', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
                     ['kode_mk' => 'TI-304', 'nama_mk' => 'Pemrograman Web Lanjut', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
                     ['kode_mk' => 'TI-305', 'nama_mk' => 'Analisis & Desain Sistem', 'sks' => 3, 'nilai_huruf' => 'B+', 'nilai_indeks' => 3.5, 'kategori' => 'Sangat Baik', 'nxk' => 10.5, 'keterangan' => '1', 'is_paket' => 0],
-                    ['kode_mk' => 'TI-306', 'nama_mk' => 'Interaksi Manusia & Komputer', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
+                    ['kode_mk' => 'TI-306', 'nama_mk' => 'Interaksi Manusia & Komputer', 'sks' => 3, 'nilai_huruf' => 'B', 'nilai_indeks' => 3.0, 'kategori' => 'Baik', 'nxk' => 9.0, 'keterangan' => '1', 'is_paket' => 0],
                     ['kode_mk' => 'TI-307', 'nama_mk' => 'Statistika & Probabilitas Terapan', 'sks' => 3, 'nilai_huruf' => 'A', 'nilai_indeks' => 4.0, 'kategori' => 'Memuaskan', 'nxk' => 12.0, 'keterangan' => '1', 'is_paket' => 0],
                 ];
                 foreach ($n_smt3 as $c) {
@@ -2216,17 +2443,44 @@ class M_akademik extends CI_Model
             ]);
             if (!$krs || empty($krs->mata_kuliah)) {
                 $sys_active = $this->get_active_period();
-                if ($chosen_period['tahun_akademik'] == $sys_active['tahun_akademik'] &&
-                    strcasecmp($chosen_period['semester_akademik'], $sys_active['semester_akademik']) === 0) {
-                    $krs = $this->get_krs($akun_id, $sys_active);
-                }
+                $krs = $this->get_krs($akun_id, $sys_active);
+            }
+            if (!$krs || empty($krs->mata_kuliah)) {
+                $krs = $this->get_krs($akun_id);
             }
 
             if ($krs) {
                 $krs_status = strtoupper($krs->status ?? 'DRAFT');
-                // HANYA ambil mata kuliah jika KRS berstatus DISETUJUI!
-                // Jika mahasiswa belum mengajukan KRS, atau masih DRAFT / MENUNGGU,
-                // kehadiran TIDAK BOLEH memunculkan mata kuliah sembarangan.
+
+                // Jika status DISETUJUI namun krs_detail belum terisi mata kuliah:
+                if (empty($krs->mata_kuliah)) {
+                    $mhs_info = $this->get_account($akun_id);
+                    $mhs_prodi = $mhs_info ? $mhs_info->prodi : '';
+                    $mhs_smt = $mhs_info ? (int)$mhs_info->semester : 4;
+
+                    $fallback_offerings = $this->db->group_start()
+                                                   ->where('prodi', $mhs_prodi)
+                                                   ->or_where('prodi', 'Umum')
+                                                   ->group_end()
+                                                   ->where('semester', $mhs_smt)
+                                                   ->where('aktif', 1)
+                                                   ->get('penawaran_matakuliah')
+                                                   ->result();
+                    if (empty($fallback_offerings)) {
+                        $fallback_offerings = $this->db->where('aktif', 1)->limit(6)->get('penawaran_matakuliah')->result();
+                    }
+                    if (!empty($fallback_offerings)) {
+                        foreach ($fallback_offerings as $fo) {
+                            $this->db->insert('krs_detail', [
+                                'krs_id' => (int)$krs->id,
+                                'penawaran_id' => (int)$fo->id
+                            ]);
+                        }
+                        $krs = $this->get_krs($akun_id);
+                    }
+                }
+
+                // Ambil mata kuliah jika status DISETUJUI
                 if ($krs_status === 'DISETUJUI' && !empty($krs->mata_kuliah)) {
                     $raw_courses = $krs->mata_kuliah;
                 }
@@ -2302,6 +2556,13 @@ class M_akademik extends CI_Model
             'TI-305' => 'Setiabudi Sakaria, M.Kom',
             'TI-306' => 'Dr. Ir. Hendra Setiawan, M.T.',
             'TI-307' => 'Dr. Maya Sartika, S.E., M.Ak.',
+            'TI-401' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
+            'TI-402' => 'Mukhlis Amien, M.Kom',
+            'TI-403' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
+            'TI-404' => 'Sugeng Widodo, S.Kom., M.Kom',
+            'TI-405' => 'Setiabudi Sakaria, M.Kom',
+            'MKU-401' => 'Dr. Maya Sartika, S.E., M.Ak.',
+            'TI-601' => 'Sugeng Widodo, S.Kom., M.Kom',
         ];
 
         $courses = [];

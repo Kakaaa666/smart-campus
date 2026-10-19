@@ -576,7 +576,7 @@ $(function () {
                         var message = xhr.responseJSON && xhr.responseJSON.error
                             ? xhr.responseJSON.error
                             : 'Pencarian katalog gagal. Coba lagi.';
-                        window.alert(message);
+                        SCDialog.alert(message, { title: 'Pencarian Gagal', type: 'error' });
                     });
             }, 250);
         });
@@ -624,7 +624,7 @@ $(function () {
                 });
             })
             .fail(function () {
-                window.alert('Kurikulum mahasiswa tidak dapat dimuat. Muat ulang halaman dan coba kembali.');
+                SCDialog.alert('Kurikulum mahasiswa tidak dapat dimuat. Muat ulang halaman dan coba kembali.', { title: 'Gagal Memuat Kurikulum', type: 'error' });
             });
     });
 });

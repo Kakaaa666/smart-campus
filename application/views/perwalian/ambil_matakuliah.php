@@ -959,11 +959,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetCb = document.querySelector(`.course-checkbox[data-id="${courseId}"]`);
         if (targetCb) {
             if (targetCb.disabled) {
-                if (confirm('Apakah Anda ingin mengaktifkan mode edit untuk mengubah atau menghapus pemilihan mata kuliah ini?')) {
-                    enableKrsEditMode();
-                    targetCb.checked = false;
-                    evaluateKrsState();
-                }
+                SCDialog.confirm('Apakah Anda ingin mengaktifkan mode edit untuk mengubah atau menghapus pemilihan mata kuliah ini?', {
+                    title: 'Aktifkan Mode Edit KRS',
+                    acceptText: 'Ya, Aktifkan',
+                    cancelText: 'Batal'
+                }).then(function(confirmed) {
+                    if (confirmed) {
+                        enableKrsEditMode();
+                        targetCb.checked = false;
+                        evaluateKrsState();
+                    }
+                });
             } else {
                 targetCb.checked = false;
                 evaluateKrsState();
@@ -1061,9 +1067,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fungsi batal edit pemilihan mata kuliah
     window.cancelKrsEditMode = function() {
-        if (confirm('Batalkan pengeditan pemilihan mata kuliah? Perubahan yang belum disimpan akan dikembalikan ke data sebelumnya.')) {
-            window.location.href = '<?= base_url('perwalian/ambil_matakuliah' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>';
-        }
+        SCDialog.confirm('Batalkan pengeditan pemilihan mata kuliah? Perubahan yang belum disimpan akan dikembalikan ke data sebelumnya.', {
+            title: 'Batalkan Pengeditan KRS',
+            acceptText: 'Ya, Batalkan',
+            cancelText: 'Lanjutkan Edit',
+            type: 'warning'
+        }).then(function(confirmed) {
+            if (confirmed) {
+                window.location.href = '<?= base_url('perwalian/ambil_matakuliah' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>';
+            }
+        });
     };
 
     // Otomatis aktifkan mode edit jika diminta dari URL (?edit=1)

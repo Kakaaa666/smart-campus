@@ -285,7 +285,7 @@ if ($current_role === 2) {
                                     </a>
                                 </li>
 
-                                <li class="<?= ($seg1 == 'kehadiran') ? 'active' : '' ?>">
+                                <li class="<?= ($seg1 == 'kehadiran' || ($seg1 == 'akademik' && $seg2 == 'kehadiran')) ? 'active' : '' ?>">
                                     <a href="<?= base_url('kehadiran') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-bell"></i></span>
                                         <span class="pcoded-mtext">Kehadiran Kuliah</span>
@@ -299,7 +299,7 @@ if ($current_role === 2) {
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
-                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik') ? 'pcoded-trigger active' : '' ?>">
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik' && $seg2 != 'kehadiran') ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-id-badge"></i></span>
                                         <span class="pcoded-mtext">Akademik</span>
@@ -310,13 +310,6 @@ if ($current_role === 2) {
                                             <a href="<?= base_url('akademik/jadwal') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
                                                 <span class="pcoded-mtext">Jadwal</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class="<?= ($seg1 == 'kehadiran' || ($seg1 == 'akademik' && $seg2 == 'kehadiran')) ? 'active' : '' ?>">
-                                            <a href="<?= base_url('kehadiran') ?>" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext">Kehadiran</span>
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>
@@ -367,7 +360,7 @@ if ($current_role === 2) {
                                 <li class="pcoded-hasmenu <?= ($seg1 == 'perwalian') ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-th-large"></i></span>
-                                        <span class="pcoded-mtext">Perwalian</span>
+                                        <span class="pcoded-mtext">KRS dan Perwalian</span>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                     <ul class="pcoded-submenu">
