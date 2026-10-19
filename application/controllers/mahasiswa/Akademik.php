@@ -29,20 +29,29 @@ class Akademik extends MY_Role_Controller {
         $this->jadwal();
     }
 
+    public function kehadiran() {
+        redirect('kehadiran' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
+    }
+
     public function jadwal() {
         $raw_role = $this->session->userdata('role');
         $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
 
-        // Jika diakses oleh Admin atau Dosen, tampilkan data mahasiswa (default Arthur atau mahasiswa pertama)
+        // Jika diakses oleh Admin atau Dosen, tampilkan data mahasiswa (support ?student_id=..., default Arthur atau mahasiswa pertama)
         if (!$is_mahasiswa) {
-            $mhs = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-            if (!$mhs) {
-                $mhs = $this->db->get('akun_mahasiswa')->row();
-            }
-            if ($mhs) {
-                $akun_id = (int)$mhs->id;
+            $req_student_id = (int)$this->input->get('student_id');
+            if ($req_student_id > 0) {
+                $akun_id = $req_student_id;
+            } else {
+                $mhs = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
+                if (!$mhs) {
+                    $mhs = $this->db->get('akun_mahasiswa')->row();
+                }
+                if ($mhs) {
+                    $akun_id = (int)$mhs->id;
+                }
             }
         }
 

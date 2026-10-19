@@ -42,7 +42,7 @@
 }
 .metric-summary-card {
     border-radius: 16px;
-    border: none;
+    border: 1px solid #eef2f6;
     background: #ffffff;
     box-shadow: 0 4px 18px rgba(0,0,0,0.04);
     transition: all 0.25s ease;
@@ -52,14 +52,61 @@
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.08);
 }
+.metric-summary-card .card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 18px;
+}
+.metric-content-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+.metric-title-text {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 2px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+.metric-subtitle {
+    color: #64748b;
+    font-size: 11.5px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .metric-icon-bubble {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+@media (max-width: 1399px) {
+    .metric-summary-card .card-body {
+        padding: 14px 12px;
+        gap: 6px;
+    }
+    .metric-title-text {
+        font-size: 13.5px;
+    }
+    .metric-icon-bubble {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
 }
 .schedule-badge-today {
     border-left: 4px solid #4f46e5 !important;
@@ -73,22 +120,45 @@
     transform: translateX(3px);
 }
 .quick-feature-box {
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
-    padding: 16px;
+    padding: 12px 8px;
     display: flex;
     align-items: center;
+    gap: 8px;
     text-decoration: none !important;
     color: #1e293b;
     transition: all 0.2s ease;
+    min-height: 48px;
+    width: 100%;
 }
 .quick-feature-box:hover {
     border-color: #6366f1;
     background: #f8fafc;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
     color: #4338ca;
+}
+.quick-feature-box i {
+    font-size: 16px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+.quick-feature-box span {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+}
+.student-profile-card .card-header h5 {
+    display: block;
+    margin-bottom: 2px;
+    line-height: 1.3;
 }
 .superadmin-hub { border: 1px solid #dbe4f0; border-radius: 14px; background: #fff; box-shadow: 0 5px 20px rgba(15, 23, 42, .06); margin-bottom: 24px; }
 .superadmin-hub .hub-head { padding: 22px 24px; border-bottom: 1px solid #edf2f7; }
@@ -244,8 +314,8 @@
                             <!-- METRIK 1: STATUS KRS -->
                             <div class="col-xl-3 col-md-6 mb-3">
                                 <div class="card metric-summary-card h-100">
-                                    <div class="card-body p-3 d-flex align-items-center justify-content-between">
-                                        <div>
+                                    <div class="card-body">
+                                        <div class="metric-content-box">
                                             <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 11px;">STATUS KRS</small>
                                             <?php
                                                 $krs_status = !empty($krs) ? strtoupper($krs->status) : 'BELUM ISI';
@@ -270,8 +340,8 @@
                                                     $krs_label = 'Draf Belum Diajukan';
                                                 }
                                             ?>
-                                            <h5 class="font-weight-bold mb-0 <?= $krs_badge_color ?>"><?= $krs_label ?></h5>
-                                            <small class="text-muted"><?= !empty($krs) ? (int)$krs->total_sks . ' SKS Dipilih' : '0 SKS' ?></small>
+                                            <div class="metric-title-text <?= $krs_badge_color ?>"><?= $krs_label ?></div>
+                                            <small class="metric-subtitle"><?= !empty($krs) ? (int)$krs->total_sks . ' SKS Dipilih' : '0 SKS' ?></small>
                                         </div>
                                         <div class="metric-icon-bubble" style="background: <?= $krs_bg ?>; color: <?= ($krs_status === 'DISETUJUI') ? '#16a34a' : (($krs_status === 'DITOLAK') ? '#dc2626' : '#d97706') ?>;">
                                             <i class="fa <?= $krs_icon ?>"></i>
@@ -283,18 +353,18 @@
                             <!-- METRIK 2: STATUS KEUANGAN / SPP -->
                             <div class="col-xl-3 col-md-6 mb-3">
                                 <div class="card metric-summary-card h-100">
-                                    <div class="card-body p-3 d-flex align-items-center justify-content-between">
-                                        <div>
+                                    <div class="card-body">
+                                        <div class="metric-content-box">
                                             <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 11px;">STATUS SPP KULIAH</small>
                                             <?php
                                                 $is_lunas = !empty($status_keuangan['buka_krs']) || (isset($status_keuangan['status']) && strtoupper($status_keuangan['status']) === 'LUNAS');
                                             ?>
                                             <?php if ($is_lunas): ?>
-                                                <h5 class="font-weight-bold mb-0 text-success">Lunas / Terverifikasi</h5>
-                                                <small class="text-muted">Akses KRS terbuka</small>
+                                                <div class="metric-title-text text-success">Lunas / Terverifikasi</div>
+                                                <small class="metric-subtitle">Akses KRS terbuka</small>
                                             <?php else: ?>
-                                                <h5 class="font-weight-bold mb-0 text-danger">Tunggakan SPP</h5>
-                                                <small class="text-muted">Perlu pelunasan tagihan</small>
+                                                <div class="metric-title-text text-danger">Tunggakan SPP</div>
+                                                <small class="metric-subtitle">Perlu pelunasan tagihan</small>
                                             <?php endif; ?>
                                         </div>
                                         <div class="metric-icon-bubble" style="background: <?= $is_lunas ? '#dcfce7' : '#fee2e2' ?>; color: <?= $is_lunas ? '#16a34a' : '#dc2626' ?>;">
@@ -307,11 +377,11 @@
                             <!-- METRIK 3: INDEKS PRESTASI KUMULATIF -->
                             <div class="col-xl-3 col-md-6 mb-3">
                                 <div class="card metric-summary-card h-100">
-                                    <div class="card-body p-3 d-flex align-items-center justify-content-between">
-                                        <div>
+                                    <div class="card-body">
+                                        <div class="metric-content-box">
                                             <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 11px;">IPK KUMULATIF</small>
-                                            <h4 class="font-weight-bold mb-0 text-primary"><?= number_format((float)($student->ipk ?: 3.85), 2) ?></h4>
-                                            <small class="text-muted">Maksimal 24 SKS</small>
+                                            <div class="metric-title-text text-primary" style="font-size: 18px;"><?= number_format((float)($student->ipk ?: 3.85), 2) ?></div>
+                                            <small class="metric-subtitle">Maksimal 24 SKS</small>
                                         </div>
                                         <div class="metric-icon-bubble" style="background: #e0e7ff; color: #4338ca;">
                                             <i class="fa fa-graduation-cap"></i>
@@ -323,11 +393,11 @@
                             <!-- METRIK 4: SEMESTER & MATA KULIAH -->
                             <div class="col-xl-3 col-md-6 mb-3">
                                 <div class="card metric-summary-card h-100">
-                                    <div class="card-body p-3 d-flex align-items-center justify-content-between">
-                                        <div>
+                                    <div class="card-body">
+                                        <div class="metric-content-box">
                                             <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 11px;">SEMESTER BERJALAN</small>
-                                            <h4 class="font-weight-bold mb-0 text-dark">Semester <?= (int)$student->semester ?></h4>
-                                            <small class="text-muted"><?= count($courses) ?> Matakuliah Aktif</small>
+                                            <div class="metric-title-text text-dark">Semester <?= (int)$student->semester ?></div>
+                                            <small class="metric-subtitle"><?= count($courses) ?> Matakuliah Aktif</small>
                                         </div>
                                         <div class="metric-icon-bubble" style="background: #f1f5f9; color: #475569;">
                                             <i class="fa fa-book"></i>
@@ -424,7 +494,7 @@
                             <!-- KOLOM KANAN: DOSEN WALI -->
                             <div class="col-lg-5">
                                 <div class="card student-profile-card h-100">
-                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap" style="gap: 8px;">
                                         <h5 class="font-weight-bold text-dark mb-0">
                                             <i class="fa fa-user-md text-info mr-2"></i> Dosen Wali
                                         </h5>
@@ -433,10 +503,10 @@
                                         </button>
                                     </div>
                                     <div class="card-body pt-0">
-                                        <div class="advisor-badge-card p-4 text-center mb-3">
+                                        <div class="advisor-badge-card p-3 p-sm-4 text-center mb-3">
                                             <div class="mb-3">
                                                 <div style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);">
-                                                    <i class="fa fa-user-circle"></i>
+                                                <i class="fa fa-user-circle"></i>
                                                 </div>
                                             </div>
                                             <h5 class="font-weight-bold text-dark mb-1">
@@ -446,20 +516,23 @@
                                                 Dosen Wali
                                             </div>
                                             <div class="text-left bg-white p-3 rounded border" style="font-size: 13px;">
-                                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="gap: 10px;">
-                                                    <span class="text-muted">NIDN / Kode Dosen:</span>
+                                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="gap: 8px;">
+                                                    <span class="text-muted" style="white-space: nowrap;"><i class="fa fa-id-badge text-primary mr-1"></i> NIDN / Kode:</span>
                                                     <strong class="text-dark font-monospace"><?= html_escape($student->nidn_dosen_wali ?: 'sugeng') ?></strong>
                                                 </div>
-                                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="gap: 10px;">
-                                                    <span class="text-muted">Email Dosen:</span>
-                                                    <strong class="text-dark text-truncate" style="max-width: 220px;" title="<?= html_escape($student->email_dosen_wali ?: 'sugeng@staff.campus.ac.id') ?>"><?= html_escape($student->email_dosen_wali ?: 'sugeng@staff.campus.ac.id') ?></strong>
+                                                <div class="py-2 border-bottom">
+                                                    <div class="text-muted mb-1 small"><i class="fa fa-envelope-o text-primary mr-1"></i> Email Dosen:</div>
+                                                    <div class="text-truncate font-weight-bold">
+                                                        <a href="mailto:<?= html_escape($student->email_dosen_wali ?: 'sugeng@staff.campus.ac.id') ?>" class="text-primary" style="font-size: 12.5px;" title="<?= html_escape($student->email_dosen_wali ?: 'sugeng@staff.campus.ac.id') ?>">
+                                                            <?= html_escape($student->email_dosen_wali ?: 'sugeng@staff.campus.ac.id') ?>
+                                                        </a>
+                                                    </div>
                                                 </div>
-                                                <div class="d-flex justify-content-between align-items-center py-2" style="gap: 10px;">
-                                                    <span class="text-muted">Status Validasi KRS:</span>
-                                                    <strong class="<?= ($krs_status === 'DISETUJUI') ? 'text-success' : 'text-warning' ?>">
-                                                        <i class="fa <?= ($krs_status === 'DISETUJUI') ? 'fa-check-circle' : 'fa-clock-o' ?> mr-1"></i>
-                                                        <?= $krs_label ?>
-                                                    </strong>
+                                                <div class="d-flex justify-content-between align-items-center pt-2" style="gap: 8px;">
+                                                    <span class="text-muted" style="white-space: nowrap;"><i class="fa fa-shield text-primary mr-1"></i> Status KRS:</span>
+                                                    <span class="badge <?= ($krs_status === 'DISETUJUI') ? 'badge-success' : (($krs_status === 'DITOLAK') ? 'badge-danger' : 'badge-warning') ?> px-2 py-1 font-weight-bold" style="font-size: 11px; white-space: nowrap;">
+                                                        <i class="fa <?= ($krs_status === 'DISETUJUI') ? 'fa-check-circle' : (($krs_status === 'DITOLAK') ? 'fa-times-circle' : 'fa-clock-o') ?> mr-1"></i> <?= $krs_label ?>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -478,7 +551,7 @@
                             <!-- JADWAL KULIAH HARI INI & JADWAL MINGGUAN -->
                             <div class="col-lg-8 mb-4">
                                 <div class="card student-profile-card h-100">
-                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
                                         <div>
                                             <h5 class="font-weight-bold text-dark mb-0">
                                                 <i class="fa fa-calendar-check-o text-primary mr-2"></i> Jadwal Perkuliahan Anda
@@ -538,10 +611,19 @@
                                         <?php if (empty($courses)): ?>
                                             <div class="text-center py-4 rounded border" style="background: #f8fafc;">
                                                 <i class="fa fa-folder-open-o text-muted mb-2 d-block" style="font-size: 28px;"></i>
-                                                <p class="text-muted small mb-2">Anda belum mengambil mata kuliah untuk semester ini.</p>
-                                                <a href="<?= base_url('perwalian/ambil-matakuliah') ?>" class="btn btn-primary btn-sm px-3 font-weight-bold" style="border-radius: 8px;">
-                                                    <i class="fa fa-plus-circle mr-1"></i> Ambil Mata Kuliah Sekarang
-                                                </a>
+                                                <?php if (empty($krs)): ?>
+                                                    <p class="text-muted small mb-2">Anda belum mengajukan rencana studi (KRS) untuk semester ini.</p>
+                                                    <a href="<?= base_url('perwalian/ambil-matakuliah') ?>" class="btn btn-primary btn-sm px-3 font-weight-bold" style="border-radius: 8px;">
+                                                        <i class="fa fa-plus-circle mr-1"></i> Ajukan KRS Sekarang
+                                                    </a>
+                                                <?php elseif (strtoupper($krs->status ?? '') !== 'DISETUJUI'): ?>
+                                                    <p class="text-muted small mb-2">KRS Anda berstatus <span class="badge badge-warning px-2 py-1 font-weight-bold"><?= html_escape($krs->status) ?></span> dan masih menunggu persetujuan Dosen Wali. Jadwal kuliah akan aktif setelah KRS disetujui.</p>
+                                                    <a href="<?= base_url('perwalian') ?>" class="btn btn-outline-primary btn-sm px-3 font-weight-bold" style="border-radius: 8px;">
+                                                        <i class="fa fa-eye mr-1"></i> Cek Status KRS di Perwalian
+                                                    </a>
+                                                <?php else: ?>
+                                                    <p class="text-muted small mb-2">Belum ada mata kuliah yang terdaftar pada KRS Anda.</p>
+                                                <?php endif; ?>
                                             </div>
                                         <?php else: ?>
                                             <div class="table-responsive">
@@ -584,11 +666,11 @@
                             <div class="col-lg-4 mb-4">
                                 <!-- AGENDA AKADEMIK PENTING -->
                                 <div class="card student-profile-card mb-4">
-                                    <div class="card-header bg-white py-3 border-0">
-                                        <h5 class="font-weight-bold text-dark mb-0">
+                                    <div class="card-header bg-white py-3 border-0 d-block">
+                                        <h5 class="font-weight-bold text-dark mb-1 d-block">
                                             <i class="fa fa-calendar text-warning mr-2"></i> Agenda Semester Ini
                                         </h5>
-                                        <small class="text-muted">Kalender kegiatan akademik</small>
+                                        <small class="text-muted d-block">Kalender kegiatan akademik</small>
                                     </div>
                                     <div class="card-body pt-0">
                                         <div class="d-flex align-items-start mb-3 pb-2 border-bottom">
@@ -626,36 +708,36 @@
 
                                 <!-- PINTASAN CEPAT LAYANAN -->
                                 <div class="card student-profile-card">
-                                    <div class="card-header bg-white py-3 border-0">
-                                        <h5 class="font-weight-bold text-dark mb-0">
+                                    <div class="card-header bg-white py-3 border-0 d-block">
+                                        <h5 class="font-weight-bold text-dark mb-1 d-block">
                                             <i class="fa fa-th text-info mr-2"></i> Pintasan Layanan
                                         </h5>
-                                        <small class="text-muted">Akses cepat menu akademik</small>
+                                        <small class="text-muted d-block">Akses cepat menu akademik</small>
                                     </div>
                                     <div class="card-body pt-0">
-                                        <div class="row">
-                                            <div class="col-6 mb-2">
+                                        <div class="row" style="margin-left: -5px; margin-right: -5px;">
+                                            <div class="col-6 mb-2" style="padding-left: 5px; padding-right: 5px;">
                                                 <a href="<?= base_url('perwalian/ambil-matakuliah') ?>" class="quick-feature-box">
-                                                    <i class="fa fa-pencil-square-o text-primary mr-2" style="font-size: 18px;"></i>
-                                                    <span class="font-weight-bold" style="font-size: 12px;">Ambil KRS</span>
+                                                    <i class="fa fa-pencil-square-o text-primary"></i>
+                                                    <span>Ambil KRS</span>
                                                 </a>
                                             </div>
-                                            <div class="col-6 mb-2">
+                                            <div class="col-6 mb-2" style="padding-left: 5px; padding-right: 5px;">
                                                 <a href="<?= base_url('perwalian/frs') ?>" class="quick-feature-box">
-                                                    <i class="fa fa-file-text-o text-success mr-2" style="font-size: 18px;"></i>
-                                                    <span class="font-weight-bold" style="font-size: 12px;">Cetak FRS</span>
+                                                    <i class="fa fa-file-text-o text-success"></i>
+                                                    <span>Cetak FRS</span>
                                                 </a>
                                             </div>
-                                            <div class="col-6 mb-2">
+                                            <div class="col-6 mb-2" style="padding-left: 5px; padding-right: 5px;">
                                                 <a href="<?= base_url('akademik') ?>" class="quick-feature-box">
-                                                    <i class="fa fa-calendar text-warning mr-2" style="font-size: 18px;"></i>
-                                                    <span class="font-weight-bold" style="font-size: 12px;">Jadwal</span>
+                                                    <i class="fa fa-calendar text-warning"></i>
+                                                    <span>Jadwal</span>
                                                 </a>
                                             </div>
-                                            <div class="col-6 mb-2">
+                                            <div class="col-6 mb-2" style="padding-left: 5px; padding-right: 5px;">
                                                 <a href="<?= base_url('keuangan') ?>" class="quick-feature-box">
-                                                    <i class="fa fa-money text-danger mr-2" style="font-size: 18px;"></i>
-                                                    <span class="font-weight-bold" style="font-size: 12px;">Keuangan</span>
+                                                    <i class="fa fa-money text-danger"></i>
+                                                    <span>Keuangan</span>
                                                 </a>
                                             </div>
                                         </div>

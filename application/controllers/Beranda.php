@@ -78,7 +78,8 @@ class Beranda extends CI_Controller {
             ];
             $today = $hari_indonesia[date('l')] ?? 'Senin';
 
-            $courses = (!empty($krs) && !empty($krs->mata_kuliah)) ? $krs->mata_kuliah : [];
+            $krs_is_approved = (!empty($krs) && strtoupper($krs->status ?? '') === 'DISETUJUI');
+            $courses = ($krs_is_approved && !empty($krs->mata_kuliah)) ? $krs->mata_kuliah : [];
             $today_courses = [];
             foreach ($courses as $c) {
                 if (strcasecmp($c->hari ?? '', $today) === 0) {

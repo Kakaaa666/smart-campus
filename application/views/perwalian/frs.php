@@ -12,11 +12,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <h5>Formulir Rencana Studi (FRS)</h5>
                                 <span><?= html_escape($academic_period['semester_akademik']) ?> <?= html_escape($academic_period['tahun_akademik']) ?></span>
                             </div>
-                            <?php if ($krs && $krs->status === 'DISETUJUI'): ?>
-                                <button type="button" class="btn btn-primary no-print" onclick="window.print()">
-                                    <i class="fa fa-print mr-1"></i> Cetak FRS
-                                </button>
-                            <?php endif; ?>
+                            <div class="d-flex align-items-center flex-wrap no-print" style="gap: 8px;">
+                                <a href="<?= base_url('perwalian/ambil-matakuliah?edit=1' . (!empty($is_admin_preview) ? '&mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>" class="btn btn-warning font-weight-bold btn-sm" style="border-radius: 8px;">
+                                    <i class="fa fa-pencil-square-o mr-1"></i> Edit Pemilihan Matkul
+                                </a>
+                                <?php if ($krs && $krs->status === 'DISETUJUI'): ?>
+                                    <button type="button" class="btn btn-primary font-weight-bold btn-sm" style="border-radius: 8px;" onclick="window.print()">
+                                        <i class="fa fa-print mr-1"></i> Cetak FRS
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="card-block">
                             <div class="alert <?= $krs && $krs->status === 'DISETUJUI' ? 'alert-success' : 'alert-info' ?>">
@@ -91,8 +96,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php else: ?>
                                 <p class="text-muted">Belum ada mata kuliah yang tersimpan di KRS periode ini.</p>
                             <?php endif; ?>
-                            <div class="mt-3 no-print">
-                                <a href="<?= base_url('perwalian') ?>" class="btn btn-outline-primary">Kembali ke Perwalian</a>
+                            <div class="mt-3 no-print d-flex align-items-center flex-wrap" style="gap: 10px;">
+                                <a href="<?= base_url('perwalian' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>" class="btn btn-outline-primary btn-sm" style="border-radius: 8px;">
+                                    <i class="fa fa-arrow-left mr-1"></i> Kembali ke Perwalian
+                                </a>
+                                <a href="<?= base_url('perwalian/ambil-matakuliah?edit=1' . (!empty($is_admin_preview) ? '&mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>" class="btn btn-warning font-weight-bold btn-sm" style="border-radius: 8px;">
+                                    <i class="fa fa-pencil-square-o mr-1"></i> Edit Pemilihan Mata Kuliah
+                                </a>
                             </div>
                         </div>
                     </div>

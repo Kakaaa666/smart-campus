@@ -22,41 +22,77 @@
         box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
         flex-shrink: 0;
     }
-    .kategori-quick-nav {
+    /* Kategori Nav Quick Jump Card */
+    .kategori-quick-nav-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .kategori-nav-header {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
         flex-wrap: wrap;
         gap: 8px;
-        margin-bottom: 24px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .nav-header-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: #e0f2fe;
+        color: #0284c7;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    .kategori-pills-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        align-items: center;
     }
     .kategori-pill {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
+        gap: 7px;
+        padding: 7px 13px;
         font-size: 12.5px;
         font-weight: 600;
-        color: #475569;
-        background: #ffffff;
+        color: #334155;
+        background: #f8fafc;
         border: 1px solid #cbd5e1;
-        border-radius: 20px;
-        text-decoration: none;
-        transition: all 0.15s ease-in-out;
+        border-radius: 9px;
+        text-decoration: none !important;
+        transition: all 0.18s ease-in-out;
+        line-height: 1.3;
     }
     .kategori-pill:hover, .kategori-pill.active {
         background: #0284c7;
         color: #ffffff !important;
         border-color: #0284c7;
-        text-decoration: none;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.22);
+    }
+    .kategori-pill:hover i, .kategori-pill.active i {
+        color: #ffffff !important;
     }
     .kategori-pill .badge-count {
-        background: rgba(0, 0, 0, 0.08);
+        background: #e2e8f0;
+        color: #475569;
         border-radius: 10px;
-        padding: 2px 6px;
+        padding: 2px 7px;
         font-size: 11px;
+        font-weight: 700;
+        transition: all 0.18s ease;
     }
-    .kategori-pill:hover .badge-count {
+    .kategori-pill:hover .badge-count, .kategori-pill.active .badge-count {
         background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
     }
@@ -272,14 +308,28 @@
                     </div>
 
                     <!-- Navigasi Cepat 10 Kategori SKPI -->
-                    <div class="kategori-quick-nav">
-                        <?php foreach ($kategori_list as $kId => $kInfo): ?>
-                            <a href="#kategori-<?= $kId ?>" class="kategori-pill">
-                                <i class="<?= $kInfo['icon'] ?>" style="color: <?= $kInfo['color'] ?>;"></i>
-                                <span><?= $kId ?>. <?= html_escape($kInfo['nama']) ?></span>
-                                <span class="badge-count" id="nav-count-<?= $kId ?>"><?= $kategori_data[$kId]['count'] ?></span>
-                            </a>
-                        <?php endforeach; ?>
+                    <div class="kategori-quick-nav-card">
+                        <div class="kategori-nav-header">
+                            <div class="d-flex align-items-center">
+                                <div class="nav-header-icon mr-2">
+                                    <i class="fa fa-compass"></i>
+                                </div>
+                                <span class="font-weight-bold text-dark" style="font-size: 13.5px; letter-spacing: 0.2px;">Lompat ke Kategori:</span>
+                                <small class="text-muted ml-2 d-none d-sm-inline">&bull; Klik salah satu kategori untuk langsung menuju ke daftar kegiatan</small>
+                            </div>
+                            <span class="badge badge-light border text-muted px-2.5 py-1 font-weight-bold" style="font-size: 11px; border-radius: 6px;">
+                                10 Kategori Kegiatan
+                            </span>
+                        </div>
+                        <div class="kategori-pills-wrap">
+                            <?php foreach ($kategori_list as $kId => $kInfo): ?>
+                                <a href="#kategori-<?= $kId ?>" class="kategori-pill">
+                                    <i class="<?= $kInfo['icon'] ?>" style="color: <?= $kInfo['color'] ?>;"></i>
+                                    <span><?= $kId ?>. <?= html_escape($kInfo['nama']) ?></span>
+                                    <span class="badge-count" id="nav-count-<?= $kId ?>"><?= $kategori_data[$kId]['count'] ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
 
                     <!-- DAFTAR 10 KATEGORI SKPI & KEGIATAN MAHASISWA -->

@@ -101,9 +101,13 @@ class Perwalian extends CI_Controller {
         );
         $data['max_sks']           = M_akademik::MAX_SKS_PER_SEMESTER;
         $data['min_sks']           = M_akademik::MIN_SKS_PER_SEMESTER;
-        $data['can_edit_krs']      = !$data['is_admin_preview']
-            && $status_krs['buka_krs']
-            && (!$data['krs'] || in_array($data['krs']->status, ['DRAFT', 'DITOLAK'], true));
+
+        $krs_is_locked_initially = ($data['krs'] && in_array(strtoupper($data['krs']->status ?? ''), ['MENUNGGU', 'DISETUJUI'], true));
+        $is_edit_mode = ($this->input->get('edit') === '1') || !$krs_is_locked_initially;
+
+        $data['krs_is_locked_initially'] = $krs_is_locked_initially;
+        $data['is_edit_mode'] = $is_edit_mode;
+        $data['can_edit_krs'] = !empty($status_krs['buka_krs']);
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
@@ -138,14 +142,24 @@ class Perwalian extends CI_Controller {
             redirect('perwalian');
             return;
         }
-        if (!$this->is_mahasiswa()) {
-            show_error('Hanya mahasiswa yang dapat mengubah KRS.', 403);
+
+        $is_mahasiswa = $this->is_mahasiswa();
+        $user_role = (int)$this->session->userdata('role');
+
+        if (!$is_mahasiswa && $user_role !== 1) {
+            show_error('Hanya mahasiswa dan Superadmin yang dapat mengubah KRS.', 403);
             return;
         }
 
-        $akun_id = (int)$this->session->userdata('id');
+        if ($is_mahasiswa) {
+            $akun_id = (int)$this->session->userdata('id');
+        } else {
+            $target_mhs_id = (int)$this->input->post('mahasiswa_id');
+            $akun_id = $target_mhs_id > 0 ? $target_mhs_id : (int)$this->session->userdata('id');
+        }
+
         $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
-        if (!$status_krs['buka_krs']) {
+        if (!$status_krs['buka_krs'] && $is_mahasiswa) {
             $this->session->set_flashdata('error', $status_krs['pesan']);
             redirect('perwalian');
             return;
@@ -154,7 +168,7 @@ class Perwalian extends CI_Controller {
         $action = $this->input->post('aksi', true);
         if (!in_array($action, ['draft', 'ajukan'], true)) {
             $this->session->set_flashdata('error', 'Aksi KRS tidak valid.');
-            redirect('perwalian');
+            redirect('perwalian' . (!$is_mahasiswa ? '?mahasiswa_id=' . $akun_id : ''));
             return;
         }
 
@@ -164,7 +178,12 @@ class Perwalian extends CI_Controller {
         }
         $result = $this->M_akademik->save_student_krs($akun_id, $offering_ids, $action === 'ajukan');
         $this->session->set_flashdata($result['success'] ? 'success' : 'error', $result['message']);
-        redirect($result['success'] && $action === 'ajukan' ? 'perwalian/frs' : 'perwalian');
+
+        $redirect_url = ($result['success'] && $action === 'ajukan') ? 'perwalian/frs' : 'perwalian';
+        if (!$is_mahasiswa) {
+            $redirect_url .= '?mahasiswa_id=' . $akun_id;
+        }
+        redirect($redirect_url);
     }
 
     public function pilih_dosen_wali()

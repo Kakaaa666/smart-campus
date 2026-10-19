@@ -352,10 +352,17 @@ if (!empty($krs->mata_kuliah)) {
                                 <div class="row">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
                                         <div class="status-krs-box">
-                                            <small class="text-muted font-weight-bold">Status KRS:</small>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted font-weight-bold">Status KRS:</small>
+                                                <?php if (!empty($krs_is_locked_initially) && $can_edit_krs): ?>
+                                                    <button type="button" class="btn btn-warning btn-sm font-weight-bold px-2 py-0" id="btnHeaderEditKrs" style="border-radius: 6px; font-size: 11px; <?= !empty($is_edit_mode) ? 'display:none;' : '' ?>" onclick="enableKrsEditMode()">
+                                                        <i class="fa fa-pencil mr-1"></i> Edit Matkul
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
                                             <div class="mt-1">
                                                 <?php 
-                                                    $krs_stat = $krs ? $krs->status : 'DRAFT';
+                                                    $krs_stat = $krs ? strtoupper($krs->status) : 'DRAFT';
                                                     if ($krs_stat === 'DISETUJUI'):
                                                 ?>
                                                     <span class="badge badge-success px-2 py-1"><i class="fa fa-check-circle mr-1"></i> Disetujui</span>
@@ -387,6 +394,24 @@ if (!empty($krs->mata_kuliah)) {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Alert Banner Mode Edit KRS Aktif -->
+                    <div id="alertEditModeActive" class="alert alert-warning shadow-sm align-items-center justify-content-between flex-wrap mb-3 p-3" style="border-radius: 12px; border-left: 5px solid #f59e0b; background: #fffbeb; <?= (!empty($is_edit_mode) && !empty($krs_is_locked_initially)) ? 'display:flex;' : 'display:none;' ?>">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <i class="fa fa-pencil-square-o fa-2x text-warning mr-3"></i>
+                            <div>
+                                <strong class="text-dark" style="font-size: 13.5px;">Mode Edit Pemilihan Mata Kuliah Aktif</strong>
+                                <div class="text-muted" style="font-size: 12px;">
+                                    Silakan centang atau hapus pilihan mata kuliah di katalog bawah ini. Setelah selesai, klik <strong>Simpan Draf</strong> atau <strong>Ajukan Perubahan ke Dosen Wali</strong>.
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm font-weight-bold" onclick="cancelKrsEditMode()" style="border-radius: 8px;">
+                                <i class="fa fa-times mr-1"></i> Batal Edit
+                            </button>
                         </div>
                     </div>
 
@@ -483,6 +508,9 @@ if (!empty($krs->mata_kuliah)) {
                     </div>
 
                     <?= form_open('perwalian/simpan_krs', ['id' => 'formKrsMahasiswa']) ?>
+                    <?php if (!empty($is_admin_preview)): ?>
+                        <input type="hidden" name="mahasiswa_id" value="<?= (int)$target_mahasiswa->id ?>">
+                    <?php endif; ?>
 
                         <div class="row">
                             <!-- Kolom Kiri: Tabel Penawaran Mata Kuliah -->
@@ -544,7 +572,7 @@ if (!empty($krs->mata_kuliah)) {
                                                                    data-mulai="<?= html_escape(substr($item->waktu_mulai, 0, 5)) ?>"
                                                                    data-selesai="<?= html_escape(substr($item->waktu_selesai, 0, 5)) ?>"
                                                                    <?= $is_checked ? 'checked' : '' ?>
-                                                                   <?= !$can_edit_krs ? 'disabled' : '' ?>>
+                                                                   <?= (!$can_edit_krs || (!empty($krs_is_locked_initially) && empty($is_edit_mode))) ? 'disabled' : '' ?>>
                                                         </td>
 
                                                         <td>
@@ -673,21 +701,39 @@ if (!empty($krs->mata_kuliah)) {
                         <!-- Bar Aksi Pengajuan KRS -->
                         <div class="p-3 bg-white rounded border d-flex justify-content-between align-items-center flex-wrap mt-3" style="box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); gap: 12px;">
                             <div>
-                                <a href="<?= base_url('perwalian/frs') ?>" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;">
+                                <a href="<?= base_url('perwalian/frs' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>" class="btn btn-outline-secondary btn-sm font-weight-bold" style="border-radius: 8px;">
                                     <i class="fa fa-print mr-1"></i> Cetak / Pratinjau FRS
                                 </a>
                             </div>
                             <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
                                 <?php if ($can_edit_krs): ?>
-                                    <button class="btn btn-outline-primary font-weight-bold btn-sm" name="aksi" value="draft" type="submit" style="border-radius: 8px; padding: 8px 18px;">
-                                        <i class="fa fa-save mr-1"></i> Simpan Draf
-                                    </button>
-                                    <button class="btn btn-primary font-weight-bold btn-sm" name="aksi" value="ajukan" id="btnAjukanKrs" type="submit" style="border-radius: 8px; padding: 8px 22px; background: #0284c7; border-color: #0284c7;">
-                                        <i class="fa fa-paper-plane mr-1"></i> Ajukan ke Dosen Wali
-                                    </button>
+                                    <!-- Container tombol jika KRS awalnya terkunci (Menunggu / Disetujui) dan sedang tidak dalam mode edit -->
+                                    <div id="boxKrsLockedActions" class="align-items-center flex-wrap" style="gap: 10px; <?= (!empty($krs_is_locked_initially) && empty($is_edit_mode)) ? 'display:flex;' : 'display:none;' ?>">
+                                        <span class="badge badge-light border text-muted px-3 py-2" style="font-size: 12px;">
+                                            <i class="fa fa-lock mr-1"></i> Status: <?= html_escape($krs ? $krs->status : 'DRAFT') ?>
+                                        </span>
+                                        <button type="button" class="btn btn-warning font-weight-bold btn-sm" onclick="enableKrsEditMode()" style="border-radius: 8px; padding: 8px 18px;">
+                                            <i class="fa fa-pencil-square-o mr-1"></i> Edit Pemilihan Mata Kuliah
+                                        </button>
+                                    </div>
+
+                                    <!-- Container tombol simpan / ajukan jika mode edit aktif atau KRS DRAFT/DITOLAK -->
+                                    <div id="boxKrsEditActions" class="align-items-center flex-wrap" style="gap: 10px; <?= (!empty($krs_is_locked_initially) && empty($is_edit_mode)) ? 'display:none;' : 'display:flex;' ?>">
+                                        <?php if (!empty($krs_is_locked_initially)): ?>
+                                            <button type="button" class="btn btn-outline-secondary font-weight-bold btn-sm" onclick="cancelKrsEditMode()" style="border-radius: 8px; padding: 8px 16px;">
+                                                <i class="fa fa-times mr-1"></i> Batal Edit
+                                            </button>
+                                        <?php endif; ?>
+                                        <button class="btn btn-outline-primary font-weight-bold btn-sm" name="aksi" value="draft" type="submit" style="border-radius: 8px; padding: 8px 18px;">
+                                            <i class="fa fa-save mr-1"></i> Simpan Draf
+                                        </button>
+                                        <button class="btn btn-primary font-weight-bold btn-sm" name="aksi" value="ajukan" id="btnAjukanKrs" type="submit" style="border-radius: 8px; padding: 8px 22px; background: #0284c7; border-color: #0284c7;">
+                                            <i class="fa fa-paper-plane mr-1"></i> <?= ($krs && in_array(strtoupper($krs->status ?? ''), ['MENUNGGU', 'DISETUJUI'], true)) ? 'Ajukan Perubahan ke Dosen Wali' : 'Ajukan ke Dosen Wali' ?>
+                                        </button>
+                                    </div>
                                 <?php else: ?>
                                     <span class="badge badge-light border text-muted px-3 py-2" style="font-size: 12px;">
-                                        <i class="fa fa-lock mr-1"></i> KRS terkunci atau sedang dalam persetujuan Dosen Wali
+                                        <i class="fa fa-lock mr-1"></i> KRS terkunci karena status pembayaran belum terpenuhi
                                     </span>
                                 <?php endif; ?>
                             </div>
@@ -911,9 +957,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Uncheck helper via chip
     window.uncheckCourse = function(courseId) {
         const targetCb = document.querySelector(`.course-checkbox[data-id="${courseId}"]`);
-        if (targetCb && !targetCb.disabled) {
-            targetCb.checked = false;
-            evaluateKrsState();
+        if (targetCb) {
+            if (targetCb.disabled) {
+                if (confirm('Apakah Anda ingin mengaktifkan mode edit untuk mengubah atau menghapus pemilihan mata kuliah ini?')) {
+                    enableKrsEditMode();
+                    targetCb.checked = false;
+                    evaluateKrsState();
+                }
+            } else {
+                targetCb.checked = false;
+                evaluateKrsState();
+            }
         }
     };
 
@@ -984,6 +1038,38 @@ document.addEventListener('DOMContentLoaded', function() {
             filterTableRows();
         });
     }
+
+    // Fungsi aktifkan mode edit pemilihan mata kuliah
+    window.enableKrsEditMode = function() {
+        document.querySelectorAll('.course-checkbox').forEach(function(cb) {
+            cb.disabled = false;
+        });
+        const alertBox = document.getElementById('alertEditModeActive');
+        if (alertBox) {
+            alertBox.style.display = 'flex';
+        }
+        const boxLocked = document.getElementById('boxKrsLockedActions');
+        const boxEdit = document.getElementById('boxKrsEditActions');
+        if (boxLocked) boxLocked.style.display = 'none';
+        if (boxEdit) boxEdit.style.display = 'flex';
+
+        const btnHeader = document.getElementById('btnHeaderEditKrs');
+        if (btnHeader) btnHeader.style.display = 'none';
+
+        evaluateKrsState();
+    };
+
+    // Fungsi batal edit pemilihan mata kuliah
+    window.cancelKrsEditMode = function() {
+        if (confirm('Batalkan pengeditan pemilihan mata kuliah? Perubahan yang belum disimpan akan dikembalikan ke data sebelumnya.')) {
+            window.location.href = '<?= base_url('perwalian/ambil_matakuliah' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>';
+        }
+    };
+
+    // Otomatis aktifkan mode edit jika diminta dari URL (?edit=1)
+    <?php if (!empty($is_edit_mode) && !empty($krs_is_locked_initially)): ?>
+        enableKrsEditMode();
+    <?php endif; ?>
 
     // Jalankan inisialisasi awal saat halaman selesai dimuat
     evaluateKrsState();

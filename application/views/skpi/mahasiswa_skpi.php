@@ -49,52 +49,147 @@
     .label-danger-custom  { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     .label-primary-custom { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
 
-    /* Filter Card */
+    /* Filter Card & Controls */
     .skpi-filter-box {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 16px 20px;
         margin-bottom: 25px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .skpi-search-wrap {
+        position: relative;
+        width: 100%;
+    }
+    .skpi-search-wrap .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #94a3b8;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .skpi-search-input {
+        padding-left: 38px !important;
+        padding-right: 14px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        font-size: 13.5px !important;
+        color: #1e293b !important;
+        transition: all 0.2s ease !important;
+    }
+    .skpi-search-input:focus {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+        outline: none !important;
+    }
+    .skpi-select-status {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        font-size: 13.5px !important;
+        padding: 0 14px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer;
+    }
+    .skpi-select-status:focus {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+        outline: none !important;
+    }
+    .skpi-filter-btn {
+        height: 42px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        padding: 0 16px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px;
     }
 
-    /* Kategori Nav Quick Jump */
-    .kategori-quick-nav {
+    /* Kategori Nav Quick Jump Card */
+    .kategori-quick-nav-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .kategori-nav-header {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
         flex-wrap: wrap;
         gap: 8px;
-        margin-bottom: 25px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .nav-header-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: #e0f2fe;
+        color: #0284c7;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    .kategori-pills-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        align-items: center;
     }
     .kategori-pill {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        font-size: 12px;
+        gap: 7px;
+        padding: 7px 13px;
+        font-size: 12.5px;
         font-weight: 600;
-        color: #475569;
-        background: #ffffff;
+        color: #334155;
+        background: #f8fafc;
         border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all 0.15s ease-in-out;
+        border-radius: 9px;
+        text-decoration: none !important;
+        transition: all 0.18s ease-in-out;
+        line-height: 1.3;
     }
     .kategori-pill:hover, .kategori-pill.active {
         background: #0284c7;
-        color: #ffffff;
+        color: #ffffff !important;
         border-color: #0284c7;
-        text-decoration: none;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.22);
+    }
+    .kategori-pill:hover i, .kategori-pill.active i {
+        color: #ffffff !important;
     }
     .kategori-pill .badge-count {
-        background: rgba(0, 0, 0, 0.08);
+        background: #e2e8f0;
+        color: #475569;
         border-radius: 10px;
-        padding: 2px 6px;
-        font-size: 10px;
+        padding: 2px 7px;
+        font-size: 11px;
+        font-weight: 700;
+        transition: all 0.18s ease;
     }
-    .kategori-pill:hover .badge-count {
+    .kategori-pill:hover .badge-count, .kategori-pill.active .badge-count {
         background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
     }
@@ -264,28 +359,26 @@
                 <div class="skpi-filter-box">
                     <form method="GET" action="<?= base_url('skpi') ?>" class="form-row align-items-center">
                         <div class="col-md-5 my-1">
-                            <div class="input-group mb-0">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-light"><i class="fa fa-search text-muted"></i></span>
-                                </div>
-                                <input type="text" name="nama" class="form-control" placeholder="Cari nama kegiatan, penyelenggara, atau no sertifikat..." value="<?= html_escape($filter['nama']) ?>">
+                            <div class="skpi-search-wrap">
+                                <i class="fa fa-search search-icon"></i>
+                                <input type="text" name="nama" class="form-control skpi-search-input" placeholder="Cari nama kegiatan, penyelenggara, atau no sertifikat..." value="<?= html_escape($filter['nama']) ?>">
                             </div>
                         </div>
                         <div class="col-md-3 my-1">
-                            <select name="status" class="form-control">
+                            <select name="status" class="form-control skpi-select-status">
                                 <option value="">-- Semua Status Validasi --</option>
                                 <option value="WAITING" <?= ($filter['status'] === 'WAITING') ? 'selected' : '' ?>>Belum Divalidasi (Waiting)</option>
                                 <option value="YES" <?= ($filter['status'] === 'YES') ? 'selected' : '' ?>>Valid (Disetujui)</option>
                                 <option value="NO" <?= ($filter['status'] === 'NO') ? 'selected' : '' ?>>Tidak Valid (Ditolak)</option>
                             </select>
                         </div>
-                        <div class="col-md-4 my-1 text-md-right">
-                            <button type="submit" class="btn btn-primary btn-sm px-3 mr-1">
-                                <i class="fa fa-filter mr-1"></i> Terapkan Filter
+                        <div class="col-md-4 my-1 text-md-right d-flex justify-content-md-end align-items-center flex-wrap" style="gap: 8px;">
+                            <button type="submit" class="btn btn-primary skpi-filter-btn">
+                                <i class="fa fa-filter"></i> Terapkan Filter
                             </button>
                             <?php if (!empty($filter['nama']) || !empty($filter['status'])): ?>
-                                <a href="<?= base_url('skpi') ?>" class="btn btn-outline-secondary btn-sm px-3">
-                                    <i class="fa fa-refresh mr-1"></i> Reset
+                                <a href="<?= base_url('skpi') ?>" class="btn btn-outline-secondary skpi-filter-btn">
+                                    <i class="fa fa-refresh"></i> Reset
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -293,15 +386,28 @@
                 </div>
 
                 <!-- Quick Navigation 10 Kategori -->
-                <div class="kategori-quick-nav">
-                    <span class="align-self-center text-muted font-weight-bold mr-1" style="font-size: 12px;">Lompat ke Kategori:</span>
-                    <?php foreach ($kategori_list as $kId => $kInfo): ?>
-                        <a href="#kategori-<?= $kId ?>" class="kategori-pill">
-                            <i class="<?= $kInfo['icon'] ?>" style="color: <?= $kInfo['color'] ?>;"></i>
-                            <span><?= $kId ?>. <?= html_escape($kInfo['nama']) ?></span>
-                            <span class="badge-count"><?= $kategori_data[$kId]['count'] ?></span>
-                        </a>
-                    <?php endforeach; ?>
+                <div class="kategori-quick-nav-card">
+                    <div class="kategori-nav-header">
+                        <div class="d-flex align-items-center">
+                            <div class="nav-header-icon mr-2">
+                                <i class="fa fa-compass"></i>
+                            </div>
+                            <span class="font-weight-bold text-dark" style="font-size: 13.5px; letter-spacing: 0.2px;">Lompat ke Kategori:</span>
+                            <small class="text-muted ml-2 d-none d-sm-inline">&bull; Klik salah satu kategori untuk langsung menuju ke daftar kegiatan</small>
+                        </div>
+                        <span class="badge badge-light border text-muted px-2.5 py-1 font-weight-bold" style="font-size: 11px; border-radius: 6px;">
+                            10 Kategori Kegiatan
+                        </span>
+                    </div>
+                    <div class="kategori-pills-wrap">
+                        <?php foreach ($kategori_list as $kId => $kInfo): ?>
+                            <a href="#kategori-<?= $kId ?>" class="kategori-pill">
+                                <i class="<?= $kInfo['icon'] ?>" style="color: <?= $kInfo['color'] ?>;"></i>
+                                <span><?= $kId ?>. <?= html_escape($kInfo['nama']) ?></span>
+                                <span class="badge-count"><?= $kategori_data[$kId]['count'] ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
 
                 <!-- DAFTAR 10 KATEGORI DENGAN TOMBOL TAMBAH DI SETIAP KATEGORI -->

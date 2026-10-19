@@ -311,6 +311,13 @@ if ($current_role === 2) {
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>
+                                        <li class="<?= ($seg1 == 'kehadiran' || ($seg1 == 'akademik' && $seg2 == 'kehadiran')) ? 'active' : '' ?>">
+                                            <a href="<?= base_url('kehadiran') ?>" class="waves-effect waves-dark">
+                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                <span class="pcoded-mtext">Kehadiran</span>
+                                                <span class="pcoded-mcaret"></span>
+                                            </a>
+                                        </li>
                                         <li class="<?= ($seg1 == 'akademik' && $seg2 == 'nilai') ? 'active' : '' ?>">
                                             <a href="<?= base_url('akademik/nilai') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>

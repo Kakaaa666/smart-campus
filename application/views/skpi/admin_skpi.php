@@ -39,6 +39,55 @@
         padding: 16px 20px;
         margin-bottom: 24px;
     }
+    .skpi-search-wrap {
+        position: relative;
+        width: 100%;
+    }
+    .skpi-search-wrap .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #94a3b8;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .skpi-search-input {
+        padding-left: 38px !important;
+        padding-right: 14px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        font-size: 13.5px !important;
+        color: #1e293b !important;
+        transition: all 0.2s ease !important;
+    }
+    .skpi-search-input:focus {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+        outline: none !important;
+    }
+    .skpi-select-status {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        font-size: 13.5px !important;
+        padding: 0 14px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer;
+    }
+    .skpi-select-status:focus {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+        outline: none !important;
+    }
     .table-rekap-skpi th {
         background: #f1f5f9;
         color: #475569;
@@ -180,24 +229,22 @@
                         <form method="GET" action="<?= base_url('admin/skpi') ?>" class="form-row align-items-center">
                             <div class="col-lg-6 col-md-6 my-1">
                                 <label class="font-weight-bold text-muted mb-1" style="font-size: 11px;">PENCARIAN MAHASISWA</label>
-                                <div class="input-group mb-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-white"><i class="fa fa-search text-muted"></i></span>
-                                    </div>
-                                    <input type="text" name="keyword" class="form-control" placeholder="Cari nama mahasiswa atau NIM..." value="<?= html_escape($filter['keyword']) ?>">
+                                <div class="skpi-search-wrap">
+                                    <i class="fa fa-search search-icon"></i>
+                                    <input type="text" name="keyword" class="form-control skpi-search-input" placeholder="Cari nama mahasiswa atau NIM..." value="<?= html_escape($filter['keyword']) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-6 my-1">
                                 <label class="font-weight-bold text-muted mb-1" style="font-size: 11px;">STATUS PENGAJUAN</label>
-                                <select name="status" class="form-control">
+                                <select name="status" class="form-control skpi-select-status">
                                     <option value="">-- Semua Status --</option>
                                     <option value="WAITING" <?= ($filter['status'] === 'WAITING') ? 'selected' : '' ?>>Ada yang Belum Divalidasi</option>
                                     <option value="YES" <?= ($filter['status'] === 'YES') ? 'selected' : '' ?>>Semua Sudah Tervalidasi</option>
                                 </select>
                             </div>
                             <div class="col-lg-2 col-md-12 my-1 align-self-end">
-                                <button type="submit" class="btn btn-primary btn-block py-2">
-                                    <i class="fa fa-filter mr-1"></i> Filter Data
+                                <button type="submit" class="btn btn-primary btn-block font-weight-bold" style="height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;">
+                                    <i class="fa fa-filter mr-1.5"></i> Filter Data
                                 </button>
                             </div>
                         </form>
