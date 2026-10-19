@@ -364,7 +364,8 @@
                                                 $is_open = ((int)$m->akses_ta === 1);
                                                 $semester_min_akhir = strpos(strtoupper((string)$m->prodi), 'D3') !== false ? 5 : 7;
                                                 $is_sem_akhir = ((int)$m->semester >= $semester_min_akhir);
-                                                $is_sem_pendek = ((int)($m->ambil_semester_pendek ?? 0) === 1);
+                                                $status_sem_pendek = $m->status_semester_pendek ?? (((int)($m->ambil_semester_pendek ?? 0) === 1) ? 'DISETUJUI' : 'BELUM_DIPROSES');
+                                                $is_sem_pendek = $status_sem_pendek === 'DISETUJUI';
                                             ?>
                                             <tr class="searchable-row" id="row-mhs-<?= $m->id ?>" data-search="<?= strtolower($m->nama_lengkap . ' ' . $m->nim . ' ' . ($m->fakultas ?? '') . ' ' . ($m->prodi ?? '')) ?>">
                                                 <td class="text-center font-weight-bold text-muted"><?= $i + 1 ?></td>
@@ -413,13 +414,9 @@
                                                         <i class="fa <?= $is_open ? 'fa-lock' : 'fa-unlock' ?> mr-1"></i>
                                                         <span id="btn-text-<?= $m->id ?>"><?= $is_open ? 'Tutup Akses' : 'Buka Akses' ?></span>
                                                     </button>
-                                                    <form method="POST" action="<?= base_url('keuangan/toggle_semester_pendek_mhs') ?>" class="mt-2" data-ta-confirm="<?= $is_sem_pendek ? 'Nonaktifkan' : 'Aktifkan' ?> tagihan Semester Pendek untuk mahasiswa ini?">
-                                                        <input type="hidden" name="akun_id" value="<?= (int)$m->id ?>">
-                                                        <input type="hidden" name="status" value="<?= $is_sem_pendek ? 0 : 1 ?>">
-                                                        <button type="submit" class="btn btn-sm <?= $is_sem_pendek ? 'btn-success' : 'btn-outline-secondary' ?>" style="border-radius: 7px; width: 100%;">
-                                                            <i class="fa <?= $is_sem_pendek ? 'fa-check' : 'fa-calendar' ?> mr-1"></i><?= $is_sem_pendek ? 'Sem. Pendek Aktif' : 'Aktifkan Sem. Pendek' ?>
-                                                        </button>
-                                                    </form>
+                                                    <small class="d-block mt-2 text-muted">
+                                                        Semester Pendek: <?= $is_sem_pendek ? 'Disetujui Akademik' : ($status_sem_pendek === 'DITOLAK' ? 'Ditolak Akademik' : 'Belum diproses Akademik') ?>
+                                                    </small>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

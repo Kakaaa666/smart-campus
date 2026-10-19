@@ -11,8 +11,9 @@ class Pengguna extends MY_Role_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('admin/M_pengguna_admin', 'M_pengguna');
         $this->load->helper(['form', 'url']);
+        $this->load->model('admin/M_pengguna_admin', 'M_pengguna');
+        $this->load->model('admin/M_keuangan_admin', 'M_keuangan');
     }
 
     public function index()
@@ -45,11 +46,42 @@ class Pengguna extends MY_Role_Controller
             'filter'        => $filter,
         ];
 
+        $data['short_semester_students'] = $this->M_pengguna->get_students_for_short_semester_approval();
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('akademik/data_mahasiswa', $data);
         $this->load->view('templates/footer', $data);
+    }
+
+    public function proses_semester_pendek()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            show_error('Metode permintaan tidak diizinkan.', 405);
+            return;
+        }
+
+        $mahasiswa_id = (int)$this->input->post('mahasiswa_id', true);
+        $keputusan = $this->input->post('keputusan', true);
+        if ($mahasiswa_id < 1 || !in_array($keputusan, ['DISETUJUI', 'DITOLAK'], true)) {
+            $this->session->set_flashdata('error', 'Keputusan Semester Pendek tidak valid.');
+            redirect('admin/pengguna');
+            return;
+        }
+
+        if (!$this->M_keuangan->putuskan_semester_pendek($mahasiswa_id, $keputusan, (int)$this->session->userdata('id'))) {
+            $this->session->set_flashdata('error', 'Keputusan gagal disimpan. Mahasiswa mungkin sudah disetujui atau tagihan gagal dibuat.');
+            redirect('admin/pengguna');
+            return;
+        }
+
+        $this->session->set_flashdata(
+            'success',
+            $keputusan === 'DISETUJUI'
+                ? 'Semester Pendek disetujui dan tagihan telah diteruskan ke menu Keuangan mahasiswa.'
+                : 'Pengajuan Semester Pendek ditolak.'
+        );
+        redirect('admin/pengguna');
     }
 
     public function mahasiswa()

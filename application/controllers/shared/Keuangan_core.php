@@ -769,7 +769,9 @@ class Keuangan_core extends CI_Controller {
         $akun_id = (int)$this->input->post('akun_id', true);
         $status = (int)$this->input->post('status', true) ? 1 : 0;
         $target = $this->db->get_where('akun_mahasiswa', ['id' => $akun_id])->row();
-        if (!$target || !$this->M_keuangan->set_status_semester_pendek($akun_id, $status)) {
+        $keputusan = $status ? 'DISETUJUI' : 'DITOLAK';
+        $diproses_oleh = (int)$this->session->userdata('id');
+        if (!$target || !$this->M_keuangan->putuskan_semester_pendek($akun_id, $keputusan, $diproses_oleh)) {
             $this->session->set_flashdata('error', 'Status Semester Pendek tidak dapat diperbarui.');
             redirect('keuangan/kontrol_ta');
             return;
@@ -1805,7 +1807,7 @@ class Keuangan_core extends CI_Controller {
         }
 
         if ($tagihan->jenis_tagihan === 'Semester Pendek' && !$this->M_keuangan->get_status_semester_pendek($akun_id)) {
-            $this->session->set_flashdata('error', 'Mahasiswa tersebut belum ditandai mengambil Semester Pendek.');
+            $this->session->set_flashdata('error', 'Tagihan Semester Pendek hanya dapat dibayar setelah disetujui oleh Akademik.');
             redirect('keuangan');
             return;
         }

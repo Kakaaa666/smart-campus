@@ -67,6 +67,12 @@ class M_keuangan_shared extends CI_Model {
             if (!in_array('semester', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `semester` INT(11) NULL DEFAULT 5 AFTER `prodi`");
             if (!in_array('akses_ta', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `akses_ta` TINYINT(1) NOT NULL DEFAULT 0 AFTER `semester`");
             if (!in_array('ambil_semester_pendek', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `ambil_semester_pendek` TINYINT(1) NOT NULL DEFAULT 0 AFTER `akses_ta`");
+            if (!in_array('status_semester_pendek', $fields)) {
+                $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `status_semester_pendek` ENUM('BELUM_DIPROSES','DISETUJUI','DITOLAK') NOT NULL DEFAULT 'BELUM_DIPROSES' AFTER `ambil_semester_pendek`");
+                $this->db->query("UPDATE `{$this->table_akun}` SET `status_semester_pendek` = 'DISETUJUI' WHERE `ambil_semester_pendek` = 1");
+            }
+            if (!in_array('semester_pendek_diproses_oleh', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `semester_pendek_diproses_oleh` INT(11) NULL AFTER `status_semester_pendek`");
+            if (!in_array('semester_pendek_diproses_at', $fields)) $this->db->query("ALTER TABLE `{$this->table_akun}` ADD COLUMN `semester_pendek_diproses_at` DATETIME NULL AFTER `semester_pendek_diproses_oleh`");
         }
 
         if ($this->db->table_exists($this->table_tagihan)) {
@@ -882,28 +888,49 @@ class M_keuangan_shared extends CI_Model {
         $this->buat_tagihan_tambahan($akun_id, 'Wisuda', 1500000, 1);
     }
 
-    public function set_status_semester_pendek($akun_id, $status)
+    public function putuskan_semester_pendek($akun_id, $status, $diproses_oleh)
     {
         $akun_id = (int)$akun_id;
-        $akun = $this->db->where('id', $akun_id)
+        $status = strtoupper((string)$status);
+        if (!in_array($status, ['DISETUJUI', 'DITOLAK'], true) || $akun_id < 1 || (int)$diproses_oleh < 1) {
+            return false;
+        }
+
+        $this->db->trans_begin();
+        $akun = $this->db->select('id, ambil_semester_pendek, status_semester_pendek')
+                         ->where('id', $akun_id)
                          ->where('deleted_at IS NULL', null, false)
                          ->get($this->table_akun)
                          ->row();
         if (!$akun) {
+            $this->db->trans_rollback();
             return false;
         }
 
-        $status_int = $status ? 1 : 0;
-        $this->db->where('id', $akun_id)->update($this->table_akun, [
-            'ambil_semester_pendek' => $status_int,
-            'updated_at'            => date('Y-m-d H:i:s')
-        ]);
-
-        if ($status_int) {
-            $this->buat_tagihan_tambahan($akun_id, 'Semester Pendek', 750000, 0);
+        if ($akun->status_semester_pendek === 'DISETUJUI' && $status === 'DITOLAK') {
+            $this->db->trans_rollback();
+            return false;
         }
 
-        return true;
+        $now = date('Y-m-d H:i:s');
+        $this->db->where('id', $akun_id)->update($this->table_akun, [
+            'ambil_semester_pendek' => $status === 'DISETUJUI' ? 1 : 0,
+            'status_semester_pendek' => $status,
+            'semester_pendek_diproses_oleh' => (int)$diproses_oleh,
+            'semester_pendek_diproses_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        if ($status === 'DISETUJUI' && !$this->buat_tagihan_semester_pendek($akun_id)) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        if (!$this->db->trans_status()) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        return $this->db->trans_commit();
     }
 
     public function get_status_semester_pendek($akun_id)
@@ -913,6 +940,33 @@ class M_keuangan_shared extends CI_Model {
                          ->get($this->table_akun)
                          ->row();
         return $akun ? (bool)$akun->ambil_semester_pendek : false;
+    }
+
+    private function buat_tagihan_semester_pendek($akun_id)
+    {
+        list($tahun_akademik,) = $this->periode_akademik_aktif();
+        $existing = $this->db->where('akun_id', (int)$akun_id)
+                             ->where('jenis_tagihan', 'Semester Pendek')
+                             ->where('tahun_akademik', $tahun_akademik)
+                             ->get($this->table_tagihan)
+                             ->row();
+        if ($existing) {
+            return true;
+        }
+
+        $now = date('Y-m-d H:i:s');
+        return $this->db->insert($this->table_tagihan, [
+            'akun_id' => (int)$akun_id,
+            'jenis_tagihan' => 'Semester Pendek',
+            'tahun_akademik' => $tahun_akademik,
+            'semester' => 'Pendek',
+            'nominal' => 750000,
+            'jatuh_tempo' => date('Y-m-d', strtotime('+30 days')),
+            'status' => 'BELUM_BAYAR',
+            'is_semester_akhir' => 0,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
     }
 
     private function buat_tagihan_tambahan($akun_id, $jenis, $nominal, $is_semester_akhir)

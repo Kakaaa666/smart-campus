@@ -48,6 +48,7 @@ nbproject/
 error_log
 php_error_log
 *.sql
+!/database/migrations/*.sql
 *.sqlite
 *.bak
 *.tmp
