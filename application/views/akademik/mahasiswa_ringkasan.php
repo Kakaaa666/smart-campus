@@ -68,40 +68,16 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
     display: block;
 }
 
-/* Responsive Grid for Stat KPI Cards */
+/* Clean 2x2 Grid for Stat KPI Cards (Balanced & Spacious) */
 .ringkasan-stat-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 12px;
     width: 100%;
 }
 
-/* Layar sangat lebar (>= 1500px): 4 kartu horizontal */
-@media (min-width: 1500px) {
-    .ringkasan-stat-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-    }
-}
-
-/* Saat layar dikecilkan (< 1200px) hingga tablet (>= 768px), kolom profil & stat bertumpuk penuh -> 4 kartu horizontal */
-@media (max-width: 1199.98px) and (min-width: 768px) {
-    .ringkasan-stat-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-    }
-}
-
-/* Tablet & Ponsel (< 768px): 2x2 grid yang sangat rapi */
-@media (max-width: 767.98px) {
-    .ringkasan-stat-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-}
-
-/* Ponsel kecil (< 480px): 1 kolom per baris agar teks tetap lega */
-@media (max-width: 480px) {
+/* Ponsel kecil (< 576px): 1 kolom per baris agar teks tetap lega */
+@media (max-width: 575.98px) {
     .ringkasan-stat-grid {
         grid-template-columns: 1fr;
         gap: 8px;
@@ -110,7 +86,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
 
 /* Stat KPI Cards on Header */
 .ringkasan-stat-chip {
-    padding: 10px 14px;
+    padding: 12px 14px;
     border-radius: 14px;
     border: 1px solid #e2e8f0;
     background: #ffffff;
@@ -120,9 +96,8 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
     align-items: center;
     width: 100%;
     min-width: 0;
-    min-height: 64px;
+    min-height: 68px;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 .ringkasan-stat-chip:hover {
@@ -131,16 +106,16 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
 }
 
 .ringkasan-stat-chip .stat-icon-bubble {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 17px;
     flex-shrink: 0;
-    margin-right: 10px;
+    margin-right: 12px;
 }
 
 .ringkasan-stat-chip .stat-info-wrap {
@@ -153,7 +128,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
     color: #64748b;
     margin-bottom: 2px;
     display: block;
@@ -165,7 +140,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
 .ringkasan-stat-chip .stat-value {
     font-size: 16px;
     font-weight: 800;
-    line-height: 1.2;
+    line-height: 1.25;
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -173,8 +148,8 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
 }
 
 .ringkasan-stat-chip .stat-sub {
-    font-size: 10.5px;
-    color: #94a3b8;
+    font-size: 11px;
+    color: #64748b;
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -453,7 +428,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
     <!-- PROFILE HEADER CARD (DESAIN PREMIUM & HARMONIS DENGAN BERANDA & KEUANGAN) -->
     <div class="ringkasan-profile-card">
         <!-- TOP ROW BADGES: STATUS & PERIODE AKADEMIK -->
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap: 8px;">
+        <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom flex-wrap" style="gap: 8px;">
             <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
                 <span class="badge badge-light px-3 py-1 font-weight-bold" style="border-radius: 8px; font-size: 11px; background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe;">
                     <i class="fa fa-mortarboard mr-1"></i> PORTAL MAHASISWA
@@ -474,7 +449,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
 
         <div class="row align-items-center">
             <!-- 1. FOTO & IDENTITAS MAHASISWA -->
-            <div class="col-xl-5 col-12 mb-3 mb-xl-0">
+            <div class="col-xl-5 col-lg-5 col-12 mb-3 mb-lg-0">
                 <div class="d-flex align-items-start">
                     <!-- Foto Mahasiswa -->
                     <div class="ringkasan-avatar-box mr-3">
@@ -499,7 +474,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                         </div>
 
                         <!-- Tombol Aksi Kontak & Detail -->
-                        <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                             <a href="tel:<?= html_escape($student_telepon) ?>" class="ringkasan-btn-phone shadow-sm" title="Hubungi via Telepon (<?= html_escape($student_telepon) ?>)">
                                 <i class="fa fa-phone"></i>
                             </a>
@@ -508,15 +483,15 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                             </a>
                             <button class="ringkasan-btn-more shadow-sm" type="button" data-toggle="collapse" data-target="#detailProfilCollapse" aria-expanded="false" aria-controls="detailProfilCollapse">
                                 <span>Lihat Lainnya</span>
-                                <i class="fa fa-chevron-down" style="font-size: 10px;"></i>
+                                <i class="fa fa-chevron-down ml-1" style="font-size: 10px;"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. QUICK METRIC STAT CARDS (MENGISI RUANG TENGAH/KANAN DENGAN GRID RESPONSIF ANTI OVERLAP) -->
-            <div class="col-xl-7 col-12">
+            <!-- 2. QUICK METRIC STAT CARDS (GRID 2x2 SEIMBANG & LEGA) -->
+            <div class="col-xl-7 col-lg-7 col-12">
                 <div class="ringkasan-stat-grid">
                     <!-- Stat 1: IPK Kumulatif -->
                     <div class="ringkasan-stat-chip" style="background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%); border-color: #bae6fd;">
@@ -526,7 +501,7 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                         <div class="stat-info-wrap">
                             <span class="stat-label">IPK Kumulatif</span>
                             <span class="stat-value text-primary"><?= number_format($ringkasan['ipk'], 2) ?></span>
-                            <span class="stat-sub">Skala 4.00</span>
+                            <span class="stat-sub">Skala 4.00 (Sangat Memuaskan)</span>
                         </div>
                     </div>
 
@@ -536,9 +511,9 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                             <i class="fa fa-check-circle"></i>
                         </div>
                         <div class="stat-info-wrap">
-                            <span class="stat-label">SKS Lulus</span>
+                            <span class="stat-label">Total SKS Lulus</span>
                             <span class="stat-value text-success"><?= (int)$ringkasan['sks_lulus'] ?> <small style="font-size: 11px; font-weight: normal;">SKS</small></span>
-                            <span class="stat-sub"><?= (int)$ringkasan['total_mk'] ?> MK Diselesaikan</span>
+                            <span class="stat-sub"><?= (int)$ringkasan['total_mk'] ?> Mata Kuliah Diselesaikan</span>
                         </div>
                     </div>
 
@@ -548,11 +523,11 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                             <i class="fa fa-user-circle"></i>
                         </div>
                         <div class="stat-info-wrap">
-                            <span class="stat-label">Dosen Wali</span>
-                            <span class="stat-value text-dark" title="<?= html_escape($ringkasan['dosen_wali']) ?>">
+                            <span class="stat-label">Dosen Pembimbing (PA)</span>
+                            <span class="stat-value text-dark" style="font-size: 13.5px;" title="<?= html_escape($ringkasan['dosen_wali']) ?>">
                                 <?= html_escape($ringkasan['dosen_wali']) ?>
                             </span>
-                            <span class="stat-sub">Pembimbing Akademik</span>
+                            <span class="stat-sub">Konsultasi Akademik</span>
                         </div>
                     </div>
 
@@ -562,9 +537,9 @@ $student_foto     = !empty($student->foto) ? base_url('assets/images/' . $studen
                             <i class="fa fa-calendar-check-o"></i>
                         </div>
                         <div class="stat-info-wrap">
-                            <span class="stat-label">Semester</span>
-                            <span class="stat-value" style="color: #7c3aed;">Smt <?= $student_semester ?></span>
-                            <span class="stat-sub">Aktif Kuliah</span>
+                            <span class="stat-label">Status Perkuliahan</span>
+                            <span class="stat-value" style="color: #7c3aed;">Semester <?= $student_semester ?> Aktif</span>
+                            <span class="stat-sub">Tahun Akademik 2024/2025</span>
                         </div>
                     </div>
                 </div>

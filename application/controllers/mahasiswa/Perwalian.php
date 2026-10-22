@@ -83,6 +83,28 @@ class Perwalian extends CI_Controller {
             }
         }
 
+        $available_periods = $this->M_akademik->get_student_available_periods($akun_id);
+        $active_student_period = !empty($available_periods) ? $available_periods[0] : null;
+
+        $selected_periode = $this->input->get('periode', true);
+        if (!empty($selected_periode)) {
+            $cleaned = str_replace(' - ', '-', $selected_periode);
+            $parts = explode('-', $cleaned);
+            $academic_period = [
+                'tahun_akademik' => trim($parts[0]),
+                'semester_akademik' => ucfirst(strtolower(trim($parts[1] ?? 'Genap')))
+            ];
+        } elseif ($active_student_period) {
+            $academic_period = [
+                'tahun_akademik' => $active_student_period['tahun_akademik'],
+                'semester_akademik' => $active_student_period['semester_akademik']
+            ];
+            $selected_periode = $active_student_period['label'];
+        } else {
+            $academic_period  = $this->M_akademik->get_active_period();
+            $selected_periode = explode('/', $academic_period['tahun_akademik'])[0] . ' - ' . $academic_period['semester_akademik'];
+        }
+
         $data['title']             = $page_title . ' - Smart Campus';
         $data['page_title']        = $page_title;
         $data['page_desc']         = $page_desc;
@@ -90,15 +112,20 @@ class Perwalian extends CI_Controller {
         $data['breadcrumb_parent'] = 'KRS dan Perwalian';
         $data['status_krs']        = $status_krs;
         $data['view_name']         = $view_name;
-        $data['academic_period']   = $this->M_akademik->get_active_period();
-        $data['krs']               = $this->M_akademik->get_krs($akun_id, $data['academic_period']);
+        $data['available_periods'] = $available_periods;
+        $data['academic_period']   = $academic_period;
+        $data['selected_periode']  = $selected_periode;
+        $data['krs']               = $this->M_akademik->get_krs($akun_id, $academic_period);
         $data['advisor']           = $this->M_akademik->get_advisor_for_student($akun_id);
         $data['all_lecturers']     = $this->M_akademik->get_lecturers();
         $data['offerings']         = $this->M_akademik->get_offerings(
             $target_mhs->prodi,
             $target_mhs->semester,
-            $data['academic_period']
+            $academic_period
         );
+        $data['mata_kuliah_wajib'] = $this->M_akademik->get_compulsory_courses($target_mhs->prodi, (int)$target_mhs->id);
+        $data['diskusi_list']      = $this->M_akademik->get_frs_discussions($akun_id);
+        $data['current_user_avatar']= $this->session->userdata('foto') ?: 'avatar-4.png';
         $data['max_sks']           = M_akademik::MAX_SKS_PER_SEMESTER;
         $data['min_sks']           = M_akademik::MIN_SKS_PER_SEMESTER;
 
@@ -218,5 +245,70 @@ class Perwalian extends CI_Controller {
         }
 
         redirect('perwalian');
+    }
+
+    /**
+     * Menyimpan pesan diskusi/komentar pada halaman FRS
+     */
+    public function kirim_komentar_frs()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect('perwalian/frs');
+            return;
+        }
+
+        $is_mahasiswa = $this->is_mahasiswa();
+        $current_user_id = (int)$this->session->userdata('id');
+        $target_mhs_id = (int)$this->input->post('mahasiswa_id');
+        $mahasiswa_id = ($is_mahasiswa || $target_mhs_id < 1) ? $current_user_id : $target_mhs_id;
+
+        $pesan = trim((string)$this->input->post('pesan', true));
+        if ($pesan === '') {
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => 'error', 'message' => 'Pesan komentar tidak boleh kosong.']);
+                return;
+            }
+            $this->session->set_flashdata('error', 'Pesan komentar tidak boleh kosong.');
+            redirect('perwalian/frs' . (!$is_mahasiswa && $mahasiswa_id ? '?mahasiswa_id=' . $mahasiswa_id : ''));
+            return;
+        }
+
+        $sender_name = $this->session->userdata('nama_lengkap') ?: 'Pengguna';
+        $sender_role = $this->session->userdata('role');
+        $sender_type = $is_mahasiswa ? 'mahasiswa' : ((int)$sender_role === 4 ? 'dosen' : 'superadmin');
+        $sender_photo = $this->session->userdata('foto') ?: 'avatar-4.png';
+
+        $insert_data = [
+            'mahasiswa_id'      => $mahasiswa_id,
+            'krs_id'            => (int)$this->input->post('krs_id') ?: null,
+            'tahun_akademik'    => $this->input->post('tahun_akademik', true) ?: null,
+            'semester_akademik' => $this->input->post('semester_akademik', true) ?: null,
+            'pengirim_id'       => $current_user_id,
+            'pengirim_tipe'     => $sender_type,
+            'pengirim_nama'     => $sender_name,
+            'pengirim_foto'     => $sender_photo,
+            'pesan'             => $pesan,
+            'created_at'        => date('Y-m-d H:i:s')
+        ];
+
+        $this->M_akademik->save_frs_discussion($insert_data);
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
+                'status'  => 'success',
+                'message' => 'Komentar berhasil diposting.',
+                'data'    => [
+                    'nama'  => $sender_name,
+                    'foto'  => $sender_photo,
+                    'pesan' => nl2br(html_escape($pesan)),
+                    'waktu' => date('d M Y H:i')
+                ]
+            ]);
+            return;
+        }
+
+        $this->session->set_flashdata('success', 'Komentar berhasil dikirim.');
+        $redirect_url = 'perwalian/frs' . (!$is_mahasiswa && $mahasiswa_id ? '?mahasiswa_id=' . $mahasiswa_id : '');
+        redirect($redirect_url);
     }
 }

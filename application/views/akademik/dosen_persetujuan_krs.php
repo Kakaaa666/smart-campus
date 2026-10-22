@@ -24,31 +24,50 @@
     font-size: 20px;
 }
 .krs-filter-pill {
-    padding: 8px 18px;
+    height: 38px;
+    padding: 0 16px;
     border-radius: 20px;
     font-weight: 600;
     font-size: 13px;
-    color: #4b5563;
-    background: #f3f4f6;
-    margin-right: 8px;
-    margin-bottom: 8px;
+    color: #475569;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     display: inline-flex;
     align-items: center;
     text-decoration: none !important;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 .krs-filter-pill:hover {
-    background: #e5e7eb;
-    color: #1f2937;
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
 }
 .krs-filter-pill.active {
     background: #4f46e5;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    color: #ffffff !important;
+    border-color: #4f46e5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+}
+.krs-filter-pill.active i {
+    color: #ffffff !important;
+}
+.krs-filter-pill .badge {
+    margin-left: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2.5px 8px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
 }
 .krs-filter-pill.active .badge {
     background: rgba(255, 255, 255, 0.25);
+    border-color: transparent;
     color: #ffffff;
 }
 .student-krs-card {
@@ -360,72 +379,68 @@
                     </div>
 
                     <!-- TOOLBAR FILTER & CONTROLS -->
-                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px; background: #ffffff;">
                         <div class="card-body p-3">
                             <form method="GET" action="<?= base_url('dosen/persetujuan-krs') ?>" id="krsFilterForm">
                                 <input type="hidden" name="status" id="filterStatusInput" value="<?= html_escape($active_status) ?>">
 
-                                <div class="row align-items-center">
+                                <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between" style="gap: 12px;">
                                     <!-- STATUS PILLS -->
-                                    <div class="col-xl-6 col-lg-12 mb-3 mb-xl-0">
-                                        <div class="d-flex flex-wrap align-items-center" style="gap: 6px;">
-                                            <a href="javascript:void(0)" onclick="setKrsStatus('menunggu')" class="krs-filter-pill <?= ($active_status === 'menunggu') ? 'active' : '' ?>">
-                                                <i class="fa fa-clock-o mr-1"></i> Menunggu
-                                                <span class="badge badge-light ml-2"><?= (int)($stats['pending'] ?? 0) ?></span>
-                                            </a>
-                                            <a href="javascript:void(0)" onclick="setKrsStatus('disetujui')" class="krs-filter-pill <?= ($active_status === 'disetujui') ? 'active' : '' ?>">
-                                                <i class="fa fa-check mr-1"></i> Disetujui
-                                                <span class="badge badge-light ml-2"><?= (int)($stats['approved'] ?? 0) ?></span>
-                                            </a>
-                                            <a href="javascript:void(0)" onclick="setKrsStatus('ditolak')" class="krs-filter-pill <?= ($active_status === 'ditolak') ? 'active' : '' ?>">
-                                                <i class="fa fa-times mr-1"></i> Perlu Revisi
-                                                <span class="badge badge-light ml-2"><?= (int)($stats['rejected'] ?? 0) ?></span>
-                                            </a>
-                                            <a href="javascript:void(0)" onclick="setKrsStatus('semua')" class="krs-filter-pill <?= ($active_status === 'semua' || empty($active_status)) ? 'active' : '' ?>">
-                                                <i class="fa fa-list mr-1"></i> Semua Pengajuan
-                                            </a>
-                                        </div>
+                                    <div class="d-flex flex-wrap align-items-center" style="gap: 8px;">
+                                        <a href="javascript:void(0)" onclick="setKrsStatus('semua')" class="krs-filter-pill <?= ($active_status === 'semua' || empty($active_status)) ? 'active' : '' ?>">
+                                            <i class="fa fa-th-large mr-1.5 text-primary"></i> Semua
+                                            <span class="badge"><?= (int)($stats['pending'] ?? 0) + (int)($stats['approved'] ?? 0) + (int)($stats['rejected'] ?? 0) ?></span>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="setKrsStatus('menunggu')" class="krs-filter-pill <?= ($active_status === 'menunggu') ? 'active' : '' ?>">
+                                            <i class="fa fa-clock-o mr-1.5 text-warning"></i> Menunggu
+                                            <span class="badge"><?= (int)($stats['pending'] ?? 0) ?></span>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="setKrsStatus('disetujui')" class="krs-filter-pill <?= ($active_status === 'disetujui') ? 'active' : '' ?>">
+                                            <i class="fa fa-check mr-1.5 text-success"></i> Disetujui
+                                            <span class="badge"><?= (int)($stats['approved'] ?? 0) ?></span>
+                                        </a>
+                                        <a href="javascript:void(0)" onclick="setKrsStatus('ditolak')" class="krs-filter-pill <?= ($active_status === 'ditolak') ? 'active' : '' ?>">
+                                            <i class="fa fa-times mr-1.5 text-danger"></i> Perlu Revisi
+                                            <span class="badge"><?= (int)($stats['rejected'] ?? 0) ?></span>
+                                        </a>
                                     </div>
 
                                     <!-- PRODI & SEARCH & FILTER DOSEN -->
-                                    <div class="col-xl-6 col-lg-12">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-xl-end" style="gap: 8px;">
-                                            <?php if ($is_admin && !empty($all_lecturers)): ?>
-                                                <div class="mr-2 mb-2 flex-grow-1" style="min-width: 170px; max-width: 220px;">
-                                                    <select name="dosen_id" class="form-control form-control-sm font-weight-bold" onchange="document.getElementById('krsFilterForm').submit()" style="border-radius: 8px;">
-                                                        <option value="0" <?= ($selected_dosen == 0) ? 'selected' : '' ?>>-- Semua Dosen Wali --</option>
-                                                        <?php foreach ($all_lecturers as $lec): ?>
-                                                            <option value="<?= (int)$lec->id ?>" <?= ($selected_dosen == $lec->id) ? 'selected' : '' ?>>
-                                                                Dosen Wali: <?= html_escape($lec->nama_lengkap) ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            <?php else: ?>
-                                                <div class="mr-2 mb-2">
-                                                    <span class="badge badge-light text-primary border font-weight-bold p-2 px-3" style="border-radius: 8px; font-size: 12px;">
-                                                        <i class="fa fa-user-circle mr-1"></i> Mahasiswa Bimbingan Anda
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-
-                                            <div class="mr-2 mb-2" style="min-width: 130px;">
-                                                <select name="prodi" class="form-control form-control-sm" onchange="document.getElementById('krsFilterForm').submit()" style="border-radius: 8px;">
-                                                    <option value="all" <?= ($active_prodi === 'all') ? 'selected' : '' ?>>Semua Prodi</option>
-                                                    <option value="Informatika" <?= ($active_prodi === 'Informatika') ? 'selected' : '' ?>>Teknik Informatika</option>
-                                                    <option value="Sistem Informasi" <?= ($active_prodi === 'Sistem Informasi') ? 'selected' : '' ?>>Sistem Informasi</option>
-                                                    <option value="Akuntansi" <?= ($active_prodi === 'Akuntansi') ? 'selected' : '' ?>>Akuntansi</option>
+                                    <div class="d-flex flex-wrap align-items-center justify-content-xl-end" style="gap: 8px;">
+                                        <?php if ($is_admin && !empty($all_lecturers)): ?>
+                                            <div class="flex-grow-1" style="min-width: 170px; max-width: 220px;">
+                                                <select name="dosen_id" class="form-control font-weight-bold" onchange="document.getElementById('krsFilterForm').submit()" style="border-radius: 20px; height: 38px; border: 1px solid #cbd5e1; font-size: 12.5px; background: #ffffff;">
+                                                    <option value="0" <?= ($selected_dosen == 0) ? 'selected' : '' ?>>-- Semua Dosen Wali --</option>
+                                                    <?php foreach ($all_lecturers as $lec): ?>
+                                                        <option value="<?= (int)$lec->id ?>" <?= ($selected_dosen == $lec->id) ? 'selected' : '' ?>>
+                                                            Dosen Wali: <?= html_escape($lec->nama_lengkap) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
-
-                                            <div class="input-group input-group-sm mb-2" style="width: 180px;">
-                                                <input type="text" name="q" value="<?= html_escape($keyword) ?>" class="form-control" placeholder="Cari Nama / NIM..." style="border-radius: 8px 0 0 8px;">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="submit" style="border-radius: 0 8px 8px 0;">
-                                                        <i class="fa fa-search"></i>
-                                                    </button>
-                                                </div>
+                                        <?php else: ?>
+                                            <div class="d-inline-flex align-items-center px-3" style="height: 38px; border-radius: 20px; background: #eff6ff; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 600; color: #1d4ed8; white-space: nowrap;">
+                                                <i class="fa fa-user-circle mr-1.5 text-primary"></i> Mahasiswa Bimbingan Anda
                                             </div>
+                                        <?php endif; ?>
+
+                                        <div style="min-width: 140px;">
+                                            <select name="prodi" class="form-control font-weight-semibold" onchange="document.getElementById('krsFilterForm').submit()" style="border-radius: 20px; height: 38px; font-size: 12.5px; border: 1px solid #cbd5e1; background: #ffffff; padding-left: 14px; padding-right: 24px;">
+                                                <option value="all" <?= ($active_prodi === 'all') ? 'selected' : '' ?>>Semua Prodi</option>
+                                                <option value="Informatika" <?= ($active_prodi === 'Informatika') ? 'selected' : '' ?>>Teknik Informatika</option>
+                                                <option value="Sistem Informasi" <?= ($active_prodi === 'Sistem Informasi') ? 'selected' : '' ?>>Sistem Informasi</option>
+                                                <option value="Akuntansi" <?= ($active_prodi === 'Akuntansi') ? 'selected' : '' ?>>Akuntansi</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="position-relative" style="width: 215px;">
+                                            <input type="text" name="q" value="<?= html_escape($keyword) ?>" class="form-control" placeholder="Cari Nama / NIM..." style="height: 38px; border-radius: 20px; padding-left: 36px; padding-right: 32px; font-size: 12.5px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: none;">
+                                            <i class="fa fa-search position-absolute text-muted" style="left: 13px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none;"></i>
+                                            <?php if (!empty($keyword)): ?>
+                                                <a href="<?= base_url('dosen/persetujuan-krs?status=' . urlencode($active_status) . '&prodi=' . urlencode($active_prodi)) ?>" class="position-absolute text-muted" style="right: 12px; top: 50%; transform: translateY(-50%); text-decoration: none;" title="Hapus pencarian">
+                                                    <i class="fa fa-times-circle text-secondary"></i>
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -460,7 +475,8 @@
                         <?php foreach ($krs_list as $item): ?>
                             <?php
                                 $courses = !empty($item->krs_detail->mata_kuliah) ? $item->krs_detail->mata_kuliah : [];
-                                $total_sks = (int)$item->total_sks;
+                                $actual_courses_sks = !empty($courses) ? array_sum(array_map(function($c) { return (int)($c->sks ?? 0); }, $courses)) : 0;
+                                $total_sks = ($actual_courses_sks > 0) ? $actual_courses_sks : (int)$item->total_sks;
                                 $max_sks = 24;
                                 $sks_pct = min(100, round(($total_sks / $max_sks) * 100));
 
@@ -521,73 +537,62 @@
                                         <!-- RIGHT SIDE: SKS METER & STATUS SPP & ACTIONS -->
                                         <div class="col-xl-6 col-lg-7">
                                             <div class="d-flex flex-column align-items-lg-end justify-content-center" style="gap: 8px;">
-                                                <!-- ROW 1: STATUS KEUANGAN & TOTAL BEBAN -->
-                                                <div class="d-flex align-items-center" style="gap: 14px;">
-                                                    <div class="d-flex align-items-center" style="gap: 6px;">
-                                                        <small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px; letter-spacing: 0.3px;">STATUS KEUANGAN:</small>
-                                                        <?php 
-                                                            $is_lunas = !empty($item->status_keuangan['boleh_krs'])
-                                                                        || !empty($item->status_keuangan['buka_krs'])
-                                                                        || !empty($item->status_keuangan['is_lunas'])
-                                                                        || (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'LUNAS');
-                                                            $is_pending = (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'PENDING');
-                                                        ?>
+                                                <!-- ROW 1: STATUS KEUANGAN & TOTAL BEBAN CHIPS -->
+                                                <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 8px;">
+                                                    <?php 
+                                                        $is_lunas = !empty($item->status_keuangan['boleh_krs'])
+                                                                    || !empty($item->status_keuangan['buka_krs'])
+                                                                    || !empty($item->status_keuangan['is_lunas'])
+                                                                    || (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'LUNAS');
+                                                        $is_pending = (isset($item->status_keuangan['status']) && strtoupper($item->status_keuangan['status']) === 'PENDING');
+                                                    ?>
+
+                                                    <!-- Keuangan Chip -->
+                                                    <div class="d-inline-flex align-items-center px-2.5 py-1 rounded" style="background: <?= $is_lunas ? '#f0fdf4' : ($is_pending ? '#fffbeb' : '#fef2f2') ?>; border: 1px solid <?= $is_lunas ? '#bbf7d0' : ($is_pending ? '#fde68a' : '#fecaca') ?>; font-size: 11.5px; gap: 6px;">
+                                                        <span class="text-muted font-weight-bold" style="font-size: 10px; letter-spacing: 0.3px;">KEUANGAN:</span>
                                                         <?php if ($is_lunas): ?>
-                                                            <span class="badge badge-success px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;">
-                                                                <i class="fa fa-check mr-1"></i> LUNAS / DIIZINKAN
-                                                            </span>
+                                                            <span class="font-weight-bold text-success"><i class="fa fa-check-circle mr-1"></i>LUNAS / DIIZINKAN</span>
                                                         <?php elseif ($is_pending): ?>
-                                                            <span class="badge badge-warning text-dark px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;" title="Pembayaran sedang diverifikasi Admin Keuangan">
-                                                                <i class="fa fa-clock-o mr-1"></i> MENUNGGU VERIFIKASI
-                                                            </span>
+                                                            <span class="font-weight-bold text-warning"><i class="fa fa-clock-o mr-1"></i>VERIFIKASI PENDING</span>
                                                         <?php else: ?>
-                                                            <span class="badge badge-danger px-2 py-0.5 font-weight-bold" style="font-size: 10.5px; border-radius: 4px;" title="<?= html_escape($item->status_keuangan['pesan'] ?? 'Belum Lunas') ?>">
-                                                                <i class="fa fa-times-circle mr-1"></i> TUNGGAKAN SPP
-                                                            </span>
+                                                            <span class="font-weight-bold text-danger"><i class="fa fa-times-circle mr-1"></i>TUNGGAKAN SPP</span>
                                                         <?php endif; ?>
                                                     </div>
 
-                                                    <div class="border-left pl-3 d-flex align-items-center" style="border-color: #cbd5e1 !important; gap: 8px;">
-                                                        <small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px; letter-spacing: 0.3px;">TOTAL BEBAN:</small>
-                                                        <span class="font-weight-bold text-primary" style="font-size: 13.5px; line-height: 1;">
-                                                            <?= $total_sks ?> <small class="text-muted" style="font-size: 11px;">/ <?= $max_sks ?> SKS</small>
-                                                        </span>
-                                                        <div class="progress progress-sks" style="width: 55px; height: 4px; margin-bottom: 0;">
+                                                    <!-- SKS Chip -->
+                                                    <div class="d-inline-flex align-items-center px-2.5 py-1 rounded" style="background: #eff6ff; border: 1px solid #bfdbfe; font-size: 11.5px; gap: 6px;">
+                                                        <span class="text-muted font-weight-bold" style="font-size: 10px; letter-spacing: 0.3px;">TOTAL BEBAN:</span>
+                                                        <span class="font-weight-bold text-primary"><?= $total_sks ?> <small class="text-muted">/ <?= $max_sks ?> SKS</small></span>
+                                                        <div class="progress" style="width: 50px; height: 5px; margin-bottom: 0; border-radius: 3px; background: #dbeafe;">
                                                             <div class="progress-bar <?= ($total_sks > 24) ? 'bg-danger' : (($total_sks >= 20) ? 'bg-success' : 'bg-primary') ?>" style="width: <?= $sks_pct ?>%;"></div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <!-- ROW 2: ACTION BUTTONS TOOLBAR -->
-                                                <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
-                                                    <button class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" type="button" data-toggle="collapse" data-target="#krs-collapse-<?= (int)$item->id ?>" aria-expanded="false" style="border-radius: 8px; font-size: 12px;">
-                                                        <i class="fa fa-list-alt mr-1"></i> Detail Matkul
+                                                <div class="d-flex align-items-center justify-content-lg-end flex-wrap" style="gap: 6px;">
+                                                    <button class="btn btn-sm font-weight-bold d-inline-flex align-items-center" type="button" data-toggle="collapse" data-target="#krs-collapse-<?= (int)$item->id ?>" aria-expanded="false" style="border-radius: 8px; height: 32px; font-size: 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #334155;">
+                                                        <i class="fa fa-list-alt mr-1.5 text-muted"></i> Detail Matkul
                                                     </button>
 
-                                                    <button type="button" class="btn btn-warning btn-sm px-2.5 py-1.5 font-weight-bold text-dark" style="border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.25);" onclick="openAdvisorEditModal(<?= (int)$item->id ?>)" title="Pilihkan atau gantikan mata kuliah mahasiswa">
-                                                        <i class="fa fa-pencil-square-o mr-1"></i> Edit / Pilihkan Matkul
+                                                    <button type="button" class="btn btn-sm font-weight-bold d-inline-flex align-items-center" onclick="openAdvisorEditModal(<?= (int)$item->id ?>)" style="border-radius: 8px; height: 32px; font-size: 12px; background: #fef3c7; border: 1px solid #fde68a; color: #92400e;" title="Pilihkan atau gantikan mata kuliah mahasiswa">
+                                                        <i class="fa fa-pencil-square-o mr-1.5 text-warning"></i> Edit / Pilihkan Matkul
                                                     </button>
 
                                                     <?php if ($item->status === 'MENUNGGU'): ?>
-                                                        <button type="button" class="btn btn-success btn-sm px-3 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.25);" onclick="quickApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                            <i class="fa fa-check-circle mr-1"></i> Setujui KRS
+                                                        <button type="button" class="btn btn-sm font-weight-bold text-white d-inline-flex align-items-center" onclick="quickApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')" style="border-radius: 8px; height: 32px; font-size: 12px; background: #10b981; border: 1px solid #059669; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">
+                                                            <i class="fa fa-check-circle mr-1.5"></i> Setujui KRS
                                                         </button>
-                                                        <button type="button" class="btn btn-outline-danger btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="openRejectModal(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                            <i class="fa fa-times-circle mr-1"></i> Tolak
+                                                        <button type="button" class="btn btn-sm font-weight-bold d-inline-flex align-items-center" onclick="openRejectModal(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')" style="border-radius: 8px; height: 32px; font-size: 12px; background: #ffffff; border: 1px solid #fca5a5; color: #dc2626;">
+                                                            <i class="fa fa-times-circle mr-1.5"></i> Tolak
                                                         </button>
                                                     <?php elseif ($item->status === 'DISETUJUI'): ?>
-                                                        <span class="badge badge-success font-weight-bold py-2 px-2.5" style="border-radius: 8px; font-size: 11.5px;">
-                                                            <i class="fa fa-check-circle mr-1"></i> Disetujui
-                                                        </span>
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                            <i class="fa fa-undo mr-1"></i> Batal
+                                                        <button type="button" class="btn btn-sm font-weight-bold d-inline-flex align-items-center" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')" style="border-radius: 8px; height: 32px; font-size: 12px; background: #ffffff; border: 1px solid #e2e8f0; color: #64748b;" title="Batalkan persetujuan KRS">
+                                                            <i class="fa fa-undo mr-1.5"></i> Batal
                                                         </button>
                                                     <?php elseif ($item->status === 'DITOLAK'): ?>
-                                                        <span class="badge badge-danger font-weight-bold py-2 px-2.5" style="border-radius: 8px; font-size: 11.5px;">
-                                                            <i class="fa fa-times-circle mr-1"></i> Perlu Revisi
-                                                        </span>
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm px-2.5 py-1.5 font-weight-bold" style="border-radius: 8px; font-size: 12px;" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')">
-                                                            <i class="fa fa-undo mr-1"></i> Batal
+                                                        <button type="button" class="btn btn-sm font-weight-bold d-inline-flex align-items-center" onclick="cancelApprove(<?= (int)$item->id ?>, '<?= html_escape(addslashes($item->nama_lengkap)) ?>')" style="border-radius: 8px; height: 32px; font-size: 12px; background: #ffffff; border: 1px solid #e2e8f0; color: #64748b;" title="Batalkan penolakan KRS">
+                                                            <i class="fa fa-undo mr-1.5"></i> Batal
                                                         </button>
                                                     <?php endif; ?>
                                                 </div>
@@ -612,11 +617,44 @@
 
                                     <!-- CATATAN REVISI / REJECTED REASON IF ANY -->
                                     <?php if (!empty($item->catatan)): ?>
-                                        <div class="mt-2 p-2 px-3 rounded" style="background: #fffbeb; border: 1px solid #fde68a; font-size: 12px; color: #92400e;">
-                                            <i class="fa fa-commenting-o mr-1"></i>
-                                            <strong>Catatan Dosen Wali:</strong> <?= html_escape($item->catatan) ?>
+                                        <?php
+                                            $catatan_bg = '#f8fafc';
+                                            $catatan_border = '#e2e8f0';
+                                            $catatan_left = '#94a3b8';
+                                            $catatan_icon = 'fa-commenting-o text-muted';
+                                            $catatan_text = '#334155';
+                                            if ($item->status === 'DISETUJUI') {
+                                                $catatan_bg = '#f0fdf4';
+                                                $catatan_border = '#dcfce7';
+                                                $catatan_left = '#10b981';
+                                                $catatan_icon = 'fa-check-circle text-success';
+                                                $catatan_text = '#166534';
+                                            } elseif ($item->status === 'DITOLAK') {
+                                                $catatan_bg = '#fef2f2';
+                                                $catatan_border = '#fee2e2';
+                                                $catatan_left = '#ef4444';
+                                                $catatan_icon = 'fa-exclamation-circle text-danger';
+                                                $catatan_text = '#991b1b';
+                                            } elseif ($item->status === 'MENUNGGU') {
+                                                $catatan_bg = '#fffbeb';
+                                                $catatan_border = '#fef3c7';
+                                                $catatan_left = '#f59e0b';
+                                                $catatan_icon = 'fa-clock-o text-warning';
+                                                $catatan_text = '#92400e';
+                                            }
+                                        ?>
+                                        <div class="mt-3 px-3 py-2 rounded d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between" style="background: <?= $catatan_bg ?>; border: 1px solid <?= $catatan_border ?>; border-left: 3px solid <?= $catatan_left ?>; border-radius: 8px; font-size: 12px; color: <?= $catatan_text ?>; gap: 8px;">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa <?= $catatan_icon ?> mr-2" style="font-size: 13.5px;"></i>
+                                                <div>
+                                                    <strong style="color: inherit;">Catatan Dosen Wali:</strong>
+                                                    <span class="ml-1"><?= html_escape($item->catatan) ?></span>
+                                                </div>
+                                            </div>
                                             <?php if (!empty($item->diproses_at)): ?>
-                                                <span class="text-muted ml-2">(Diperbarui <?= date('d M Y H:i', strtotime($item->diproses_at)) ?> oleh <?= html_escape($item->nama_validator ?: 'Dosen') ?>)</span>
+                                                <div class="text-muted small flex-shrink-0" style="font-size: 11px; white-space: nowrap;">
+                                                    <i class="fa fa-clock-o mr-1"></i> Diperbarui <?= date('d M Y H:i', strtotime($item->diproses_at)) ?> <?= !empty($item->nama_validator) ? 'oleh ' . html_escape($item->nama_validator) : '' ?>
+                                                </div>
                                             <?php endif; ?>
                                         </div>
                                     <?php endif; ?>

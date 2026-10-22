@@ -204,6 +204,7 @@ class Akademik extends MY_Role_Controller {
             'selected_student_id' => $akun_id,
             'is_admin' => $is_admin,
             'is_dosen' => $is_dosen,
+            'selected_jenis' => 'transkrip',
             'current_role' => ($user_role === 1 ? 'superadmin' : ($user_role === 2 ? 'admin' : ($user_role === 4 ? 'dosen' : 'mahasiswa')))
         ];
 

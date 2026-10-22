@@ -6,7 +6,7 @@ $courses = $khs_data['courses'] ?? [];
 $summary = $khs_data['summary'] ?? [];
 $available_periods = $khs_data['available_periods'] ?? [];
 $selected_period = $khs_data['selected_period'] ?? null;
-$selected_jenis = $this->input->get('jenis', true) ?: 'khs';
+$selected_jenis = $selected_jenis ?? ($this->input->get('jenis', true) ?: ($this->uri->segment(3) === 'transkrip' ? 'transkrip' : 'khs'));
 
 $is_admin = !empty($is_admin);
 $is_dosen = !empty($is_dosen);
@@ -184,6 +184,59 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
 .badge-grade-c { background: #fef3c7; color: #b45309; }
 .badge-grade-d { background: #fee2e2; color: #b91c1c; }
 
+/* Transkrip Summary Footer (Sesuai Palet Warna & Tema Smart Campus) */
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-green,
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-light {
+    background-color: #e0f2fe !important;
+}
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-green td,
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-light td {
+    background-color: #e0f2fe !important;
+    color: #026aa2 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 7px 14px !important;
+    border: 1px solid #bae6fd !important;
+    vertical-align: middle;
+}
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-teal,
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-accent {
+    background-color: #bce4f7 !important;
+}
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-teal td,
+.table-khs tfoot.khs-transkrip-footer tr.transkrip-row-accent td {
+    background-color: #bce4f7 !important;
+    color: #0f3d64 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 7px 14px !important;
+    border: 1px solid #90cdf4 !important;
+    vertical-align: middle;
+}
+.table-khs tfoot.khs-transkrip-footer .transkrip-title-cell {
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.table-khs tfoot.khs-transkrip-footer .transkrip-val-cell {
+    font-size: 13.5px !important;
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    text-align: center !important;
+}
+.table-khs tfoot.khs-transkrip-footer .transkrip-empty-cell {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+}
+.table-khs tfoot.khs-transkrip-footer .transkrip-notes-cell {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.55 !important;
+    padding: 10px 14px !important;
+    text-transform: none !important;
+}
+
 /* PRINT STYLING */
 @media print {
     body {
@@ -239,6 +292,12 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
         background: transparent !important;
         padding: 10px 0 !important;
     }
+    .table-khs tfoot.khs-transkrip-footer tr.transkrip-row-green td,
+    .table-khs tfoot.khs-transkrip-footer tr.transkrip-row-teal td {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        border: 1px solid #333333 !important;
+    }
     .badge-grade {
         border: 1px solid #555555 !important;
         color: #000000 !important;
@@ -270,7 +329,7 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
                         <div class="card-header khs-card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
                                 <i class="feather icon-file-text text-white mr-2" style="font-size: 18px;"></i>
-                                <h5>Kartu Hasil Studi</h5>
+                                <h5><?= ($selected_jenis === 'transkrip') ? 'Transkrip Akademik Kumulatif' : 'Kartu Hasil Studi' ?></h5>
                             </div>
                             <div>
                                 <a href="javascript:void(0)" class="text-white" onclick="toggleKhsCardFullscreen()" title="Perbesar Tampilan">
@@ -413,16 +472,20 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
                                     <tr>
                                         <th class="text-center" style="width: 50px;">No.</th>
                                         <?php if ($selected_jenis === 'transkrip'): ?>
-                                            <th class="text-center" style="width: 80px;">Smt</th>
+                                            <th class="text-center" style="width: 75px;">Smt</th>
                                         <?php endif; ?>
                                         <th style="width: 120px;">Kode</th>
                                         <th>Mata Kuliah</th>
                                         <th class="text-center" style="width: 70px;">SKS</th>
                                         <th class="text-center" style="width: 70px;">Nilai</th>
-                                        <th class="text-center" style="width: 70px;">Index</th>
-                                        <th style="width: 140px;">Kategori</th>
-                                        <th class="text-center" style="width: 70px;">NxK</th>
-                                        <th class="text-center" style="width: 100px;">Keterangan</th>
+                                        <th class="text-center" style="width: 75px;">Index</th>
+                                        <?php if ($selected_jenis !== 'transkrip'): ?>
+                                            <th style="width: 140px;">Kategori</th>
+                                        <?php endif; ?>
+                                        <th class="text-center" style="width: 75px;">NxK</th>
+                                        <?php if ($selected_jenis !== 'transkrip'): ?>
+                                            <th class="text-center" style="width: 100px;">Keterangan</th>
+                                        <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -454,14 +517,18 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
                                                     <span class="badge-grade <?= $badge_cls ?>"><?= html_escape($c->nilai_huruf) ?></span>
                                                 </td>
                                                 <td class="text-center"><?= number_format((float)$c->nilai_indeks, 1) ?></td>
-                                                <td><?= html_escape($c->kategori) ?></td>
+                                                <?php if ($selected_jenis !== 'transkrip'): ?>
+                                                    <td><?= html_escape($c->kategori) ?></td>
+                                                <?php endif; ?>
                                                 <td class="text-center font-weight-bold"><?= (int)$c->nxk == $c->nxk ? (int)$c->nxk : number_format((float)$c->nxk, 1) ?></td>
-                                                <td class="text-center"><?= html_escape($c->keterangan) ?></td>
+                                                <?php if ($selected_jenis !== 'transkrip'): ?>
+                                                    <td class="text-center"><?= html_escape($c->keterangan) ?></td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="<?= ($selected_jenis === 'transkrip') ? 10 : 9 ?>" class="text-center py-5 text-muted">
+                                            <td colspan="<?= ($selected_jenis === 'transkrip') ? 8 : 9 ?>" class="text-center py-5 text-muted">
                                                 <i class="feather icon-clock text-warning" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
                                                 <span class="font-weight-bold" style="font-size: 14px; color: #334155;">Belum Ada Rekaman Nilai KHS</span>
                                                 <p class="text-muted mb-0 mt-1" style="font-size: 12.5px;">
@@ -471,10 +538,53 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
+
+                                <?php if ($selected_jenis === 'transkrip'): ?>
+                                    <!-- Footer Ringkasan Transkrip Sesuai Foto Resmi SIAKAD (Data Dinamis Mahasiswa) -->
+                                    <tfoot class="khs-transkrip-footer">
+                                        <tr class="transkrip-row-green">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">TOTAL AMBIL SKS</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_ambil_sks'] ?? 0) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-green">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">TOTAL SKS LULUS</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_lulus'] ?? 0) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-teal">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">TOTAL NILAI</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= number_format((float)($summary['total_nilai'] ?? 0), 1) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-green">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">IPK</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= number_format((float)($summary['ipk_transkrip'] ?? $summary['grand_ipk'] ?? 0), 2) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-teal">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">TOTAL SKS D</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_d'] ?? 0) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-green">
+                                            <td colspan="6" class="text-left font-weight-bold transkrip-title-cell">TOTAL SKS E</td>
+                                            <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_e'] ?? 0) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
+                                        </tr>
+                                        <tr class="transkrip-row-teal">
+                                            <td colspan="8" class="text-left transkrip-notes-cell">
+                                                <div class="mb-1">* IP tidak termasuk matakuliah dengan nilai kosong</div>
+                                                <div>* IPK termasuk mata kuliah dengan nilai D dan E.</div>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                <?php endif; ?>
                             </table>
                         </div>
 
-                        <!-- Footer Ringkasan (Persis sesuai foto) -->
+                        <!-- Footer Ringkasan KHS Per-Semester (Hanya ditampilkan saat mode KHS Per-Semester) -->
+                        <?php if ($selected_jenis !== 'transkrip'): ?>
                         <div class="khs-summary-box">
                             <div class="row">
                                 <!-- Kolom Kiri -->
@@ -545,6 +655,7 @@ $selected_student_id = $selected_student_id ?? ($student ? (int)$student->id : 0
                                 </div>
                             <?php endif; ?>
                         </div>
+                        <?php endif; ?>
 
                         <!-- TANDA TANGAN RESMI CETAK (HANYA MUNCUL SAAT PRINT) -->
                         <div class="print-only-signatures px-4">

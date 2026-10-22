@@ -621,7 +621,7 @@ if (!empty($krs->mata_kuliah)) {
 
                                                         <td>
                                                             <div style="font-size: 12.5px; font-weight: 600; color: #1e293b;">
-                                                                <?= html_escape($item->nama_dosen ?: 'Dosen belum tersedia') ?>
+                                                                <?= html_escape((!empty($item->nama_dosen) && trim($item->nama_dosen) !== '-') ? $item->nama_dosen : (class_exists('M_akademik') ? M_akademik::resolve_default_lecturer($item)['nama'] : 'Dr. Ir. Hendra Setiawan, M.T.')) ?>
                                                             </div>
                                                         </td>
                                                     </tr>

@@ -260,7 +260,8 @@ class M_akademik_mahasiswa extends M_akademik
 
             if (!$already_has_khs) {
                 $krs_mk_count = count($cur_krs->mata_kuliah);
-                $krs_sks = (int)$cur_krs->total_sks;
+                $actual_krs_sks = array_sum(array_map(function($c) { return (int)($c->sks ?? 0); }, $cur_krs->mata_kuliah));
+                $krs_sks = ($actual_krs_sks > 0) ? $actual_krs_sks : (int)$cur_krs->total_sks;
                 $tot_sks_with_krs = $cum_sks_a + $krs_sks;
 
                 $statistik_table[] = [

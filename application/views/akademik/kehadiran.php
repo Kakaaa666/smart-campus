@@ -402,29 +402,262 @@ if (!function_exists('render_badge_kehadiran')) {
     font-weight: 600;
 }
 
-/* Modal Detil Kehadiran */
+/* Modal Detil Kehadiran Modern & Rapi */
 .modal-detil-header {
-    background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
     color: #ffffff;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    padding: 16px 22px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 16px 24px;
 }
 
 .modal-detil-header .modal-title {
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .modal-detil-header .close {
     color: #ffffff;
     opacity: 0.85;
     text-shadow: none;
+    font-size: 24px;
+    line-height: 1;
 }
 
 .modal-detil-header .close:hover {
     opacity: 1;
+}
+
+/* Modal Summary Card */
+.modal-summary-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+}
+
+.course-chips-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.course-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.chip-kode {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-family: monospace;
+}
+
+.chip-kelas {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.chip-sks {
+    background: #ecfeff;
+    color: #0e7490;
+    border: 1px solid #a5f3fc;
+}
+
+.modal-course-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 4px 0 10px 0;
+    letter-spacing: -0.2px;
+}
+
+.modal-meta-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.modal-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-meta-item strong {
+    color: #1e293b;
+}
+
+/* Stat Percentage Box */
+.modal-percentage-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 145px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-percentage-box .percentage-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+}
+
+.modal-percentage-box .percentage-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0284c7;
+    line-height: 1.1;
+    margin: 3px 0;
+}
+
+.modal-percentage-box .percentage-bar-wrap {
+    width: 100%;
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.modal-percentage-box .percentage-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+/* Attendance Metrics Strip - Pengganti Pills yang Berantakan */
+.attendance-metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .attendance-metrics-strip {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .attendance-metrics-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.att-metric-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.att-metric-pill .att-metric-label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.att-metric-pill .att-metric-value {
+    font-size: 13px;
+    font-weight: 800;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 6px;
+    min-width: 22px;
+    text-align: center;
+}
+
+.metric-terselenggara {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.metric-terselenggara .att-metric-value {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.metric-hadir {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.metric-hadir .att-metric-value {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.metric-sakit {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.metric-sakit .att-metric-value {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+.metric-ijin {
+    background: #fefce8;
+    border-color: #fef08a;
+    color: #854d0e;
+}
+
+.metric-ijin .att-metric-value {
+    background: #eab308;
+    color: #ffffff;
+}
+
+.metric-tugas {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.metric-tugas .att-metric-value {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.metric-alpha {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #9f1239;
+}
+
+.metric-alpha .att-metric-value {
+    background: #f43f5e;
+    color: #ffffff;
 }
 
 /* Info Card di Tab 3 (Pertemuan Kelas) */
@@ -822,14 +1055,14 @@ if (!function_exists('render_badge_kehadiran')) {
                                             </div>
                                             <div class="info-card-row">
                                                 <div class="info-label">Pengajar</div>
-                                                <div class="info-sep">•</div>
+                                                <div class="info-sep">:</div>
                                                 <div class="info-value" id="tab3Pengajar">
                                                     <?= $firstCourse ? htmlspecialchars($firstCourse->dosen) : '-' ?>
                                                 </div>
                                             </div>
                                             <div class="info-card-row">
-                                                <div class="info-label">Pertemuan</div>
-                                                <div class="info-sep">•</div>
+                                                <div class="info-label">Pertemuan / Jadwal</div>
+                                                <div class="info-sep">:</div>
                                                 <div class="info-value" id="tab3PertemuanJadwal">
                                                     <?= $firstCourse ? htmlspecialchars($firstCourse->jadwal) : '-' ?>
                                                 </div>
@@ -922,39 +1155,69 @@ if (!function_exists('render_badge_kehadiran')) {
                 </button>
             </div>
 
-            <div class="modal-body p-4 bg-white">
+            <div class="modal-body p-3 p-md-4 bg-white">
                 
-                <!-- Info Matkul & Statistik Bar -->
-                <div class="row align-items-center mb-3">
-                    <div class="col-md-7">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge badge-primary px-2 py-1" id="modalBadgeKode">-</span>
-                            <span class="badge badge-dark px-2 py-1" id="modalBadgeKelas">Kelas -</span>
-                            <span class="badge badge-info px-2 py-1" id="modalBadgeSks">- SKS</span>
+                <!-- Info Matkul & Statistik Bar Card -->
+                <div class="modal-summary-card">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between" style="gap: 16px;">
+                        <div>
+                            <div class="course-chips-wrap">
+                                <span class="course-chip chip-kode" id="modalBadgeKode">-</span>
+                                <span class="course-chip chip-kelas" id="modalBadgeKelas">Kelas -</span>
+                                <span class="course-chip chip-sks" id="modalBadgeSks">- SKS</span>
+                            </div>
+                            <h5 class="modal-course-title" id="modalNamaMK">-</h5>
+                            <div class="modal-meta-grid">
+                                <div class="modal-meta-item">
+                                    <i class="feather icon-user text-primary" style="font-size: 14px;"></i>
+                                    <span>Dosen Pengampu:</span>
+                                    <strong id="modalNamaDosen" class="text-dark">-</strong>
+                                </div>
+                                <div class="modal-meta-item">
+                                    <i class="feather icon-calendar text-success" style="font-size: 14px;"></i>
+                                    <span>Jadwal Perkuliahan:</span>
+                                    <strong id="modalJadwal" class="text-dark">-</strong>
+                                </div>
+                            </div>
                         </div>
-                        <div class="small text-muted mt-1">
-                            <i class="feather icon-user mr-1 text-primary"></i> Dosen Pengampu: <span id="modalNamaDosen" class="font-weight-600 text-dark">-</span>
-                        </div>
-                        <div class="small text-muted">
-                            <i class="feather icon-clock mr-1 text-primary"></i> Jadwal: <span id="modalJadwal" class="font-weight-500 text-dark">-</span>
-                        </div>
-                    </div>
-                    <div class="col-md-5 text-md-right mt-2 mt-md-0">
-                        <div class="p-2 px-3 rounded border bg-light d-inline-block text-center">
-                            <div class="small text-muted font-weight-bold">PERSENTASE HADIR</div>
-                            <div class="h4 m-0 font-weight-bold text-primary" id="modalPersentaseHadir">-</div>
+                        <div class="text-md-right mt-2 mt-md-0">
+                            <div class="modal-percentage-box">
+                                <span class="percentage-label">Persentase Hadir</span>
+                                <div class="percentage-value" id="modalPersentaseHadir">-</div>
+                                <div class="percentage-bar-wrap">
+                                    <div class="percentage-bar-fill" id="modalPercentageBar" style="width: 100%;"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pills Summary -->
-                <div class="d-flex align-items-center gap-2 flex-wrap mb-3 p-2 bg-light rounded border">
-                    <span class="badge bg-white border text-dark p-2">Terselenggara: <b id="modalStatTerselenggara" class="ml-1 text-dark">0</b></span>
-                    <span class="badge badge-success p-2">Hadir: <b id="modalStatHadir" class="ml-1 text-white">0</b></span>
-                    <span class="badge badge-warning p-2 text-white">Sakit: <b id="modalStatSakit" class="ml-1 text-white">0</b></span>
-                    <span class="badge badge-warning p-2 text-white">Ijin: <b id="modalStatIjin" class="ml-1 text-white">0</b></span>
-                    <span class="badge bg-white border text-dark p-2">Tugas: <b id="modalStatTugas" class="ml-1 text-dark">0</b></span>
-                    <span class="badge badge-danger p-2">Tidak Hadir: <b id="modalStatAlpha" class="ml-1 text-white">0</b></span>
+                <!-- Attendance Metrics Strip (Rapi, Seimbang & Proporsional) -->
+                <div class="attendance-metrics-strip">
+                    <div class="att-metric-pill metric-terselenggara" title="Total pertemuan yang telah diselenggarakan">
+                        <span class="att-metric-label">Terselenggara</span>
+                        <span class="att-metric-value" id="modalStatTerselenggara">0</span>
+                    </div>
+                    <div class="att-metric-pill metric-hadir" title="Total kehadiran mahasiswa">
+                        <span class="att-metric-label"><i class="feather icon-check-circle mr-1"></i>Hadir</span>
+                        <span class="att-metric-value" id="modalStatHadir">0</span>
+                    </div>
+                    <div class="att-metric-pill metric-sakit" title="Ijin karena sakit">
+                        <span class="att-metric-label"><i class="feather icon-activity mr-1"></i>Sakit</span>
+                        <span class="att-metric-value" id="modalStatSakit">0</span>
+                    </div>
+                    <div class="att-metric-pill metric-ijin" title="Ijin ada keperluan resmi">
+                        <span class="att-metric-label"><i class="feather icon-file-text mr-1"></i>Ijin</span>
+                        <span class="att-metric-value" id="modalStatIjin">0</span>
+                    </div>
+                    <div class="att-metric-pill metric-tugas" title="Penugasan akademik luar kelas">
+                        <span class="att-metric-label"><i class="feather icon-briefcase mr-1"></i>Tugas</span>
+                        <span class="att-metric-value" id="modalStatTugas">0</span>
+                    </div>
+                    <div class="att-metric-pill metric-alpha" title="Tidak hadir tanpa keterangan">
+                        <span class="att-metric-label"><i class="feather icon-x-circle mr-1"></i>Tidak Hadir</span>
+                        <span class="att-metric-value" id="modalStatAlpha">0</span>
+                    </div>
                 </div>
 
                 <!-- Tabel Detail Pertemuan 1 s/d 16 -->
@@ -1049,13 +1312,33 @@ function openDetailModal(courseIdx) {
 
     document.getElementById('modalTitle').innerHTML = '<i class="feather icon-list mr-1"></i> ' + escapeHtml(c.nama_mk);
     document.getElementById('modalSubtitle').innerText = c.kode_mk + ' - Kelas ' + c.kelas + ' (' + c.sks + ' SKS)';
+    if (document.getElementById('modalNamaMK')) {
+        document.getElementById('modalNamaMK').innerText = c.nama_mk || '-';
+    }
     document.getElementById('modalBadgeKode').innerText = c.kode_mk;
     document.getElementById('modalBadgeKelas').innerText = 'Kelas ' + c.kelas;
     document.getElementById('modalBadgeSks').innerText = c.sks + ' SKS';
     document.getElementById('modalNamaDosen').innerText = c.dosen || '-';
     document.getElementById('modalJadwal').innerText = c.jadwal || '-';
     
-    document.getElementById('modalPersentaseHadir').innerText = c.persentase_hadir || '0.00%';
+    var persenText = c.persentase_hadir || '0.00%';
+    document.getElementById('modalPersentaseHadir').innerText = persenText;
+    var numVal = parseFloat(persenText) || 0;
+    var pBar = document.getElementById('modalPercentageBar');
+    if (pBar) {
+        pBar.style.width = Math.min(100, Math.max(0, numVal)) + '%';
+        if (numVal >= 80) {
+            pBar.style.background = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+            document.getElementById('modalPersentaseHadir').style.color = '#059669';
+        } else if (numVal >= 60) {
+            pBar.style.background = 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)';
+            document.getElementById('modalPersentaseHadir').style.color = '#d97706';
+        } else {
+            pBar.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+            document.getElementById('modalPersentaseHadir').style.color = '#dc2626';
+        }
+    }
+
     document.getElementById('modalStatTerselenggara').innerText = c.terselenggara;
     document.getElementById('modalStatHadir').innerText = c.hadir;
     document.getElementById('modalStatSakit').innerText = c.sakit;
