@@ -12,6 +12,10 @@ class Akademik extends MY_Role_Controller {
     }
 
     private function _render($page_title, $page_desc, $card_subtitle = '') {
+        if (!$this->require_student_financial_clearance($page_title)) {
+            return;
+        }
+
         $data['title'] = $page_title . ' - Smart Campus';
         $data['page_title'] = $page_title;
         $data['page_desc'] = $page_desc;
@@ -34,23 +38,24 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function jadwal() {
+        if (!$this->require_student_financial_clearance('Jadwal Kuliah')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
 
-        // Jika diakses oleh Admin atau Dosen, tampilkan data mahasiswa (support ?student_id=..., default Arthur atau mahasiswa pertama)
+        // Jika diakses oleh Admin atau Dosen, tampilkan mahasiswa yang dipilih atau mahasiswa aktif pertama.
         if (!$is_mahasiswa) {
             $req_student_id = (int)$this->input->get('student_id');
             if ($req_student_id > 0) {
                 $akun_id = $req_student_id;
             } else {
-                $mhs = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                if (!$mhs) {
-                    $mhs = $this->db->get('akun_mahasiswa')->row();
-                }
-                if ($mhs) {
-                    $akun_id = (int)$mhs->id;
+                $students = $this->M_akademik->get_all_students_for_khs();
+                if (!empty($students)) {
+                    $akun_id = (int)$students[0]->id;
                 }
             }
         }
@@ -68,7 +73,7 @@ class Akademik extends MY_Role_Controller {
             'card_subtitle' => 'Daftar jadwal mata kuliah dan ruangan',
             'active_period' => $period,
             'student' => $account,
-            'krs' => $this->M_akademik->get_krs($akun_id, $period),
+            'krs' => $this->M_akademik->get_krs($akun_id, $period, 'DISETUJUI'),
         ];
         $this->load->view('templates/header', $data);
         $this->load->view('templates/topbar', $data);
@@ -78,8 +83,12 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function nilai() {
+        if (!$this->require_student_financial_clearance('Nilai Perkuliahan')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
@@ -92,8 +101,7 @@ class Akademik extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $akun_id = !empty($all_students) ? (int)$all_students[0]->id : $akun_id;
             }
         }
 
@@ -125,8 +133,12 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function khs() {
+        if (!$this->require_student_financial_clearance('Kartu Hasil Studi')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
@@ -139,8 +151,7 @@ class Akademik extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $akun_id = !empty($all_students) ? (int)$all_students[0]->id : $akun_id;
             }
         }
 
@@ -174,8 +185,12 @@ class Akademik extends MY_Role_Controller {
     }
 
     public function transkrip() {
+        if (!$this->require_student_financial_clearance('Transkrip Akademik')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
@@ -188,8 +203,7 @@ class Akademik extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $akun_id = !empty($all_students) ? (int)$all_students[0]->id : $akun_id;
             }
         }
 

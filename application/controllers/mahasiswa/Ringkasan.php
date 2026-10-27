@@ -13,15 +13,19 @@ class Ringkasan extends MY_Role_Controller {
     }
 
     public function index() {
+        if (!$this->require_student_financial_clearance('Ringkasan Aktivitas')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? 3 : (int)$raw_role;
         $is_admin = in_array($user_role, [1, 2], true);
         $is_dosen = ($user_role === 4);
 
         $akun_id = (int)$this->session->userdata('id');
 
-        // Jika diakses oleh Admin atau Dosen, izinkan memilih mahasiswa (default ke Arthur Tampi atau mahasiswa pertama)
+        // Jika diakses oleh Admin atau Dosen, izinkan memilih mahasiswa.
         $all_students = [];
         if ($is_admin || $is_dosen) {
             $all_students = $this->M_akademik->get_all_students_for_khs();
@@ -29,8 +33,7 @@ class Ringkasan extends MY_Role_Controller {
             if ($req_student_id > 0) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $akun_id = !empty($all_students) ? (int)$all_students[0]->id : $akun_id;
             }
         }
 

@@ -168,14 +168,6 @@ class M_akademik extends CI_Model
             }
         }
 
-        // Seeder otomatis akun dosen dan penugasan dosen wali mahasiswa
-        $this->ensure_default_lecturers_and_advisors();
-
-        // Seeder otomatis katalog mata kuliah multi-jurusan
-        $this->seed_comprehensive_offerings();
-
-        // Seeder otomatis KHS mahasiswa
-        $this->ensure_default_khs_data();
     }
 
     /**
@@ -1218,15 +1210,70 @@ class M_akademik extends CI_Model
      * Menyesuaikan kategori (Wajib, Jurusan, Luar Jurusan, Umum) secara dinamis & kontekstual
      * berdasarkan program studi mahasiswa yang aktif.
      */
-    public function get_offerings($prodi, $semester, $period)
+    public function has_curriculum_catalog_schema()
+    {
+        foreach (['kurikulum', 'kurikulum_mahasiswa', 'kurikulum_mata_kuliah', 'prasyarat_mata_kuliah', 'pemetaan_penawaran_mata_kuliah'] as $table) {
+            if (!$this->db->table_exists($table)) {
+                return false;
+            }
+        }
+        $fields = $this->db->list_fields('kurikulum_mata_kuliah');
+        $prerequisite_fields = $this->db->list_fields('prasyarat_mata_kuliah');
+        $offering_mapping_fields = $this->db->list_fields('pemetaan_penawaran_mata_kuliah');
+        return in_array('pola_semester', $fields, true)
+            && in_array('semester_akhir', $fields, true)
+            && in_array('jenis_relasi', $prerequisite_fields, true)
+            && in_array('program_studi_id', $offering_mapping_fields, true);
+    }
+
+    public function get_current_student_curriculum($student_id)
+    {
+        if (!$this->has_curriculum_catalog_schema() || (int)$student_id < 1) {
+            return null;
+        }
+
+        return $this->db->select('kurikulum_mahasiswa.kurikulum_id, kurikulum.kode, kurikulum.nama, program_studi.nama AS program_name')
+                        ->from('kurikulum_mahasiswa')
+                        ->join('kurikulum', 'kurikulum.id = kurikulum_mahasiswa.kurikulum_id', 'inner')
+                        ->join('program_studi', 'program_studi.id = kurikulum.program_studi_id', 'inner')
+                        ->where('kurikulum_mahasiswa.mahasiswa_id', (int)$student_id)
+                        ->where('kurikulum.status', 'ACTIVE')
+                        ->where('kurikulum_mahasiswa.berlaku_mulai <=', date('Y-m-d'))
+                        ->group_start()
+                            ->where('kurikulum_mahasiswa.berlaku_sampai IS NULL', null, false)
+                            ->or_where('kurikulum_mahasiswa.berlaku_sampai >=', date('Y-m-d'))
+                        ->group_end()
+                        ->order_by('kurikulum_mahasiswa.berlaku_mulai', 'DESC')
+                        ->order_by('kurikulum_mahasiswa.id', 'DESC')
+                        ->limit(1)
+                        ->get()
+                        ->row();
+    }
+
+    public function get_offerings($prodi, $semester, $period, $student_id = 0)
     {
         $thn = trim($period['tahun_akademik'] ?? '');
         $thn_prefix = explode('/', $thn)[0];
+        $curriculum_offering_ids = null;
+        if ((int)$student_id > 0 && $this->has_curriculum_catalog_schema()) {
+            $curriculum = $this->get_current_student_curriculum((int)$student_id);
+            $curriculum_offering_ids = $curriculum
+                && strtolower(trim((string)$prodi)) === strtolower(trim((string)$curriculum->program_name))
+                ? $this->get_curriculum_offering_ids((int)$curriculum->kurikulum_id, $period)
+                : [];
+        }
 
         $qb = $this->db->select('penawaran_matakuliah.*, dosen.nama_lengkap AS nama_dosen')
                        ->from('penawaran_matakuliah')
                        ->join('akun_biro AS dosen', 'dosen.id = penawaran_matakuliah.dosen_id', 'left')
                        ->where('penawaran_matakuliah.aktif', 1);
+        if ($curriculum_offering_ids !== null) {
+            if ($curriculum_offering_ids) {
+                $qb->where_in('penawaran_matakuliah.id', $curriculum_offering_ids);
+            } else {
+                $qb->where('1 = 0', null, false);
+            }
+        }
 
         if (!empty($thn)) {
             $qb->group_start()
@@ -1248,8 +1295,15 @@ class M_akademik extends CI_Model
             $offerings = $this->db->select('penawaran_matakuliah.*, dosen.nama_lengkap AS nama_dosen')
                                   ->from('penawaran_matakuliah')
                                   ->join('akun_biro AS dosen', 'dosen.id = penawaran_matakuliah.dosen_id', 'left')
-                                  ->where('penawaran_matakuliah.aktif', 1)
-                                  ->order_by("FIELD(penawaran_matakuliah.semester_akademik, '{$period['semester_akademik']}')", 'DESC', false)
+                                  ->where('penawaran_matakuliah.aktif', 1);
+            if ($curriculum_offering_ids !== null) {
+                if ($curriculum_offering_ids) {
+                    $this->db->where_in('penawaran_matakuliah.id', $curriculum_offering_ids);
+                } else {
+                    $this->db->where('1 = 0', null, false);
+                }
+            }
+            $offerings = $this->db->order_by("FIELD(penawaran_matakuliah.semester_akademik, '{$period['semester_akademik']}')", 'DESC', false)
                                   ->order_by('penawaran_matakuliah.semester', 'ASC')
                                   ->order_by("FIELD(penawaran_matakuliah.hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')", '', false)
                                   ->order_by('penawaran_matakuliah.waktu_mulai', 'ASC')
@@ -1316,7 +1370,107 @@ class M_akademik extends CI_Model
         return $offerings;
     }
 
-    public function get_krs($akun_id, $period = null)
+    private function get_curriculum_offering_ids($curriculum_id, array $period)
+    {
+        $term = strtoupper(trim((string)($period['semester_akademik'] ?? '')));
+        return array_map('intval', array_column(
+            $this->db->select('DISTINCT penawaran_matakuliah.id', false)
+                     ->from('penawaran_matakuliah')
+                     ->join('pemetaan_penawaran_mata_kuliah', 'pemetaan_penawaran_mata_kuliah.penawaran_id = penawaran_matakuliah.id', 'inner')
+                     ->join('kurikulum_mata_kuliah', 'kurikulum_mata_kuliah.mata_kuliah_id = pemetaan_penawaran_mata_kuliah.mata_kuliah_id', 'inner')
+                     ->join('kurikulum', 'kurikulum.id = kurikulum_mata_kuliah.kurikulum_id', 'inner')
+                     ->join('program_studi', 'program_studi.id = kurikulum.program_studi_id', 'inner')
+                     ->join('mata_kuliah', 'mata_kuliah.id = kurikulum_mata_kuliah.mata_kuliah_id', 'inner')
+                     ->where('kurikulum.id', (int)$curriculum_id)
+                     ->where('kurikulum.status', 'ACTIVE')
+                     ->where('kurikulum_mata_kuliah.status', 'ACTIVE')
+                     ->where('mata_kuliah.status', 'ACTIVE')
+                     ->where('penawaran_matakuliah.aktif', 1)
+                     ->where('penawaran_matakuliah.tahun_akademik', trim((string)($period['tahun_akademik'] ?? '')))
+                     ->where('penawaran_matakuliah.semester_akademik', ucfirst(strtolower($term)))
+                     ->group_start()
+                        ->where('pemetaan_penawaran_mata_kuliah.program_studi_id = kurikulum.program_studi_id', null, false)
+                        ->or_group_start()
+                            ->where('pemetaan_penawaran_mata_kuliah.program_studi_id IS NULL', null, false)
+                            ->where('LOWER(TRIM(penawaran_matakuliah.prodi)) = LOWER(TRIM(program_studi.nama))', null, false)
+                        ->group_end()
+                     ->group_end()
+                     ->group_start()
+                        ->where('kurikulum_mata_kuliah.pola_semester', 'SEMUA')
+                        ->or_where('kurikulum_mata_kuliah.pola_semester', $term)
+                     ->group_end()
+                     ->group_start()
+                        ->where('kurikulum_mata_kuliah.semester_akhir', 0)
+                        ->or_group_start()
+                            ->where('kurikulum_mata_kuliah.semester_akhir', 1)
+                            ->where('kurikulum_mata_kuliah.semester_rekomendasi = penawaran_matakuliah.semester', null, false)
+                        ->group_end()
+                     ->group_end()
+                     ->get()
+                     ->result_array(),
+            'id'
+        ));
+    }
+
+    private function validate_student_krs_curriculum($student, array $offering_ids, array $period)
+    {
+        if (!$this->has_curriculum_catalog_schema()) {
+            return null;
+        }
+        $curriculum = $this->get_current_student_curriculum((int)$student->id);
+        if (!$curriculum) {
+            return 'Kurikulum aktif belum ditetapkan untuk akun mahasiswa ini. Hubungi Biro Akademik sebelum menyimpan KRS.';
+        }
+        if (strtolower(trim((string)$student->prodi)) !== strtolower(trim((string)$curriculum->program_name))) {
+            return 'Program studi pada data mahasiswa tidak cocok dengan kurikulum aktif. Hubungi Biro Akademik untuk memperbaiki penetapan.';
+        }
+        if (!$offering_ids) {
+            return null;
+        }
+
+        $eligible_ids = $this->db->select('DISTINCT penawaran_matakuliah.id', false)
+                                 ->from('penawaran_matakuliah')
+                                 ->join('pemetaan_penawaran_mata_kuliah', 'pemetaan_penawaran_mata_kuliah.penawaran_id = penawaran_matakuliah.id', 'inner')
+                                 ->join('kurikulum_mata_kuliah', 'kurikulum_mata_kuliah.mata_kuliah_id = pemetaan_penawaran_mata_kuliah.mata_kuliah_id', 'inner')
+                                 ->join('kurikulum', 'kurikulum.id = kurikulum_mata_kuliah.kurikulum_id', 'inner')
+                                 ->join('program_studi', 'program_studi.id = kurikulum.program_studi_id', 'inner')
+                                 ->join('mata_kuliah', 'mata_kuliah.id = kurikulum_mata_kuliah.mata_kuliah_id', 'inner')
+                                 ->where_in('penawaran_matakuliah.id', $offering_ids)
+                                 ->where('penawaran_matakuliah.aktif', 1)
+                                 ->where('penawaran_matakuliah.tahun_akademik', trim((string)$period['tahun_akademik']))
+                                 ->where('penawaran_matakuliah.semester_akademik', $period['semester_akademik'])
+                                 ->group_start()
+                                    ->where('pemetaan_penawaran_mata_kuliah.program_studi_id = kurikulum.program_studi_id', null, false)
+                                    ->or_group_start()
+                                        ->where('pemetaan_penawaran_mata_kuliah.program_studi_id IS NULL', null, false)
+                                        ->where('LOWER(TRIM(penawaran_matakuliah.prodi)) = LOWER(TRIM(program_studi.nama))', null, false)
+                                    ->group_end()
+                                 ->group_end()
+                                 ->where('kurikulum.id', (int)$curriculum->kurikulum_id)
+                                 ->where('kurikulum.status', 'ACTIVE')
+                                 ->where('kurikulum_mata_kuliah.status', 'ACTIVE')
+                                 ->where('mata_kuliah.status', 'ACTIVE')
+                                 ->group_start()
+                                    ->where('kurikulum_mata_kuliah.pola_semester', 'SEMUA')
+                                    ->or_where('kurikulum_mata_kuliah.pola_semester', strtoupper($period['semester_akademik']))
+                                 ->group_end()
+                                 ->group_start()
+                                    ->where('kurikulum_mata_kuliah.semester_akhir', 0)
+                                    ->or_group_start()
+                                        ->where('kurikulum_mata_kuliah.semester_akhir', 1)
+                                        ->where('kurikulum_mata_kuliah.semester_rekomendasi = penawaran_matakuliah.semester', null, false)
+                                    ->group_end()
+                                 ->group_end()
+                                 ->get()
+                                 ->result_array();
+        if (count($eligible_ids) !== count($offering_ids)) {
+            return 'Pilihan KRS harus berasal dari penawaran aktif pada kurikulum, program studi, dan semester berjalan mahasiswa.';
+        }
+
+        return null;
+    }
+
+    public function get_krs($akun_id, $period = null, $required_status = null)
     {
         $qb = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali, validator.nama_lengkap AS nama_validator')
                        ->from('krs')
@@ -1330,35 +1484,36 @@ class M_akademik extends CI_Model
             $sem = trim($period['semester_akademik'] ?? '');
 
             if (!empty($thn)) {
-                $thn_prefix = explode('/', $thn)[0];
-                $qb->group_start()
-                   ->where('krs.tahun_akademik', $thn)
-                   ->or_like('krs.tahun_akademik', $thn_prefix, 'after')
-                   ->or_where('krs.tahun_akademik', $thn_prefix)
-                   ->or_like('krs.tahun_akademik', substr($thn_prefix, 0, 4), 'after')
-                   ->group_end();
+                $qb->where('krs.tahun_akademik', $thn);
             }
             if (!empty($sem)) {
-                $qb->where('LOWER(krs.semester_akademik)', strtolower($sem));
+                $qb->where('krs.semester_akademik', ucfirst(strtolower($sem)));
             }
+        }
+
+        if (!empty($required_status)) {
+            $qb->where('krs.status', strtoupper($required_status));
         }
 
         $qb->order_by("FIELD(krs.status, 'DISETUJUI', 'MENUNGGU', 'DRAFT', 'DITOLAK')", '', false);
         $qb->order_by('krs.id', 'DESC');
         $krs = $qb->get()->row();
 
-        // Fallback jika tidak ditemukan dengan filter spesifik periode: ambil KRS aktif terbaru mahasiswa
-        if (!$krs) {
-            $krs = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali, validator.nama_lengkap AS nama_validator')
-                            ->from('krs')
-                            ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
-                            ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
-                            ->join('akun_biro AS validator', 'validator.id = krs.diproses_oleh', 'left')
-                            ->where('krs.akun_id', (int)$akun_id)
-                            ->order_by("FIELD(krs.status, 'DISETUJUI', 'MENUNGGU', 'DRAFT', 'DITOLAK')", '', false)
-                            ->order_by('krs.id', 'DESC')
-                            ->get()
-                            ->row();
+        // Permintaan untuk periode tertentu tidak boleh mengambil KRS dari semester lain.
+        if (!$krs && empty($period)) {
+            $fallback_query = $this->db->select('krs.*, dosen.nama_lengkap AS nama_dosen_wali, validator.nama_lengkap AS nama_validator')
+                                       ->from('krs')
+                                       ->join('dosen_wali', 'dosen_wali.mahasiswa_id = krs.akun_id', 'left')
+                                       ->join('akun_biro AS dosen', 'dosen.id = dosen_wali.dosen_id', 'left')
+                                       ->join('akun_biro AS validator', 'validator.id = krs.diproses_oleh', 'left')
+                                       ->where('krs.akun_id', (int)$akun_id);
+            if (!empty($required_status)) {
+                $fallback_query->where('krs.status', strtoupper($required_status));
+            }
+            $krs = $fallback_query->order_by("FIELD(krs.status, 'DISETUJUI', 'MENUNGGU', 'DRAFT', 'DITOLAK')", '', false)
+                                  ->order_by('krs.id', 'DESC')
+                                  ->get()
+                                  ->row();
         }
 
         if (!$krs) {
@@ -1377,19 +1532,8 @@ class M_akademik extends CI_Model
 
         $mhs = $this->get_account($akun_id);
         $student_prodi = $mhs ? $mhs->prodi : '';
-        $real_sks = 0;
         foreach ($krs->mata_kuliah as $mk) {
-            // Pastikan dosen pengampu tidak kosong / '-'
-            if (empty($mk->nama_dosen) || trim($mk->nama_dosen) === '-' || trim($mk->nama_dosen) === '') {
-                $lec_info = self::resolve_default_lecturer($mk);
-                $mk->nama_dosen = $lec_info['nama'];
-                if (!empty($mk->id)) {
-                    $lec_account = $this->db->where('nim', $lec_info['nim'])->where('role', 4)->get('akun_biro')->row();
-                    if ($lec_account) {
-                        $this->db->where('id', (int)$mk->id)->update('penawaran_matakuliah', ['dosen_id' => (int)$lec_account->id]);
-                    }
-                }
-            }
+            $mk->nama_dosen = !empty($mk->nama_dosen) ? $mk->nama_dosen : '-';
 
             $cat = self::resolve_course_category($mk, $student_prodi);
             $mk->kategori_kontekstual = $cat['kategori'];
@@ -1397,12 +1541,6 @@ class M_akademik extends CI_Model
             $mk->kategori_badge_class = $cat['badge_class'];
             $mk->is_own_major         = $cat['is_own_major'];
             $mk->prodi_asal           = $cat['prodi_asal'];
-            $real_sks += (int)($mk->sks ?? 0);
-        }
-
-        if ($real_sks > 0 && (int)$krs->total_sks !== $real_sks) {
-            $krs->total_sks = $real_sks;
-            $this->db->where('id', (int)$krs->id)->update('krs', ['total_sks' => $real_sks]);
         }
 
         return $krs;
@@ -1608,6 +1746,9 @@ class M_akademik extends CI_Model
      */
     public function get_compulsory_courses($prodi, $student_id = null)
     {
+        if ($student_id && $this->has_curriculum_catalog_schema()) {
+            return $this->get_assigned_curriculum_courses((int)$student_id);
+        }
         $courses = $this->get_curriculum_master($prodi);
         if (!$student_id) {
             return $courses;
@@ -1741,6 +1882,54 @@ class M_akademik extends CI_Model
             }
         }
         unset($c);
+
+        return $courses;
+    }
+
+    private function get_assigned_curriculum_courses($student_id)
+    {
+        $curriculum = $this->get_current_student_curriculum((int)$student_id);
+        $student = $this->get_account((int)$student_id);
+        if (!$curriculum || !$student
+            || strtolower(trim((string)$student->prodi)) !== strtolower(trim((string)$curriculum->program_name))) {
+            return [];
+        }
+
+        $courses = $this->db->select('mata_kuliah.kode AS kode_mk, mata_kuliah.nama AS nama_mk, kurikulum_mata_kuliah.semester_rekomendasi AS semester, kurikulum_mata_kuliah.sks, kurikulum_mata_kuliah.semester_akhir')
+                            ->from('kurikulum_mata_kuliah')
+                            ->join('mata_kuliah', 'mata_kuliah.id = kurikulum_mata_kuliah.mata_kuliah_id', 'inner')
+                            ->where('kurikulum_mata_kuliah.kurikulum_id', (int)$curriculum->kurikulum_id)
+                            ->where('kurikulum_mata_kuliah.status', 'ACTIVE')
+                            ->where('kurikulum_mata_kuliah.wajib', 1)
+                            ->where('mata_kuliah.status', 'ACTIVE')
+                            ->order_by('kurikulum_mata_kuliah.semester_rekomendasi', 'ASC')
+                            ->order_by('mata_kuliah.kode', 'ASC')
+                            ->get()
+                            ->result_array();
+        $active_period = $this->get_active_period();
+        $krs = $this->get_krs($student_id, $active_period);
+        $taken_codes = [];
+        foreach ($krs->mata_kuliah ?? [] as $course) {
+            $taken_codes[strtoupper(trim((string)$course->kode_mk))] = true;
+        }
+
+        $grades = [];
+        $grade_rows = $this->db->select('kode_mk, nilai_huruf')
+                               ->where('akun_id', (int)$student_id)
+                               ->get('khs_nilai')
+                               ->result();
+        foreach ($grade_rows as $grade) {
+            $grades[strtoupper(trim((string)$grade->kode_mk))] = $grade->nilai_huruf;
+        }
+
+        foreach ($courses as &$course) {
+            $code = strtoupper(trim((string)$course['kode_mk']));
+            $course['nilai'] = $grades[$code] ?? '';
+            $course['is_terambil'] = isset($taken_codes[$code]);
+            $course['keterangan'] = $course['is_terambil'] ? 'Terambil' : '';
+            $course['is_highlight'] = !empty($course['semester_akhir']);
+        }
+        unset($course);
 
         return $courses;
     }
@@ -1947,6 +2136,10 @@ class M_akademik extends CI_Model
             if (count($offerings) !== count($ids)) {
                 return ['success' => false, 'message' => 'Satu atau lebih mata kuliah sudah tidak tersedia. Muat ulang halaman dan periksa pilihan Anda.'];
             }
+        }
+        $curriculum_error = $this->validate_student_krs_curriculum($student, $ids, $period);
+        if ($curriculum_error !== null) {
+            return ['success' => false, 'message' => $curriculum_error];
         }
 
         $total_sks = 0;
@@ -3607,77 +3800,28 @@ class M_akademik extends CI_Model
         $this->db->where('semester_mhs', (int)$chosen_period['semester_mhs']);
         $raw_courses = $this->db->order_by('id', 'ASC')->get('khs_nilai')->result();
 
-        // Siapkan mapping dosen default
-        $dosen_lookup = [
-            'IF24KK42' => 'Mukhlis Amien, M.Kom',
-            'MI20KB41' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
-            'MI20KB42' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
-            'MI20KB43' => 'Setiabudi Sakaria, M.Kom',
-            'MI20KB44' => 'Windarini Cahyadiana, S.E., M.M',
-            'MI20KB45' => 'Sugeng Widodo, S.Kom., M.Kom',
-            'MU24PB41' => 'Dr.Savitri, S.E., M.M.,Yekti Asmoro Kanthi, S.Si., M.A.B,Yosart Adi Suyoso, S.AB., MBA',
-            'TI-101' => 'Sugeng Widodo, S.Kom., M.Kom',
-            'TI-102' => 'Mukhlis Amien, M.Kom',
-            'TI-103' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
-            'TI-104' => 'Setiabudi Sakaria, M.Kom',
-            'KU-101' => 'Dr. Ir. Hendra Setiawan, M.T.',
-            'KU-102' => 'Dr. Maya Sartika, S.E., M.Ak.',
-            'KU-103' => 'Windarini Cahyadiana, S.E., M.M',
-            'KU-104' => 'Sugeng Widodo, S.Kom., M.Kom',
-            'TI-201' => 'Sugeng Widodo, S.Kom., M.Kom',
-            'TI-202' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
-            'TI-203' => 'Mukhlis Amien, M.Kom',
-            'TI-204' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
-            'TI-205' => 'Setiabudi Sakaria, M.Kom',
-            'TI-206' => 'Dr. Ir. Hendra Setiawan, M.T.',
-            'KU-201' => 'Dr. Maya Sartika, S.E., M.Ak.',
-            'TI-301' => 'Sugeng Widodo, S.Kom., M.Kom',
-            'TI-302' => 'Setiabudi Sakaria, M.Kom',
-            'TI-303' => 'Mukhlis Amien, M.Kom',
-            'TI-304' => 'Koko Wahyu Prasetyo, S.Kom, M.TI',
-            'TI-305' => 'Dr. Ir. Hendra Setiawan, M.T.',
-            'TI-306' => 'Chaulina Alfianti Oktavia, S.Kom., M.T',
-            'TI-307' => 'Dr. Maya Sartika, S.E., M.Ak.',
-        ];
-
         $courses = [];
         $no = 1;
         foreach ($raw_courses as $c) {
-            $grade = strtoupper(trim($c->nilai_huruf));
+            $grade = strtoupper(trim($c->nilai_huruf ?? ''));
 
-            // Nilai angka
-            $nilai_angka = !empty($c->nilai_angka) ? (float)$c->nilai_angka : null;
-            if ($nilai_angka === null) {
-                $seed = abs(crc32($c->kode_mk . $c->id));
-                if ($grade === 'A') {
-                    $nilai_angka = 85.00 + round(fmod($seed, 11.5), 2);
-                } elseif ($grade === 'A-') {
-                    $nilai_angka = 80.00 + round(fmod($seed, 4.5), 2);
-                } elseif ($grade === 'B+') {
-                    $nilai_angka = 75.00 + round(fmod($seed, 4.5), 2);
-                } elseif ($grade === 'B') {
-                    $nilai_angka = 70.00 + round(fmod($seed, 4.5), 2);
-                } elseif ($grade === 'C+') {
-                    $nilai_angka = 65.00 + round(fmod($seed, 4.5), 2);
-                } elseif ($grade === 'C') {
-                    $nilai_angka = 56.00 + round(fmod($seed, 8.5), 2);
-                } elseif ($grade === 'D') {
-                    $nilai_angka = 45.00 + round(fmod($seed, 9.5), 2);
-                } else {
-                    $nilai_angka = 30.00;
-                }
-            }
+            $nilai_angka = isset($c->nilai_angka) && $c->nilai_angka !== ''
+                ? (float)$c->nilai_angka
+                : null;
 
             // Dosen
-            $dosen = !empty($c->dosen_pengampu) ? $c->dosen_pengampu : ($dosen_lookup[$c->kode_mk] ?? 'Sugeng Widodo, S.Kom., M.Kom');
+            $dosen = !empty($c->dosen_pengampu) ? $c->dosen_pengampu : '-';
 
             // Kelas
             $kelas = !empty($c->kelas) ? $c->kelas : 'A';
 
             // Format angka
-            $display_angka = ((int)$nilai_angka == $nilai_angka) ? (string)(int)$nilai_angka : number_format($nilai_angka, 2, '.', '');
-            if (substr($display_angka, -1) === '0' && strpos($display_angka, '.') !== false) {
-                $display_angka = rtrim(rtrim($display_angka, '0'), '.');
+            $display_angka = '-';
+            if ($nilai_angka !== null) {
+                $display_angka = ((int)$nilai_angka == $nilai_angka) ? (string)(int)$nilai_angka : number_format($nilai_angka, 2, '.', '');
+                if (substr($display_angka, -1) === '0' && strpos($display_angka, '.') !== false) {
+                    $display_angka = rtrim(rtrim($display_angka, '0'), '.');
+                }
             }
 
             $c->no = $no++;
@@ -4110,5 +4254,3 @@ class M_akademik extends CI_Model
         ];
     }
 }
-
-

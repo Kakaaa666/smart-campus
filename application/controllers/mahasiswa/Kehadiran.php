@@ -12,8 +12,12 @@ class Kehadiran extends MY_Role_Controller {
     }
 
     public function index() {
+        if (!$this->require_student_financial_clearance('Kehadiran Kuliah')) {
+            return;
+        }
+
         $raw_role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($raw_role === null) || (int)$raw_role === 3;
         $user_role = $is_mahasiswa ? null : (int)$raw_role;
         $akun_id = (int)$this->session->userdata('id');
         $is_admin = in_array($user_role, [1, 2], true);
@@ -26,8 +30,7 @@ class Kehadiran extends MY_Role_Controller {
             if ($req_student_id) {
                 $akun_id = $req_student_id;
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $akun_id = !empty($all_students) ? (int)$all_students[0]->id : $akun_id;
             }
         }
 
@@ -58,4 +61,3 @@ class Kehadiran extends MY_Role_Controller {
         $this->load->view('templates/footer', $data);
     }
 }
-

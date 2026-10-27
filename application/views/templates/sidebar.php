@@ -32,15 +32,6 @@ if ($current_role === 2) {
     $dashboard_label = 'Dashboard';
 }
 ?>
-                    <style>
-                        /* Memperbaiki teks menu yang terpotong di sidebar */
-                        .pcoded-navbar .pcoded-inner-navbar li > a > .pcoded-mtext {
-                            font-size: 13.5px !important;
-                            letter-spacing: -0.2px !important;
-                            white-space: normal !important;
-                            line-height: 1.4 !important;
-                        }
-                    </style>
                     <nav class="pcoded-navbar">
                         <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
                         <div class="pcoded-inner-navbar main-menu">
@@ -100,7 +91,7 @@ if ($current_role === 2) {
                                         <li><a href="<?= base_url('superadmin/akademik/kurikulum') ?>"><span class="pcoded-mtext">Kurikulum</span></a></li>
                                         <li><a href="<?= base_url('superadmin/akademik/matakuliah') ?>"><span class="pcoded-mtext">Mata Kuliah</span></a></li>
                                         <li><a href="<?= base_url('superadmin/akademik/kalender') ?>"><span class="pcoded-mtext">Kalender Akademik</span></a></li>
-                                        <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>"><span class="pcoded-mtext">Master Katalog Akademik</span></a></li>
+                                        <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>"><span class="pcoded-mtext">Data Center Kurikulum</span></a></li>
                                     </ul>
                                 </li>
                                 <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'perpustakaan') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/perpustakaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Biro Perpustakaan</span><span class="pcoded-mcaret"></span></a></li>
@@ -203,7 +194,7 @@ if ($current_role === 2) {
                                 ?>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) !== 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Operasional Akademik</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) === 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik/khs') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">KHS Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-sitemap"></i></span><span class="pcoded-mtext">Master Katalog Akademik</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-sitemap"></i></span><span class="pcoded-mtext">Data Center Kurikulum</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'pengguna') ? 'active' : '' ?>"><a href="<?= base_url('admin/pengguna') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Data Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'admin' && $seg2 === 'skpi') ? 'active' : '' ?>">
                                     <a href="<?= base_url('admin/skpi') ?>" class="waves-effect waves-dark">

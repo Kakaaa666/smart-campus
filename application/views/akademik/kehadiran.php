@@ -856,11 +856,11 @@ if (!function_exists('render_badge_kehadiran')) {
                                                                     <p class="text-muted small mb-0" style="max-width: 520px; margin: 0 auto; line-height: 1.6;">
                                                                         <?php if (!empty($selected_period['is_active'])): ?>
                                                                             <?php if (empty($kehadiran_data['krs'])): ?>
-                                                                                Mahasiswa belum mengajukan Rencana Studi (KRS) untuk semester ini. Data kehadiran otomatis disinkronkan setelah KRS diajukan dan disetujui oleh Dosen Wali.
+                                                                                Mahasiswa belum mengajukan Rencana Studi (KRS) untuk semester ini. Mata kuliah kehadiran akan tersedia setelah KRS disetujui.
                                                                             <?php elseif (($kehadiran_data['krs_status'] ?? '') !== 'DISETUJUI'): ?>
                                                                                 Status KRS mahasiswa saat ini masih <strong><?= htmlspecialchars($kehadiran_data['krs_status'] ?? 'DRAFT') ?></strong>. Jadwal dan kehadiran aktif setelah KRS disetujui oleh Dosen Wali.
                                                                             <?php else: ?>
-                                                                                Belum ada mata kuliah yang terdaftar pada semester ini.
+                                                                                KRS telah disetujui, tetapi belum ada catatan kehadiran dari dosen.
                                                                             <?php endif; ?>
                                                                         <?php else: ?>
                                                                             Tidak ada rekaman perkuliahan untuk periode semester ini.
@@ -876,13 +876,13 @@ if (!function_exists('render_badge_kehadiran')) {
                                                                 <td class="mk-kode"><?= htmlspecialchars($c->kode_mk) ?></td>
                                                                 <td class="mk-nama"><?= htmlspecialchars($c->nama_mk) ?></td>
                                                                 <td class="mk-kelas"><?= htmlspecialchars($c->kelas) ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->terselenggara ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->hadir ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->sakit ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->ijin ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->tugas ?></td>
-                                                                <td class="col-center font-weight-500"><?= $c->tidak_hadir ?></td>
-                                                                <td class="mk-persen"><?= htmlspecialchars($c->persentase_hadir) ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->terselenggara ?? '-' ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->hadir ?? '-' ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->sakit ?? '-' ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->ijin ?? '-' ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->tugas ?? '-' ?></td>
+                                                                <td class="col-center font-weight-500"><?= $c->tidak_hadir ?? '-' ?></td>
+                                                                <td class="mk-persen"><?= htmlspecialchars($c->persentase_hadir ?: '-') ?></td>
                                                                 <td class="col-center">
                                                                     <a href="javascript:void(0)" class="btn-detil-icon" onclick="openDetailModal(<?= $idx ?>)" title="Lihat Rincian Pertemuan & Absensi">
                                                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0288d1" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
@@ -948,7 +948,7 @@ if (!function_exists('render_badge_kehadiran')) {
                                                                     <h6 class="font-weight-bold text-dark mb-1">Belum Ada Riwayat Pertemuan</h6>
                                                                     <p class="text-muted small mb-0">
                                                                         <?php if (!empty($selected_period['is_active'])): ?>
-                                                                            Presensi per pertemuan hanya aktif untuk mata kuliah yang telah disetujui pada KRS.
+                                                                            Rekap presensi tampil setelah dosen mencatat pertemuan pada mata kuliah yang disetujui.
                                                                         <?php else: ?>
                                                                             Tidak ada rekaman pertemuan pada periode ini.
                                                                         <?php endif; ?>
@@ -968,7 +968,7 @@ if (!function_exists('render_badge_kehadiran')) {
 
                                                                 <!-- Ke-1 s/d Ke-6 -->
                                                                 <?php for ($p = 1; $p <= 6; $p++): 
-                                                                    $st = $c->meetings[$p - 1]['status'] ?? 'BELUM';
+                                                                    $st = $c->meetings[$p - 1]['status'] ?? '';
                                                                 ?>
                                                                     <td class="col-center"><?= render_badge_kehadiran($st) ?></td>
                                                                 <?php endfor; ?>
@@ -985,7 +985,7 @@ if (!function_exists('render_badge_kehadiran')) {
 
                                                                 <!-- Ke-7 s/d Ke-16 -->
                                                                 <?php for ($p = 7; $p <= 16; $p++): 
-                                                                    $st = $c->meetings[$p - 1]['status'] ?? 'BELUM';
+                                                                    $st = $c->meetings[$p - 1]['status'] ?? '';
                                                                 ?>
                                                                     <td class="col-center"><?= render_badge_kehadiran($st) ?></td>
                                                                 <?php endfor; ?>
@@ -1010,7 +1010,7 @@ if (!function_exists('render_badge_kehadiran')) {
                                             <i class="feather icon-book-open text-muted mb-2" style="font-size: 32px; display: inline-block;"></i>
                                             <h6 class="font-weight-bold text-dark mb-1">Pertemuan Kelas Belum Tersedia</h6>
                                             <p class="text-muted small mb-0">
-                                                Detail silabus dan pertemuan kelas akan ditampilkan setelah Rencana Studi (KRS) disetujui Dosen Wali.
+                                                Detail mata kuliah tampil setelah KRS disetujui; rekap pertemuan muncul setelah dosen menginput presensi.
                                             </p>
                                         </div>
                                     <?php else: ?>
@@ -1036,14 +1036,14 @@ if (!function_exists('render_badge_kehadiran')) {
                                                 <div class="info-label">Program Studi</div>
                                                 <div class="info-sep">:</div>
                                                 <div class="info-value" id="tab3Prodi">
-                                                    <?= htmlspecialchars($student->prodi ?? 'Sistem Informasi') ?>
+                                                    <?= htmlspecialchars($student->prodi ?? '-') ?>
                                                 </div>
                                             </div>
                                             <div class="info-card-row">
                                                 <div class="info-label">Periode</div>
                                                 <div class="info-sep">:</div>
                                                 <div class="info-value" id="tab3Periode">
-                                                    <?= htmlspecialchars($selected_period['label'] ?? '2026 Ganjil') ?>
+                                                    <?= htmlspecialchars($selected_period['label'] ?? '-') ?>
                                                 </div>
                                             </div>
                                             <div class="info-card-row">
@@ -1242,7 +1242,7 @@ if (!function_exists('render_badge_kehadiran')) {
             </div>
 
             <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
-                <small class="text-muted"><i class="feather icon-check-circle text-success mr-1"></i> Data diverifikasi secara otomatis oleh sistem presensi Smart Campus</small>
+                <small class="text-muted"><i class="feather icon-info text-info mr-1"></i> Rekap kehadiran akan tampil setelah dosen mencatat pertemuan kuliah.</small>
                 <div>
                     <button type="button" class="btn btn-secondary btn-sm px-3" data-dismiss="modal">Tutup</button>
                     <button type="button" class="btn btn-primary btn-sm px-3 ml-2" onclick="window.print()">
@@ -1321,7 +1321,7 @@ function openDetailModal(courseIdx) {
     document.getElementById('modalNamaDosen').innerText = c.dosen || '-';
     document.getElementById('modalJadwal').innerText = c.jadwal || '-';
     
-    var persenText = c.persentase_hadir || '0.00%';
+    var persenText = c.persentase_hadir || '-';
     document.getElementById('modalPersentaseHadir').innerText = persenText;
     var numVal = parseFloat(persenText) || 0;
     var pBar = document.getElementById('modalPercentageBar');
@@ -1339,12 +1339,12 @@ function openDetailModal(courseIdx) {
         }
     }
 
-    document.getElementById('modalStatTerselenggara').innerText = c.terselenggara;
-    document.getElementById('modalStatHadir').innerText = c.hadir;
-    document.getElementById('modalStatSakit').innerText = c.sakit;
-    document.getElementById('modalStatIjin').innerText = c.ijin;
-    document.getElementById('modalStatTugas').innerText = c.tugas;
-    document.getElementById('modalStatAlpha').innerText = c.tidak_hadir;
+    document.getElementById('modalStatTerselenggara').innerText = c.terselenggara ?? '-';
+    document.getElementById('modalStatHadir').innerText = c.hadir ?? '-';
+    document.getElementById('modalStatSakit').innerText = c.sakit ?? '-';
+    document.getElementById('modalStatIjin').innerText = c.ijin ?? '-';
+    document.getElementById('modalStatTugas').innerText = c.tugas ?? '-';
+    document.getElementById('modalStatAlpha').innerText = c.tidak_hadir ?? '-';
 
     var tbody = document.getElementById('modalMeetingsTableBody');
     tbody.innerHTML = '';
@@ -1373,6 +1373,8 @@ function openDetailModal(courseIdx) {
                            '<td class="text-muted small" style="white-space: pre-line;">' + escapeHtml(m.pengajar) + '</td>';
             tbody.appendChild(tr);
         });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Belum ada pertemuan yang dicatat dosen.</td></tr>';
     }
 
     if (window.jQuery) {
