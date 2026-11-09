@@ -132,37 +132,65 @@ class Akademik extends MY_Role_Controller {
         $is_admin = in_array($user_role, [1, 2], true);
         $is_dosen = ($user_role === 4);
 
-        $all_students = [];
-        if ($is_admin || $is_dosen) {
-            $all_students = $this->M_akademik->get_all_students_for_khs();
-            $req_student_id = (int)$this->input->get('student_id');
-            if ($req_student_id) {
-                $akun_id = $req_student_id;
-            } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
-            }
+        $filters = [
+            'prodi'    => $this->input->get('prodi', true) ?: '',
+            'angkatan' => $this->input->get('angkatan', true) ?: '',
+            'semester' => $this->input->get('semester', true) ?: '',
+            'status'   => $this->input->get('status', true) ?: '',
+            'q'        => $this->input->get('q', true) ?: '',
+        ];
+        if ($is_dosen && !$is_admin) {
+            $filters['dosen_id'] = $akun_id;
         }
 
-        $selected_period = $this->input->get('periode', true);
-        $jenis = $this->input->get('jenis', true) ?: 'khs';
+        $all_students = [];
+        $students_list = [];
+        $prodi_options = [];
+        $angkatan_options = [];
+        $khs_data = null;
+        $selected_student_id = 0;
 
-        $khs_data = $this->M_akademik->get_student_khs_data($akun_id, $selected_period, $jenis);
-        if (!$khs_data) {
-            show_error('Data mahasiswa tidak ditemukan.', 404);
-            return;
+        if ($is_admin || $is_dosen) {
+            $all_students = $this->M_akademik->get_all_students_for_khs();
+            $prodi_options = $this->M_akademik->get_khs_prodi_options();
+            $angkatan_options = $this->M_akademik->get_khs_angkatan_options();
+            $req_student_id = (int)$this->input->get('student_id');
+
+            if ($req_student_id > 0) {
+                $selected_student_id = $req_student_id;
+                $selected_period = $this->input->get('periode', true);
+                $jenis = $this->input->get('jenis', true) ?: 'khs';
+                $khs_data = $this->M_akademik->get_student_khs_data($selected_student_id, $selected_period, $jenis);
+            } else {
+                $students_list = $this->M_akademik->get_filtered_students_for_khs($filters);
+            }
+        } else {
+            // Mahasiswa melihat KHS miliknya sendiri secara langsung
+            $selected_student_id = $akun_id;
+            $selected_period = $this->input->get('periode', true);
+            $jenis = $this->input->get('jenis', true) ?: 'khs';
+            $khs_data = $this->M_akademik->get_student_khs_data($selected_student_id, $selected_period, $jenis);
         }
 
         $data = [
             'title' => 'Kartu Hasil Studi (KHS) - Smart Campus',
             'page_title' => 'Kartu Hasil Studi',
-            'page_desc' => 'Informasi KHS per semester mahasiswa dan pencetakan hasil studi resmi.',
+            'page_desc' => 'Pencarian dan monitoring Kartu Hasil Studi (KHS) mahasiswa.',
             'card_subtitle' => 'Kartu Hasil Studi',
             'khs_data' => $khs_data,
+            'students_list' => $students_list,
+            'total_students' => count($students_list),
+            'prodi_options' => $prodi_options,
+            'angkatan_options' => $angkatan_options,
+            'filters' => $filters,
             'all_students' => $all_students,
-            'selected_student_id' => $akun_id,
+            'selected_student_id' => $selected_student_id,
             'is_admin' => $is_admin,
             'is_dosen' => $is_dosen,
+            'selected_jenis' => $this->input->get('jenis', true) ?: 'khs',
+            'active_tab' => 'nilai',
+            'obe_attainment' => null,
+            'obe_filter_semester' => 'all',
             'current_role' => ($user_role === 1 ? 'superadmin' : ($user_role === 2 ? 'admin' : ($user_role === 4 ? 'dosen' : 'mahasiswa')))
         ];
 
@@ -181,30 +209,74 @@ class Akademik extends MY_Role_Controller {
         $is_admin = in_array($user_role, [1, 2], true);
         $is_dosen = ($user_role === 4);
 
+        $filters = [
+            'prodi'    => $this->input->get('prodi', true) ?: '',
+            'angkatan' => $this->input->get('angkatan', true) ?: '',
+            'semester' => $this->input->get('semester', true) ?: '',
+            'status'   => $this->input->get('status', true) ?: '',
+            'q'        => $this->input->get('q', true) ?: '',
+        ];
+        if ($is_dosen && !$is_admin) {
+            $filters['dosen_id'] = $akun_id;
+        }
+
         $all_students = [];
+        $students_list = [];
+        $prodi_options = [];
+        $angkatan_options = [];
+        $khs_data = null;
+        $selected_student_id = 0;
+
         if ($is_admin || $is_dosen) {
             $all_students = $this->M_akademik->get_all_students_for_khs();
+            $prodi_options = $this->M_akademik->get_khs_prodi_options();
+            $angkatan_options = $this->M_akademik->get_khs_angkatan_options();
             $req_student_id = (int)$this->input->get('student_id');
-            if ($req_student_id) {
-                $akun_id = $req_student_id;
+
+            if ($req_student_id > 0) {
+                $selected_student_id = $req_student_id;
+                $khs_data = $this->M_akademik->get_student_khs_data($selected_student_id, null, 'transkrip');
             } else {
-                $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-                $akun_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : $akun_id);
+                $students_list = $this->M_akademik->get_filtered_students_for_khs($filters);
+            }
+        } else {
+            $selected_student_id = $akun_id;
+            $khs_data = $this->M_akademik->get_student_khs_data($selected_student_id, null, 'transkrip');
+        }
+
+        $this->load->model('M_obe');
+        $tab = $this->input->get('tab', true) ?: 'nilai';
+        $semester_filter = $this->input->get('semester_obe', true) ?: ($this->input->get('semester', true) ?: 'all');
+        $filter_semester = (!empty($semester_filter) && $semester_filter !== 'all') ? (int)$semester_filter : 'all';
+
+        $obe_attainment = null;
+        if ($selected_student_id > 0) {
+            try {
+                $obe_attainment = $this->M_obe->get_student_obe_attainment($selected_student_id, $filter_semester);
+            } catch (\Throwable $e) {
+                log_message('error', 'Error get_student_obe_attainment: ' . $e->getMessage());
             }
         }
 
-        $khs_data = $this->M_akademik->get_student_khs_data($akun_id, null, 'transkrip');
         $data = [
-            'title' => 'Transkrip Akademik - Smart Campus',
-            'page_title' => 'Transkrip Akademik',
-            'page_desc' => 'Daftar rekapitulasi seluruh nilai mahasiswa kumulatif.',
-            'card_subtitle' => 'Transkrip Nilai Kumulatif',
+            'title' => 'Transkrip Akademik & Capaian OBE - Smart Campus',
+            'page_title' => 'Transkrip Akademik & OBE',
+            'page_desc' => 'Daftar rekapitulasi seluruh nilai mahasiswa kumulatif dan evaluasi ketercapaian OBE (CPL & CPMK).',
+            'card_subtitle' => 'Transkrip Nilai Kumulatif & OBE',
             'khs_data' => $khs_data,
+            'students_list' => $students_list,
+            'total_students' => count($students_list),
+            'prodi_options' => $prodi_options,
+            'angkatan_options' => $angkatan_options,
+            'filters' => $filters,
             'all_students' => $all_students,
-            'selected_student_id' => $akun_id,
+            'selected_student_id' => $selected_student_id,
             'is_admin' => $is_admin,
             'is_dosen' => $is_dosen,
             'selected_jenis' => 'transkrip',
+            'active_tab' => $tab,
+            'obe_attainment' => $obe_attainment,
+            'obe_filter_semester' => $filter_semester,
             'current_role' => ($user_role === 1 ? 'superadmin' : ($user_role === 2 ? 'admin' : ($user_role === 4 ? 'dosen' : 'mahasiswa')))
         ];
 

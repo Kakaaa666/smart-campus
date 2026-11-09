@@ -68,7 +68,19 @@ if ($current_role === 2) {
                                     </a>
                                 </li>
                                 <?php else: ?>
-                                <li class="<?= ($this->uri->uri_string() === $dashboard_route) ? 'active' : '' ?>">
+                                <?php
+                                    $is_top_dashboard_active = false;
+                                    if ($current_role === 2 && $current_bureau === 'akademik') {
+                                        $is_top_dashboard_active = ($seg1 === 'admin' && $seg2 === 'akademik' && in_array((string)$this->uri->segment(3), ['', 'index', 'dashboard'], true));
+                                    } elseif ($current_role === 2 && $current_bureau === 'keuangan') {
+                                        $is_top_dashboard_active = ($seg1 === 'keuangan' && in_array($seg2, ['admin', 'index', ''], true));
+                                    } elseif ($current_role === 4) {
+                                        $is_top_dashboard_active = ($seg1 === 'dosen' && in_array((string)$this->uri->segment(2), ['', 'index'], true));
+                                    } else {
+                                        $is_top_dashboard_active = ($this->uri->uri_string() === $dashboard_route);
+                                    }
+                                ?>
+                                <li class="<?= $is_top_dashboard_active ? 'active' : '' ?>">
                                     <a href="<?= base_url($dashboard_route) ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-home icon-blue"></i></span>
                                         <span class="pcoded-mtext"><?= html_escape($dashboard_label) ?></span>
@@ -89,18 +101,18 @@ if ($current_role === 2) {
                                         <li><a href="<?= base_url('superadmin/keuangan/laporan') ?>"><span class="pcoded-mtext">Laporan Rektorat</span></a></li>
                                     </ul>
                                 </li>
-                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik') ? 'pcoded-trigger active' : '' ?>">
+                                <li class="pcoded-hasmenu <?= ($seg1 == 'akademik' || ($seg1 == 'superadmin' && $seg2 == 'akademik')) ? 'pcoded-trigger active' : '' ?>">
                                     <a href="javascript:void(0)" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Biro Akademik</span><span class="pcoded-mcaret"></span></a>
                                     <ul class="pcoded-submenu">
                                         <li><a href="<?= base_url('beranda') ?>"><span class="pcoded-mtext">Kembali ke Pusat Kendali</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/jadwal') ?>"><span class="pcoded-mtext">Jadwal</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/nilai') ?>"><span class="pcoded-mtext">Nilai</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/khs') ?>"><span class="pcoded-mtext">KHS</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/transkrip') ?>"><span class="pcoded-mtext">Transkrip</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/kurikulum') ?>"><span class="pcoded-mtext">Kurikulum</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/matakuliah') ?>"><span class="pcoded-mtext">Mata Kuliah</span></a></li>
-                                        <li><a href="<?= base_url('superadmin/akademik/kalender') ?>"><span class="pcoded-mtext">Kalender Akademik</span></a></li>
-                                        <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>"><span class="pcoded-mtext">Master Katalog Akademik</span></a></li>
+                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'jadwal') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/jadwal') ?>"><span class="pcoded-mtext">Jadwal</span></a></li>
+                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'nilai') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/nilai') ?>"><span class="pcoded-mtext">Nilai</span></a></li>
+                                        <li class="<?= (($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'khs') || ($seg1 == 'akademik' && $seg2 == 'khs')) ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/khs') ?>"><span class="pcoded-mtext">KHS</span></a></li>
+                                        <li class="<?= (($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'transkrip') || ($seg1 == 'akademik' && $seg2 == 'transkrip') || ($seg1 === 'mahasiswa' && $seg2 === 'capaian')) ? 'active' : '' ?>"><a href="<?= base_url('akademik/transkrip') ?>"><span class="pcoded-mtext">Transkrip</span></a></li>
+                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'kurikulum') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/kurikulum') ?>"><span class="pcoded-mtext">Kurikulum</span></a></li>
+                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'matakuliah') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/matakuliah') ?>"><span class="pcoded-mtext">Mata Kuliah</span></a></li>
+                                        <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'akademik' && $this->uri->segment(3) == 'kalender') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/akademik/kalender') ?>"><span class="pcoded-mtext">Kalender Akademik</span></a></li>
+                                        <li class="<?= (($seg1 === 'admin' || $seg1 === 'superadmin') && in_array($seg2, ['katalog-akademik', 'katalog_akademik'], true)) ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>"><span class="pcoded-mtext">Master Katalog Akademik</span></a></li>
                                     </ul>
                                 </li>
                                 <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'perpustakaan') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/perpustakaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Biro Perpustakaan</span><span class="pcoded-mcaret"></span></a></li>
@@ -115,6 +127,7 @@ if ($current_role === 2) {
                                 </li>
                                 <li><a href="<?= base_url('superadmin/sarana-prasarana') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-building"></i></span><span class="pcoded-mtext">Biro Sarana Prasarana</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'superadmin' && $seg2 == 'penjaminan-mutu') ? 'active' : '' ?>"><a href="<?= base_url('superadmin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Biro Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 == 'penjaminan-mutu' || ($seg1 == 'superadmin' && $seg2 == 'obe')) ? 'active' : '' ?>"><a href="<?= base_url('penjaminan-mutu/obe') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-line-chart text-teal-400"></i></span><span class="pcoded-mtext">Audit &amp; Monitoring OBE</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'skpi' || ($seg1 == 'superadmin' && $seg2 == 'skpi')) ? 'active' : '' ?>"><a href="<?= base_url('superadmin/skpi') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">Pengajuan SKPI</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'keuangan' && $seg2 == '') ? 'active' : '' ?>"><a href="<?= base_url('keuangan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Mode Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                 <?php endif; ?>
@@ -201,11 +214,42 @@ if ($current_role === 2) {
                                         $skpi_pending_count = (int)($skpi_summary['waiting'] ?? 0);
                                     } catch (\Throwable $e) {}
                                 ?>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) !== 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Operasional Akademik</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) === 'khs') ? 'active' : '' ?>"><a href="<?= base_url('admin/akademik/khs') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">KHS Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'katalog-akademik') ? 'active' : '' ?>"><a href="<?= base_url('admin/katalog-akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-sitemap"></i></span><span class="pcoded-mtext">Master Katalog Akademik</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'pengguna') ? 'active' : '' ?>"><a href="<?= base_url('admin/pengguna') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Data Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
-                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'skpi') ? 'active' : '' ?>">
+                                <li class="<?= ($seg1 === 'admin' && $seg2 === 'akademik' && in_array((string)$this->uri->segment(3), ['operasional', 'save-offering', 'save_offering', 'toggle-offering', 'toggle_offering', 'assign-advisor', 'assign_advisor'], true)) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('admin/akademik/operasional') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span>
+                                        <span class="pcoded-mtext">Operasional Akademik</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= (($seg1 === 'akademik' && $seg2 === 'khs') || ($seg1 === 'admin' && $seg2 === 'akademik' && $this->uri->segment(3) === 'khs')) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('akademik/khs') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span>
+                                        <span class="pcoded-mtext">KHS Mahasiswa</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= (($seg1 === 'akademik' && $seg2 === 'transkrip') || ($seg1 === 'mahasiswa' && $seg2 === 'capaian') || ($seg1 === 'admin' && $seg2 === 'transkrip')) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('akademik/transkrip') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-graduation-cap text-blue-500"></i></span>
+                                        <span class="pcoded-mtext font-bold">Transkrip Mahasiswa</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 === 'admin' && in_array($seg2, ['katalog-akademik', 'katalog_akademik'], true)) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('admin/katalog-akademik') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-sitemap"></i></span>
+                                        <span class="pcoded-mtext">Master Katalog Akademik</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= ($seg1 === 'admin' && in_array($seg2, ['pengguna', 'data-mahasiswa', 'data_mahasiswa'], true)) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('admin/pengguna') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-users"></i></span>
+                                        <span class="pcoded-mtext">Data Mahasiswa</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <li class="<?= (($seg1 === 'admin' || $seg1 === 'superadmin') && $seg2 === 'skpi') ? 'active' : '' ?>">
                                     <a href="<?= base_url('admin/skpi') ?>" class="waves-effect waves-dark">
                                         <span class="pcoded-micon"><i class="fa fa-certificate"></i></span>
                                         <span class="pcoded-mtext">Validasi SKPI</span>
@@ -215,7 +259,13 @@ if ($current_role === 2) {
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
-                                <li class="<?= ($seg1 === 'profil') ? 'active' : '' ?>"><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 === 'profil' || ($seg1 === 'pengaturan' && $seg2 === 'profil')) ? 'active' : '' ?>">
+                                    <a href="<?= base_url('profil') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-cogs"></i></span>
+                                        <span class="pcoded-mtext">Profil</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
 
                                 <?php elseif ($current_bureau === 'perpustakaan'): ?>
                                 <li><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
@@ -225,6 +275,7 @@ if ($current_role === 2) {
 
                                 <?php elseif ($current_bureau === 'penjaminan_mutu'): ?>
                                 <li class="<?= ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu') ? 'active' : '' ?>"><a href="<?= base_url('admin/penjaminan-mutu') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span><span class="pcoded-mtext">Operasional Penjaminan Mutu</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= ($seg1 == 'penjaminan-mutu' || ($seg1 == 'admin' && $seg2 == 'penjaminan-mutu-obe')) ? 'active' : '' ?>"><a href="<?= base_url('penjaminan-mutu/obe') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-line-chart text-teal-600"></i></span><span class="pcoded-mtext font-bold">Audit &amp; Monitoring OBE</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 == 'profil') ? 'active' : '' ?>"><a href="<?= base_url('profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-cogs"></i></span><span class="pcoded-mtext">Profil</span><span class="pcoded-mcaret"></span></a></li>
                                 <?php elseif ($current_bureau === 'kemahasiswaan'): ?>
                                 <li class="<?= ($seg1 == 'admin' && $seg2 == 'kemahasiswaan') ? 'active' : '' ?>"><a href="<?= base_url('admin/kemahasiswaan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Layanan Kemahasiswaan</span><span class="pcoded-mcaret"></span></a></li>
@@ -240,8 +291,31 @@ if ($current_role === 2) {
                                         $dosen_stats = $ci->M_akademik->get_krs_validation_stats((int)$this->session->userdata('id'));
                                         $dosen_pending_krs_count = (int)($dosen_stats['pending'] ?? 0);
                                     } catch (\Throwable $e) {}
+                                    $is_kaprodi_user = ((int)$this->session->userdata('is_kaprodi') === 1);
+                                    if (!$is_kaprodi_user) {
+                                        $uid = (int)$this->session->userdata('id');
+                                        if ($uid > 0) {
+                                            $uRow = $ci->db->select('is_kaprodi, prodi, nama_lengkap')->where('id', $uid)->get('akun_biro')->row();
+                                            if ($uRow && ((int)$uRow->is_kaprodi === 1 || stripos($uRow->nama_lengkap, 'kaprodi') !== false)) {
+                                                $is_kaprodi_user = true;
+                                                $this->session->set_userdata('is_kaprodi', 1);
+                                                if (!empty($uRow->prodi)) {
+                                                    $this->session->set_userdata('prodi', $uRow->prodi);
+                                                }
+                                            }
+                                        }
+                                    }
                                 ?>
-                                <li class="<?= ($seg1 === 'dosen' && $seg2 === 'isi-nilai') ? 'active' : '' ?>"><a href="<?= base_url('dosen/isi-nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-pencil-square-o"></i></span><span class="pcoded-mtext">Isi Nilai</span><span class="pcoded-mcaret"></span></a></li>
+                                <?php if ($is_kaprodi_user): ?>
+                                <li class="<?= ($seg1 === 'kaprodi' && $seg2 === 'cpl') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('kaprodi/cpl') ?>" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-sitemap text-blue-600"></i></span>
+                                        <span class="pcoded-mtext font-bold">Master CPL &amp; Matriks</span>
+                                        <span class="pcoded-mcaret"></span>
+                                    </a>
+                                </li>
+                                <?php endif; ?>
+                                <li class="<?= ($seg1 === 'dosen' && ($seg2 === 'nilai' || $seg2 === 'isi-nilai')) ? 'active' : '' ?>"><a href="<?= base_url('dosen/nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-pencil-square-o text-emerald-600"></i></span><span class="pcoded-mtext font-bold">Penilaian OBE &amp; CPMK</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'revisi-nilai') ? 'active' : '' ?>"><a href="<?= base_url('dosen/revisi-nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-refresh"></i></span><span class="pcoded-mtext">Revisi Nilai</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'mahasiswa-bimbingan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/mahasiswa-bimbingan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Mahasiswa Bimbingan</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'persetujuan-krs') ? 'active' : '' ?>">
@@ -255,6 +329,7 @@ if ($current_role === 2) {
                                     </a>
                                 </li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'khs') ? 'active' : '' ?>"><a href="<?= base_url('dosen/khs') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-file-text-o"></i></span><span class="pcoded-mtext">KHS Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
+                                <li class="<?= (($seg1 === 'akademik' && $seg2 === 'transkrip') || ($seg1 === 'mahasiswa' && $seg2 === 'capaian') || ($seg1 === 'dosen' && $seg2 === 'transkrip')) ? 'active' : '' ?>"><a href="<?= base_url('akademik/transkrip') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap text-blue-600"></i></span><span class="pcoded-mtext font-bold">Transkrip Mahasiswa</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'akademik') ? 'active' : '' ?>"><a href="<?= base_url('dosen/akademik') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-graduation-cap"></i></span><span class="pcoded-mtext">Akademik</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'perkuliahan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/perkuliahan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-book"></i></span><span class="pcoded-mtext">Perkuliahan</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= (($seg1 === 'dosen' && $seg2 === 'profil') || $seg1 === 'profil') ? 'active' : '' ?>"><a href="<?= base_url('dosen/profil') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-user"></i></span><span class="pcoded-mtext">Profile</span><span class="pcoded-mcaret"></span></a></li>
@@ -327,7 +402,7 @@ if ($current_role === 2) {
                                                 <span class="pcoded-mcaret"></span>
                                             </a>
                                         </li>
-                                        <li class="<?= ($seg1 == 'akademik' && $seg2 == 'transkrip') ? 'active' : '' ?>">
+                                        <li class="<?= (($seg1 == 'akademik' && $seg2 == 'transkrip') || ($seg1 == 'mahasiswa' && $seg2 == 'capaian')) ? 'active' : '' ?>">
                                             <a href="<?= base_url('akademik/transkrip') ?>" class="waves-effect waves-dark">
                                                 <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
                                                 <span class="pcoded-mtext">Transkrip</span>

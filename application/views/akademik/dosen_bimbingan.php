@@ -154,9 +154,14 @@
                                                         </span>
                                                     </td>
                                                     <td style="padding: 16px 20px; text-align: center;">
-                                                        <a href="<?= base_url('dosen/persetujuan-krs?q=' . urlencode($student->nim)) ?>" class="btn btn-outline-primary btn-sm px-3" style="border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                                            <i class="fa fa-search mr-1"></i> Tinjau KRS
-                                                        </a>
+                                                        <div class="d-flex align-items-center justify-content-center" style="gap: 6px;">
+                                                            <a href="<?= base_url('dosen/persetujuan-krs?q=' . urlencode($student->nim)) ?>" class="btn btn-outline-primary btn-sm px-2.5" style="border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                                                <i class="fa fa-search mr-1"></i> Tinjau KRS
+                                                            </a>
+                                                            <a href="<?= base_url('akademik/transkrip?tab=obe&student_id=' . (int)$student->id) ?>" class="btn btn-outline-info btn-sm px-2.5" style="border-radius: 8px; font-size: 12px; font-weight: 600;" title="Transkrip Ketercapaian OBE">
+                                                                <i class="fa fa-bar-chart mr-1"></i> Capaian OBE
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>

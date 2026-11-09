@@ -32,13 +32,59 @@
                 return localStorage.getItem(storageKey) === 'expanded' ? 'expanded' : 'collapsed';
             }
 
+            function positionCollapsedSubmenu(parentLi, submenu) {
+                if (!submenu) return;
+                var rect = parentLi.getBoundingClientRect();
+                var top = rect.top;
+                var left = rect.right > 0 ? rect.right : 70;
+
+                // Tambahkan judul menu induk sebagai header di panel melayang jika belum ada
+                var menuTextEl = parentLi.querySelector(':scope > a .pcoded-mtext');
+                var titleText = menuTextEl ? menuTextEl.textContent.trim() : '';
+                var existingHeader = submenu.querySelector('.sc-collapsed-submenu-header');
+                if (!existingHeader && titleText) {
+                    var headerLi = document.createElement('li');
+                    headerLi.className = 'sc-collapsed-submenu-header';
+                    headerLi.textContent = titleText;
+                    submenu.insertBefore(headerLi, submenu.firstChild);
+                }
+
+                // Hitung posisi awal
+                submenu.style.position = 'fixed';
+                submenu.style.left = left + 'px';
+                submenu.style.top = top + 'px';
+                submenu.style.display = 'block';
+
+                // Cegah submenu meluap melewati bagian bawah layar
+                var submenuHeight = submenu.offsetHeight || 220;
+                var winHeight = window.innerHeight;
+                if (top + submenuHeight > winHeight - 10) {
+                    top = Math.max(10, winHeight - submenuHeight - 10);
+                    submenu.style.top = top + 'px';
+                }
+            }
+
+            function closeCollapsedSubmenus() {
+                $(sidebarRoot).find('.pcoded-item > .pcoded-hasmenu.pcoded-trigger').each(function() {
+                    $(this).removeClass('pcoded-trigger');
+                    var sub = this.querySelector('.pcoded-submenu');
+                    if (sub) {
+                        sub.style.top = '';
+                        sub.style.left = '';
+                        sub.style.display = '';
+                    }
+                });
+            }
+
             function setSidebarType(type) {
                 sidebarRoot.setAttribute('vertical-nav-type', type);
                 localStorage.setItem(storageKey, type);
 
                 // Sidebar kecil hanya menampilkan ikon induk; tutup seluruh submenu.
                 if (type === 'collapsed') {
-                    $(sidebarRoot).find('.pcoded-hasmenu').removeClass('pcoded-trigger');
+                    closeCollapsedSubmenus();
+                } else {
+                    $(sidebarRoot).find('.pcoded-submenu').css({ position: '', top: '', left: '', display: '' });
                 }
             }
 
@@ -54,28 +100,61 @@
                 setSidebarType(savedType() === 'expanded' ? 'collapsed' : 'expanded');
             }, true);
 
-            // Semua trigger lain dari plugin tidak boleh mengubah ukuran sidebar.
+            // Handler klik untuk menu dan trigger
             document.addEventListener('click', function(event) {
                 if (window.innerWidth < 769 || event.target.closest('#mobile-collapse')) return;
 
-                // Mode ikon: buka/tutup submenu dari ikon induknya secara eksplisit.
-                // Ini tidak mengubah ukuran sidebar dan tidak bergantung pada handler PCoded.
-                var parentMenuLink = event.target.closest('.pcoded-navbar .pcoded-item > .pcoded-hasmenu > a');
-                if (sidebarRoot.getAttribute('vertical-nav-type') === 'collapsed' && parentMenuLink) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
+                var isCollapsed = sidebarRoot.getAttribute('vertical-nav-type') === 'collapsed';
 
-                    var parentMenu = parentMenuLink.parentElement;
-                    $(sidebarRoot).find('.pcoded-item > .pcoded-hasmenu')
-                        .not(parentMenu)
-                        .removeClass('pcoded-trigger');
-                    $(parentMenu).toggleClass('pcoded-trigger');
-                    return;
+                if (isCollapsed) {
+                    var parentMenuLink = event.target.closest('.pcoded-navbar .pcoded-item > .pcoded-hasmenu > a');
+                    if (parentMenuLink) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+
+                        var parentMenu = parentMenuLink.parentElement;
+                        var isCurrentlyOpen = $(parentMenu).hasClass('pcoded-trigger');
+
+                        // Tutup submenu lain yang mungkin sedang terbuka
+                        closeCollapsedSubmenus();
+
+                        if (!isCurrentlyOpen) {
+                            $(parentMenu).addClass('pcoded-trigger');
+                            var submenu = parentMenu.querySelector('.pcoded-submenu');
+                            if (submenu) {
+                                positionCollapsedSubmenu(parentMenu, submenu);
+                            }
+                        }
+                        return;
+                    }
+
+                    // Jika klik di luar submenu dan bukan parentMenuLink, tutup submenu yang terbuka
+                    if (!event.target.closest('.pcoded-submenu')) {
+                        closeCollapsedSubmenus();
+                    }
                 }
 
                 if (event.target.closest('.pcoded-navbar > .sidebar_toggle, .pcoded-overlay-box, .menu-toggle a')) {
                     event.preventDefault();
                     event.stopImmediatePropagation();
+                }
+            }, true);
+
+            // Tutup flyout submenu jika tombol Escape ditekan
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && sidebarRoot.getAttribute('vertical-nav-type') === 'collapsed') {
+                    closeCollapsedSubmenus();
+                }
+            });
+
+            // Perbarui posisi submenu saat scrolling
+            window.addEventListener('scroll', function() {
+                if (sidebarRoot.getAttribute('vertical-nav-type') === 'collapsed') {
+                    var activeTrigger = sidebarRoot.querySelector('.pcoded-item > .pcoded-hasmenu.pcoded-trigger');
+                    if (activeTrigger) {
+                        var sub = activeTrigger.querySelector('.pcoded-submenu');
+                        if (sub) positionCollapsedSubmenu(activeTrigger, sub);
+                    }
                 }
             }, true);
 

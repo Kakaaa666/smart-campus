@@ -119,79 +119,142 @@
         gap: 6px;
     }
 
-    /* Kategori Nav Quick Jump Card */
-    .kategori-quick-nav-card {
+    /* Filter Kategori Card - Simpel & Rapi */
+    .kategori-filter-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
-        padding: 16px 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        padding: 12px 18px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
     }
-    .kategori-nav-header {
+    .kategori-filter-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .filter-card-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
     }
-    .nav-header-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
+    .filter-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .filter-icon-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
         background: #e0f2fe;
         color: #0284c7;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
+        flex-shrink: 0;
     }
-    .kategori-pills-wrap {
+    .filter-main-label {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+    }
+    .filter-sub-label {
+        font-size: 12px;
+        color: #64748b;
+        margin-left: 6px;
+    }
+    .filter-right {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px 10px;
         align-items: center;
+        gap: 10px;
+        flex: 1;
+        max-width: 480px;
+        justify-content: flex-end;
     }
-    .kategori-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 13px;
-        font-size: 12.5px;
-        font-weight: 600;
-        color: #334155;
+    .select-wrapper {
+        position: relative;
+        width: 100%;
+        min-width: 260px;
+    }
+    .select-prefix-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #0284c7;
+        font-size: 13px;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .select-caret-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 11px;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .filter-select-input {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
         background: #f8fafc;
         border: 1px solid #cbd5e1;
-        border-radius: 9px;
-        text-decoration: none !important;
-        transition: all 0.18s ease-in-out;
-        line-height: 1.3;
-    }
-    .kategori-pill:hover, .kategori-pill.active {
-        background: #0284c7;
-        color: #ffffff !important;
-        border-color: #0284c7;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.22);
-    }
-    .kategori-pill:hover i, .kategori-pill.active i {
-        color: #ffffff !important;
-    }
-    .kategori-pill .badge-count {
-        background: #e2e8f0;
-        color: #475569;
         border-radius: 10px;
-        padding: 2px 7px;
-        font-size: 11px;
-        font-weight: 700;
+        padding: 8px 32px 8px 34px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        height: 38px;
+        line-height: 1.4;
+        cursor: pointer;
+        outline: none !important;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    .filter-select-input:hover {
+        background: #ffffff;
+        border-color: #94a3b8;
+    }
+    .filter-select-input:focus {
+        background: #ffffff;
+        border-color: #0284c7;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        color: #0f172a;
+    }
+    .btn-reset-filter {
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 12px;
+        white-space: nowrap;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         transition: all 0.18s ease;
     }
-    .kategori-pill:hover .badge-count, .kategori-pill.active .badge-count {
-        background: rgba(255, 255, 255, 0.25);
-        color: #ffffff;
+    .skpi-category-card.filter-fade-in {
+        animation: skpiFilterFadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes skpiFilterFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* Kategori Card Panels */
@@ -385,29 +448,50 @@
                     </form>
                 </div>
 
-                <!-- Quick Navigation 10 Kategori -->
-                <div class="kategori-quick-nav-card">
-                    <div class="kategori-nav-header">
-                        <div class="d-flex align-items-center">
-                            <div class="nav-header-icon mr-2">
-                                <i class="fa fa-compass"></i>
+                <!-- Filter Kategori Kegiatan SKPI (Simpel & Rapi) -->
+                <div class="kategori-filter-card" id="kategoriFilterCard">
+                    <div class="filter-card-inner">
+                        <div class="filter-left">
+                            <div class="filter-icon-badge">
+                                <i class="fa fa-filter"></i>
                             </div>
-                            <span class="font-weight-bold text-dark" style="font-size: 13.5px; letter-spacing: 0.2px;">Lompat ke Kategori:</span>
-                            <small class="text-muted ml-2 d-none d-sm-inline">&bull; Klik salah satu kategori untuk langsung menuju ke daftar kegiatan</small>
+                            <div class="filter-title-wrap">
+                                <label for="selectKategoriFilter" class="filter-main-label">Filter Kategori Kegiatan:</label>
+                                <span class="filter-sub-label d-none d-md-inline">&bull; Saring daftar kegiatan berdasarkan kategori</span>
+                            </div>
                         </div>
-                        <span class="badge badge-light border text-muted px-2.5 py-1 font-weight-bold" style="font-size: 11px; border-radius: 6px;">
-                            10 Kategori Kegiatan
+                        <div class="filter-right">
+                            <div class="select-wrapper">
+                                <i class="fa fa-folder-open select-prefix-icon"></i>
+                                <select id="selectKategoriFilter" class="form-control filter-select-input" onchange="applyCategoryFilter(this.value)">
+                                    <option value="all">Semua Kategori (10 Kategori Kegiatan &bull; <?= $summary['total'] ?> Pengajuan)</option>
+                                    <?php foreach ($kategori_list as $kId => $kInfo): ?>
+                                        <option value="<?= $kId ?>">
+                                            <?= $kId ?>. <?= html_escape($kInfo['nama']) ?> (<?= $kategori_data[$kId]['count'] ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <i class="fa fa-chevron-down select-caret-icon"></i>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-reset-filter" id="btnResetFilterKategori" style="display: none;" onclick="applyCategoryFilter('all')">
+                                <i class="fa fa-refresh mr-1"></i> Tampilkan Semua
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifikasi Kategori yang sedang Difilter -->
+                <div id="filterCategoryNotice" style="display: none; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px;" class="mb-4 py-2.5 px-3.5 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-info-circle mr-2 text-primary" style="font-size: 16px;"></i>
+                        <span style="font-size: 13px;" class="text-slate-700">
+                            Menampilkan kategori: <strong id="noticeCategoryTitle" class="text-dark"></strong>
+                            <span class="text-muted ml-1" id="noticeCategoryCount"></span>
                         </span>
                     </div>
-                    <div class="kategori-pills-wrap">
-                        <?php foreach ($kategori_list as $kId => $kInfo): ?>
-                            <a href="#kategori-<?= $kId ?>" class="kategori-pill">
-                                <i class="<?= $kInfo['icon'] ?>" style="color: <?= $kInfo['color'] ?>;"></i>
-                                <span><?= $kId ?>. <?= html_escape($kInfo['nama']) ?></span>
-                                <span class="badge-count"><?= $kategori_data[$kId]['count'] ?></span>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-link text-primary font-weight-bold p-0 text-decoration-none" onclick="applyCategoryFilter('all')">
+                        <i class="fa fa-refresh mr-1"></i> Tampilkan Semua Kategori
+                    </button>
                 </div>
 
                 <!-- DAFTAR 10 KATEGORI DENGAN TOMBOL TAMBAH DI SETIAP KATEGORI -->
@@ -813,5 +897,49 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#confirmDeleteBtn').attr('href', '<?= base_url("skpi/hapus/") ?>' + id);
         $('#modalHapusKegiatan').modal('show');
     });
+
+    // Cek apakah ada anchor kategori di URL saat halaman dimuat
+    var initialHash = window.location.hash;
+    if (initialHash && initialHash.indexOf('#kategori-') === 0) {
+        var katIdFromHash = initialHash.replace('#kategori-', '');
+        if ($('#selectKategoriFilter option[value="' + katIdFromHash + '"]').length > 0) {
+            window.applyCategoryFilter(katIdFromHash);
+        }
+    }
 });
+
+// Fungsi Filter Kategori Kegiatan SKPI (Simpel & Rapi)
+window.applyCategoryFilter = function(kategoriId) {
+    kategoriId = String(kategoriId || 'all');
+
+    // Sinkronkan dropdown select
+    $('#selectKategoriFilter').val(kategoriId);
+
+    // Filter card kategori di bawah
+    if (kategoriId === 'all') {
+        $('.skpi-category-card').stop(true, true).fadeIn(180).addClass('filter-fade-in');
+        $('#btnResetFilterKategori').hide();
+        $('#filterCategoryNotice').slideUp(180);
+    } else {
+        $('.skpi-category-card').not('#kategori-' + kategoriId).stop(true, true).hide().removeClass('filter-fade-in');
+        var targetCard = $('#kategori-' + kategoriId);
+        targetCard.stop(true, true).fadeIn(200).addClass('filter-fade-in');
+
+        var optionSelected = $('#selectKategoriFilter option:selected');
+        var optionText = optionSelected.text().trim();
+
+        $('#btnResetFilterKategori').show();
+        $('#noticeCategoryTitle').text(optionText);
+        $('#noticeCategoryCount').text('');
+        $('#filterCategoryNotice').slideDown(180);
+
+        var filterCard = $('#kategoriFilterCard');
+        if (filterCard.length) {
+            var scrollTarget = filterCard.offset().top - 70;
+            if ($(window).scrollTop() > scrollTarget) {
+                $('html, body').animate({ scrollTop: scrollTarget }, 250);
+            }
+        }
+    }
+};
 </script>

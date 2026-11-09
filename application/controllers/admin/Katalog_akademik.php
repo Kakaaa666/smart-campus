@@ -17,10 +17,7 @@ class Katalog_akademik extends MY_Role_Controller
 
     public function index()
     {
-        if (!$this->M_katalog->schema_ready()) {
-            show_error('Skema katalog akademik belum tersedia. Jalankan migrasi 001 lalu migrasi 002 untuk nama skema berbahasa Indonesia.', 503);
-            return;
-        }
+        $this->M_katalog->schema_ready();
 
         $page = max(1, (int)$this->input->get('page'));
         $limit = 50;
@@ -302,10 +299,7 @@ class Katalog_akademik extends MY_Role_Controller
 
     public function search_lecturers()
     {
-        if (!$this->M_katalog->schema_ready()) {
-            show_error('Skema katalog akademik belum tersedia.', 503);
-            return;
-        }
+        $this->M_katalog->schema_ready();
         $term = trim((string)$this->input->get('q', true));
         if (strlen($term) < 2) {
             $this->output->set_status_header(400)
@@ -319,10 +313,7 @@ class Katalog_akademik extends MY_Role_Controller
 
     public function search_students()
     {
-        if (!$this->M_katalog->schema_ready()) {
-            show_error('Skema katalog akademik belum tersedia.', 503);
-            return;
-        }
+        $this->M_katalog->schema_ready();
         $term = trim((string)$this->input->get('q', true));
         if (strlen($term) < 2) {
             $this->output->set_status_header(400)
@@ -336,10 +327,7 @@ class Katalog_akademik extends MY_Role_Controller
 
     public function student_curricula_options()
     {
-        if (!$this->M_katalog->schema_ready()) {
-            show_error('Skema katalog akademik belum tersedia.', 503);
-            return;
-        }
+        $this->M_katalog->schema_ready();
         $mahasiswa_id = (int)$this->input->get('mahasiswa_id', true);
         if ($mahasiswa_id < 1) {
             $this->output->set_status_header(400)
@@ -394,10 +382,7 @@ class Katalog_akademik extends MY_Role_Controller
 
     private function search_catalog_options($type)
     {
-        if (!$this->M_katalog->schema_ready()) {
-            show_error('Skema katalog akademik belum tersedia.', 503);
-            return;
-        }
+        $this->M_katalog->schema_ready();
 
         $term = trim((string)$this->input->get('q', true));
         if (strlen($term) < 2) {

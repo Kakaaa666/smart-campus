@@ -57,6 +57,24 @@ $route['login'] = 'auth';
 $route['logout'] = 'auth/logout';
 $route['pengaturan/profil'] = 'profil';
 $route['pengaturan/ubah-password'] = 'profil';
+// Modul Outcome-Based Education (OBE)
+$route['kaprodi/cpl'] = 'kaprodi/cpl/index';
+$route['kaprodi/cpl/(:any)'] = 'kaprodi/cpl/$1';
+$route['kaprodi/cpl/(:any)/(:any)'] = 'kaprodi/cpl/$1/$2';
+
+$route['dosen/nilai'] = 'dosen/nilai/index';
+$route['dosen/nilai/(:any)'] = 'dosen/nilai/$1';
+$route['dosen/nilai/(:any)/(:any)'] = 'dosen/nilai/$1/$2';
+
+$route['mahasiswa/capaian'] = 'mahasiswa/capaian/index';
+$route['mahasiswa/capaian/(:any)'] = 'mahasiswa/capaian/$1';
+
+$route['penjaminan-mutu/obe'] = 'penjaminan_mutu/obe/index';
+$route['penjaminan-mutu/obe/(:any)'] = 'penjaminan_mutu/obe/$1';
+$route['penjaminan-mutu/obe/(:any)/(:any)'] = 'penjaminan_mutu/obe/$1/$2';
+$route['penjaminan_mutu/obe'] = 'penjaminan_mutu/obe/index';
+$route['penjaminan_mutu/obe/(:any)'] = 'penjaminan_mutu/obe/$1';
+
 $route['dosen'] = 'dosen';
 $route['dosen/(:any)'] = 'dosen/$1';
 

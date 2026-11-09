@@ -13,25 +13,258 @@ if (!empty($krs->mata_kuliah)) {
         padding: 0 4px;
     }
 
-    /* Card Header & Status */
+    /* Modern Card Header & Student Identity */
     .krs-header-card {
         background: #ffffff;
-        border-radius: 12px;
+        border-radius: 16px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
         padding: 22px 24px;
         margin-bottom: 22px;
+        position: relative;
     }
 
-    .status-krs-box {
-        border-radius: 10px;
-        padding: 14px 18px;
+    .krs-period-tag-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .badge-krs-period {
+        background: #e0f2fe;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .badge-krs-type {
+        color: #64748b;
+        font-size: 12.5px;
+        font-weight: 500;
+    }
+
+    .krs-student-profile-wrap {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .krs-student-avatar-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.22);
+    }
+
+    .krs-student-name {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 20px;
+        margin: 0 0 6px 0;
+        line-height: 1.25;
+        letter-spacing: -0.2px;
+    }
+
+    .krs-student-chips {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .krs-chip {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .krs-chip.chip-nim {
+        background: #f8fafc;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        font-family: monospace;
+        font-weight: 700;
+    }
+
+    .krs-chip.chip-prodi {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .krs-chip.chip-semester {
+        background: #ecfeff;
+        color: #0891b2;
+        border: 1px solid #a5f3fc;
+        font-weight: 700;
+    }
+
+    .krs-chip.chip-status {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+        font-weight: 700;
+    }
+
+    /* Right Widgets Grid (Status KRS & Dosen Wali) */
+    .krs-widgets-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        width: 100%;
+    }
+
+    @media (max-width: 575.98px) {
+        .krs-widgets-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+
+    .krs-info-widget {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        height: 100%;
+        border-radius: 12px;
+        padding: 12px 16px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
+        min-height: 82px;
+        transition: all 0.2s ease;
+    }
+
+    .krs-info-widget:hover {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .krs-widget-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .krs-widget-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-krs-edit-pill {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .btn-krs-edit-pill:hover {
+        background: #f59e0b;
+        color: #ffffff;
+        border-color: #f59e0b;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-krs-action-pill {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .btn-krs-action-pill:hover {
+        background: #0284c7;
+        color: #ffffff;
+        border-color: #0284c7;
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    }
+
+    .krs-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        width: fit-content;
+    }
+
+    .status-approved {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-pending {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .status-rejected {
+        background: #fff1f2;
+        color: #be123c;
+        border: 1px solid #fecdd3;
+    }
+
+    .status-draft {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+    .advisor-name-text {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+        margin-bottom: 2px;
+    }
+
+    .advisor-meta-text {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 500;
     }
 
     /* SKS Meter Progress */
@@ -330,68 +563,108 @@ if (!empty($krs->mata_kuliah)) {
                     <!-- Header Informasi Mahasiswa & KRS -->
                     <div class="krs-header-card">
                         <div class="row align-items-center">
-                            <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
-                                <div class="d-flex align-items-center mb-2">
-                                    <span class="badge badge-primary px-3 py-1 mr-2" style="font-size: 12px; border-radius: 6px;">
-                                        Periode <?= html_escape($academic_period['semester_akademik']) ?> <?= html_escape($academic_period['tahun_akademik']) ?>
+                            <!-- Left: Identitas Mahasiswa & Periode KRS -->
+                            <div class="col-xl-6 col-lg-6 col-md-12 mb-3 mb-lg-0">
+                                <div class="krs-period-tag-row">
+                                    <span class="badge-krs-period">
+                                        <i class="fa fa-calendar-check-o mr-1"></i> Periode <?= html_escape($academic_period['semester_akademik']) ?> <?= html_escape($academic_period['tahun_akademik']) ?>
                                     </span>
-                                    <span class="text-muted" style="font-size: 13px;">
-                                        Kartu Rencana Studi (KRS Online)
+                                    <span class="badge-krs-type">
+                                        <i class="fa fa-file-text-o mr-1"></i> Kartu Rencana Studi (KRS Online)
                                     </span>
                                 </div>
-                                <h4 style="font-weight: 800; color: #0f172a; margin-bottom: 4px;">
-                                    <?= html_escape($target_mahasiswa->nama_lengkap) ?>
-                                </h4>
-                                <div style="font-size: 13.5px; color: #475569;">
-                                    NIM: <strong class="text-dark font-monospace"><?= html_escape($target_mahasiswa->nim) ?></strong> &bull;
-                                    Prodi: <strong class="text-primary"><?= html_escape($target_mahasiswa->prodi ?: 'Teknik Informatika') ?></strong> &bull;
-                                    Semester: <span class="badge badge-info">Semester <?= (int)($target_mahasiswa->semester ?: 1) ?></span>
-                                </div>
-                            </div>
-                            <div class="col-lg-5 col-md-12">
-                                <div class="row">
-                                    <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <div class="status-krs-box">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted font-weight-bold">Status KRS:</small>
-                                                <?php if (!empty($krs_is_locked_initially) && $can_edit_krs): ?>
-                                                    <button type="button" class="btn btn-warning btn-sm font-weight-bold px-2 py-0" id="btnHeaderEditKrs" style="border-radius: 6px; font-size: 11px; <?= !empty($is_edit_mode) ? 'display:none;' : '' ?>" onclick="enableKrsEditMode()">
-                                                        <i class="fa fa-pencil mr-1"></i> Edit Matkul
-                                                    </button>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="mt-1">
-                                                <?php 
-                                                    $krs_stat = $krs ? strtoupper($krs->status) : 'DRAFT';
-                                                    if ($krs_stat === 'DISETUJUI'):
-                                                ?>
-                                                    <span class="badge badge-success px-2 py-1"><i class="fa fa-check-circle mr-1"></i> Disetujui</span>
-                                                <?php elseif ($krs_stat === 'MENUNGGU'): ?>
-                                                    <span class="badge badge-warning px-2 py-1"><i class="fa fa-clock-o mr-1"></i> Menunggu Dosen</span>
-                                                <?php elseif ($krs_stat === 'DITOLAK'): ?>
-                                                    <span class="badge badge-danger px-2 py-1"><i class="fa fa-times-circle mr-1"></i> Perlu Revisi</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-secondary px-2 py-1"><i class="fa fa-pencil mr-1"></i> Mode Draf</span>
-                                                <?php endif; ?>
-                                            </div>
+                                <div class="krs-student-profile-wrap">
+                                    <div class="krs-student-avatar-box">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="krs-student-name">
+                                            <?= html_escape($target_mahasiswa->nama_lengkap) ?>
+                                        </h4>
+                                        <div class="krs-student-chips">
+                                            <span class="krs-chip chip-nim" title="Nomor Induk Mahasiswa">
+                                                NIM: <?= html_escape($target_mahasiswa->nim) ?>
+                                            </span>
+                                            <span class="krs-chip chip-prodi" title="Program Studi">
+                                                <i class="fa fa-graduation-cap mr-1"></i><?= html_escape($target_mahasiswa->prodi ?: 'Teknik Informatika') ?>
+                                            </span>
+                                            <span class="krs-chip chip-semester" title="Tingkat Semester">
+                                                <i class="fa fa-level-up mr-1"></i>Semester <?= (int)($target_mahasiswa->semester ?: 1) ?>
+                                            </span>
+                                            <span class="krs-chip chip-status" title="Status Akademik">
+                                                <i class="fa fa-circle text-success mr-1" style="font-size: 8px;"></i>Aktif
+                                            </span>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="status-krs-box d-flex justify-content-between align-items-center">
-                                            <div class="mr-2 overflow-hidden">
-                                                <small class="text-muted font-weight-bold">Dosen Wali:</small>
-                                                <div class="font-weight-bold text-dark text-truncate mt-1" style="font-size: 13px;" title="<?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>">
-                                                    <?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>
-                                                </div>
-                                                <small class="text-muted"><?= html_escape($advisor ? $advisor->nim : '-') ?></small>
-                                            </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Status KRS & Dosen Wali Widgets -->
+                            <div class="col-xl-6 col-lg-6 col-md-12">
+                                <div class="krs-widgets-grid">
+                                    
+                                    <!-- Widget 1: Status Persetujuan KRS -->
+                                    <div class="krs-info-widget">
+                                        <div class="krs-widget-header">
+                                            <span class="krs-widget-label">
+                                                <i class="fa fa-shield text-primary mr-1"></i> Status KRS
+                                            </span>
+                                            <?php if (!empty($krs_is_locked_initially) && $can_edit_krs): ?>
+                                                <button type="button" class="btn-krs-edit-pill" id="btnHeaderEditKrs" style="<?= !empty($is_edit_mode) ? 'display:none;' : '' ?>" onclick="enableKrsEditMode()" title="Buka mode edit untuk mengubah mata kuliah">
+                                                    <i class="fa fa-pencil mr-1"></i> Edit Matkul
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div>
+                                            <?php 
+                                                $krs_stat = $krs ? strtoupper($krs->status) : 'DRAFT';
+                                                if ($krs_stat === 'DISETUJUI'):
+                                            ?>
+                                                <span class="krs-status-pill status-approved">
+                                                    <i class="fa fa-check-circle"></i>
+                                                    <span>Disetujui</span>
+                                                </span>
+                                            <?php elseif ($krs_stat === 'MENUNGGU'): ?>
+                                                <span class="krs-status-pill status-pending">
+                                                    <i class="fa fa-clock-o"></i>
+                                                    <span>Menunggu Dosen</span>
+                                                </span>
+                                            <?php elseif ($krs_stat === 'DITOLAK'): ?>
+                                                <span class="krs-status-pill status-rejected">
+                                                    <i class="fa fa-times-circle"></i>
+                                                    <span>Perlu Revisi</span>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="krs-status-pill status-draft">
+                                                    <i class="fa fa-pencil"></i>
+                                                    <span>Mode Draf</span>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Widget 2: Dosen Wali Akademik -->
+                                    <div class="krs-info-widget">
+                                        <div class="krs-widget-header">
+                                            <span class="krs-widget-label">
+                                                <i class="fa fa-user-circle text-info mr-1"></i> Dosen Wali
+                                            </span>
                                             <?php if (empty($is_admin_preview)): ?>
-                                                <button type="button" class="btn btn-outline-primary btn-sm px-2 py-1" style="border-radius: 8px; font-size: 11px; font-weight: 600;" data-toggle="modal" data-target="#modalPilihDosenWali">
+                                                <button type="button" class="btn-krs-action-pill" data-toggle="modal" data-target="#modalPilihDosenWali" title="Pilih / Ganti Dosen Wali">
                                                     <i class="fa fa-pencil mr-1"></i> Pilih Wali
                                                 </button>
                                             <?php endif; ?>
                                         </div>
+                                        <div>
+                                            <div class="advisor-name-text text-truncate" title="<?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>">
+                                                <?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>
+                                            </div>
+                                            <div class="advisor-meta-text">
+                                                NIP/NIDN: <?= html_escape($advisor ? ($advisor->nim ?: '-') : '-') ?>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -762,6 +1035,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const MAX_SKS = <?= (int)$max_sks ?>;
     const MIN_SKS = <?= (int)$min_sks ?>;
+    const INITIAL_SELECTED_OFFERINGS = <?= json_encode(array_values(array_map('intval', $selected_offerings))) ?>;
+    const KRS_IS_LOCKED_INITIALLY = <?= !empty($krs_is_locked_initially) ? 'true' : 'false' ?>;
 
     // Helper konversi waktu HH:MM ke menit dari tengah malam
     function timeToMinutes(timeStr) {
@@ -1074,7 +1349,52 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'warning'
         }).then(function(confirmed) {
             if (confirmed) {
-                window.location.href = '<?= base_url('perwalian/ambil_matakuliah' . (!empty($is_admin_preview) ? '?mahasiswa_id=' . (int)$target_mahasiswa->id : '')) ?>';
+                // 1. Kembalikan centang checkbox ke data awal tersimpan
+                checkboxes.forEach(function(cb) {
+                    const id = parseInt(cb.dataset.id, 10);
+                    cb.checked = INITIAL_SELECTED_OFFERINGS.includes(id);
+                    if (KRS_IS_LOCKED_INITIALLY) {
+                        cb.disabled = true;
+                    }
+                });
+
+                // 2. Sembunyikan banner alert mode edit
+                const alertBox = document.getElementById('alertEditModeActive');
+                if (alertBox) {
+                    alertBox.style.display = 'none';
+                }
+
+                // 3. Kembalikan kontrol aksi tombol ke status terkunci jika KRS awalnya terkunci
+                if (KRS_IS_LOCKED_INITIALLY) {
+                    const boxLocked = document.getElementById('boxKrsLockedActions');
+                    const boxEdit = document.getElementById('boxKrsEditActions');
+                    if (boxLocked) boxLocked.style.display = 'flex';
+                    if (boxEdit) boxEdit.style.display = 'none';
+
+                    const btnHeader = document.getElementById('btnHeaderEditKrs');
+                    if (btnHeader) btnHeader.style.display = 'inline-flex';
+                }
+
+                // 4. Hitung ulang SKS, render jadwal & chips terpilih
+                evaluateKrsState();
+
+                // 5. Bersihkan parameter ?edit=1 dari URL browser tanpa reload
+                if (window.history && window.history.replaceState) {
+                    try {
+                        const currentUrl = new URL(window.location.href);
+                        if (currentUrl.searchParams.has('edit')) {
+                            currentUrl.searchParams.delete('edit');
+                            window.history.replaceState({}, document.title, currentUrl.pathname + currentUrl.search + currentUrl.hash);
+                        }
+                    } catch (e) {
+                        console.warn(e);
+                    }
+                }
+
+                // 6. Tampilkan notifikasi toast informasi
+                if (window.SCDialog && typeof SCDialog.toast === 'function') {
+                    SCDialog.toast('Pengeditan KRS dibatalkan. Pilihan mata kuliah dikembalikan ke data awal.', { type: 'info' });
+                }
             }
         });
     };

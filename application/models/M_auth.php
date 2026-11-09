@@ -266,6 +266,20 @@ class M_auth extends CI_Model {
                 'fakultas' => 'Fakultas Ekonomi & Bisnis',
                 'prodi' => 'Akuntansi',
                 'foto' => 'avatar-2.png'
+            ],
+            [
+                'nim' => 'adminKaprodi',
+                'nama_lengkap' => 'Kaprodi Teknik Informatika',
+                'email' => 'adminKaprodi@staff.campus.ac.id',
+                'plain_pass' => 'admin123',
+                'role' => 4,
+                'is_kaprodi' => 1,
+                'prodi_id' => 1,
+                'biro' => 'dosen',
+                'fakultas' => 'Fakultas Teknologi Informasi',
+                'prodi' => 'Teknik Informatika',
+                'jenjang' => 'Strata 1',
+                'foto' => 'avatar-4.png'
             ]
         ];
 
@@ -285,6 +299,8 @@ class M_auth extends CI_Model {
                     'role'         => (int)$acc['role'],
                     'biro'         => $acc['biro'],
                     'nama_lengkap' => $acc['nama_lengkap'],
+                    'is_kaprodi'   => $acc['is_kaprodi'] ?? 0,
+                    'prodi_id'     => $acc['prodi_id'] ?? null,
                 ];
                 if (empty($existing->password) || strlen($existing->password) < 50 || !password_verify($acc['plain_pass'], $existing->password)) {
                     $update_data['password'] = $hashed_pass;
@@ -297,6 +313,8 @@ class M_auth extends CI_Model {
                     'email'        => $acc['email'],
                     'password'     => $hashed_pass,
                     'role'         => (int)$acc['role'],
+                    'is_kaprodi'   => $acc['is_kaprodi'] ?? 0,
+                    'prodi_id'     => $acc['prodi_id'] ?? null,
                     'biro'         => $acc['biro'],
                     'fakultas'     => $acc['fakultas'],
                     'prodi'        => $acc['prodi'],
@@ -541,6 +559,8 @@ class M_auth extends CI_Model {
             'admin_kemahasiswaan' => ['adminKemahasiswaan@staff.campus.ac.id', 'adminKemahasiswaan'],
             'adminpenjaminanmutu' => ['adminPenjaminanMutu@staff.campus.ac.id', 'adminPenjaminanMutu'],
             'admin_penjaminanmutu'=> ['adminPenjaminanMutu@staff.campus.ac.id', 'adminPenjaminanMutu'],
+            'adminkaprodi'        => ['adminKaprodi@staff.campus.ac.id', 'adminKaprodi'],
+            'kaprodi'             => ['adminKaprodi@staff.campus.ac.id', 'adminKaprodi'],
             'dosen'               => ['dosen@staff.campus.ac.id', '19800101', 'dosen'],
         ];
 

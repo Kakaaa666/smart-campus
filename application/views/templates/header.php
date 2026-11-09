@@ -317,6 +317,13 @@
                 width: 100% !important;
                 max-width: 100% !important;
             }
+        /* Utility class untuk spasi ikon */
+        .mr-1\.5, .mr-1-5 {
+            margin-right: 0.375rem !important;
+        }
+        .btn i, a.btn i, button i {
+            vertical-align: middle;
+        }
         }
     </style>
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-themes.css?v=' . time()) ?>">

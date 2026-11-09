@@ -68,9 +68,11 @@ class Auth extends CI_Controller {
                     'email'        => $user->email,
                     'account_type' => $user->account_type ?? ($role === 3 ? 'mahasiswa' : 'biro'),
                     'role'         => $role,
-                    'role_name'    => M_auth::role_label($role),
+                    'role_name'    => (!empty($user->is_kaprodi) && (int)$user->is_kaprodi === 1) ? 'Kaprodi' : M_auth::role_label($role),
                     'biro'         => $role === 2 ? M_auth::normalize_biro($user->biro) : ($role === 1 ? 'semua' : ($role === 4 ? 'dosen' : 'mahasiswa')),
                     'biro_name'    => $role === 2 ? M_auth::biro_label($user->biro) : ($role === 1 ? 'Seluruh Biro' : ($role === 4 ? 'Dosen' : 'Mahasiswa')),
+                    'is_kaprodi'   => !empty($user->is_kaprodi) ? (int)$user->is_kaprodi : 0,
+                    'prodi_id'     => !empty($user->prodi_id) ? (int)$user->prodi_id : null,
                     'foto'         => !empty($user->foto) ? $user->foto : 'avatar-4.png',
                     'is_logged_in' => TRUE
                 ];

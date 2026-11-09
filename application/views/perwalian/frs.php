@@ -1065,7 +1065,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         diskusiThread.scrollTop = diskusiThread.scrollHeight;
                         inputKomentar.value = '';
                     } else {
-                        alert(resp.message || 'Gagal mengirim komentar.');
+                        if (window.SCDialog) {
+                            SCDialog.alert(resp.message || 'Gagal mengirim komentar.', { title: 'Gagal Mengirim', type: 'error' });
+                        } else {
+                            alert(resp.message || 'Gagal mengirim komentar.');
+                        }
                     }
                 })
                 .catch(function(err) {

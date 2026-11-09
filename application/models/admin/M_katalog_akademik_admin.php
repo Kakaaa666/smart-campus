@@ -7,26 +7,604 @@ class M_katalog_akademik_admin extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->schema_ready();
+    }
+
+    public function raw_table_exists($table)
+    {
+        $res = $this->db->query("SHOW TABLES LIKE " . $this->db->escape($table));
+        return ($res && $res->num_rows() > 0);
     }
 
     public function schema_ready()
     {
-        foreach ([
-            'program_studi',
-            'mata_kuliah',
-            'kurikulum',
-            'kurikulum_mata_kuliah',
-            'penugasan_dosen_prodi',
-            'kurikulum_mahasiswa',
-            'pemetaan_penawaran_mata_kuliah',
-            'histori_katalog_akademik',
-        ] as $table) {
-            if (!$this->db->table_exists($table)) {
-                return false;
-            }
+        // 1. Eksekusi pembuatan skema tabel jika belum ada
+        $this->auto_migrate_schema();
+
+        // 2. Bersihkan cache nama tabel CodeIgniter
+        if (isset($this->db->data_cache['table_names'])) {
+            unset($this->db->data_cache['table_names']);
+        }
+
+        // 3. Pastikan data awal terisi
+        $this->ensure_initial_seeds();
+
+        // 4. Bersihkan cache lagi agar query builder CI mengenali semua tabel
+        if (isset($this->db->data_cache['table_names'])) {
+            unset($this->db->data_cache['table_names']);
         }
 
         return true;
+    }
+
+    public function auto_migrate_schema()
+    {
+        if (isset($this->db->data_cache['table_names'])) {
+            unset($this->db->data_cache['table_names']);
+        }
+
+        try {
+            $this->db->query('SET FOREIGN_KEY_CHECKS = 0;');
+        } catch (\Throwable $e) {}
+
+        // 1. Cek jika tabel migrasi 001 (bahasa Inggris) sudah ada tetapi belum di-rename ke bahasa Indonesia (002)
+        $this->run_migration_002_if_needed();
+
+        // 2. Buat seluruh tabel skema akademik berbahasa Indonesia jika belum ada
+        $this->create_indonesian_schema_direct();
+
+        try {
+            $this->db->query('SET FOREIGN_KEY_CHECKS = 1;');
+        } catch (\Throwable $e) {}
+
+        if (isset($this->db->data_cache['table_names'])) {
+            unset($this->db->data_cache['table_names']);
+        }
+    }
+
+    protected function run_migration_002_if_needed()
+    {
+        $table_renames = [
+            'academic_programs' => 'program_studi',
+            'academic_lecturer_programs' => 'penugasan_dosen_prodi',
+            'academic_curricula' => 'kurikulum',
+            'academic_courses' => 'mata_kuliah',
+            'academic_curriculum_courses' => 'kurikulum_mata_kuliah',
+            'academic_course_prerequisites' => 'prasyarat_mata_kuliah',
+            'academic_student_curricula' => 'kurikulum_mahasiswa',
+            'academic_offering_courses' => 'pemetaan_penawaran_mata_kuliah',
+            'academic_rules' => 'aturan_akademik',
+            'academic_rule_history' => 'histori_aturan_akademik',
+            'academic_catalog_history' => 'histori_katalog_akademik',
+            'academic_krs_validation_history' => 'histori_validasi_krs',
+            'academic_krs_detail_snapshots' => 'snapshot_detail_krs',
+        ];
+
+        foreach ($table_renames as $old_name => $new_name) {
+            if ($this->raw_table_exists($old_name) && !$this->raw_table_exists($new_name)) {
+                try {
+                    $this->db->query("RENAME TABLE `{$old_name}` TO `{$new_name}`");
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        if ($this->raw_table_exists('program_studi') && $this->db->field_exists('code', 'program_studi')) {
+            $alter_statements = [
+                "ALTER TABLE `program_studi` CHANGE COLUMN `code` `kode` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `name` `nama` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `faculty` `fakultas` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `degree_level` `jenjang` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `valid_from` `berlaku_mulai` date NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `valid_until` `berlaku_sampai` date NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `created_by` `dibuat_oleh` int(11) NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `updated_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `program_studi` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `lecturer_id` `dosen_id` int(11) NOT NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `program_id` `program_studi_id` int(11) NOT NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `assignment_type` `jenis_penugasan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `valid_from` `berlaku_mulai` date NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `valid_until` `berlaku_sampai` date NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `assigned_by` `ditetapkan_oleh` int(11) NULL",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `penugasan_dosen_prodi` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `program_id` `program_studi_id` int(11) NOT NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `code` `kode` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `name` `nama` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `cohort_start_year` `angkatan_mulai` smallint(5) unsigned NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `cohort_end_year` `angkatan_sampai` smallint(5) unsigned NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `valid_from` `berlaku_mulai` date NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `valid_until` `berlaku_sampai` date NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `created_by` `dibuat_oleh` int(11) NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `updated_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `kurikulum` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `code` `kode` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `name` `nama` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `description` `deskripsi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `created_by` `dibuat_oleh` int(11) NULL",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `updated_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `mata_kuliah` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `curriculum_id` `kurikulum_id` int(11) NOT NULL",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `course_id` `mata_kuliah_id` int(11) NOT NULL",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `recommended_semester` `semester_rekomendasi` tinyint(2) unsigned NULL",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `credits` `sks` tinyint(2) unsigned NOT NULL",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `course_group` `kelompok_mata_kuliah` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `is_required` `wajib` tinyint(1) NOT NULL DEFAULT 1",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `kurikulum_mata_kuliah` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `prasyarat_mata_kuliah` CHANGE COLUMN `curriculum_course_id` `kurikulum_mata_kuliah_id` int(11) NOT NULL",
+                "ALTER TABLE `prasyarat_mata_kuliah` CHANGE COLUMN `prerequisite_course_id` `prasyarat_mata_kuliah_id` int(11) NOT NULL",
+                "ALTER TABLE `prasyarat_mata_kuliah` CHANGE COLUMN `alternative_group` `kelompok_alternatif` smallint(5) unsigned NOT NULL DEFAULT 1",
+                "ALTER TABLE `prasyarat_mata_kuliah` CHANGE COLUMN `minimum_grade` `nilai_minimum` decimal(3,2) NULL",
+                "ALTER TABLE `prasyarat_mata_kuliah` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `student_id` `mahasiswa_id` int(11) NOT NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `curriculum_id` `kurikulum_id` int(11) NOT NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `effective_from` `berlaku_mulai` date NOT NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `effective_until` `berlaku_sampai` date NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `change_reason` `alasan_perubahan` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `changed_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `kurikulum_mahasiswa` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `pemetaan_penawaran_mata_kuliah` CHANGE COLUMN `offering_id` `penawaran_id` int(11) NOT NULL",
+                "ALTER TABLE `pemetaan_penawaran_mata_kuliah` CHANGE COLUMN `course_id` `mata_kuliah_id` int(11) NOT NULL",
+                "ALTER TABLE `pemetaan_penawaran_mata_kuliah` CHANGE COLUMN `created_by` `dibuat_oleh` int(11) NULL",
+                "ALTER TABLE `pemetaan_penawaran_mata_kuliah` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `code` `kode` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `version` `versi` int(11) unsigned NOT NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `name` `nama` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `category` `kategori` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `description` `deskripsi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `scope_type` `jenis_cakupan` enum('GLOBAL','PROGRAM','CURRICULUM','COURSE','PERIOD') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'GLOBAL'",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `scope_id` `cakupan_id` int(11) NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `parameters_json` `parameter_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `effective_from` `berlaku_mulai` date NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `effective_until` `berlaku_sampai` date NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `change_reason` `alasan_perubahan` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `created_by` `dibuat_oleh` int(11) NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `updated_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `aturan_akademik` CHANGE COLUMN `updated_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `rule_id` `aturan_id` int(11) NOT NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `version` `versi` int(11) unsigned NOT NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `before_json` `sebelum_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `after_json` `sesudah_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `change_reason` `alasan_perubahan` varchar(500) NOT NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `changed_by` `diubah_oleh` int(11) NULL",
+                "ALTER TABLE `histori_aturan_akademik` CHANGE COLUMN `changed_at` `diubah_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `entity_type` `jenis_entitas` enum('PROGRAM','COURSE','CURRICULUM','CURRICULUM_COURSE','LECTURER_ASSIGNMENT','STUDENT_CURRICULUM') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `entity_id` `id_entitas` int(11) NOT NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `action` `aksi` enum('CREATE','UPDATE','STATUS_CHANGE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `before_json` `sebelum_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `after_json` `sesudah_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `change_reason` `alasan_perubahan` varchar(500) NOT NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `performed_by` `dilakukan_oleh` int(11) NULL",
+                "ALTER TABLE `histori_katalog_akademik` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `action` `aksi` enum('DRAFT','SUBMIT','APPROVE','REJECT','REVALIDATE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `result_json` `hasil_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `rule_versions_json` `versi_aturan_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `performed_by_staff_id` `dilakukan_oleh_staf_id` int(11) NULL",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `performed_by_student_id` `dilakukan_oleh_mahasiswa_id` int(11) NULL",
+                "ALTER TABLE `histori_validasi_krs` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()",
+                "ALTER TABLE `snapshot_detail_krs` CHANGE COLUMN `course_code` `kode_mata_kuliah` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `snapshot_detail_krs` CHANGE COLUMN `course_name` `nama_mata_kuliah` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL",
+                "ALTER TABLE `snapshot_detail_krs` CHANGE COLUMN `credits` `sks` tinyint(2) unsigned NOT NULL",
+                "ALTER TABLE `snapshot_detail_krs` CHANGE COLUMN `created_at` `dibuat_pada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()"
+            ];
+
+            foreach ($alter_statements as $sql) {
+                try {
+                    $this->db->query($sql);
+                } catch (\Throwable $e) {}
+            }
+        }
+    }
+
+    public function create_indonesian_schema_direct()
+    {
+        $ddl_list = [
+            // 1. program_studi
+            "CREATE TABLE IF NOT EXISTS `program_studi` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kode` VARCHAR(32) NULL DEFAULT NULL,
+                `nama` VARCHAR(150) NOT NULL,
+                `fakultas` VARCHAR(150) NULL DEFAULT NULL,
+                `jenjang` VARCHAR(50) NULL DEFAULT NULL,
+                `status` ENUM('PENDING_REVIEW','ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+                `berlaku_mulai` DATE NULL DEFAULT NULL,
+                `berlaku_sampai` DATE NULL DEFAULT NULL,
+                `dibuat_oleh` INT(11) NULL DEFAULT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_program_studi_kode` (`kode`),
+                KEY `idx_program_studi_nama` (`nama`),
+                KEY `idx_program_studi_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 2. penugasan_dosen_prodi
+            "CREATE TABLE IF NOT EXISTS `penugasan_dosen_prodi` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `dosen_id` INT(11) NOT NULL,
+                `program_studi_id` INT(11) NOT NULL,
+                `jenis_penugasan` VARCHAR(50) NOT NULL DEFAULT 'HOMELINK_PRODI',
+                `status` ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+                `berlaku_mulai` DATE NULL DEFAULT NULL,
+                `berlaku_sampai` DATE NULL DEFAULT NULL,
+                `ditetapkan_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_penugasan_dosen_prodi_active` (`dosen_id`,`program_studi_id`,`status`),
+                KEY `idx_penugasan_dosen_prodi_dates` (`berlaku_mulai`,`berlaku_sampai`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 3. kurikulum
+            "CREATE TABLE IF NOT EXISTS `kurikulum` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `program_studi_id` INT(11) NOT NULL,
+                `kode` VARCHAR(32) NOT NULL,
+                `nama` VARCHAR(150) NOT NULL,
+                `angkatan_mulai` SMALLINT(5) UNSIGNED NULL DEFAULT NULL,
+                `angkatan_sampai` SMALLINT(5) UNSIGNED NULL DEFAULT NULL,
+                `berlaku_mulai` DATE NULL DEFAULT NULL,
+                `berlaku_sampai` DATE NULL DEFAULT NULL,
+                `status` ENUM('DRAFT','ACTIVE','ARCHIVED') NOT NULL DEFAULT 'ACTIVE',
+                `dibuat_oleh` INT(11) NULL DEFAULT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_kurikulum_program_kode` (`program_studi_id`,`kode`),
+                KEY `idx_kurikulum_status` (`program_studi_id`,`status`,`angkatan_mulai`,`angkatan_sampai`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 4. mata_kuliah
+            "CREATE TABLE IF NOT EXISTS `mata_kuliah` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kode` VARCHAR(32) NOT NULL,
+                `nama` VARCHAR(150) NOT NULL,
+                `deskripsi` TEXT NULL DEFAULT NULL,
+                `status` ENUM('PENDING_REVIEW','ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+                `dibuat_oleh` INT(11) NULL DEFAULT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_mata_kuliah_kode` (`kode`),
+                KEY `idx_mata_kuliah_nama` (`nama`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 5. kurikulum_mata_kuliah
+            "CREATE TABLE IF NOT EXISTS `kurikulum_mata_kuliah` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kurikulum_id` INT(11) NOT NULL,
+                `mata_kuliah_id` INT(11) NOT NULL,
+                `semester_rekomendasi` TINYINT(2) UNSIGNED NULL DEFAULT NULL,
+                `sks` TINYINT(2) UNSIGNED NOT NULL DEFAULT 3,
+                `kelompok_mata_kuliah` VARCHAR(50) NULL DEFAULT NULL,
+                `wajib` TINYINT(1) NOT NULL DEFAULT 1,
+                `status` ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_kurikulum_mata_kuliah` (`kurikulum_id`,`mata_kuliah_id`),
+                KEY `idx_kurikulum_mata_kuliah_sem` (`kurikulum_id`,`semester_rekomendasi`,`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 6. prasyarat_mata_kuliah
+            "CREATE TABLE IF NOT EXISTS `prasyarat_mata_kuliah` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kurikulum_mata_kuliah_id` INT(11) NOT NULL,
+                `prasyarat_mata_kuliah_id` INT(11) NOT NULL,
+                `kelompok_alternatif` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1,
+                `nilai_minimum` DECIMAL(3,2) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_prasyarat_mata_kuliah` (`kurikulum_mata_kuliah_id`,`prasyarat_mata_kuliah_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 7. kurikulum_mahasiswa
+            "CREATE TABLE IF NOT EXISTS `kurikulum_mahasiswa` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `mahasiswa_id` INT(11) NOT NULL,
+                `kurikulum_id` INT(11) NOT NULL,
+                `berlaku_mulai` DATE NOT NULL,
+                `berlaku_sampai` DATE NULL DEFAULT NULL,
+                `alasan_perubahan` VARCHAR(500) NULL DEFAULT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_kurikulum_mahasiswa_effective` (`mahasiswa_id`,`berlaku_mulai`,`berlaku_sampai`),
+                KEY `idx_kurikulum_mahasiswa_kurikulum` (`kurikulum_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 8. pemetaan_penawaran_mata_kuliah
+            "CREATE TABLE IF NOT EXISTS `pemetaan_penawaran_mata_kuliah` (
+                `penawaran_id` INT(11) NOT NULL,
+                `mata_kuliah_id` INT(11) NOT NULL,
+                `dibuat_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`penawaran_id`),
+                KEY `idx_pemetaan_penawaran_course` (`mata_kuliah_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 9. aturan_akademik
+            "CREATE TABLE IF NOT EXISTS `aturan_akademik` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kode` VARCHAR(64) NOT NULL,
+                `versi` INT(11) UNSIGNED NOT NULL DEFAULT 1,
+                `nama` VARCHAR(150) NOT NULL,
+                `kategori` VARCHAR(50) NOT NULL,
+                `deskripsi` TEXT NULL DEFAULT NULL,
+                `jenis_cakupan` ENUM('GLOBAL','PROGRAM','CURRICULUM','COURSE','PERIOD') NOT NULL DEFAULT 'GLOBAL',
+                `cakupan_id` INT(11) NULL DEFAULT NULL,
+                `parameter_json` LONGTEXT NOT NULL,
+                `berlaku_mulai` DATE NULL DEFAULT NULL,
+                `berlaku_sampai` DATE NULL DEFAULT NULL,
+                `status` ENUM('DRAFT','ACTIVE','INACTIVE','NEEDS_REVIEW') NOT NULL DEFAULT 'DRAFT',
+                `alasan_perubahan` VARCHAR(500) NULL DEFAULT NULL,
+                `dibuat_oleh` INT(11) NULL DEFAULT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_aturan_akademik_kode_versi` (`kode`,`versi`),
+                KEY `idx_aturan_akademik_status` (`status`,`kategori`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 10. histori_aturan_akademik
+            "CREATE TABLE IF NOT EXISTS `histori_aturan_akademik` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `aturan_id` INT(11) NOT NULL,
+                `versi` INT(11) UNSIGNED NOT NULL,
+                `sebelum_json` LONGTEXT NULL DEFAULT NULL,
+                `sesudah_json` LONGTEXT NOT NULL,
+                `alasan_perubahan` VARCHAR(500) NOT NULL,
+                `diubah_oleh` INT(11) NULL DEFAULT NULL,
+                `diubah_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_histori_aturan_versi` (`aturan_id`,`versi`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 11. histori_katalog_akademik
+            "CREATE TABLE IF NOT EXISTS `histori_katalog_akademik` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `jenis_entitas` ENUM('PROGRAM','COURSE','CURRICULUM','CURRICULUM_COURSE','LECTURER_ASSIGNMENT','STUDENT_CURRICULUM') NOT NULL,
+                `id_entitas` INT(11) NOT NULL,
+                `aksi` ENUM('CREATE','UPDATE','STATUS_CHANGE') NOT NULL,
+                `sebelum_json` LONGTEXT NULL DEFAULT NULL,
+                `sesudah_json` LONGTEXT NOT NULL,
+                `alasan_perubahan` VARCHAR(500) NOT NULL,
+                `dilakukan_oleh` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_histori_katalog_entitas` (`jenis_entitas`,`id_entitas`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 12. histori_validasi_krs
+            "CREATE TABLE IF NOT EXISTS `histori_validasi_krs` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `krs_id` INT(11) NOT NULL,
+                `aksi` ENUM('DRAFT','SUBMIT','APPROVE','REJECT','REVALIDATE') NOT NULL,
+                `hasil_json` LONGTEXT NOT NULL,
+                `versi_aturan_json` LONGTEXT NOT NULL,
+                `dilakukan_oleh_staf_id` INT(11) NULL DEFAULT NULL,
+                `dilakukan_oleh_mahasiswa_id` INT(11) NULL DEFAULT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_histori_validasi_krs` (`krs_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 13. snapshot_detail_krs
+            "CREATE TABLE IF NOT EXISTS `snapshot_detail_krs` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `krs_detail_id` INT(11) NOT NULL,
+                `kode_mata_kuliah` VARCHAR(32) NOT NULL,
+                `nama_mata_kuliah` VARCHAR(150) NOT NULL,
+                `sks` TINYINT(2) UNSIGNED NOT NULL,
+                `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_snapshot_krs_detail` (`krs_detail_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        ];
+
+        foreach ($ddl_list as $sql) {
+            try {
+                $this->db->query($sql);
+            } catch (\Throwable $e) {}
+        }
+    }
+
+    public function ensure_initial_seeds()
+    {
+        if (!$this->raw_table_exists('program_studi') || !$this->raw_table_exists('mata_kuliah') || !$this->raw_table_exists('kurikulum')) {
+            return;
+        }
+
+        // 1. Seed program_studi jika kosong
+        $count_prodi = $this->db->count_all('program_studi');
+        if ($count_prodi === 0) {
+            if ($this->raw_table_exists('prodi') && $this->db->count_all('prodi') > 0) {
+                $existing_prodi = $this->db->get('prodi')->result();
+                foreach ($existing_prodi as $p) {
+                    $this->db->insert('program_studi', [
+                        'id' => (int)$p->id,
+                        'kode' => !empty($p->kode_prodi) ? $p->kode_prodi : ('PR' . $p->id),
+                        'nama' => $p->nama_prodi,
+                        'fakultas' => !empty($p->fakultas) ? $p->fakultas : 'Fakultas Teknologi Informasi',
+                        'jenjang' => 'Strata 1',
+                        'status' => 'ACTIVE',
+                        'berlaku_mulai' => '2020-01-01',
+                        'berlaku_sampai' => '2030-12-31',
+                        'dibuat_pada' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            } else {
+                $default_prodis = [
+                    ['id' => 1, 'kode' => 'TI', 'nama' => 'Teknik Informatika', 'fakultas' => 'Fakultas Teknologi Informasi', 'jenjang' => 'Strata 1', 'status' => 'ACTIVE', 'berlaku_mulai' => '2020-01-01'],
+                    ['id' => 2, 'kode' => 'SI', 'nama' => 'Sistem Informasi', 'fakultas' => 'Fakultas Teknologi Informasi', 'jenjang' => 'Strata 1', 'status' => 'ACTIVE', 'berlaku_mulai' => '2020-01-01'],
+                    ['id' => 3, 'kode' => 'MI', 'nama' => 'Manajemen Informatika', 'fakultas' => 'Fakultas Teknologi Informasi', 'jenjang' => 'Diploma 3', 'status' => 'ACTIVE', 'berlaku_mulai' => '2020-01-01'],
+                    ['id' => 4, 'kode' => 'AK', 'nama' => 'Akuntansi', 'fakultas' => 'Fakultas Ekonomi dan Bisnis', 'jenjang' => 'Strata 1', 'status' => 'ACTIVE', 'berlaku_mulai' => '2020-01-01'],
+                ];
+                foreach ($default_prodis as $dp) {
+                    $this->db->insert('program_studi', $dp);
+                }
+            }
+        }
+
+        // 2. Seed mata_kuliah jika kosong
+        $count_courses = $this->db->count_all('mata_kuliah');
+        if ($count_courses === 0) {
+            if ($this->raw_table_exists('penawaran_matakuliah')) {
+                $offerings = $this->db->select('kode_mk, nama_mk')
+                                      ->group_by(['kode_mk', 'nama_mk'])
+                                      ->get('penawaran_matakuliah')
+                                      ->result();
+                $inserted_codes = [];
+                foreach ($offerings as $off) {
+                    $code = trim((string)$off->kode_mk);
+                    $name = trim((string)$off->nama_mk);
+                    if ($code !== '' && !isset($inserted_codes[strtoupper($code)])) {
+                        $this->db->insert('mata_kuliah', [
+                            'kode' => $code,
+                            'nama' => $name,
+                            'status' => 'ACTIVE',
+                            'dibuat_pada' => date('Y-m-d H:i:s'),
+                        ]);
+                        $inserted_codes[strtoupper($code)] = true;
+                    }
+                }
+            }
+        }
+
+        if ($this->db->count_all('mata_kuliah') === 0) {
+            $default_courses = [
+                ['kode' => 'TIS101', 'nama' => 'Algoritma dan Pemrograman', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS102', 'nama' => 'Struktur Data & Algoritma', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS201', 'nama' => 'Sistem Basis Data', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS202', 'nama' => 'Pemrograman Web Lanjut', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS301', 'nama' => 'Rekayasa Perangkat Lunak', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS302', 'nama' => 'Jaringan Komputer & Keamanan', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS401', 'nama' => 'Kecerdasan Buatan & Machine Learning', 'status' => 'ACTIVE'],
+                ['kode' => 'TIS402', 'nama' => 'Cloud Computing & DevOps', 'status' => 'ACTIVE'],
+            ];
+            foreach ($default_courses as $dc) {
+                $this->db->insert('mata_kuliah', $dc);
+            }
+        }
+
+        // 3. Pastikan kurikulum untuk tiap prodi aktif
+        $active_programs = $this->db->where('status', 'ACTIVE')->get('program_studi')->result();
+        foreach ($active_programs as $prog) {
+            $existing_curr = $this->db->where('program_studi_id', $prog->id)->get('kurikulum')->row();
+            if (!$existing_curr) {
+                $curr_code = 'KUR-' . ($prog->kode ?: 'PRODI' . $prog->id) . '-2024';
+                $this->db->insert('kurikulum', [
+                    'program_studi_id' => $prog->id,
+                    'kode' => $curr_code,
+                    'nama' => 'Kurikulum ' . $prog->nama . ' 2024',
+                    'angkatan_mulai' => 2020,
+                    'angkatan_sampai' => 2028,
+                    'berlaku_mulai' => '2024-01-01',
+                    'berlaku_sampai' => '2028-12-31',
+                    'status' => 'ACTIVE',
+                    'dibuat_pada' => date('Y-m-d H:i:s'),
+                ]);
+                $kurikulum_id = (int)$this->db->insert_id();
+
+                if ($this->raw_table_exists('kurikulum_mata_kuliah') && $kurikulum_id > 0) {
+                    $courses = $this->db->limit(10)->get('mata_kuliah')->result();
+                    $sem = 1;
+                    foreach ($courses as $c) {
+                        $this->db->insert('kurikulum_mata_kuliah', [
+                            'kurikulum_id' => $kurikulum_id,
+                            'mata_kuliah_id' => $c->id,
+                            'semester_rekomendasi' => $sem,
+                            'sks' => 3,
+                            'kelompok_mata_kuliah' => 'Mata Kuliah Wajib Prodi',
+                            'wajib' => 1,
+                            'status' => 'ACTIVE',
+                            'dibuat_pada' => date('Y-m-d H:i:s'),
+                        ]);
+                        $sem = ($sem % 8) + 1;
+                    }
+                }
+            }
+        }
+
+        // 4. Hubungkan pemetaan_penawaran_mata_kuliah
+        if ($this->raw_table_exists('pemetaan_penawaran_mata_kuliah') && $this->raw_table_exists('penawaran_matakuliah')) {
+            $mapped_count = $this->db->count_all('pemetaan_penawaran_mata_kuliah');
+            if ($mapped_count === 0) {
+                $unmapped = $this->db->select('penawaran_matakuliah.id AS penawaran_id, mata_kuliah.id AS mk_id')
+                                     ->from('penawaran_matakuliah')
+                                     ->join('mata_kuliah', 'UPPER(TRIM(mata_kuliah.kode)) = UPPER(TRIM(penawaran_matakuliah.kode_mk))', 'inner')
+                                     ->get()
+                                     ->result();
+                foreach ($unmapped as $um) {
+                    $this->db->insert('pemetaan_penawaran_mata_kuliah', [
+                        'penawaran_id' => $um->penawaran_id,
+                        'mata_kuliah_id' => $um->mk_id,
+                        'dibuat_pada' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
+
+        // 5. Hubungkan kurikulum_mahasiswa
+        if ($this->raw_table_exists('kurikulum_mahasiswa') && $this->raw_table_exists('akun_mahasiswa')) {
+            $assigned_students = $this->db->count_all('kurikulum_mahasiswa');
+            if ($assigned_students === 0) {
+                $students = $this->db->where('deleted_at IS NULL', null, false)->get('akun_mahasiswa')->result();
+                foreach ($students as $st) {
+                    $match_curr = $this->db->select('kurikulum.id')
+                                           ->from('kurikulum')
+                                           ->join('program_studi', 'program_studi.id = kurikulum.program_studi_id', 'inner')
+                                           ->where('program_studi.status', 'ACTIVE')
+                                           ->where('kurikulum.status', 'ACTIVE')
+                                           ->where('TRIM(LOWER(program_studi.nama))', strtolower(trim((string)$st->prodi)))
+                                           ->get()
+                                           ->row();
+                    if ($match_curr) {
+                        $this->db->insert('kurikulum_mahasiswa', [
+                            'mahasiswa_id' => $st->id,
+                            'kurikulum_id' => $match_curr->id,
+                            'berlaku_mulai' => '2024-01-01',
+                            'alasan_perubahan' => 'Penetapan kurikulum awal mahasiswa',
+                            'dibuat_pada' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // 6. Hubungkan penugasan dosen ke program studi
+        if ($this->raw_table_exists('penugasan_dosen_prodi') && $this->raw_table_exists('akun_biro')) {
+            $assigned_lecturers = $this->db->count_all('penugasan_dosen_prodi');
+            if ($assigned_lecturers === 0) {
+                $lecturers = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->get('akun_biro')->result();
+                $first_prodi = $this->db->where('status', 'ACTIVE')->get('program_studi')->row();
+                if ($first_prodi) {
+                    foreach ($lecturers as $lec) {
+                        $pid = $first_prodi->id;
+                        if (!empty($lec->prodi)) {
+                            $find_p = $this->db->where('TRIM(LOWER(nama))', strtolower(trim((string)$lec->prodi)))->get('program_studi')->row();
+                            if ($find_p) $pid = $find_p->id;
+                        }
+                        $this->db->insert('penugasan_dosen_prodi', [
+                            'dosen_id' => $lec->id,
+                            'program_studi_id' => $pid,
+                            'jenis_penugasan' => 'HOMELINK_PRODI',
+                            'status' => 'ACTIVE',
+                            'berlaku_mulai' => '2024-01-01',
+                            'dibuat_pada' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
     }
 
     public function get_programs($limit, $offset)

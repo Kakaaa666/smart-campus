@@ -193,3 +193,114 @@
     font-weight: 600;
     font-size: 13.5px;
 }
+
+/* ==========================================================================
+   Toast Notification Styling
+   ========================================================================== */
+.sc-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    max-width: 420px;
+    width: calc(100% - 48px);
+}
+.sc-toast {
+    pointer-events: auto;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    transform: translateX(110%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+.sc-toast.sc-toast-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+.sc-toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.sc-toast-content {
+    flex: 1;
+    min-width: 0;
+}
+.sc-toast-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 2px 0;
+    line-height: 1.3;
+}
+.sc-toast-message {
+    font-size: 12.5px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
+}
+.sc-toast-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+.sc-toast-close:hover {
+    color: #1e293b;
+}
+
+/* ==========================================================================
+   Responsive Zoom & Resize Safety Guards Across Roles
+   ========================================================================== */
+.sc-dialog-overlay,
+.sc-toast-container {
+    box-sizing: border-box;
+}
+
+/* Prevent flex pill badges from breaking words into eggs on zoom/resize across all views */
+.badge-pill-responsive,
+span[class*="rounded-full"][class*="px-3"],
+span[class*="rounded-full"][class*="px-2.5"],
+span[class*="rounded-full"][class*="px-2"] {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Prevent class codes (e.g. TI-1A) and table badges from word-breaking at hyphens */
+td span[class*="bg-blue-50"],
+td span[class*="rounded-md"],
+td span[class*="rounded-lg"],
+.class-code span {
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+}
+
+/* Ensure table containers remain smoothly scrollable without layout blowout */
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+}

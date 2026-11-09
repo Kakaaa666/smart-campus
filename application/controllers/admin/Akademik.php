@@ -18,6 +18,65 @@ class Akademik extends MY_Role_Controller
     public function index()
     {
         $period = $this->M_akademik->get_active_period();
+
+        // Data statistik untuk Dashboard Biro Akademik
+        $total_mahasiswa = $this->db->where('deleted_at IS NULL', null, false)->count_all_results('akun_mahasiswa');
+        $total_dosen = $this->db->where('role', 4)->where('deleted_at IS NULL', null, false)->count_all_results('akun_biro');
+        $offerings = $this->M_akademik->get_admin_offerings();
+        $total_penawaran = count($offerings);
+
+        $this->load->model('mahasiswa/M_skpi_mahasiswa', 'M_skpi');
+        $skpi_waiting = 0;
+        try {
+            $skpi_summary = $this->M_skpi->get_admin_summary();
+            $skpi_waiting = (int)($skpi_summary['waiting'] ?? 0);
+        } catch (\Throwable $e) {}
+
+        // Statistik KRS
+        $krs_counts = ['MENUNGGU' => 0, 'DISETUJUI' => 0, 'DITOLAK' => 0];
+        try {
+            $krs_rows = $this->db->select('status, COUNT(*) as total')
+                ->where('tahun_akademik', $period['tahun_akademik'])
+                ->where('semester_akademik', $period['semester_akademik'])
+                ->group_by('status')
+                ->get('krs')
+                ->result();
+            foreach ($krs_rows as $kr) {
+                if (isset($krs_counts[$kr->status])) {
+                    $krs_counts[$kr->status] = (int)$kr->total;
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        $data = [
+            'title' => 'Dashboard Akademik - Smart Campus',
+            'page_title' => 'Dashboard Akademik',
+            'page_desc' => 'Pusat informasi dan kendali operasional Biro Akademik.',
+            'card_subtitle' => 'Ringkasan Eksekutif Akademik',
+            'active_period' => $period,
+            'total_mahasiswa' => $total_mahasiswa,
+            'total_dosen' => $total_dosen,
+            'total_penawaran' => $total_penawaran,
+            'skpi_waiting' => $skpi_waiting,
+            'krs_counts' => $krs_counts,
+            'recent_offerings' => array_slice($offerings, 0, 6),
+        ];
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('akademik/dashboard', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    public function dashboard()
+    {
+        $this->index();
+    }
+
+    public function operasional()
+    {
+        $period = $this->M_akademik->get_active_period();
         $data = [
             'title' => 'Operasional Akademik - Smart Campus',
             'page_title' => 'Operasional Akademik',
@@ -78,7 +137,7 @@ class Akademik extends MY_Role_Controller
             || !$this->valid_time($end)
             || $start >= $end) {
             $this->session->set_flashdata('error', validation_errors('', '') ?: 'Periksa format periode dan rentang waktu perkuliahan.');
-            redirect('admin/akademik');
+            redirect('admin/akademik/operasional');
             return;
         }
 
@@ -101,12 +160,12 @@ class Akademik extends MY_Role_Controller
 
         if (!$this->M_akademik->create_offering($offering)) {
             $this->session->set_flashdata('error', 'Penawaran gagal disimpan. Periksa akun dosen, data duplikat, dan benturan jadwal dosen atau ruangan.');
-            redirect('admin/akademik');
+            redirect('admin/akademik/operasional');
             return;
         }
 
         $this->session->set_flashdata('success', 'Penawaran mata kuliah berhasil ditambahkan.');
-        redirect('admin/akademik');
+        redirect('admin/akademik/operasional');
     }
 
     public function toggle_offering()
@@ -120,7 +179,7 @@ class Akademik extends MY_Role_Controller
         } else {
             $this->session->set_flashdata('success', $active ? 'Penawaran mata kuliah diaktifkan.' : 'Penawaran mata kuliah dinonaktifkan.');
         }
-        redirect('admin/akademik');
+        redirect('admin/akademik/operasional');
     }
 
     public function assign_advisor()
@@ -135,7 +194,7 @@ class Akademik extends MY_Role_Controller
         } else {
             $this->session->set_flashdata('success', 'Dosen Wali berhasil ditetapkan.');
         }
-        redirect('admin/akademik');
+        redirect('admin/akademik/operasional');
     }
 
     private function require_post()

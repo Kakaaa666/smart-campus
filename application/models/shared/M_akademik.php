@@ -372,6 +372,7 @@ class M_akademik extends CI_Model
         $dosen_setiabudi= $this->db->where('role', 4)->group_start()->where('nim', 'setiabudi')->or_like('nama_lengkap', 'Setiabudi')->group_end()->get('akun_biro')->row();
         $dosen_windarini= $this->db->where('role', 4)->group_start()->where('nim', 'windarini')->or_like('nama_lengkap', 'Windarini')->group_end()->get('akun_biro')->row();
         $dosen_fauzi    = $this->db->where('role', 4)->group_start()->where('nim', 'fauzi')->or_like('nama_lengkap', 'Fauzi')->group_end()->get('akun_biro')->row();
+        $dosen_kaprodi  = $this->db->where('role', 4)->group_start()->where('nim', 'adminKaprodi')->or_like('nama_lengkap', 'Kaprodi')->group_end()->get('akun_biro')->row();
 
         $id_subari    = $dosen_subari ? (int)$dosen_subari->id : $dosen_id;
         $id_sugeng    = $dosen_sugeng ? (int)$dosen_sugeng->id : $dosen_id;
@@ -383,6 +384,7 @@ class M_akademik extends CI_Model
         $id_setiabudi = $dosen_setiabudi ? (int)$dosen_setiabudi->id : $id_subari;
         $id_windarini = $dosen_windarini ? (int)$dosen_windarini->id : $id_maya;
         $id_fauzi     = $dosen_fauzi ? (int)$dosen_fauzi->id : $dosen_id;
+        $id_kaprodi   = $dosen_kaprodi ? (int)$dosen_kaprodi->id : $id_hendra;
 
         // Normalisasi data matkul eksisting (misal MKU prodi 'Umum' dan jenis 'Umum')
         $this->db->where("kode_mk LIKE 'MKU%' OR kode_mk LIKE 'MU24%'")->update('penawaran_matakuliah', [
@@ -767,9 +769,9 @@ class M_akademik extends CI_Model
             // Semester 1 (Ganjil)
             [
                 'kode_mk' => 'TI14KK11', 'nama_mk' => 'Algoritma dan Pemrograman I', 'prodi' => 'Teknik Informatika',
-                'semester' => 1, 'tahun_akademik' => $thn, 'semester_akademik' => 'Ganjil', 'sks' => 3, 'kelas' => 'TI-1A',
+                'semester' => 1, 'tahun_akademik' => '2023/2024', 'semester_akademik' => 'Ganjil', 'sks' => 3, 'kelas' => 'TI-1A',
                 'hari' => 'Senin', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Lab Komputer TI-1',
-                'dosen_id' => $id_sugeng, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Tidak Ada'
+                'dosen_id' => $id_kaprodi, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Tidak Ada'
             ],
             [
                 'kode_mk' => 'TI14KK12', 'nama_mk' => 'Matematika Diskrit', 'prodi' => 'Teknik Informatika',
@@ -879,9 +881,9 @@ class M_akademik extends CI_Model
             ],
             [
                 'kode_mk' => 'TI14KK33', 'nama_mk' => 'Pemrograman Berorientasi Objek', 'prodi' => 'Teknik Informatika',
-                'semester' => 3, 'tahun_akademik' => $thn, 'semester_akademik' => 'Ganjil', 'sks' => 3, 'kelas' => 'TI-3A',
+                'semester' => 3, 'tahun_akademik' => '2024/2025', 'semester_akademik' => 'Ganjil', 'sks' => 3, 'kelas' => 'TI-3A',
                 'hari' => 'Rabu', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Lab RPL TI',
-                'dosen_id' => $id_koko, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Algoritma II'
+                'dosen_id' => $id_kaprodi, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Algoritma II'
             ],
             [
                 'kode_mk' => 'TI14KK34', 'nama_mk' => 'Jaringan Komputer', 'prodi' => 'Teknik Informatika',
@@ -923,15 +925,15 @@ class M_akademik extends CI_Model
             ],
             [
                 'kode_mk' => 'TI14KB42', 'nama_mk' => 'Basis Data Lanjut', 'prodi' => 'Teknik Informatika',
-                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'semester' => 4, 'tahun_akademik' => '2024/2025', 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
                 'hari' => 'Selasa', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Lab Basis Data',
-                'dosen_id' => $id_subari, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Sistem Basis Data'
+                'dosen_id' => $id_kaprodi, 'jenis_mk' => 'Wajib', 'kuota' => 35, 'prasyarat' => 'Lulus Sistem Basis Data'
             ],
             [
                 'kode_mk' => 'TI14KB43', 'nama_mk' => 'Rekayasa Perangkat Lunak', 'prodi' => 'Teknik Informatika',
-                'semester' => 4, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
+                'semester' => 4, 'tahun_akademik' => '2024/2025', 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-4A',
                 'hari' => 'Rabu', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Ruang Teori RK-204',
-                'dosen_id' => $id_hendra, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Lulus PBO'
+                'dosen_id' => $id_kaprodi, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Lulus PBO'
             ],
             [
                 'kode_mk' => 'TI14KB44', 'nama_mk' => 'Sistem Terdistribusi', 'prodi' => 'Teknik Informatika',
@@ -1023,9 +1025,9 @@ class M_akademik extends CI_Model
             ],
             [
                 'kode_mk' => 'TI14KB63', 'nama_mk' => 'Manajemen Proyek Teknologi Informasi', 'prodi' => 'Teknik Informatika',
-                'semester' => 6, 'tahun_akademik' => $thn, 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-6A',
+                'semester' => 6, 'tahun_akademik' => '2025/2026', 'semester_akademik' => 'Genap', 'sks' => 3, 'kelas' => 'TI-6A',
                 'hari' => 'Kamis', 'waktu_mulai' => '08:00:00', 'waktu_selesai' => '10:30:00', 'ruangan' => 'Ruang Teori RK-302',
-                'dosen_id' => $id_mukhlis, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Lulus RPL'
+                'dosen_id' => $id_kaprodi, 'jenis_mk' => 'Wajib', 'kuota' => 40, 'prasyarat' => 'Lulus RPL'
             ],
             [
                 'kode_mk' => 'TI19PK64', 'nama_mk' => 'Bahasa Asing Pilihan', 'prodi' => 'Teknik Informatika',
@@ -1170,11 +1172,6 @@ class M_akademik extends CI_Model
         foreach ($sample_courses as $item) {
             $ex = $this->db->where('kode_mk', $item['kode_mk'])
                            ->where('kelas', $item['kelas'])
-                           ->where('semester_akademik', $item['semester_akademik'])
-                           ->group_start()
-                               ->where('tahun_akademik', $item['tahun_akademik'])
-                               ->or_like('tahun_akademik', explode('/', $item['tahun_akademik'])[0], 'after')
-                           ->group_end()
                            ->get('penawaran_matakuliah')
                            ->row();
             if (!$ex) {
@@ -1196,6 +1193,32 @@ class M_akademik extends CI_Model
                 ]);
             }
         }
+
+        // Pastikan tahun akademik dan semester akademik terpetakan secara bertahap sesuai semester
+        $this->db->where('semester', 1)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2023/2024', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 2)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2023/2024', 'semester_akademik' => 'Genap']);
+        $this->db->where('semester', 3)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2024/2025', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 4)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2024/2025', 'semester_akademik' => 'Genap']);
+        $this->db->where('semester', 5)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2025/2026', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 6)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2025/2026', 'semester_akademik' => 'Genap']);
+
+        // Pastikan kelas inti Kaprodi Teknik Informatika tetap terhubung ke akun Kaprodi
+        if (!empty($id_kaprodi) && $id_kaprodi > 0) {
+            $this->db->where_in('kode_mk', ['TI14KK11', 'TI14KK33', 'TI14KB42', 'TI14KB43', 'TI14KB63'])
+                     ->update('penawaran_matakuliah', ['dosen_id' => $id_kaprodi, 'aktif' => 1]);
+        }
+
+        // Nonaktifkan seluruh kode dummy legacy agar tidak muncul sebagai baris duplikat
+        $legacy_dummy_codes = [
+            'TI-101', 'TI-102', 'TI-103', 'TI-104', 'KU-101', 'KU-102', 'KU-103', 'KU-104',
+            'TI-201', 'TI-202', 'TI-203', 'TI-204', 'TI-205', 'TI-206', 'KU-201',
+            'TI-301', 'TI-302', 'TI-303', 'TI-304', 'TI-305', 'TI-306', 'TI-307',
+            'TI-401', 'TI-402', 'TI-403', 'TI-404', 'TI-405',
+            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401',
+            'MU24PK51', 'MU24BB61', 'MU24BB71'
+        ];
+        $this->db->where_in('kode_mk', $legacy_dummy_codes)->update('penawaran_matakuliah', ['aktif' => 0]);
+        $this->db->where("kode_mk REGEXP '^(TI|KU|MKU)-[0-9]{3}'")->update('penawaran_matakuliah', ['aktif' => 0]);
     }
 
     public function get_active_period()
@@ -2211,12 +2234,96 @@ class M_akademik extends CI_Model
             }
         }
 
-        // Ambil ID dosen Pak Sugeng, Pak Hendra, Bu Maya, Pak Subari, Bu Yekti
+        // Ambil ID dosen Pak Sugeng, Pak Hendra, Bu Maya, Pak Subari, Bu Yekti, serta Kaprodi
         $dosen_sugeng = $this->db->where('role', 4)->group_start()->where('nim', 'sugeng')->or_like('nama_lengkap', 'Sugeng')->group_end()->get('akun_biro')->row();
         $dosen_hendra = $this->db->where('role', 4)->group_start()->where('nim', 'dosen')->or_like('nama_lengkap', 'Hendra')->group_end()->get('akun_biro')->row();
         $dosen_maya   = $this->db->where('role', 4)->group_start()->where('nim', 'maya')->or_like('nama_lengkap', 'Maya')->group_end()->get('akun_biro')->row();
         $dosen_subari = $this->db->where('role', 4)->group_start()->where('nim', 'subari')->or_like('nama_lengkap', 'Subari')->group_end()->get('akun_biro')->row();
         $staff_yekti  = $this->db->group_start()->where('nim', 'yekti')->or_like('nama_lengkap', 'Yekti')->group_end()->get('akun_biro')->row();
+
+        // Pastikan akun Kaprodi Teknik Informatika terdaftar dan aktif di akun_biro
+        $dosen_kaprodi = $this->db->where('role', 4)->group_start()->where('nim', 'adminKaprodi')->or_like('nama_lengkap', 'Kaprodi')->group_end()->get('akun_biro')->row();
+        if (!$dosen_kaprodi) {
+            $this->db->insert('akun_biro', [
+                'nim'          => 'adminKaprodi',
+                'nama_lengkap' => 'Kaprodi Teknik Informatika',
+                'email'        => 'adminKaprodi@staff.campus.ac.id',
+                'password'     => password_hash('admin123', PASSWORD_DEFAULT),
+                'role'         => 4,
+                'is_kaprodi'   => 1,
+                'prodi_id'     => 1,
+                'biro'         => 'dosen',
+                'fakultas'     => 'Fakultas Teknologi Informasi',
+                'prodi'        => 'Teknik Informatika',
+                'jenjang'      => 'Strata 1',
+                'foto'         => 'avatar-4.png',
+                'created_at'   => date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s')
+            ]);
+            $dosen_kaprodi = $this->db->where('nim', 'adminKaprodi')->get('akun_biro')->row();
+        } else {
+            $this->db->where('id', (int)$dosen_kaprodi->id)->update('akun_biro', [
+                'role'         => 4,
+                'is_kaprodi'   => 1,
+                'prodi_id'     => 1,
+                'prodi'        => 'Teknik Informatika',
+                'fakultas'     => 'Fakultas Teknologi Informasi',
+                'deleted_at'   => null
+            ]);
+        }
+        $id_kaprodi = $dosen_kaprodi ? (int)$dosen_kaprodi->id : 0;
+
+        // 1. Nonaktifkan SELURUH penawaran kode dummy legacy yang menimbulkan baris duplikat di tabel perkuliahan
+        $legacy_dummy_codes = [
+            'TI-101', 'TI-102', 'TI-103', 'TI-104', 'KU-101', 'KU-102', 'KU-103', 'KU-104',
+            'TI-201', 'TI-202', 'TI-203', 'TI-204', 'TI-205', 'TI-206', 'KU-201',
+            'TI-301', 'TI-302', 'TI-303', 'TI-304', 'TI-305', 'TI-306', 'TI-307',
+            'TI-401', 'TI-402', 'TI-403', 'TI-404', 'TI-405',
+            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401',
+            'MU24PK51', 'MU24BB61', 'MU24BB71'
+        ];
+        $this->db->where_in('kode_mk', $legacy_dummy_codes)->update('penawaran_matakuliah', ['aktif' => 0]);
+        $this->db->where("kode_mk REGEXP '^(TI|KU|MKU)-[0-9]{3}'")->update('penawaran_matakuliah', ['aktif' => 0]);
+
+        // Remap mahasiswa di krs_detail yang sebelumnya menunjuk ke kelas dummy agar beralih ke kelas kurikulum aktif
+        $legacy_remap = [
+            'TI-101' => 'TI14KK11', 'TI-102' => 'TI14KK12', 'TI-103' => 'TI14KK13', 'TI-104' => 'TI14KK14',
+            'KU-101' => 'KU14PK12', 'KU-102' => 'KU14PK22', 'MKU-102' => 'KU14PK22', 'KU-103' => 'KU14PK11',
+            'KU-104' => 'KU14PK13', 'TI-201' => 'TI14KK21', 'TI-202' => 'TI14KK22', 'TI-203' => 'TI14KK32',
+            'TI-204' => 'TI14KB41', 'TI-205' => 'TI14KK25', 'TI-206' => 'TI14KK23', 'KU-201' => 'TI14BB41',
+            'TI-301' => 'TI14KK33', 'TI-302' => 'TI14KK34', 'TI-303' => 'TI14KB43', 'TI-304' => 'TI14KB41',
+            'TI-305' => 'TI14KK35', 'TI-306' => 'TI14KB45', 'TI-307' => 'TI14KK36', 'TI-401' => 'TI14KB41',
+            'TI-402' => 'TI14KB42', 'TI-403' => 'TI14KB43', 'TI-404' => 'TI14KB44', 'TI-405' => 'TI14KB45',
+        ];
+        foreach ($legacy_remap as $old_code => $new_code) {
+            $old_off = $this->db->where('kode_mk', $old_code)->get('penawaran_matakuliah')->row();
+            $new_off = $this->db->where('kode_mk', $new_code)->where('aktif', 1)->get('penawaran_matakuliah')->row();
+            if ($old_off && $new_off) {
+                $old_details = $this->db->where('penawaran_id', (int)$old_off->id)->get('krs_detail')->result();
+                foreach ($old_details as $od) {
+                    $has_new = $this->db->where('krs_id', (int)$od->krs_id)->where('penawaran_id', (int)$new_off->id)->count_all_results('krs_detail');
+                    if ($has_new > 0) {
+                        $this->db->where('id', (int)$od->id)->delete('krs_detail');
+                    } else {
+                        $this->db->where('id', (int)$od->id)->update('krs_detail', ['penawaran_id' => (int)$new_off->id]);
+                    }
+                }
+            }
+        }
+
+        // 2. Tugaskan mata kuliah kurikulum inti Teknik Informatika kepada Kaprodi (Rekayasa Perangkat Lunak, Basis Data Lanjut, PBO, Algoritma I, Manajemen Proyek TI)
+        if ($id_kaprodi > 0) {
+            $this->db->where_in('kode_mk', ['TI14KK11', 'TI14KK33', 'TI14KB42', 'TI14KB43', 'TI14KB63'])
+                     ->update('penawaran_matakuliah', ['dosen_id' => $id_kaprodi, 'aktif' => 1]);
+        }
+
+        // 3. Sinkronisasi tahun akademik dan semester akademik bertahap sesuai semester kurikulum
+        $this->db->where('semester', 1)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2023/2024', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 2)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2023/2024', 'semester_akademik' => 'Genap']);
+        $this->db->where('semester', 3)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2024/2025', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 4)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2024/2025', 'semester_akademik' => 'Genap']);
+        $this->db->where('semester', 5)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2025/2026', 'semester_akademik' => 'Ganjil']);
+        $this->db->where('semester', 6)->where('aktif', 1)->update('penawaran_matakuliah', ['tahun_akademik' => '2025/2026', 'semester_akademik' => 'Genap']);
 
         // 1. Khusus Nabila (NIM 2004) memilih Pak Sugeng sebagai Dosen Wali
         $mhs_nabila = $this->db->group_start()->where('nim', '2004')->or_like('nama_lengkap', 'Nabila')->group_end()->get('akun_mahasiswa')->row();
@@ -2231,11 +2338,6 @@ class M_akademik extends CI_Model
                     'ditetapkan_oleh' => (int)$mhs_nabila->id
                 ]);
             }
-
-            // Nonaktifkan penawaran duplikat/benturan jadwal lama untuk Semester 4 TI
-            $this->db->where('semester', 4)
-                     ->where_in('kode_mk', ['TI-401', 'TI-402', 'TI-404', 'TI-405', 'MU24PK51', 'MU24BB61', 'MU24BB71', 'MKU-401'])
-                     ->update('penawaran_matakuliah', ['aktif' => 0]);
 
             // Pastikan 7 mata kuliah kurikulum resmi Semester 4 Teknik Informatika aktif
             $target_ti4_codes = ['TI14KB41', 'TI14KB42', 'TI14KB43', 'TI14KB44', 'TI14BB41', 'TI14KB45', 'TI14BB42'];
@@ -2260,15 +2362,13 @@ class M_akademik extends CI_Model
             $now = date('Y-m-d H:i:s');
 
             $krs_nabila = $this->db->where('akun_id', (int)$mhs_nabila->id)
-                                   ->order_by("FIELD(status, 'DISETUJUI', 'MENUNGGU', 'DRAFT')", '', false)
-                                   ->order_by('id', 'DESC')
+                                   ->where('tahun_akademik', $nabila_target_tahun)
+                                   ->where('semester_akademik', $nabila_target_sem)
                                    ->get('krs')->row();
 
             if ($krs_nabila) {
                 $nabila_krs_id = (int)$krs_nabila->id;
                 $this->db->where('id', $nabila_krs_id)->update('krs', [
-                    'tahun_akademik' => $nabila_target_tahun,
-                    'semester_akademik' => $nabila_target_sem,
                     'status' => 'DISETUJUI',
                     'total_sks' => $total_sks_nabila ?: 19,
                     'diproses_oleh' => (int)$dosen_sugeng->id,
@@ -2316,6 +2416,16 @@ class M_akademik extends CI_Model
                         'penawaran_id' => $off_id
                     ]);
                 }
+            }
+
+            // Bersihkan KRS historis dummy semester lampau (Semester 1 s/d 3) Nabila jika pernah terbuat,
+            // karena seluruh mata kuliah semester 1 s/d 3 Nabila dicatat resmi dan valid di tabel khs_nilai!
+            $hist_krs_nabila = $this->db->where('akun_id', (int)$mhs_nabila->id)
+                                        ->where('id !=', $nabila_krs_id)
+                                        ->get('krs')->result();
+            foreach ($hist_krs_nabila as $hkn) {
+                $this->db->where('krs_id', (int)$hkn->id)->delete('krs_detail');
+                $this->db->where('id', (int)$hkn->id)->delete('krs');
             }
         }
 
@@ -2478,6 +2588,97 @@ class M_akademik extends CI_Model
                     'dosen_id' => $target_dosen_id,
                     'ditetapkan_oleh' => 1
                 ]);
+            }
+        }
+
+        // 3. Sinkronisasi KRS aktif mahasiswa lain di Teknik Informatika (Arkan Semester 1, Salsabila Semester 2, Daffa Semester 4)
+        $mhs_2001 = $this->db->where('nim', '2001')->get('akun_mahasiswa')->row();
+        if ($mhs_2001) {
+            $krs_2001 = $this->db->where('akun_id', (int)$mhs_2001->id)->where('status', 'DISETUJUI')->get('krs')->row();
+            if (!$krs_2001) {
+                $this->db->insert('krs', [
+                    'akun_id'           => (int)$mhs_2001->id,
+                    'tahun_akademik'    => '2024/2025',
+                    'semester_akademik' => 'Ganjil',
+                    'status'            => 'DISETUJUI',
+                    'total_sks'         => 19,
+                    'catatan'           => 'KRS Semester 1 telah disetujui Dosen Wali.',
+                    'diajukan_at'       => date('Y-m-d H:i:s'),
+                    'diproses_oleh'     => $dosen_sugeng ? (int)$dosen_sugeng->id : 1,
+                    'diproses_at'       => date('Y-m-d H:i:s'),
+                    'created_at'        => date('Y-m-d H:i:s'),
+                    'updated_at'        => date('Y-m-d H:i:s')
+                ]);
+                $krs_2001_id = (int)$this->db->insert_id();
+            } else {
+                $krs_2001_id = (int)$krs_2001->id;
+            }
+            $ti1_offers = $this->db->where_in('kode_mk', ['TI14KK11', 'TI14KK12', 'TI14KK13', 'TI14KK14', 'KU14PK11', 'KU14PK12', 'KU14PK13', 'TI14KB11'])->get('penawaran_matakuliah')->result();
+            foreach ($ti1_offers as $to) {
+                $check_det = $this->db->where('krs_id', $krs_2001_id)->where('penawaran_id', (int)$to->id)->get('krs_detail')->row();
+                if (!$check_det) {
+                    $this->db->insert('krs_detail', ['krs_id' => $krs_2001_id, 'penawaran_id' => (int)$to->id]);
+                }
+            }
+        }
+
+        $mhs_2002 = $this->db->where('nim', '2002')->get('akun_mahasiswa')->row();
+        if ($mhs_2002) {
+            $krs_2002 = $this->db->where('akun_id', (int)$mhs_2002->id)->where('status', 'DISETUJUI')->get('krs')->row();
+            if (!$krs_2002) {
+                $this->db->insert('krs', [
+                    'akun_id'           => (int)$mhs_2002->id,
+                    'tahun_akademik'    => '2024/2025',
+                    'semester_akademik' => 'Genap',
+                    'status'            => 'DISETUJUI',
+                    'total_sks'         => 20,
+                    'catatan'           => 'KRS Semester 2 telah disetujui Dosen Wali.',
+                    'diajukan_at'       => date('Y-m-d H:i:s'),
+                    'diproses_oleh'     => $dosen_hendra ? (int)$dosen_hendra->id : 1,
+                    'diproses_at'       => date('Y-m-d H:i:s'),
+                    'created_at'        => date('Y-m-d H:i:s'),
+                    'updated_at'        => date('Y-m-d H:i:s')
+                ]);
+                $krs_2002_id = (int)$this->db->insert_id();
+            } else {
+                $krs_2002_id = (int)$krs_2002->id;
+            }
+            $ti2_offers = $this->db->where_in('kode_mk', ['TI14KK21', 'TI14KK22', 'TI14KK23', 'TI14KK24', 'TI14KK25', 'KU14PK21', 'KU14PK22', 'TI14KB21'])->get('penawaran_matakuliah')->result();
+            foreach ($ti2_offers as $to) {
+                $check_det = $this->db->where('krs_id', $krs_2002_id)->where('penawaran_id', (int)$to->id)->get('krs_detail')->row();
+                if (!$check_det) {
+                    $this->db->insert('krs_detail', ['krs_id' => $krs_2002_id, 'penawaran_id' => (int)$to->id]);
+                }
+            }
+        }
+
+        $mhs_2005 = $this->db->where('nim', '2005')->get('akun_mahasiswa')->row();
+        if ($mhs_2005) {
+            $krs_2005 = $this->db->where('akun_id', (int)$mhs_2005->id)->where('status', 'DISETUJUI')->get('krs')->row();
+            if (!$krs_2005) {
+                $this->db->insert('krs', [
+                    'akun_id'           => (int)$mhs_2005->id,
+                    'tahun_akademik'    => '2024/2025',
+                    'semester_akademik' => 'Genap',
+                    'status'            => 'DISETUJUI',
+                    'total_sks'         => 19,
+                    'catatan'           => 'KRS Semester 4 telah disetujui Dosen Wali.',
+                    'diajukan_at'       => date('Y-m-d H:i:s'),
+                    'diproses_oleh'     => $dosen_sugeng ? (int)$dosen_sugeng->id : 1,
+                    'diproses_at'       => date('Y-m-d H:i:s'),
+                    'created_at'        => date('Y-m-d H:i:s'),
+                    'updated_at'        => date('Y-m-d H:i:s')
+                ]);
+                $krs_2005_id = (int)$this->db->insert_id();
+            } else {
+                $krs_2005_id = (int)$krs_2005->id;
+            }
+            $ti4_offers = $this->db->where_in('kode_mk', ['TI14KB41', 'TI14KB42', 'TI14KB43', 'TI14KB44', 'TI14BB41', 'TI14KB45', 'TI14BB42'])->get('penawaran_matakuliah')->result();
+            foreach ($ti4_offers as $to) {
+                $check_det = $this->db->where('krs_id', $krs_2005_id)->where('penawaran_id', (int)$to->id)->get('krs_detail')->row();
+                if (!$check_det) {
+                    $this->db->insert('krs_detail', ['krs_id' => $krs_2005_id, 'penawaran_id' => (int)$to->id]);
+                }
             }
         }
     }
@@ -3283,6 +3484,16 @@ class M_akademik extends CI_Model
                 }
             }
         }
+
+        // Pastikan nilai_angka terisi lengkap pada khs_nilai untuk sinkronisasi akurat ke modul transkrip capaian OBE
+        $this->db->query("UPDATE `khs_nilai` SET `nilai_angka` = CASE 
+            WHEN `nilai_huruf` = 'A' THEN 89.00 
+            WHEN `nilai_huruf` = 'B+' THEN 83.50 
+            WHEN `nilai_huruf` = 'B' THEN 77.50 
+            WHEN `nilai_huruf` = 'C+' THEN 72.00 
+            WHEN `nilai_huruf` = 'C' THEN 66.00 
+            ELSE (`nilai_indeks` * 25.0) 
+        END WHERE `nilai_angka` IS NULL");
     }
 
     /**
@@ -3548,12 +3759,198 @@ class M_akademik extends CI_Model
             return [];
         }
 
-        $builder = $this->db->select('id, nim, nama_lengkap, prodi, jenjang, semester')
+        $fields = ($table_mhs === 'akun_mahasiswa')
+            ? 'id, nim, nama_lengkap, prodi, jenjang, semester, status_akademik, angkatan, ipk'
+            : 'id, nim, nama_lengkap, prodi, jenjang, semester';
+
+        $builder = $this->db->select($fields)
                             ->where('deleted_at IS NULL', null, false);
         if ($table_mhs === 'akun') {
             $builder->where('role', 3);
         }
-        return $builder->order_by('nama_lengkap', 'ASC')->get($table_mhs)->result();
+        $students = $builder->order_by('nama_lengkap', 'ASC')->get($table_mhs)->result();
+
+        foreach ($students as $st) {
+            if (empty($st->jenjang)) {
+                $st->jenjang = ($st->prodi === 'Sistem Informasi' && ($st->nim === '241221009' || strpos($st->nama_lengkap, 'ARTHUR') !== false)) ? 'Diploma 3' : 'Strata 1';
+            }
+            if (empty($st->angkatan)) {
+                $st->angkatan = strlen($st->nim) >= 2 && is_numeric(substr($st->nim, 0, 2)) ? '20' . substr($st->nim, 0, 2) : '2024';
+            }
+            if (empty($st->status_akademik)) {
+                $st->status_akademik = 'Aktif';
+            }
+            if (!isset($st->ipk) || $st->ipk <= 0) {
+                $st->ipk = 3.25;
+            }
+        }
+
+        return $students;
+    }
+
+    /**
+     * Ambil opsi Program Studi untuk filter KHS
+     */
+    public function get_khs_prodi_options()
+    {
+        $table_mhs = $this->db->table_exists('akun_mahasiswa') ? 'akun_mahasiswa' : ($this->db->table_exists('akun') ? 'akun' : null);
+        $prodis = [];
+        if ($table_mhs) {
+            $rows = $this->db->distinct()
+                ->select('prodi')
+                ->where('deleted_at IS NULL', null, false)
+                ->where('prodi IS NOT NULL', null, false)
+                ->where("prodi != ''", null, false)
+                ->order_by('prodi', 'ASC')
+                ->get($table_mhs)
+                ->result_array();
+            $prodis = array_filter(array_column($rows, 'prodi'));
+        }
+        $defaults = [
+            'Sistem Informasi',
+            'Teknik Informatika',
+            'Sains Data',
+            'Teknologi Informasi',
+            'Bisnis Digital',
+            'Manajemen'
+        ];
+        $merged = array_values(array_unique(array_merge($prodis, $defaults)));
+        sort($merged);
+        return $merged;
+    }
+
+    /**
+     * Ambil opsi Angkatan untuk filter KHS
+     */
+    public function get_khs_angkatan_options()
+    {
+        $table_mhs = $this->db->table_exists('akun_mahasiswa') ? 'akun_mahasiswa' : ($this->db->table_exists('akun') ? 'akun' : null);
+        $angkatan = [];
+        if ($table_mhs && $this->db->field_exists('angkatan', $table_mhs)) {
+            $rows = $this->db->distinct()
+                ->select('angkatan')
+                ->where('deleted_at IS NULL', null, false)
+                ->where('angkatan IS NOT NULL', null, false)
+                ->where("angkatan != ''", null, false)
+                ->order_by('angkatan', 'DESC')
+                ->get($table_mhs)
+                ->result_array();
+            $angkatan = array_filter(array_column($rows, 'angkatan'));
+        }
+        $defaults = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
+        $merged = array_values(array_unique(array_merge($angkatan, $defaults)));
+        rsort($merged);
+        return $merged;
+    }
+
+    /**
+     * Query builder helper untuk filter mahasiswa KHS
+     */
+    protected function _build_khs_student_query($filters = [])
+    {
+        $table_mhs = $this->db->table_exists('akun_mahasiswa') ? 'akun_mahasiswa' : ($this->db->table_exists('akun') ? 'akun' : null);
+        if (!$table_mhs) {
+            return null;
+        }
+
+        $this->db->from($table_mhs . ' AS mhs');
+        $this->db->where('mhs.deleted_at IS NULL', null, false);
+        if ($table_mhs === 'akun') {
+            $this->db->where('mhs.role', 3);
+        }
+
+        // Filter dosen wali jika peran dosen
+        if (!empty($filters['dosen_id'])) {
+            $this->db->join('dosen_wali AS dw', 'dw.mahasiswa_id = mhs.id', 'inner');
+            $this->db->where('dw.dosen_id', (int)$filters['dosen_id']);
+        }
+
+        // Filter Program Studi
+        if (!empty($filters['prodi'])) {
+            $this->db->where('mhs.prodi', trim($filters['prodi']));
+        }
+
+        // Filter Angkatan
+        if (!empty($filters['angkatan'])) {
+            $th = trim($filters['angkatan']);
+            $short_th = substr($th, -2);
+            $this->db->group_start();
+            $this->db->where('mhs.angkatan', $th);
+            $this->db->or_where("mhs.nim LIKE '{$short_th}%'", null, false);
+            $this->db->group_end();
+        }
+
+        // Filter Semester
+        if (!empty($filters['semester'])) {
+            $this->db->where('mhs.semester', (int)$filters['semester']);
+        }
+
+        // Filter Status Akademik
+        if (!empty($filters['status'])) {
+            $this->db->where('mhs.status_akademik', trim($filters['status']));
+        }
+
+        // Filter Search (NIM atau Nama)
+        if (!empty($filters['q'])) {
+            $q = trim($filters['q']);
+            $this->db->group_start();
+            $this->db->like('mhs.nim', $q);
+            $this->db->or_like('mhs.nama_lengkap', $q);
+            $this->db->group_end();
+        }
+
+        return $table_mhs;
+    }
+
+    /**
+     * Mengambil daftar mahasiswa yang difilter untuk halaman KHS
+     */
+    public function get_filtered_students_for_khs($filters = [], $limit = 200, $offset = 0)
+    {
+        $table = $this->_build_khs_student_query($filters);
+        if (!$table) {
+            return [];
+        }
+
+        $fields = ($table === 'akun_mahasiswa')
+            ? 'mhs.id, mhs.nim, mhs.nama_lengkap, mhs.prodi, mhs.jenjang, mhs.semester, mhs.status_akademik, mhs.angkatan, mhs.ipk, mhs.foto'
+            : 'mhs.id, mhs.nim, mhs.nama_lengkap, mhs.prodi, mhs.jenjang, mhs.semester';
+
+        $this->db->select($fields);
+        $this->db->order_by('mhs.nama_lengkap', 'ASC');
+        if ($limit > 0) {
+            $this->db->limit($limit, $offset);
+        }
+        $students = $this->db->get()->result();
+
+        foreach ($students as $st) {
+            if (empty($st->jenjang)) {
+                $st->jenjang = ($st->prodi === 'Sistem Informasi' && ($st->nim === '241221009' || strpos($st->nama_lengkap, 'ARTHUR') !== false)) ? 'Diploma 3' : 'Strata 1';
+            }
+            if (empty($st->angkatan)) {
+                $st->angkatan = strlen($st->nim) >= 2 && is_numeric(substr($st->nim, 0, 2)) ? '20' . substr($st->nim, 0, 2) : '2024';
+            }
+            if (empty($st->status_akademik)) {
+                $st->status_akademik = 'Aktif';
+            }
+            if (!isset($st->ipk) || $st->ipk <= 0) {
+                $st->ipk = 3.25;
+            }
+        }
+
+        return $students;
+    }
+
+    /**
+     * Hitung total mahasiswa sesuai filter
+     */
+    public function count_filtered_students_for_khs($filters = [])
+    {
+        $table = $this->_build_khs_student_query($filters);
+        if (!$table) {
+            return 0;
+        }
+        return (int)$this->db->count_all_results();
     }
 
     /**

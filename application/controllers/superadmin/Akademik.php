@@ -34,17 +34,27 @@ class Akademik extends MY_Role_Controller
     public function jadwal() { $this->index(); }
     public function nilai() { redirect('akademik/nilai' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')); }
     public function khs() {
-        $all_students = $this->M_akademik->get_all_students_for_khs();
         $student_id = (int)$this->input->get('student_id');
-        if (!$student_id) {
-            $arthur = $this->db->where('nim', '241221009')->get('akun_mahasiswa')->row();
-            $student_id = $arthur ? (int)$arthur->id : (!empty($all_students) ? (int)$all_students[0]->id : 0);
+        $all_students = $this->M_akademik->get_all_students_for_khs();
+        $prodi_options = $this->M_akademik->get_khs_prodi_options();
+        $angkatan_options = $this->M_akademik->get_khs_angkatan_options();
+        $filters = [
+            'prodi'    => $this->input->get('prodi', true) ?: '',
+            'angkatan' => $this->input->get('angkatan', true) ?: '',
+            'semester' => $this->input->get('semester', true) ?: '',
+            'status'   => $this->input->get('status', true) ?: '',
+            'q'        => $this->input->get('q', true) ?: '',
+        ];
+
+        $students_list = [];
+        $khs_data = null;
+        if ($student_id > 0) {
+            $selected_period = $this->input->get('periode', true);
+            $jenis = $this->input->get('jenis', true) ?: 'khs';
+            $khs_data = $this->M_akademik->get_student_khs_data($student_id, $selected_period, $jenis);
+        } else {
+            $students_list = $this->M_akademik->get_filtered_students_for_khs($filters);
         }
-
-        $selected_period = $this->input->get('periode', true);
-        $jenis = $this->input->get('jenis', true) ?: 'khs';
-
-        $khs_data = $this->M_akademik->get_student_khs_data($student_id, $selected_period, $jenis);
 
         $data = [
             'title' => 'Kartu Hasil Studi (KHS) - Smart Campus',
@@ -52,10 +62,16 @@ class Akademik extends MY_Role_Controller
             'page_desc' => 'Pemeriksaan Kartu Hasil Studi (KHS) mahasiswa per semester.',
             'card_subtitle' => 'Kartu Hasil Studi Mahasiswa',
             'khs_data' => $khs_data,
+            'students_list' => $students_list,
+            'total_students' => count($students_list),
+            'prodi_options' => $prodi_options,
+            'angkatan_options' => $angkatan_options,
+            'filters' => $filters,
             'all_students' => $all_students,
             'selected_student_id' => $student_id,
             'is_admin' => true,
             'is_dosen' => false,
+            'selected_jenis' => $this->input->get('jenis', true) ?: 'khs',
             'current_role' => 'superadmin'
         ];
 
@@ -67,7 +83,7 @@ class Akademik extends MY_Role_Controller
     }
 
     public function transkrip() {
-        $this->khs();
+        redirect('akademik/transkrip' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''));
     }
     public function kurikulum() { $this->index(); }
     public function matakuliah() { $this->index(); }

@@ -196,6 +196,72 @@
         return result;
     }
 
+    function showToast(message, options) {
+        options = options || {};
+        var type = options.type || 'info';
+        var duration = typeof options.duration === 'number' ? options.duration : 3500;
+        var title = options.title || (type === 'success' ? 'Berhasil' : (type === 'danger' || type === 'error' ? 'Peringatan' : 'Informasi'));
+
+        var container = document.querySelector('.sc-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'sc-toast-container';
+            document.body.appendChild(container);
+        }
+
+        var toast = document.createElement('div');
+        toast.className = 'sc-toast';
+
+        var iconWrap = document.createElement('div');
+        iconWrap.className = 'sc-toast-icon sc-dialog-icon-' + type;
+        iconWrap.innerHTML = getIconHtml(type);
+
+        var content = document.createElement('div');
+        content.className = 'sc-toast-content';
+
+        var titleEl = document.createElement('h6');
+        titleEl.className = 'sc-toast-title';
+        titleEl.textContent = title;
+
+        var messageEl = document.createElement('p');
+        messageEl.className = 'sc-toast-message';
+        messageEl.innerHTML = String(message || '').replace(/\n/g, '<br>');
+
+        content.appendChild(titleEl);
+        content.appendChild(messageEl);
+
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'sc-toast-close';
+        closeBtn.setAttribute('aria-label', 'Tutup');
+        closeBtn.innerHTML = '&times;';
+
+        toast.appendChild(iconWrap);
+        toast.appendChild(content);
+        toast.appendChild(closeBtn);
+        container.appendChild(toast);
+
+        requestAnimationFrame(function() {
+            toast.classList.add('sc-toast-show');
+        });
+
+        var timer = null;
+        function dismiss() {
+            if (timer) clearTimeout(timer);
+            toast.classList.remove('sc-toast-show');
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+
+        closeBtn.addEventListener('click', dismiss);
+        if (duration > 0) {
+            timer = setTimeout(dismiss, duration);
+        }
+    }
+
     var SCDialog = {
         __initialized: true,
         alert: function(message, options) {
@@ -209,6 +275,9 @@
         prompt: function(message, options) {
             var opts = Object.assign({}, options || {}, { kind: 'prompt', message: String(message || '') });
             return show(opts);
+        },
+        toast: function(message, options) {
+            return showToast(message, options);
         }
     };
 
@@ -228,6 +297,10 @@
         });
     };
 
+    window.scToast = function(message, type, duration) {
+        return SCDialog.toast(message, { type: type || 'info', duration: duration || 3500 });
+    };
+
     // Override alert bawaan peramban agar tidak ada "localhost says" sama sekali
     try {
         window.alert = function(msg) {
@@ -236,6 +309,87 @@
     } catch (e) {
         // Abaikan jika read-only
     }
+
+    // Override confirm bawaan peramban sebagai jaring pengaman
+    try {
+        window.confirm = function(msg) {
+            SCDialog.alert(msg, { title: 'Konfirmasi Diperlukan', type: 'warning' });
+            return false;
+        };
+    } catch (e) {
+        // Abaikan jika read-only
+    }
+
+    // Intersepsi click pada link atau button dengan data-sc-confirm atau data-confirm atau inline onclick confirm
+    document.addEventListener('click', function(event) {
+        var el = event.target.closest('a[data-sc-confirm], a[data-confirm], button[data-sc-confirm], button[data-confirm]');
+        if (!el) {
+            // Cek elemen dengan inline onclick yang memanggil confirm(...)
+            var clickEl = event.target.closest('a, button');
+            if (clickEl) {
+                var onclickAttr = clickEl.getAttribute('onclick');
+                if (onclickAttr && /confirm\s*\(/.test(onclickAttr)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+
+                    var match = onclickAttr.match(/confirm\s*\(\s*(['"`])([\s\S]*?)\1\s*\)/);
+                    var msg = match ? match[2] : 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+                    var title = clickEl.getAttribute('data-confirm-title') || 'Konfirmasi Tindakan';
+                    var acceptText = clickEl.getAttribute('data-confirm-accept') || 'Ya, Lanjutkan';
+                    var cancelText = clickEl.getAttribute('data-confirm-cancel') || 'Batal';
+                    var type = clickEl.getAttribute('data-confirm-type') || 'danger';
+
+                    SCDialog.confirm(msg, {
+                        title: title,
+                        acceptText: acceptText,
+                        cancelText: cancelText,
+                        type: type
+                    }).then(function(confirmed) {
+                        if (!confirmed) return;
+                        if (clickEl.tagName === 'A' && clickEl.href && !clickEl.href.startsWith('javascript:')) {
+                            window.location.href = clickEl.href;
+                        } else if (clickEl.tagName === 'BUTTON' && clickEl.form) {
+                            clickEl.form.submit();
+                        }
+                    });
+                    return;
+                }
+            }
+            return;
+        }
+
+        // Jika el adalah submit button dalam form yang ditangani oleh submit handler, abaikan di sini
+        if (el.tagName === 'BUTTON' && el.type === 'submit' && el.form) {
+            return;
+        }
+
+        var message = el.getAttribute('data-sc-confirm') || el.getAttribute('data-confirm');
+        if (!message) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        var title = el.getAttribute('data-confirm-title') || 'Konfirmasi Tindakan';
+        var acceptText = el.getAttribute('data-confirm-accept') || 'Ya, Lanjutkan';
+        var cancelText = el.getAttribute('data-confirm-cancel') || 'Batal';
+        var type = el.getAttribute('data-confirm-type') || 'warning';
+
+        SCDialog.confirm(message, {
+            title: title,
+            acceptText: acceptText,
+            cancelText: cancelText,
+            type: type
+        }).then(function(confirmed) {
+            if (!confirmed) return;
+            if (el.tagName === 'A' && el.href && !el.href.startsWith('javascript:')) {
+                window.location.href = el.href;
+            } else if (el.tagName === 'BUTTON' && el.form) {
+                el.form.submit();
+            }
+        });
+    }, true);
 
     // Intersepsi form submission dengan data-sc-confirm atau data-confirm
     document.addEventListener('submit', function(event) {

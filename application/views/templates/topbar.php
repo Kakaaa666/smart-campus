@@ -67,8 +67,27 @@
                                     $subTitle = 'Super Administrator';
                                     $roleBadgeName = 'Super Admin';
                                 } elseif ($current_role_id === 4) {
-                                    $subTitle = 'Dosen Pengampu';
-                                    $roleBadgeName = 'Dosen';
+                                    $is_kaprodi_user = ((int)$this->session->userdata('is_kaprodi') === 1);
+                                    if (!$is_kaprodi_user) {
+                                        $uid = (int)$this->session->userdata('id');
+                                        if ($uid > 0) {
+                                            $uRow = $this->db->select('is_kaprodi, prodi, nama_lengkap')->where('id', $uid)->get('akun_biro')->row();
+                                            if ($uRow && ((int)$uRow->is_kaprodi === 1 || stripos($uRow->nama_lengkap, 'kaprodi') !== false)) {
+                                                $is_kaprodi_user = true;
+                                                $this->session->set_userdata('is_kaprodi', 1);
+                                                if (!empty($uRow->prodi)) {
+                                                    $this->session->set_userdata('prodi', $uRow->prodi);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if ($is_kaprodi_user) {
+                                        $subTitle = 'Ketua Program Studi ' . ($this->session->userdata('prodi') ?: 'Teknik Informatika');
+                                        $roleBadgeName = 'Kaprodi';
+                                    } else {
+                                        $subTitle = 'Dosen Pengampu';
+                                        $roleBadgeName = 'Dosen';
+                                    }
                                 } else {
                                     $subTitle = $userRole ? $userRole : 'Pengguna';
                                     $roleBadgeName = $subTitle;
