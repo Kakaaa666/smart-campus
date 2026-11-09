@@ -228,6 +228,36 @@
             fill: #1976d2 !important;
         }
 
+        /* Badge Notifikasi pada Sidebar Collapsed / Minimized */
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a {
+            position: relative !important;
+        }
+
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .badge,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .payment-verification-count,
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .sidebar-badge-notify {
+            position: absolute !important;
+            top: 4px !important;
+            right: 4px !important;
+            z-index: 10 !important;
+            min-width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+            padding: 0 4.5px !important;
+            border-radius: 999px !important;
+            border: 2px solid var(--sc-ink, #0e382c) !important;
+            font-size: 9.5px !important;
+            font-weight: 800 !important;
+            line-height: 14px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
+            box-sizing: border-box !important;
+            pointer-events: none !important;
+            white-space: nowrap !important;
+        }
+
         /* Submenu Dropdowns */
         .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
             background-color: #f8fafc !important;

@@ -272,23 +272,33 @@ body .pcoded .pcoded-submenu li > a:focus-visible {
     outline-offset: 2px !important;
 }
 
-body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li.menu-verifikasi-pembayaran > a .payment-verification-count {
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .payment-verification-count,
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .sidebar-badge-notify,
+body[class*="theme-"] #pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item > li > a .badge {
     display: inline-flex !important;
     flex: 0 0 auto !important;
     align-items: center !important;
     justify-content: center !important;
-    min-width: 22px !important;
-    height: 22px !important;
+    min-width: 20px !important;
+    height: 20px !important;
     margin: 0 0 0 auto !important;
     padding: 0 6px !important;
-    border: 2px solid var(--sc-surface) !important;
     border-radius: 999px !important;
-    color: #ffffff !important;
-    background: #dc3545 !important;
-    font-size: 10px !important;
+    font-size: 10.5px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .badge-warning {
+    background-color: #ffc107 !important;
+    color: #1f2937 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .badge-danger {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
 }
 
 body[class*="theme-"] .pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a,
@@ -661,6 +671,7 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
     border: 1px solid transparent !important;
     border-radius: 16px !important;
     transform: none !important;
+    position: relative !important;
 }
 
 body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
@@ -679,18 +690,39 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
     display: none !important;
 }
 
-body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.menu-verifikasi-pembayaran > a .payment-verification-count {
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .badge,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .payment-verification-count,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .sidebar-badge-notify,
+#pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .badge,
+#pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .payment-verification-count,
+#pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .sidebar-badge-notify {
     position: absolute !important;
-    top: -5px !important;
-    right: 1px !important;
-    z-index: 2 !important;
-    min-width: 17px !important;
-    height: 17px !important;
+    top: 4px !important;
+    right: 4px !important;
+    z-index: 10 !important;
+    min-width: 18px !important;
+    height: 18px !important;
     margin: 0 !important;
-    padding: 0 4px !important;
-    border: 2px solid color-mix(in srgb, #ffffff 5%, var(--sc-ink)) !important;
-    font-size: 9px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28) !important;
+    padding: 0 4.5px !important;
+    border-radius: 999px !important;
+    border: 2px solid color-mix(in srgb, #ffffff 5%, var(--sc-ink, #0e382c)) !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    line-height: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+    white-space: nowrap !important;
+    transform: none !important;
+}
+
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .badge,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .payment-verification-count,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .sidebar-badge-notify {
+    border-color: color-mix(in srgb, var(--sc-accent) 40%, var(--sc-ink, #0e382c)) !important;
 }
 
 body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a,
