@@ -686,7 +686,8 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
     font-size: 18px !important;
 }
 
-body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-mtext {
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-mtext,
+body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li > a .pcoded-mcaret {
     display: none !important;
 }
 
@@ -723,6 +724,15 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
 body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .payment-verification-count,
 body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a .sidebar-badge-notify {
     border-color: color-mix(in srgb, var(--sc-accent) 40%, var(--sc-ink, #0e382c)) !important;
+}
+
+/* Ensure submenu badges in flyout submenus are inline */
+#pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item .pcoded-submenu .badge,
+#pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item .pcoded-submenu .sidebar-badge-notify {
+    position: static !important;
+    margin-left: auto !important;
+    display: inline-flex !important;
+    border: none !important;
 }
 
 body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > li.active > a,

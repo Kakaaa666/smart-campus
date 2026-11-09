@@ -137,7 +137,7 @@ if ($current_role === 2) {
 
                                 <!-- Verifikasi Pembayaran (Menu Tersendiri) -->
                                 <li class="menu-verifikasi-pembayaran <?= ($seg1 == 'keuangan' && $seg2 == 'verifikasi') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/verifikasi') ?>" class="waves-effect waves-dark" style="position: relative;">
+                                    <a href="<?= base_url('keuangan/verifikasi') ?>" class="waves-effect waves-dark" style="position: relative;" title="Verifikasi Pembayaran">
                                         <span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span>
                                         <span class="pcoded-mtext">Verifikasi Pembayaran</span>
                                         <?php if ($pending_verif_count > 0): ?>
@@ -151,11 +151,11 @@ if ($current_role === 2) {
 
                                 <!-- Kontrol & Validasi Akses Tagihan (Terintegrasi Efisien) -->
                                 <li class="<?= ($seg1 == 'keuangan' && ($seg2 == 'kontrol_ta' || $seg2 == 'validasi_tagihan_akhir')) ? 'active' : '' ?>">
-                                    <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark" style="position: relative;">
+                                    <a href="<?= base_url('keuangan/kontrol_ta') ?>" class="waves-effect waves-dark" style="position: relative;" title="Kontrol &amp; Validasi Tagihan">
                                         <span class="pcoded-micon"><i class="fa fa-sliders"></i></span>
                                         <span class="pcoded-mtext">Kontrol &amp; Validasi Tagihan</span>
                                         <?php if ($pending_validasi_ta_count > 0): ?>
-                                            <span class="badge badge-warning text-dark sidebar-badge-notify ml-2"><?= (int)$pending_validasi_ta_count ?></span>
+                                            <span class="badge badge-warning text-dark sidebar-badge-notify"><?= (int)$pending_validasi_ta_count ?></span>
                                         <?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
@@ -241,11 +241,11 @@ if ($current_role === 2) {
                                     </a>
                                 </li>
                                 <li class="<?= (($seg1 === 'admin' || $seg1 === 'superadmin') && $seg2 === 'skpi') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('admin/skpi') ?>" class="waves-effect waves-dark" style="position: relative;">
+                                    <a href="<?= base_url('admin/skpi') ?>" class="waves-effect waves-dark" style="position: relative;" title="Validasi SKPI">
                                         <span class="pcoded-micon"><i class="fa fa-certificate"></i></span>
                                         <span class="pcoded-mtext">Validasi SKPI</span>
                                         <?php if ($skpi_pending_count > 0): ?>
-                                            <span class="badge badge-warning text-dark sidebar-badge-notify ml-2"><?= $skpi_pending_count ?></span>
+                                            <span class="badge badge-warning text-dark sidebar-badge-notify"><?= $skpi_pending_count ?></span>
                                         <?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
@@ -310,11 +310,11 @@ if ($current_role === 2) {
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'revisi-nilai') ? 'active' : '' ?>"><a href="<?= base_url('dosen/revisi-nilai') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-refresh"></i></span><span class="pcoded-mtext">Revisi Nilai</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'mahasiswa-bimbingan') ? 'active' : '' ?>"><a href="<?= base_url('dosen/mahasiswa-bimbingan') ?>" class="waves-effect waves-dark"><span class="pcoded-micon"><i class="fa fa-users"></i></span><span class="pcoded-mtext">Mahasiswa Bimbingan</span><span class="pcoded-mcaret"></span></a></li>
                                 <li class="<?= ($seg1 === 'dosen' && $seg2 === 'persetujuan-krs') ? 'active' : '' ?>">
-                                    <a href="<?= base_url('dosen/persetujuan-krs') ?>" class="waves-effect waves-dark" style="position: relative;">
+                                    <a href="<?= base_url('dosen/persetujuan-krs') ?>" class="waves-effect waves-dark" style="position: relative;" title="Persetujuan KRS">
                                         <span class="pcoded-micon"><i class="fa fa-check-square-o"></i></span>
                                         <span class="pcoded-mtext">Persetujuan KRS</span>
                                         <?php if ($dosen_pending_krs_count > 0): ?>
-                                            <span class="badge badge-warning text-dark sidebar-badge-notify ml-2"><?= $dosen_pending_krs_count ?></span>
+                                            <span class="badge badge-warning text-dark sidebar-badge-notify"><?= $dosen_pending_krs_count ?></span>
                                         <?php endif; ?>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
