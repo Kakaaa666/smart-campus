@@ -11,8 +11,10 @@ Audit source code, fondasi skema, katalog dasar, pengelolaan penugasan dosen ke 
 - Migrasi CI tersedia tetapi dinonaktifkan (`application/config/migration.php`); fondasi akademik baru dikelola dengan migrasi SQL bernomor dan dijalankan manual setelah backup.
 - Autentikasi memisahkan `akun_mahasiswa` dengan `akun_biro`. Mahasiswa tidak mempunyai kolom `role`; role staf/dosen berada pada `akun_biro`.
 - Otorisasi memakai session dan `MY_Role_Controller`. Role yang ditemukan dalam alur terkait: superadmin (1), admin biro (2), mahasiswa (3), dosen (4). Belum ada role Kaprodi yang teridentifikasi.
-- `M_akademik` membuat tabel operasional saat model dimuat dan juga memiliki seeder otomatis. Pola ini berisiko untuk pengelolaan skema/data produksi dan perlu dipisahkan dalam tahap lanjutan.
+- `M_akademik` membuat tabel operasional saat model dimuat dan masih memiliki seeder legacy, tetapi pemanggilan seeder otomatis pada inisialisasi model telah dinonaktifkan agar data akademik tidak dibuat/diubah saat halaman dibuka.
 - UI yang tersedia mencakup operasional penawaran, dosen wali, KRS mahasiswa, persetujuan KRS, dan KHS.
+- Akses KRS dan halaman akademik mahasiswa mensyaratkan seluruh tagihan SPP/UKT wajib pada periode aktif berstatus `LUNAS`. KRS hanya menjadi jadwal setelah statusnya `DISETUJUI`; KHS/nilai/transkrip dibaca dari rekaman nilai yang ada.
+- Belum ditemukan tabel maupun alur input presensi dosen. Rekap kehadiran tidak lagi dibuat dari pola contoh; daftar mata kuliah hanya berasal dari KRS yang disetujui dan metrik tetap kosong sampai tersedia pencatatan presensi.
 - Pemeriksaan menemukan data prodi disimpan sebagai teks pada mahasiswa dan penawaran. `penawaran_matakuliah` sekaligus memuat identitas mata kuliah, semester rekomendasi, periode, kelas, jadwal, dosen, kapasitas, dan prasyarat teks.
 - Periode aktif dihitung dari bulan kalender pada `M_akademik`; batas SKS minimum/maksimum menggunakan konstanta model. Kebijakan kampus yang mengesahkan nilai-nilai tersebut belum ditemukan.
 - Tabel KRS/KHS yang ditemukan/dibuat aplikasi adalah `krs`, `krs_detail`, dan `khs_nilai`. Tabel operasional yang dibuat model belum mendefinisikan foreign key relasional untuk seluruh relasi tersebut.
@@ -60,36 +62,41 @@ Relasi bertipe polimorfik pada `aturan_akademik.jenis_cakupan/cakupan_id` sengaj
 
 - [Katalog_akademik.php](../application/controllers/admin/Katalog_akademik.php) menyediakan halaman serta operasi tulis yang dibatasi ke superadmin dan admin biro akademik.
 - [M_katalog_akademik_admin.php](../application/models/admin/M_katalog_akademik_admin.php) membaca dan menyimpan katalog melalui Query Builder, transaksi, dan histori perubahan.
-- [katalog.php](../application/views/akademik/katalog.php) menyediakan pengelolaan program studi, master mata kuliah, kurikulum, pemetaan mata kuliah, penugasan dosen, dan histori penetapan kurikulum mahasiswa; daftar dibatasi 50 baris per halaman dan pencarian pilihan dibatasi 20 hasil.
-- Route ditambahkan untuk `/admin/katalog-akademik`; navigasi biro akademik dan superadmin ditautkan ke halaman yang sama.
+- [katalog.php](../application/views/akademik/katalog.php) menyediakan pengelolaan program studi, master mata kuliah, kurikulum, pemetaan mata kuliah, kelas/penawaran, dosen pengampu, penugasan dosen, dan penetapan kurikulum mahasiswa; daftar dibatasi 50 baris per halaman dan pencarian pilihan dibatasi 20 hasil.
+- Route `/admin/katalog-akademik` ditampilkan sebagai **Data Center Kurikulum** untuk biro akademik dan superadmin.
 - Data baru berstatus tinjauan/draf, kecuali pemetaan kurikulum yang berstatus aktif ketika dibuat. Admin harus memverifikasi data sebelum mengaktifkan katalog/kurikulum.
 - Tiap perubahan mensyaratkan alasan dan mencatat snapshot sebelum/sesudah ke `histori_katalog_akademik`. Data tidak dihapus dari halaman ini.
 - Penugasan dosen ke program studi hanya menerima akun role dosen aktif dan program studi aktif. Periode yang bertabrakan untuk dosen/program/jenis penugasan yang sama ditolak; penonaktifan mempertahankan record dan menulis histori audit.
 - Admin dapat menetapkan kurikulum aktif kepada mahasiswa jika nama prodi lama mahasiswa cocok persis (tidak peka kapitalisasi) dengan nama program di katalog. Penetapan tidak tumpang tindih; penetapan baru setelah assignment tanpa tanggal akhir menutup assignment sebelumnya sehari sebelum tanggal baru, dengan snapshot audit untuk kedua perubahan dalam satu transaksi.
 - Panel rekonsiliasi membandingkan kode penawaran lama dan kode master secara persis (tidak peka kapitalisasi). Kecocokan hanya kandidat, bukan tautan; tidak ada backfill/tautan otomatis.
+- Migrasi `20261023_003_data_center_kurikulum.sql` menambahkan pola penyelenggaraan ganjil/genap, penanda mata kuliah semester akhir, jenis relasi prasyarat/co-requisite, relasi prodi pada penawaran, dan audit untuk perubahan penawaran.
+- Relasi co-requisite disimpan dua arah. Relasi prasyarat divalidasi agar tidak membentuk siklus dan, jika semester rekomendasi tersedia, sumber prasyarat berada pada semester lebih awal. Nilai minimum opsional memakai skala 0-4.
+- Penawaran kelas hanya menerima mata kuliah aktif yang sudah dipetakan aktif pada kurikulum aktif prodi, dengan SKS/semester/pola term yang cocok. Mata kuliah bertanda semester akhir wajib memiliki semester rekomendasi dan hanya ditawarkan pada semester itu. Kelas tersimpan pada `penawaran_matakuliah` dan tertaut ke mata kuliah serta prodi lewat `pemetaan_penawaran_mata_kuliah`, sehingga daftar yang sama digunakan alur KRS. Bentrok dosen/ruangan dan kelas duplikat ditolak; kelas yang sudah dipakai pada KRS tidak bisa diedit, tetapi dapat dinonaktifkan.
+- Setelah migrasi 003 tersedia, katalog penawaran, ringkasan mata kuliah wajib di FRS, serta daftar dan penyimpanan KRS dibatasi pada kurikulum aktif yang ditetapkan untuk mahasiswa dan term berjalan. Akun yang belum memiliki penetapan kurikulum tidak dapat menyimpan KRS sampai Biro Akademik menetapkannya.
 
 ## Menjalankan migrasi
 
 1. Untuk database pengembangan lain, ambil backup dan uji pemulihannya. Database lokal `smartcampus` pada sesi ini sudah dimigrasikan.
 2. Pastikan aplikasi pernah menginisialisasi tabel `akun_mahasiswa`, `akun_biro`, `penawaran_matakuliah`, `krs`, dan `krs_detail`. DDL foreign key akan gagal jika tabel prasyarat belum tersedia; jangan abaikan error migrasi.
-3. Pilih basis data pengembangan yang benar pada klien MySQL dan jalankan kedua migrasi berurutan:
+3. Pilih basis data pengembangan yang benar pada klien MySQL dan jalankan migrasi berurutan:
 
    ```text
    mysql -u <user> -p <database> < database/migrations/20261016_001_academic_foundation.sql
    mysql -u <user> -p <database> < database/migrations/20261016_002_nama_skema_akademik_indonesia.sql
+   mysql -u <user> -p <database> < database/migrations/20261023_003_data_center_kurikulum.sql
    ```
 
 4. Verifikasi tabel baru dan foreign key sebelum mulai mengisi katalog.
 
-Migrasi 001 memakai `CREATE TABLE IF NOT EXISTS`; migrasi 002 memakai `RENAME TABLE` dan `CHANGE COLUMN` untuk mempertahankan tabel serta data. Pada 16 Oktober 2026, fondasi dijalankan pada database MariaDB lokal `smartcampus` dan menghasilkan 13 tabel serta 27 foreign key. Migrasi 002 mengganti nama skema menjadi bahasa Indonesia setelah backup penuh dibuat. Nama database fisik tetap `smartcampus`; yang diterjemahkan adalah nama tabel dan kolom akademik. Struktur final beserta 102 nama kolom dan query aplikasi diverifikasi pada MariaDB 10.4.32. Migrasi produksi tetap memerlukan backup, pengujian pemulihan, dan persetujuan operasional.
+Migrasi 001 memakai `CREATE TABLE IF NOT EXISTS`; migrasi 002 memakai `RENAME TABLE` dan `CHANGE COLUMN` untuk mempertahankan tabel serta data. Pada 16 Oktober 2026, migrasi 001 dan 002 dijalankan pada database MariaDB lokal `smartcampus`; skema Data Center Kurikulum yang baru ditambahkan memerlukan migrasi 003. Nama database fisik tetap `smartcampus`; yang diterjemahkan adalah nama tabel dan kolom akademik. Migrasi produksi tetap memerlukan backup, pengujian pemulihan, dan persetujuan operasional.
 
 ## Aturan dan integrasi yang belum ditetapkan
 
 - Kode resmi prodi/mata kuliah, daftar kurikulum, pemetaan angkatan, dan data dosen penugasan belum tersedia untuk backfill. Migrasi sengaja tidak menyalin atau mengarang katalog.
-- Rentang IPS/batas SKS, prasyarat dan nilai minimum, semester rekomendasi/pengecualian, kapasitas, tanggal periode KRS, pengulangan, serta konflik aturan harus dikonfirmasi kampus. Tidak ada aturan baru yang diaktifkan otomatis.
+- Rentang IPS/batas SKS, kebijakan nilai lulus/minimum prasyarat, semester rekomendasi/pengecualian, kapasitas, tanggal periode KRS, pengulangan, serta konflik aturan harus dikonfirmasi kampus. Relasi prasyarat/co-requisite tersimpan dan tervalidasi di katalog, tetapi syarat kelulusan prasyarat dan pengecekan co-requisite belum diterapkan sebagai aturan nilai otomatis pada KRS.
 - Alur persetujuan lintas prodi/Kaprodi belum dapat diselesaikan tanpa role/permission dan penugasan Kaprodi yang sah.
-- CRUD program studi, mata kuliah, kurikulum, dan pemetaan telah tersedia setelah kedua migrasi dijalankan. Form belum menyediakan pengelolaan tanggal berlaku program/kurikulum secara historis lengkap di semua proses perubahan.
-- Profil dosen akademik terpisah dan pemetaan manual penawaran lama setelah tinjauan belum diimplementasikan. Prasyarat UI; aturan akademik CRUD/versioning; pencatatan histori saat perubahan KRS; dan integrasi pembacaan skema baru ke KRS juga belum diimplementasikan.
+- CRUD program studi, mata kuliah, kurikulum, pemetaan relasi kurikulum, serta penawaran kelas telah tersedia setelah ketiga migrasi dijalankan. Form belum menyediakan pengelolaan tanggal berlaku program/kurikulum secara historis lengkap di semua proses perubahan.
+- Profil dosen akademik terpisah dan pemetaan manual penawaran lama setelah tinjauan belum diimplementasikan. Aturan akademik CRUD/versioning dan pencatatan histori saat perubahan KRS juga belum diimplementasikan.
 - Database test development sudah menjalankan migrasi, memverifikasi tabel dan foreign key, lalu menguji pembuatan penugasan dosen, deteksi bentrok, penonaktifan, audit, penetapan kurikulum berurutan, penutupan periode terdahulu, serta query rekonsiliasi dalam transaksi DML yang di-rollback. Tidak ada record data uji yang tertinggal; pemetaan penawaran lama masih pratinjau dan tidak mengubah data.
 
 ## Tahapan berikutnya

@@ -53,4 +53,41 @@ class MY_Role_Controller extends CI_Controller
         $this->load->view('templates/content_page', $data);
         $this->load->view('templates/footer', $data);
     }
+
+    protected function require_student_financial_clearance($page_title)
+    {
+        $role = $this->session->userdata('role');
+        $is_student = $this->session->userdata('account_type') === 'mahasiswa'
+            || $role === null
+            || (int)$role === 3;
+
+        if (!$is_student) {
+            return true;
+        }
+
+        $this->load->model('mahasiswa/M_akademik_mahasiswa', 'M_akademik_access');
+        $this->load->model('mahasiswa/M_keuangan_mahasiswa', 'M_keuangan_access');
+        $period = $this->M_akademik_access->get_active_period();
+        $status = $this->M_keuangan_access->cek_status_krs((int)$this->session->userdata('id'), $period);
+
+        if (!empty($status['buka_krs'])) {
+            return true;
+        }
+
+        $data = [
+            'title' => $page_title . ' - Smart Campus',
+            'page_title' => $page_title,
+            'page_desc' => 'Akses akademik semester aktif dibatasi sampai tagihan wajib UKT/SPP terverifikasi lunas.',
+            'card_subtitle' => 'Verifikasi pembayaran semester',
+            'breadcrumb_parent' => 'Akademik',
+            'status_krs' => $status
+        ];
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('akademik/akses_terkunci', $data);
+        $this->load->view('templates/footer', $data);
+
+        return false;
+    }
 }

@@ -32,15 +32,6 @@ if ($current_role === 2) {
     $dashboard_label = 'Dashboard';
 }
 ?>
-                    <style>
-                        /* Memperbaiki teks menu yang terpotong di sidebar */
-                        .pcoded-navbar .pcoded-inner-navbar li > a > .pcoded-mtext {
-                            font-size: 13.5px !important;
-                            letter-spacing: -0.2px !important;
-                            white-space: normal !important;
-                            line-height: 1.4 !important;
-                        }
-                    </style>
                     <nav class="pcoded-navbar">
                         <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
                         <div class="pcoded-inner-navbar main-menu">

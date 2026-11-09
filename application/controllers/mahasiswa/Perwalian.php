@@ -19,7 +19,7 @@ class Perwalian extends CI_Controller {
         }
 
         $role = $this->session->userdata('role');
-        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($role === null);
+        $is_mahasiswa = ($this->session->userdata('account_type') === 'mahasiswa') || ($role === null) || (int)$role === 3;
 
         if (!$is_mahasiswa && (int)$role !== 1) {
             show_error('Menu perwalian hanya dapat diakses mahasiswa dan Superadmin.', 403);
@@ -29,7 +29,8 @@ class Perwalian extends CI_Controller {
 
     private function is_mahasiswa()
     {
-        return ($this->session->userdata('account_type') === 'mahasiswa') || ($this->session->userdata('role') === null);
+        $role = $this->session->userdata('role');
+        return ($this->session->userdata('account_type') === 'mahasiswa') || ($role === null) || (int)$role === 3;
     }
 
     private function _render($page_title, $page_desc, $card_subtitle = '', $view_name = 'ambil_matakuliah') {
@@ -69,7 +70,7 @@ class Perwalian extends CI_Controller {
         }
 
         // Cek Status Pembayaran Semester Mahasiswa untuk Akses KRS
-        $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
+        $status_krs = $this->M_keuangan->cek_status_krs($akun_id, $this->M_akademik->get_active_period());
 
         // Simulasi status hanya untuk preview admin, bukan mahasiswa.
         if (!$is_mahasiswa) {
@@ -118,10 +119,13 @@ class Perwalian extends CI_Controller {
         $data['krs']               = $this->M_akademik->get_krs($akun_id, $academic_period);
         $data['advisor']           = $this->M_akademik->get_advisor_for_student($akun_id);
         $data['all_lecturers']     = $this->M_akademik->get_lecturers();
+        $data['curriculum_catalog_ready'] = $this->M_akademik->has_curriculum_catalog_schema();
+        $data['student_curriculum'] = $this->M_akademik->get_current_student_curriculum($akun_id);
         $data['offerings']         = $this->M_akademik->get_offerings(
             $target_mhs->prodi,
             $target_mhs->semester,
-            $academic_period
+            $academic_period,
+            $akun_id
         );
         $data['mata_kuliah_wajib'] = $this->M_akademik->get_compulsory_courses($target_mhs->prodi, (int)$target_mhs->id);
         $data['diskusi_list']      = $this->M_akademik->get_frs_discussions($akun_id);
@@ -185,7 +189,7 @@ class Perwalian extends CI_Controller {
             $akun_id = $target_mhs_id > 0 ? $target_mhs_id : (int)$this->session->userdata('id');
         }
 
-        $status_krs = $this->M_keuangan->cek_status_krs($akun_id);
+        $status_krs = $this->M_keuangan->cek_status_krs($akun_id, $this->M_akademik->get_active_period());
         if (!$status_krs['buka_krs'] && $is_mahasiswa) {
             $this->session->set_flashdata('error', $status_krs['pesan']);
             redirect('perwalian');
@@ -228,6 +232,13 @@ class Perwalian extends CI_Controller {
             return;
         }
 
+        $status_krs = $this->M_keuangan->cek_status_krs($akun_id, $this->M_akademik->get_active_period());
+        if (empty($status_krs['buka_krs'])) {
+            $this->session->set_flashdata('error', $status_krs['pesan']);
+            redirect('perwalian');
+            return;
+        }
+
         $dosen_id = (int)$this->input->post('dosen_id', true);
         if ($dosen_id < 1) {
             $this->session->set_flashdata('error', 'Silakan pilih Dosen Wali yang valid.');
@@ -259,6 +270,19 @@ class Perwalian extends CI_Controller {
 
         $is_mahasiswa = $this->is_mahasiswa();
         $current_user_id = (int)$this->session->userdata('id');
+        if ($is_mahasiswa) {
+            $status_krs = $this->M_keuangan->cek_status_krs($current_user_id, $this->M_akademik->get_active_period());
+            if (empty($status_krs['buka_krs'])) {
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(['status' => 'error', 'message' => $status_krs['pesan']]);
+                } else {
+                    $this->session->set_flashdata('error', $status_krs['pesan']);
+                    redirect('perwalian/frs');
+                }
+                return;
+            }
+        }
+
         $target_mhs_id = (int)$this->input->post('mahasiswa_id');
         $mahasiswa_id = ($is_mahasiswa || $target_mhs_id < 1) ? $current_user_id : $target_mhs_id;
 

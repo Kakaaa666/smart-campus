@@ -535,6 +535,20 @@ if (!empty($krs->mata_kuliah)) {
                         </div>
                     <?php endif; ?>
 
+                    <?php if (empty($curriculum_catalog_ready)): ?>
+                        <div class="alert alert-warning">
+                            Penawaran KRS belum dapat dicocokkan dengan kurikulum karena skema Data Center Kurikulum belum tersedia. Hubungi Biro Akademik.
+                        </div>
+                    <?php elseif (empty($student_curriculum)): ?>
+                        <div class="alert alert-warning">
+                            Kurikulum aktif belum ditetapkan untuk mahasiswa ini. Biro Akademik perlu menetapkan kurikulum sebelum KRS dapat disimpan.
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-info">
+                            KRS menampilkan penawaran yang tertaut pada kurikulum <?= html_escape($student_curriculum->kode . ' - ' . $student_curriculum->nama) ?> untuk prodi <?= html_escape($student_curriculum->program_name) ?>.
+                        </div>
+                    <?php endif; ?>
+
                     <?php if (!empty($is_admin_preview) && !empty($all_students)): ?>
                         <!-- Switcher Simulasi Antar Mahasiswa & Prodi (Untuk Verifikasi Kontekstual Prodi) -->
                         <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap mb-3 p-3 shadow-sm" style="border-radius: 10px; background: #f0f9ff; border: 1.5px solid #bae6fd;">
@@ -899,6 +913,9 @@ if (!empty($krs->mata_kuliah)) {
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
+                                                <?php if (!$offerings): ?>
+                                                    <tr><td colspan="7" class="text-center text-muted py-4">Belum ada penawaran kelas aktif yang cocok dengan kurikulum dan periode mahasiswa.</td></tr>
+                                                <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>

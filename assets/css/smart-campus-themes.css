@@ -777,6 +777,109 @@ body[class*="theme-"] #pcoded[theme-layout="vertical"][vertical-nav-type="collap
     }
 }
 
+/* Sidebar navigation: clearer labels and more discoverable dropdowns on every role. */
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a,
+body[class*="theme-"] #pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a {
+    min-height: 50px !important;
+    padding: 12px 16px !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext,
+body[class*="theme-"] #pcoded .pcoded-navbar[active-item-theme] .pcoded-item > li > a .pcoded-mtext {
+    color: #f1f5f9 !important;
+    font-size: 15px !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.1px !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-micon {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    margin-right: 12px !important;
+    font-size: 19px !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item li.pcoded-hasmenu > a:after {
+    display: inline-flex !important;
+    width: 28px !important;
+    height: 28px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    right: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.09) !important;
+    color: #f8fafc !important;
+    font-size: 14px !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item li.pcoded-hasmenu.pcoded-trigger > a:after {
+    background: color-mix(in srgb, var(--sc-accent) 24%, var(--sc-ink)) !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 45%, var(--sc-ink)) !important;
+}
+
+body[class*="theme-"] #pcoded[vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item li.pcoded-hasmenu > a:after {
+    display: none !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
+    margin: 0 12px 8px !important;
+    padding: 8px 6px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a,
+body[class*="theme-"] #pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
+    min-height: 42px !important;
+    padding: 9px 12px 9px 30px !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    color: #e2e8f0 !important;
+    font-size: 14px !important;
+    font-weight: 550 !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext,
+body[class*="theme-"] #pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
+    color: inherit !important;
+    font-size: 14px !important;
+    font-weight: inherit !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
+    margin-right: 10px !important;
+    color: #cbd5e1 !important;
+    font-size: 13px !important;
+}
+
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
+body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover {
+    color: #ffffff !important;
+    border-color: color-mix(in srgb, var(--sc-accent) 38%, var(--sc-ink)) !important;
+    background: color-mix(in srgb, var(--sc-accent) 20%, var(--sc-ink)) !important;
+}
+
+@media (max-width: 768px) {
+    body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item > li > a .pcoded-mtext {
+        font-size: 15px !important;
+    }
+
+    body[class*="theme-"] #pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
+        font-size: 14px !important;
+    }
+}
+
 /* ======================================================== */
 /* PERAPIHAN GLOBAL: TYPOGRAPHY, TABEL & SPACING KONTEN     */
 /* ======================================================== */

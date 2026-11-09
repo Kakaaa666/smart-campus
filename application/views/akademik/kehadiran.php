@@ -1407,7 +1407,7 @@ if (!function_exists('render_badge_kehadiran')) {
 
                                                                 <!-- P1 s/d P6 -->
                                                                 <?php for ($p = 1; $p <= 6; $p++): 
-                                                                    $st = $c->meetings[$p - 1]['status'] ?? 'BELUM';
+                                                                    $st = $c->meetings[$p - 1]['status'] ?? '';
                                                                 ?>
                                                                     <td class="col-center"><?= render_badge_kehadiran($st) ?></td>
                                                                 <?php endfor; ?>
@@ -1424,7 +1424,7 @@ if (!function_exists('render_badge_kehadiran')) {
 
                                                                 <!-- P7 s/d P16 -->
                                                                 <?php for ($p = 7; $p <= 16; $p++): 
-                                                                    $st = $c->meetings[$p - 1]['status'] ?? 'BELUM';
+                                                                    $st = $c->meetings[$p - 1]['status'] ?? '';
                                                                 ?>
                                                                     <td class="col-center"><?= render_badge_kehadiran($st) ?></td>
                                                                 <?php endfor; ?>
@@ -1483,7 +1483,7 @@ if (!function_exists('render_badge_kehadiran')) {
                                             <i class="fa fa-book text-muted mb-2" style="font-size: 32px; display: inline-block;"></i>
                                             <h6 class="font-weight-bold text-dark mb-1">Pertemuan Kelas Belum Tersedia</h6>
                                             <p class="text-muted small mb-0">
-                                                Detail silabus dan pertemuan kelas akan ditampilkan setelah Rencana Studi (KRS) disetujui Dosen Wali.
+                                                Detail mata kuliah tampil setelah KRS disetujui; rekap pertemuan muncul setelah dosen menginput presensi.
                                             </p>
                                         </div>
                                     <?php else: ?>
@@ -1805,7 +1805,7 @@ function openDetailModal(courseIdx) {
     document.getElementById('modalNamaDosen').innerText = c.dosen || '-';
     document.getElementById('modalJadwal').innerText = c.jadwal || '-';
     
-    var persenText = c.persentase_hadir || '0.00%';
+    var persenText = c.persentase_hadir || '-';
     document.getElementById('modalPersentaseHadir').innerText = persenText;
     var numVal = parseFloat(persenText) || 0;
     var pBar = document.getElementById('modalPercentageBar');
@@ -1823,12 +1823,12 @@ function openDetailModal(courseIdx) {
         }
     }
 
-    document.getElementById('modalStatTerselenggara').innerText = c.terselenggara;
-    document.getElementById('modalStatHadir').innerText = c.hadir;
-    document.getElementById('modalStatSakit').innerText = c.sakit;
-    document.getElementById('modalStatIjin').innerText = c.ijin;
-    document.getElementById('modalStatTugas').innerText = c.tugas;
-    document.getElementById('modalStatAlpha').innerText = c.tidak_hadir;
+    document.getElementById('modalStatTerselenggara').innerText = c.terselenggara ?? '-';
+    document.getElementById('modalStatHadir').innerText = c.hadir ?? '-';
+    document.getElementById('modalStatSakit').innerText = c.sakit ?? '-';
+    document.getElementById('modalStatIjin').innerText = c.ijin ?? '-';
+    document.getElementById('modalStatTugas').innerText = c.tugas ?? '-';
+    document.getElementById('modalStatAlpha').innerText = c.tidak_hadir ?? '-';
 
     var tbody = document.getElementById('modalMeetingsTableBody');
     tbody.innerHTML = '';
@@ -1860,6 +1860,8 @@ function openDetailModal(courseIdx) {
                            '<td class="text-muted small" style="white-space: pre-line;">' + escapeHtml(m.pengajar) + '</td>';
             tbody.appendChild(tr);
         });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Belum ada pertemuan yang dicatat dosen.</td></tr>';
     }
 
     if (window.jQuery) {

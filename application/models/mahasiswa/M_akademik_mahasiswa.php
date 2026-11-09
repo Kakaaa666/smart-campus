@@ -15,8 +15,6 @@ class M_akademik_mahasiswa extends M_akademik
     public function get_student_ringkasan_data($akun_id)
     {
         $this->ensure_schema();
-        $this->ensure_default_khs_data();
-        $this->ensure_default_lecturers_and_advisors();
 
         $student = $this->get_account($akun_id);
         if (!$student) {
@@ -246,7 +244,7 @@ class M_akademik_mahasiswa extends M_akademik
         }
 
         // Jika mahasiswa memiliki semester aktif / berjalan (dari KRS)
-        $cur_krs = $this->get_krs($akun_id);
+        $cur_krs = $this->get_krs($akun_id, $this->get_active_period(), 'DISETUJUI');
         if ($cur_krs && !empty($cur_krs->mata_kuliah)) {
             $krs_tahun_prefix = explode('/', $cur_krs->tahun_akademik)[0];
             $already_has_khs = false;
@@ -312,6 +310,131 @@ class M_akademik_mahasiswa extends M_akademik
                 'total_mk'       => $total_mk,
             ],
             'grade_distribution' => $grade_counts
+        ];
+    }
+
+    public function get_student_kehadiran_data($akun_id, $selected_period = null)
+    {
+        $account = $this->get_account($akun_id);
+        if (!$account) {
+            return null;
+        }
+
+        $active_period = $this->get_active_period();
+        $periods_by_key = [];
+        $add_period = function ($year, $semester, $semester_mhs = null) use (&$periods_by_key, $active_period, $account) {
+            $year = trim((string)$year);
+            $semester = ucfirst(strtolower(trim((string)$semester)));
+            if ($year === '' || !in_array($semester, ['Ganjil', 'Genap'], true)) {
+                return;
+            }
+
+            $key = $year . '_' . strtolower($semester);
+            $is_active = ($year === $active_period['tahun_akademik'] && $semester === $active_period['semester_akademik']);
+            $periods_by_key[$key] = [
+                'key' => $key,
+                'label' => $year . ' - ' . $semester,
+                'display_label' => $year . ' - ' . $semester . ($is_active ? ' (Aktif)' : ''),
+                'tahun_akademik' => $year,
+                'tahun_singkat' => explode('/', $year)[0],
+                'semester_akademik' => $semester,
+                'semester_mhs' => $semester_mhs ? (int)$semester_mhs : (int)($account->semester ?? 0),
+                'is_active' => $is_active
+            ];
+        };
+
+        $add_period($active_period['tahun_akademik'], $active_period['semester_akademik'], $account->semester ?? null);
+
+        $approved_krs_periods = $this->db->select('tahun_akademik, semester_akademik')
+                                         ->where('akun_id', (int)$akun_id)
+                                         ->where('status', 'DISETUJUI')
+                                         ->group_by(['tahun_akademik', 'semester_akademik'])
+                                         ->order_by('tahun_akademik', 'DESC')
+                                         ->get('krs')
+                                         ->result();
+        foreach ($approved_krs_periods as $row) {
+            $add_period($row->tahun_akademik, $row->semester_akademik);
+        }
+
+        $khs_periods = $this->db->select('tahun_akademik, semester_akademik, MAX(semester_mhs) AS semester_mhs')
+                                ->where('akun_id', (int)$akun_id)
+                                ->group_by(['tahun_akademik', 'semester_akademik'])
+                                ->order_by('tahun_akademik', 'DESC')
+                                ->get('khs_nilai')
+                                ->result();
+        foreach ($khs_periods as $row) {
+            $add_period($row->tahun_akademik, $row->semester_akademik, $row->semester_mhs);
+        }
+
+        $available_periods = array_values($periods_by_key);
+        usort($available_periods, function ($left, $right) {
+            if ($left['is_active'] !== $right['is_active']) {
+                return $left['is_active'] ? -1 : 1;
+            }
+            return strcmp($right['tahun_akademik'], $left['tahun_akademik']);
+        });
+
+        $chosen_period = $available_periods[0] ?? null;
+        if ($selected_period !== null && $selected_period !== '') {
+            foreach ($available_periods as $period) {
+                if ($period['key'] === $selected_period
+                    || $period['label'] === $selected_period
+                    || ($period['tahun_akademik'] . ' ' . $period['semester_akademik']) === $selected_period
+                    || (string)$period['semester_mhs'] === (string)$selected_period) {
+                    $chosen_period = $period;
+                    break;
+                }
+            }
+        }
+
+        $krs = $chosen_period
+            ? $this->get_krs($akun_id, $chosen_period, $chosen_period['is_active'] ? null : 'DISETUJUI')
+            : null;
+        $krs_status = $krs ? strtoupper((string)$krs->status) : 'BELUM_KRS';
+        $courses = [];
+
+        if ($krs && $krs_status === 'DISETUJUI') {
+            foreach ($krs->mata_kuliah as $index => $course) {
+                $hari = trim((string)($course->hari ?? ''));
+                $waktu_mulai = !empty($course->waktu_mulai) ? substr($course->waktu_mulai, 0, 5) : '';
+                $waktu_selesai = !empty($course->waktu_selesai) ? substr($course->waktu_selesai, 0, 5) : '';
+                $waktu = trim($waktu_mulai . ($waktu_selesai !== '' ? ' - ' . $waktu_selesai : ''));
+                $ruangan = trim((string)($course->ruangan ?? ''));
+                $jadwal = trim(implode(', ', array_filter([$hari, $waktu, $ruangan])));
+
+                $courses[] = (object)[
+                    'no' => $index + 1,
+                    'kode_mk' => $course->kode_mk ?? '-',
+                    'nama_mk' => $course->nama_mk ?? '-',
+                    'kelas' => $course->kelas ?? '-',
+                    'sks' => (int)($course->sks ?? 0),
+                    'dosen' => $course->nama_dosen ?? '-',
+                    'jadwal' => $jadwal !== '' ? $jadwal : '-',
+                    'terselenggara' => null,
+                    'hadir' => null,
+                    'sakit' => null,
+                    'ijin' => null,
+                    'tugas' => null,
+                    'tidak_hadir' => null,
+                    'persentase_hadir' => '',
+                    'persentase_num' => null,
+                    'hari' => $hari,
+                    'waktu' => $waktu,
+                    'ruangan' => $ruangan,
+                    'meetings' => [],
+                    'p6_pengganti' => '',
+                    'p7_pengganti' => ''
+                ];
+            }
+        }
+
+        return [
+            'student' => $account,
+            'available_periods' => $available_periods,
+            'selected_period' => $chosen_period,
+            'courses' => $courses,
+            'krs' => $krs,
+            'krs_status' => $krs_status
         ];
     }
 }

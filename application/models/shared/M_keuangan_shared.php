@@ -1297,187 +1297,85 @@ class M_keuangan_shared extends CI_Model {
             }
         }
 
-        // 3. Pastikan mahasiswa aktif yang sudah lunas (seperti Nabila Ayu Lestari NIM 2004) memiliki status tagihan LUNAS yang sinkron
-        $target_students = $this->db->select('id, nim')
-                                    ->from($this->table_akun)
-                                    ->where_in('nim', ['2001', '2004'])
-                                    ->where('deleted_at IS NULL', null, false)
-                                    ->get()
-                                    ->result();
-        foreach ($target_students as $st) {
-            $this->ensure_tagihan_semester_aktif($st->id);
-            $spp_item = $this->db->where('akun_id', (int)$st->id)
-                                 ->group_start()
-                                     ->like('jenis_tagihan', 'SPP', 'both')
-                                     ->or_like('jenis_tagihan', 'UKT', 'both')
-                                 ->group_end()
-                                 ->order_by('id', 'DESC')
-                                 ->get($this->table_tagihan)
-                                 ->row();
-
-            if ($spp_item && $spp_item->status !== 'LUNAS') {
-                $this->db->where('id', (int)$spp_item->id)
-                         ->update($this->table_tagihan, ['status' => 'LUNAS', 'updated_at' => date('Y-m-d H:i:s')]);
-
-                $has_paid = $this->db->where('tagihan_id', (int)$spp_item->id)
-                                     ->where('status', 'LUNAS')
-                                     ->count_all_results($this->table_pembayaran);
-                if ($has_paid === 0) {
-                    $this->db->insert($this->table_pembayaran, [
-                        'tagihan_id'         => (int)$spp_item->id,
-                        'akun_id'            => (int)$st->id,
-                        'metode_pembayaran'  => 'Transfer Bank Mandiri (Lunas)',
-                        'tanggal_pembayaran' => date('Y-m-d'),
-                        'jam_pembayaran'     => date('H:i:s'),
-                        'nominal_pembayaran' => $spp_item->nominal,
-                        'nomor_referensi'    => 'SYNC-LUNAS-' . $st->id,
-                        'bukti_pembayaran'   => 'bukti_lunas_sample.png',
-                        'status'             => 'LUNAS',
-                        'diverifikasi_oleh'  => 1,
-                        'diverifikasi_at'    => date('Y-m-d H:i:s'),
-                        'created_at'         => date('Y-m-d H:i:s'),
-                        'updated_at'         => date('Y-m-d H:i:s')
-                    ]);
-                }
-            }
-        }
     }
 
     /**
      * Cek status akses KRS mahasiswa berdasarkan status pembayaran SPP semester aktif
      * Sinkron otomatis dengan seluruh modul (Dosen Wali, Keuangan, Akademik, dan Mahasiswa)
      */
-    public function cek_status_krs($akun_id)
+    public function cek_status_krs($akun_id, $period = null)
     {
         $akun_id = (int)$akun_id;
-
-        // Jalankan sinkronisasi data tagihan & pembayaran mahasiswa
         $this->sinkronkan_semua_status_lunas($akun_id);
 
-        $bulan = (int)date('n');
-        $tahun = (int)date('Y');
-        $semester_aktif = ($bulan >= 7 && $bulan <= 12) ? 'Ganjil' : 'Genap';
-        $tahun_akademik_aktif = $semester_aktif === 'Ganjil'
-            ? $tahun . '/' . ($tahun + 1)
-            : ($tahun - 1) . '/' . $tahun;
-
-        // 1. Cek apakah ada pembayaran LUNAS yang tercatat untuk mahasiswa ini pada semester aktif
-        $pembayaran_lunas = $this->db->select('pembayaran.*, tagihan.jenis_tagihan, tagihan.nominal')
-                                     ->from($this->table_pembayaran)
-                                     ->join($this->table_tagihan, 'tagihan.id = pembayaran.tagihan_id', 'inner')
-                                     ->where('pembayaran.akun_id', $akun_id)
-                                     ->where('pembayaran.status', 'LUNAS')
-                                     ->where('tagihan.tahun_akademik', $tahun_akademik_aktif)
-                                     ->where('tagihan.semester', $semester_aktif)
-                                     ->order_by('pembayaran.id', 'DESC')
-                                     ->get()
-                                     ->row();
-
-        if ($pembayaran_lunas) {
-            return [
-                'status'    => 'LUNAS',
-                'pesan'     => 'Pembayaran semester telah diverifikasi LUNAS. Akses KRS terbuka penuh.',
-                'buka_krs'  => true,
-                'boleh_krs' => true,
-                'is_lunas'  => true,
-                'tagihan'   => $pembayaran_lunas
+        if (!$period || !is_array($period)) {
+            $bulan = (int)date('n');
+            $tahun = (int)date('Y');
+            $semester = ($bulan >= 7 && $bulan <= 12) ? 'Ganjil' : 'Genap';
+            $period = [
+                'tahun_akademik' => $semester === 'Ganjil' ? $tahun . '/' . ($tahun + 1) : ($tahun - 1) . '/' . $tahun,
+                'semester_akademik' => $semester
             ];
         }
 
-        // 2. Cek tagihan SPP / UKT di tabel tagihan
-        $tagihan_spp = $this->db->where('akun_id', $akun_id)
-                                ->group_start()
-                                    ->like('jenis_tagihan', 'SPP', 'both')
-                                    ->or_like('jenis_tagihan', 'UKT', 'both')
-                                ->group_end()
-                                ->where('tahun_akademik', $tahun_akademik_aktif)
-                                ->where('semester', $semester_aktif)
-                                ->order_by('id', 'DESC')
-                                ->get($this->table_tagihan)
-                                ->row();
+        $required_bills = $this->db->where('akun_id', $akun_id)
+                                   ->where('tahun_akademik', trim($period['tahun_akademik'] ?? ''))
+                                   ->where('semester', ucfirst(strtolower(trim($period['semester_akademik'] ?? ''))))
+                                   ->group_start()
+                                       ->like('jenis_tagihan', 'SPP', 'both')
+                                       ->or_like('jenis_tagihan', 'UKT', 'both')
+                                   ->group_end()
+                                   ->order_by('id', 'DESC')
+                                   ->get($this->table_tagihan)
+                                   ->result();
 
-        // 3. Jika belum ditemukan tagihan SPP, cari tagihan semester aktif apa pun
-        if (!$tagihan_spp) {
-            $tagihan_spp = $this->db->where('akun_id', $akun_id)
-                                    ->where('tahun_akademik', $tahun_akademik_aktif)
-                                    ->where('semester', $semester_aktif)
-                                    ->order_by('id', 'DESC')
-                                    ->get($this->table_tagihan)
-                                    ->row();
-        }
-
-        if (!$tagihan_spp) {
-            // Jika mahasiswa tidak memiliki tagihan sama sekali di semester ini, cek apakah ada tunggakan masa lalu
-            $tunggakan_lama = $this->db->where('akun_id', $akun_id)
-                                       ->where('status !=', 'LUNAS')
-                                       ->count_all_results($this->table_tagihan);
-            if ($tunggakan_lama === 0) {
-                // Tidak ada tagihan menunggak
-                return [
-                    'status'    => 'LUNAS',
-                    'pesan'     => 'Tidak ada tunggakan biaya perkuliahan. Akses KRS diizinkan.',
-                    'buka_krs'  => true,
-                    'boleh_krs' => true,
-                    'is_lunas'  => true,
-                    'tagihan'   => null
-                ];
-            }
-
+        if (!$required_bills) {
             return [
-                'status'    => 'BELUM_BAYAR',
-                'pesan'     => 'KRS belum dapat diakses. Silakan selesaikan pembayaran semester terlebih dahulu.',
-                'buka_krs'  => false,
+                'status' => 'TAGIHAN_TIDAK_ADA',
+                'pesan' => 'Tagihan wajib UKT/SPP untuk semester aktif belum tersedia. Hubungi Bagian Keuangan.',
+                'buka_krs' => false,
                 'boleh_krs' => false,
-                'is_lunas'  => false,
-                'tagihan'   => null
+                'is_lunas' => false,
+                'tagihan' => null
             ];
         }
 
-        switch ($tagihan_spp->status) {
-            case 'LUNAS':
-                return [
-                    'status'    => 'LUNAS',
-                    'pesan'     => 'Pembayaran telah diverifikasi LUNAS. Akses KRS terbuka penuh.',
-                    'buka_krs'  => true,
-                    'boleh_krs' => true,
-                    'is_lunas'  => true,
-                    'tagihan'   => $tagihan_spp
-                ];
-            case 'PENDING':
-                return [
-                    'status'    => 'PENDING',
-                    'pesan'     => 'KRS belum dapat diakses. Pembayaran sedang menunggu verifikasi Admin Keuangan.',
-                    'buka_krs'  => false,
+        foreach ($required_bills as $bill) {
+            if (strtoupper($bill->status) !== 'LUNAS') {
+                $status = strtoupper($bill->status);
+                $pesan = $status === 'PENDING'
+                    ? 'Akses akademik menunggu verifikasi pembayaran UKT/SPP oleh Bagian Keuangan.'
+                    : ($status === 'DITOLAK'
+                        ? 'Pembayaran UKT/SPP ditolak. Perbaiki pembayaran sebelum mengakses akademik.'
+                        : 'Lunasi seluruh tagihan wajib UKT/SPP semester aktif untuk mengakses KRS dan Akademik.');
+                $result = [
+                    'status' => $status,
+                    'pesan' => $pesan,
+                    'buka_krs' => false,
                     'boleh_krs' => false,
-                    'is_lunas'  => false,
-                    'tagihan'   => $tagihan_spp
+                    'is_lunas' => false,
+                    'tagihan' => $bill
                 ];
-            case 'DITOLAK':
-                $last_reject = $this->db->where([
-                    'tagihan_id' => $tagihan_spp->id,
-                    'status'     => 'DITOLAK'
-                ])->order_by('id', 'DESC')->get($this->table_pembayaran)->row();
 
-                return [
-                    'status'           => 'DITOLAK',
-                    'pesan'            => 'KRS belum dapat diakses. Pembayaran ditolak. Silakan perbaiki pembayaran.',
-                    'alasan_penolakan' => $last_reject ? $last_reject->alasan_penolakan : 'Bukti pembayaran tidak sesuai atau tidak terbaca.',
-                    'buka_krs'         => false,
-                    'boleh_krs'        => false,
-                    'is_lunas'         => false,
-                    'tagihan'          => $tagihan_spp
-                ];
-            case 'BELUM_BAYAR':
-            default:
-                return [
-                    'status'    => 'BELUM_BAYAR',
-                    'pesan'     => 'KRS belum dapat diakses. Silakan selesaikan pembayaran semester terlebih dahulu.',
-                    'buka_krs'  => false,
-                    'boleh_krs' => false,
-                    'is_lunas'  => false,
-                    'tagihan'   => $tagihan_spp
-                ];
+                if ($status === 'DITOLAK') {
+                    $last_reject = $this->db->where([
+                        'tagihan_id' => (int)$bill->id,
+                        'status' => 'DITOLAK'
+                    ])->order_by('id', 'DESC')->get($this->table_pembayaran)->row();
+                    $result['alasan_penolakan'] = $last_reject ? $last_reject->alasan_penolakan : 'Bukti pembayaran tidak sesuai atau tidak terbaca.';
+                }
+                return $result;
+            }
         }
+
+        return [
+            'status' => 'LUNAS',
+            'pesan' => 'Seluruh tagihan wajib UKT/SPP semester aktif telah lunas.',
+            'buka_krs' => true,
+            'boleh_krs' => true,
+            'is_lunas' => true,
+            'tagihan' => $required_bills[0]
+        ];
     }
 
     /**

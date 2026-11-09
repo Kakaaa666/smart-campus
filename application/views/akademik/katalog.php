@@ -248,6 +248,8 @@ $value = function ($key, $record = null, $fallback = '') use ($old_input, &$acti
                         <div class="card-block">
                             <?php $active_form = 'mapping'; ?>
                             <?php $mapping = $editing['curriculum_course']; ?>
+                            <?php $selected_prerequisites = array_map('intval', $old_relation_ids['PRASYARAT'] ?? []); ?>
+                            <?php $selected_corequisites = array_map('intval', $old_relation_ids['KOREQUISITE'] ?? []); ?>
                             <?= form_open('admin/katalog-akademik/save_mapping') ?>
                                 <input type="hidden" name="catalog_form" value="mapping">
                                 <input type="hidden" name="id" value="<?= (int)($mapping->id ?? 0) ?>">
@@ -280,6 +282,23 @@ $value = function ($key, $record = null, $fallback = '') use ($old_input, &$acti
                                         <label>Semester Rekomendasi</label>
                                         <input type="number" class="form-control" name="semester_rekomendasi" min="1" max="14" value="<?= html_escape($value('semester_rekomendasi', $mapping)) ?>">
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Pola Penyelenggaraan</label>
+                                        <?php $semester_pattern = $value('pola_semester', $mapping, 'SEMUA'); ?>
+                                        <select class="form-control" name="pola_semester" required>
+                                            <option value="SEMUA" <?= $semester_pattern === 'SEMUA' ? 'selected' : '' ?>>Ganjil dan genap</option>
+                                            <option value="GANJIL" <?= $semester_pattern === 'GANJIL' ? 'selected' : '' ?>>Ganjil saja</option>
+                                            <option value="GENAP" <?= $semester_pattern === 'GENAP' ? 'selected' : '' ?>>Genap saja</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Mata Kuliah Semester Akhir</label>
+                                        <?php $final_semester = (string)$value('semester_akhir', $mapping, '0'); ?>
+                                        <select class="form-control" name="semester_akhir" required>
+                                            <option value="0" <?= $final_semester === '0' ? 'selected' : '' ?>>Tidak</option>
+                                            <option value="1" <?= $final_semester === '1' ? 'selected' : '' ?>>Ya</option>
+                                        </select>
+                                    </div>
                                     <div class="form-group col-md-2">
                                         <label>SKS</label>
                                         <input type="number" class="form-control" name="sks" required min="1" max="24" value="<?= html_escape($value('sks', $mapping)) ?>">
@@ -295,6 +314,30 @@ $value = function ($key, $record = null, $fallback = '') use ($old_input, &$acti
                                             <option value="1" <?= $wajib === '1' ? 'selected' : '' ?>>Wajib</option>
                                             <option value="0" <?= $wajib === '0' ? 'selected' : '' ?>>Pilihan</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>Mata Kuliah Prasyarat (MK Pra)</label>
+                                        <select class="form-control" name="prasyarat_ids[]" id="prerequisiteSelect" multiple size="5">
+                                            <?php foreach ($curriculum_course_options as $item): ?>
+                                                <option value="<?= (int)$item->id ?>" <?= in_array((int)$item->id, $selected_prerequisites, true) ? 'selected' : '' ?>>
+                                                    <?= html_escape(($item->semester_rekomendasi ? 'S' . (int)$item->semester_rekomendasi . ' - ' : '') . $item->kode . ' - ' . $item->nama) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <small class="form-text text-muted">Pilih mata kuliah pada kurikulum yang sama dan semester lebih awal. Semua pilihan menjadi prasyarat wajib. Nilai minimum berlaku untuk semua pilihan; jika kosong saat mengubah data, nilai minimum lama dipertahankan.</small>
+                                        <label class="mt-2">Nilai Minimum Prasyarat (opsional, skala 0–4)</label>
+                                        <input type="number" class="form-control" name="nilai_minimum" min="0" max="4" step="0.01" value="<?= html_escape($value('nilai_minimum', null, $mapping_minimum_grade)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>Mata Kuliah Co-requisite (MK Co)</label>
+                                        <select class="form-control" name="korequisite_ids[]" id="corequisiteSelect" multiple size="5">
+                                            <?php foreach ($curriculum_course_options as $item): ?>
+                                                <option value="<?= (int)$item->id ?>" <?= in_array((int)$item->id, $selected_corequisites, true) ? 'selected' : '' ?>>
+                                                    <?= html_escape(($item->semester_rekomendasi ? 'S' . (int)$item->semester_rekomendasi . ' - ' : '') . $item->kode . ' - ' . $item->nama) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <small class="form-text text-muted">Relasi co-requisite dicatat dua arah agar kedua mata kuliah saling terkait.</small>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>Status Pemetaan</label>
@@ -315,24 +358,170 @@ $value = function ($key, $record = null, $fallback = '') use ($old_input, &$acti
                             <hr>
                             <div class="table-responsive">
                                 <table class="table table-striped">
-                                    <thead><tr><th>Kurikulum</th><th>Mata Kuliah</th><th>Semester</th><th>SKS</th><th>Kelompok</th><th>Status</th><th></th></tr></thead>
+                                    <thead><tr><th>Kurikulum</th><th>Mata Kuliah</th><th>Semester/Pola</th><th>Relasi</th><th>SKS</th><th>Kelompok</th><th>Status</th><th></th></tr></thead>
                                     <tbody>
                                         <?php foreach ($curriculum_courses as $item): ?>
+                                            <?php $relations = $curriculum_course_relations[(int)$item->id] ?? ['PRASYARAT' => [], 'KOREQUISITE' => []]; ?>
                                             <tr>
                                                 <td><?= html_escape($item->curriculum_code) ?></td>
                                                 <td><?= html_escape($item->kode_mata_kuliah . ' - ' . $item->nama_mata_kuliah) ?></td>
-                                                <td><?= $item->semester_rekomendasi ? (int)$item->semester_rekomendasi : '-' ?></td>
+                                                <td>
+                                                    <?= $item->semester_rekomendasi ? 'S' . (int)$item->semester_rekomendasi : 'Fleksibel' ?>
+                                                    | <?= html_escape($item->pola_semester) ?>
+                                                    <?= !empty($item->semester_akhir) ? ' | Semester akhir' : '' ?>
+                                                </td>
+                                                <td>
+                                                    <strong>Pra:</strong>
+                                                    <?= $relations['PRASYARAT'] ? html_escape(implode(', ', array_map(function ($relation) {
+                                                        return $relation->source_code . ($relation->nilai_minimum !== null ? ' (min ' . number_format((float)$relation->nilai_minimum, 2) . ')' : '');
+                                                    }, $relations['PRASYARAT']))) : '-' ?>
+                                                    <br><strong>Co:</strong>
+                                                    <?= $relations['KOREQUISITE'] ? html_escape(implode(', ', array_map(function ($relation) { return $relation->source_code; }, $relations['KOREQUISITE']))) : '-' ?>
+                                                </td>
                                                 <td><?= (int)$item->sks ?></td>
                                                 <td><?= html_escape($item->kelompok_mata_kuliah ?: '-') ?></td>
                                                 <td><?= html_escape($item->status) ?></td>
                                                 <td><a class="btn btn-sm btn-outline-primary" href="<?= base_url('admin/katalog-akademik?edit_mapping=' . (int)$item->id) ?>">Ubah</a></td>
                                             </tr>
                                         <?php endforeach; ?>
-                                        <?php if (!$curriculum_courses): ?><tr><td colspan="7" class="text-center text-muted">Belum ada pemetaan.</td></tr><?php endif; ?>
+                                        <?php if (!$curriculum_courses): ?><tr><td colspan="8" class="text-center text-muted">Belum ada pemetaan.</td></tr><?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
                             <small class="text-muted">Total <?= (int)$counts['curriculum_courses'] ?> data; daftar menampilkan maksimal <?= (int)$limit ?> per halaman.</small>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header"><h5>Kelas dan Dosen Pengampu</h5></div>
+                        <div class="card-block">
+                            <div class="alert alert-info">
+                                Kelas hanya dapat dibuat dari mata kuliah yang telah dipetakan aktif pada kurikulum aktif program studi.
+                                Data tersimpan sebagai penawaran akademik resmi dan tertaut ke master mata kuliah untuk kebutuhan KRS.
+                            </div>
+                            <?php $active_form = 'offering'; ?>
+                            <?php $offering = $editing['offering']; ?>
+                            <?= form_open('admin/katalog-akademik/save_offering') ?>
+                                <input type="hidden" name="catalog_form" value="offering">
+                                <input type="hidden" name="id" value="<?= (int)($offering->id ?? 0) ?>">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label>Mata Kuliah Master</label>
+                                        <input type="search" class="form-control mb-2" id="offeringCourseSearch" placeholder="Cari kode/nama mata kuliah">
+                                        <select class="form-control" name="mata_kuliah_id" id="offeringCourseSelect" required>
+                                            <option value="">Pilih mata kuliah</option>
+                                            <?php foreach ($offering_course_options as $item): ?>
+                                                <option value="<?= (int)$item->id ?>" <?= (int)$value('mata_kuliah_id', $offering, 0) === (int)$item->id ? 'selected' : '' ?>>
+                                                    <?= html_escape($item->kode . ' - ' . $item->nama) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Program Studi Aktif</label>
+                                        <?php $offering_program_id = (string)$value('program_studi_id', $offering, ''); ?>
+                                        <select class="form-control" name="program_studi_id" required>
+                                            <option value="">Pilih program studi</option>
+                                            <?php foreach ($active_program_options as $item): ?>
+                                                <option value="<?= (int)$item->id ?>" <?= $offering_program_id === (string)$item->id ? 'selected' : '' ?>>
+                                                    <?= html_escape(($item->kode ? $item->kode . ' - ' : '') . $item->nama . ($item->fakultas ? ' (' . $item->fakultas . ')' : '')) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Semester Mahasiswa</label>
+                                        <input type="number" class="form-control" name="semester" min="1" max="14" required value="<?= html_escape($value('semester', $offering)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>SKS</label>
+                                        <input type="number" class="form-control" name="sks" min="1" max="24" required value="<?= html_escape($value('sks', $offering)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Tahun Akademik</label>
+                                        <input class="form-control" name="tahun_akademik" required maxlength="9" placeholder="2026/2027" value="<?= html_escape($value('tahun_akademik', $offering)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Semester Perkuliahan</label>
+                                        <?php $offering_term = $value('semester_akademik', $offering, 'Ganjil'); ?>
+                                        <select class="form-control" name="semester_akademik" required>
+                                            <option value="Ganjil" <?= $offering_term === 'Ganjil' ? 'selected' : '' ?>>Ganjil</option>
+                                            <option value="Genap" <?= $offering_term === 'Genap' ? 'selected' : '' ?>>Genap</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Nama Kelas</label>
+                                        <input class="form-control" name="kelas" required maxlength="20" placeholder="A" value="<?= html_escape($value('kelas', $offering)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Hari</label>
+                                        <?php $offering_day = $value('hari', $offering, 'Senin'); ?>
+                                        <select class="form-control" name="hari" required>
+                                            <?php foreach (['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'] as $day): ?>
+                                                <option value="<?= $day ?>" <?= $offering_day === $day ? 'selected' : '' ?>><?= $day ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Mulai</label>
+                                        <input type="time" class="form-control" name="waktu_mulai" required value="<?= html_escape(substr((string)$value('waktu_mulai', $offering), 0, 5)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Selesai</label>
+                                        <input type="time" class="form-control" name="waktu_selesai" required value="<?= html_escape(substr((string)$value('waktu_selesai', $offering), 0, 5)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Ruangan</label>
+                                        <input class="form-control" name="ruangan" required maxlength="100" value="<?= html_escape($value('ruangan', $offering)) ?>">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Dosen Pengampu</label>
+                                        <input type="search" class="form-control mb-2" id="offeringLecturerSearch" placeholder="Cari nama/NIP/NIDN dosen">
+                                        <select class="form-control" name="dosen_id" id="offeringLecturerSelect" required>
+                                            <option value="">Pilih dosen</option>
+                                            <?php foreach ($offering_lecturer_options as $item): ?>
+                                                <option value="<?= (int)$item->id ?>" <?= (int)$value('dosen_id', $offering, 0) === (int)$item->id ? 'selected' : '' ?>>
+                                                    <?= html_escape($item->nama_lengkap . ' (' . $item->nim . ')') ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-8">
+                                        <label>Alasan perubahan</label>
+                                        <input class="form-control" name="reason" required minlength="5" maxlength="500" value="<?= html_escape($value('reason')) ?>">
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" type="submit"><?= $offering ? 'Simpan Perubahan Kelas' : 'Tambah Kelas' ?></button>
+                                <?php if ($offering): ?><a class="btn btn-light" href="<?= base_url('admin/katalog-akademik') ?>">Batal</a><?php endif; ?>
+                            <?= form_close() ?>
+                            <hr>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead><tr><th>Periode</th><th>Prodi / Semester</th><th>Mata Kuliah / Kelas</th><th>Jadwal</th><th>Dosen Pengampu</th><th>Status</th><th>Aksi</th></tr></thead>
+                                    <tbody>
+                                        <?php foreach ($offerings as $item): ?>
+                                            <tr>
+                                                <td><?= html_escape($item->tahun_akademik . ' ' . $item->semester_akademik) ?></td>
+                                                <td><?= html_escape($item->prodi . ' / S' . (int)$item->semester) ?></td>
+                                                <td><?= html_escape(($item->catalog_course_code ?: $item->kode_mk) . ' - ' . ($item->catalog_course_name ?: $item->nama_mk) . ' / ' . $item->kelas) ?><br><?= (int)$item->sks ?> SKS</td>
+                                                <td><?= html_escape($item->hari . ' ' . substr($item->waktu_mulai, 0, 5) . '-' . substr($item->waktu_selesai, 0, 5) . ' / ' . $item->ruangan) ?></td>
+                                                <td><?= html_escape($item->lecturer_name ?: '-') ?></td>
+                                                <td><?= (int)$item->aktif === 1 ? 'Aktif' : 'Nonaktif' ?></td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-outline-primary mb-1" href="<?= base_url('admin/katalog-akademik?edit_offering=' . (int)$item->id) ?>">Ubah</a>
+                                                    <?= form_open('admin/katalog-akademik/toggle_offering', ['class' => 'form-inline']) ?>
+                                                        <input type="hidden" name="id" value="<?= (int)$item->id ?>">
+                                                        <input type="hidden" name="aktif" value="<?= (int)$item->aktif === 1 ? '0' : '1' ?>">
+                                                        <input class="form-control form-control-sm mr-1 mb-1" name="reason" required minlength="5" maxlength="500" placeholder="Alasan">
+                                                        <button class="btn btn-sm btn-outline-<?= (int)$item->aktif === 1 ? 'danger' : 'success' ?>" type="submit"><?= (int)$item->aktif === 1 ? 'Nonaktifkan' : 'Aktifkan' ?></button>
+                                                    <?= form_close() ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        <?php if (!$offerings): ?><tr><td colspan="7" class="text-center text-muted">Belum ada kelas/penawaran mata kuliah.</td></tr><?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="text-muted">Total <?= (int)$counts['offerings'] ?> penawaran lama dan baru; daftar menampilkan maksimal <?= (int)$limit ?> per halaman. Kelas yang sudah dipakai pada KRS tidak dapat diedit.</small>
                         </div>
                     </div>
                     <div class="card mb-4">
@@ -589,6 +778,12 @@ $(function () {
         function (item) { return item.kode + ' - ' + item.nama; }
     );
     searchOptions(
+        '#offeringCourseSearch',
+        '#offeringCourseSelect',
+        '<?= base_url('admin/katalog-akademik/search_courses') ?>',
+        function (item) { return item.kode + ' - ' + item.nama; }
+    );
+    searchOptions(
         '#curriculumSearch',
         '#curriculumSelect',
         '<?= base_url('admin/katalog-akademik/search_curricula') ?>',
@@ -597,6 +792,12 @@ $(function () {
     searchOptions(
         '#lecturerSearch',
         '#lecturerSelect',
+        '<?= base_url('admin/katalog-akademik/search_lecturers') ?>',
+        function (item) { return item.nama_lengkap + ' (' + item.nim + ')'; }
+    );
+    searchOptions(
+        '#offeringLecturerSearch',
+        '#offeringLecturerSelect',
         '<?= base_url('admin/katalog-akademik/search_lecturers') ?>',
         function (item) { return item.nama_lengkap + ' (' + item.nim + ')'; }
     );
@@ -626,6 +827,33 @@ $(function () {
             .fail(function () {
                 SCDialog.alert('Kurikulum mahasiswa tidak dapat dimuat. Muat ulang halaman dan coba kembali.', { title: 'Gagal Memuat Kurikulum', type: 'error' });
             });
+    });
+
+    $('#curriculumSelect').on('change', function () {
+        var curriculumId = $(this).val();
+        var excludeId = $('input[name="catalog_form"][value="mapping"]').siblings('input[name="id"]').val() || 0;
+        var selects = $('#prerequisiteSelect, #corequisiteSelect');
+        selects.empty();
+        if (!curriculumId) {
+            return;
+        }
+        $.getJSON('<?= base_url('admin/katalog-akademik/curriculum_course_options') ?>', {
+            kurikulum_id: curriculumId,
+            exclude_id: excludeId
+        }).done(function (items) {
+            $.each(selects, function () {
+                var select = $(this);
+                $.each(items, function (_, item) {
+                    var semester = item.semester_rekomendasi ? 'S' + item.semester_rekomendasi + ' - ' : '';
+                    select.append($('<option>', {
+                        value: item.id,
+                        text: semester + item.kode + ' - ' + item.nama
+                    }));
+                });
+            });
+        }).fail(function () {
+            SCDialog.alert('Daftar mata kuliah dalam kurikulum tidak dapat dimuat.', { title: 'Gagal Memuat Relasi', type: 'error' });
+        });
     });
 });
 </script>
