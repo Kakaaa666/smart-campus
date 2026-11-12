@@ -495,8 +495,8 @@ $value = function ($key, $record = null, $fallback = '') use ($old_input, &$acti
                             <?= form_close() ?>
                             <hr>
                             <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead><tr><th>Periode</th><th>Prodi / Semester</th><th>Mata Kuliah / Kelas</th><th>Jadwal</th><th>Dosen Pengampu</th><th>Status</th><th>Aksi</th></tr></thead>
+                                <table class="table table-striped" style="min-width: 900px; vertical-align: middle;">
+                                    <thead><tr><th style="white-space: nowrap;">Periode</th><th style="white-space: nowrap;">Prodi / Semester</th><th style="white-space: nowrap;">Mata Kuliah / Kelas</th><th style="white-space: nowrap;">Jadwal</th><th style="white-space: nowrap;">Dosen Pengampu</th><th style="white-space: nowrap;">Status</th><th style="white-space: nowrap;">Aksi</th></tr></thead>
                                     <tbody>
                                         <?php foreach ($offerings as $item): ?>
                                             <tr>

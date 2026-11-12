@@ -362,7 +362,7 @@ if ($selected_jenis === 'transkrip' && empty($obe_attainment) && $selected_stude
     gap: 8px;
     margin-bottom: 18px;
     padding-bottom: 14px;
-    border-bottom: 1px dashed #cbd5e1;
+    border-bottom: 1px dashed #e2e8f0;
 }
 
 .khs-prodi-pills-label {
@@ -374,14 +374,14 @@ if ($selected_jenis === 'transkrip' && empty($obe_attainment) && $selected_stude
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-right: 4px;
+    margin-right: 2px;
     flex-shrink: 0;
 }
 
 .khs-prodi-pill {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
-    padding: 5px 13px;
+    padding: 4px 12px;
     border-radius: 20px;
     border: 1px solid #cbd5e1;
     background: #f8fafc;
@@ -417,8 +417,8 @@ if ($selected_jenis === 'transkrip' && empty($obe_attainment) && $selected_stude
         margin-bottom: 2px;
     }
     .khs-prodi-pill {
-        font-size: 11.5px;
-        padding: 4px 11px;
+        font-size: 11px;
+        padding: 4px 10px;
     }
 }
 
@@ -426,7 +426,7 @@ if ($selected_jenis === 'transkrip' && empty($obe_attainment) && $selected_stude
     font-size: 12.5px !important;
     font-weight: 700 !important;
     color: #334155 !important;
-    margin-bottom: 7px !important;
+    margin-bottom: 6px !important;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -435,22 +435,23 @@ if ($selected_jenis === 'transkrip' && empty($obe_attainment) && $selected_stude
 
 .khs-form-input {
     height: 42px !important;
-    font-size: 13.5px !important;
+    font-size: 13px !important;
     border: 1.5px solid #cbd5e1 !important;
     border-radius: 8px !important;
     color: #1e293b !important;
     background-color: #ffffff !important;
-    padding: 8px 14px !important;
+    padding: 7px 12px !important;
     transition: all 0.2s ease;
     width: 100%;
 }
 
 select.khs-form-input {
-    padding-right: 32px !important;
+    padding-right: 26px !important;
+    padding-left: 10px !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
-    background-position: right 10px center !important;
-    background-size: 15px 15px !important;
+    background-position: right 8px center !important;
+    background-size: 13px 13px !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     appearance: none !important;
@@ -1746,25 +1747,27 @@ select.khs-form-input {
     <div class="khs-directory-filter-card">
         <!-- Header Filter -->
         <div class="d-flex align-items-center justify-content-between flex-wrap pb-3 mb-3" style="border-bottom: 1px solid #f1f5f9; gap: 12px;">
-            <div class="d-flex align-items-center">
-                <div class="khs-filter-icon-box mr-3">
+            <div class="d-flex align-items-center flex-wrap" style="gap: 12px; min-width: 280px; flex: 1;">
+                <div class="khs-filter-icon-box">
                     <i class="fa fa-sliders"></i>
                 </div>
                 <div>
-                    <h5 class="khs-filter-title mb-0">Filter &amp; Pencarian Mahasiswa</h5>
-                    <span class="text-muted" style="font-size: 13px;">Saring data KHS mahasiswa berdasarkan Program Studi, Angkatan, Semester, atau NIM/Nama.</span>
+                    <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                        <h5 class="khs-filter-title mb-0">Filter &amp; Pencarian Mahasiswa</h5>
+                        <span class="badge badge-primary px-3 py-1 font-weight-bold" style="border-radius: 20px; font-size: 11.5px; letter-spacing: 0.2px;">
+                            <i class="fa fa-users mr-1"></i> <?= count($students_list) ?> Mahasiswa Ditemukan
+                        </span>
+                    </div>
+                    <span class="text-muted d-block mt-0.5" style="font-size: 13px;">Saring data KHS mahasiswa berdasarkan Program Studi, Angkatan, Semester, atau NIM/Nama.</span>
                 </div>
             </div>
-            <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-                <span class="badge badge-primary px-3 py-1.5 font-weight-bold" style="border-radius: 20px; font-size: 12px;">
-                    <i class="fa fa-users mr-1"></i> <?= count($students_list) ?> Mahasiswa Ditemukan
-                </span>
-                <?php if (!empty($filters['prodi']) || !empty($filters['angkatan']) || !empty($filters['semester']) || !empty($filters['status']) || !empty($filters['q'])): ?>
-                    <a href="<?= current_url() ?><?= $selected_jenis === 'transkrip' ? '?jenis=transkrip' : '' ?>" class="btn btn-sm btn-outline-danger font-weight-bold px-2.5 py-1 d-inline-flex align-items-center" style="border-radius: 6px; font-size: 12px; gap: 6px;" title="Reset Semua Filter">
-                        <i class="fa fa-refresh" style="margin-right: 6px;"></i><span>Reset</span>
+            <?php if (!empty($filters['prodi']) || !empty($filters['angkatan']) || !empty($filters['semester']) || !empty($filters['status']) || !empty($filters['q'])): ?>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <a href="<?= current_url() ?><?= $selected_jenis === 'transkrip' ? '?jenis=transkrip' : '' ?>" class="btn btn-sm btn-outline-danger font-weight-bold px-3 py-1.5 d-inline-flex align-items-center" style="border-radius: 8px; font-size: 12px; gap: 6px;" title="Reset Semua Filter">
+                        <i class="fa fa-refresh"></i><span>Reset Filter</span>
                     </a>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
 
         <?php if (!empty($prodi_options)): ?>
@@ -1805,7 +1808,7 @@ select.khs-form-input {
                         <i class="fa fa-graduation-cap text-primary"></i> Program Studi / Jurusan
                     </label>
                     <select name="prodi" class="form-control khs-form-input">
-                        <option value="">-- Semua Jurusan / Prodi --</option>
+                        <option value="">Semua Program Studi</option>
                         <?php foreach ($prodi_options as $p): ?>
                             <option value="<?= html_escape($p) ?>" <?= ($filters['prodi'] === $p) ? 'selected' : '' ?>>
                                 <?= html_escape($p) ?>
@@ -1820,7 +1823,7 @@ select.khs-form-input {
                         <i class="fa fa-calendar text-primary"></i> Tahun Angkatan
                     </label>
                     <select name="angkatan" class="form-control khs-form-input">
-                        <option value="">-- Semua Angkatan --</option>
+                        <option value="">Semua Angkatan</option>
                         <?php foreach ($angkatan_options as $a): ?>
                             <option value="<?= html_escape($a) ?>" <?= ($filters['angkatan'] === (string)$a) ? 'selected' : '' ?>>
                                 Angkatan <?= html_escape($a) ?>
@@ -1832,10 +1835,10 @@ select.khs-form-input {
                 <!-- Dropdown Semester -->
                 <div class="col-xl-3 col-lg-6 col-md-6 col-12 mb-3">
                     <label class="khs-form-label">
-                        <i class="fa fa-layer-group text-primary"></i> Semester
+                        <i class="fa fa-bookmark text-primary"></i> Semester
                     </label>
                     <select name="semester" class="form-control khs-form-input">
-                        <option value="">-- Semua Semester --</option>
+                        <option value="">Semua Semester</option>
                         <?php for ($s = 1; $s <= 8; $s++): ?>
                             <option value="<?= $s ?>" <?= ($filters['semester'] === (string)$s) ? 'selected' : '' ?>>
                                 Semester <?= $s ?>
@@ -1850,7 +1853,7 @@ select.khs-form-input {
                         <i class="fa fa-check-circle text-primary"></i> Status Mahasiswa
                     </label>
                     <select name="status" class="form-control khs-form-input">
-                        <option value="">-- Semua Status --</option>
+                        <option value="">Semua Status</option>
                         <option value="Aktif" <?= ($filters['status'] === 'Aktif') ? 'selected' : '' ?>>Aktif</option>
                         <option value="Cuti" <?= ($filters['status'] === 'Cuti') ? 'selected' : '' ?>>Cuti</option>
                         <option value="Non-Aktif" <?= ($filters['status'] === 'Non-Aktif') ? 'selected' : '' ?>>Non-Aktif</option>
@@ -1873,8 +1876,7 @@ select.khs-form-input {
                 </div>
 
                 <!-- Tombol Aksi Filter & Reset (Inline & Sejajar) -->
-                <div class="col-xl-5 col-lg-5 col-md-12 col-12">
-                    <label class="khs-form-label d-none d-lg-block" style="visibility: hidden;">&nbsp;</label>
+                <div class="col-xl-5 col-lg-5 col-md-12 col-12 mb-0">
                     <div class="khs-filter-btn-group">
                         <a href="<?= current_url() ?><?= $selected_jenis === 'transkrip' ? '?jenis=transkrip' : '' ?>" class="khs-btn-search-reset text-center">
                             <i class="fa fa-refresh"></i><span>Reset Filter</span>

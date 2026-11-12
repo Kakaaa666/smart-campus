@@ -18,6 +18,127 @@ class M_akademik extends CI_Model
             $ci->M_auth->ensure_schema_and_accounts();
         }
         $this->ensure_schema();
+        $this->cleanup_duplicate_offerings();
+    }
+
+    /**
+     * Membersihkan dan menormalkan data duplikat pada tabel penawaran_matakuliah
+     */
+    public function cleanup_duplicate_offerings()
+    {
+        if (!$this->db->table_exists('penawaran_matakuliah')) {
+            return;
+        }
+
+        // 1. Cari kelompok mata kuliah dengan kode_mk dan kelas yang sama persis
+        $duplicates = $this->db->query("
+            SELECT kode_mk, kelas, COUNT(*) as cnt, MIN(id) as keep_id, GROUP_CONCAT(id) as all_ids
+            FROM penawaran_matakuliah
+            GROUP BY kode_mk, kelas
+            HAVING cnt > 1
+        ")->result();
+
+        if (!empty($duplicates)) {
+            foreach ($duplicates as $dup) {
+                $all_ids = array_filter(array_map('intval', explode(',', (string)$dup->all_ids)));
+                if (count($all_ids) <= 1) {
+                    continue;
+                }
+
+                // Cari ID yang paling valid (yang aktif atau yang memiliki referensi di krs_detail)
+                $keep_id = (int)$dup->keep_id;
+                if ($this->db->table_exists('krs_detail')) {
+                    $linked = $this->db->query("
+                        SELECT penawaran_id, COUNT(*) as c 
+                        FROM krs_detail 
+                        WHERE penawaran_id IN (" . implode(',', $all_ids) . ")
+                        GROUP BY penawaran_id
+                        ORDER BY c DESC, penawaran_id ASC
+                        LIMIT 1
+                    ")->row();
+                    if ($linked && !empty($linked->penawaran_id)) {
+                        $keep_id = (int)$linked->penawaran_id;
+                    }
+                }
+
+                if (!$keep_id) {
+                    $keep_id = $all_ids[0];
+                }
+
+                $remove_ids = array_values(array_diff($all_ids, [$keep_id]));
+                if (empty($remove_ids)) {
+                    continue;
+                }
+
+                // Re-link referensi di krs_detail ke keep_id
+                if ($this->db->table_exists('krs_detail')) {
+                    foreach ($remove_ids as $r_id) {
+                        $old_details = $this->db->where('penawaran_id', $r_id)->get('krs_detail')->result();
+                        foreach ($old_details as $od) {
+                            $already_has = $this->db->where('krs_id', (int)$od->krs_id)
+                                                    ->where('penawaran_id', $keep_id)
+                                                    ->count_all_results('krs_detail');
+                            if ($already_has > 0) {
+                                $this->db->where('id', (int)$od->id)->delete('krs_detail');
+                            } else {
+                                $this->db->where('id', (int)$od->id)->update('krs_detail', ['penawaran_id' => $keep_id]);
+                            }
+                        }
+                    }
+                }
+
+                // Re-link di cpmks
+                if ($this->db->table_exists('cpmks')) {
+                    foreach ($remove_ids as $r_id) {
+                        $this->db->where('penawaran_matakuliah_id', $r_id)
+                                 ->update('cpmks', ['penawaran_matakuliah_id' => $keep_id]);
+                    }
+                }
+
+                // Re-link di komponen_penilaian
+                if ($this->db->table_exists('komponen_penilaian')) {
+                    foreach ($remove_ids as $r_id) {
+                        $this->db->where('penawaran_matakuliah_id', $r_id)
+                                 ->update('komponen_penilaian', ['penawaran_matakuliah_id' => $keep_id]);
+                    }
+                }
+
+                // Bersihkan di pemetaan_penawaran_mata_kuliah
+                if ($this->db->table_exists('pemetaan_penawaran_mata_kuliah')) {
+                    $this->db->where_in('penawaran_id', $remove_ids)->delete('pemetaan_penawaran_mata_kuliah');
+                }
+
+                // Hapus baris duplikat dari penawaran_matakuliah
+                $this->db->where_in('id', $remove_ids)->delete('penawaran_matakuliah');
+
+                // Pastikan baris yang dipertahankan berstatus aktif = 1
+                $this->db->where('id', $keep_id)->update('penawaran_matakuliah', ['aktif' => 1]);
+            }
+        }
+
+        // 2. Bersihkan duplikat CPMK per penawaran_matakuliah_id & kode_cpmk jika ada
+        if ($this->db->table_exists('cpmks')) {
+            $dup_cpmks = $this->db->query("
+                SELECT penawaran_matakuliah_id, kode_cpmk, COUNT(*) as cnt, MIN(id) as keep_id, GROUP_CONCAT(id) as all_ids
+                FROM cpmks
+                GROUP BY penawaran_matakuliah_id, kode_cpmk
+                HAVING cnt > 1
+            ")->result();
+            foreach ($dup_cpmks as $dc) {
+                $c_all_ids = array_filter(array_map('intval', explode(',', (string)$dc->all_ids)));
+                $c_keep_id = (int)$dc->keep_id;
+                $c_remove_ids = array_values(array_diff($c_all_ids, [$c_keep_id]));
+                if (!empty($c_remove_ids)) {
+                    if ($this->db->table_exists('cpl_cpmk')) {
+                        $this->db->where_in('cpmk_id', $c_remove_ids)->delete('cpl_cpmk');
+                    }
+                    if ($this->db->table_exists('komponen_penilaian')) {
+                        $this->db->where_in('cpmk_id', $c_remove_ids)->update('komponen_penilaian', ['cpmk_id' => $c_keep_id]);
+                    }
+                    $this->db->where_in('id', $c_remove_ids)->delete('cpmks');
+                }
+            }
+        }
     }
 
     public function module_name()
@@ -1206,8 +1327,7 @@ class M_akademik extends CI_Model
             'TI-201', 'TI-202', 'TI-203', 'TI-204', 'TI-205', 'TI-206', 'KU-201',
             'TI-301', 'TI-302', 'TI-303', 'TI-304', 'TI-305', 'TI-306', 'TI-307',
             'TI-401', 'TI-402', 'TI-403', 'TI-404', 'TI-405',
-            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401',
-            'MU24PK51', 'MU24BB61', 'MU24BB71'
+            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401'
         ];
         $this->db->where_in('kode_mk', $legacy_dummy_codes)->update('penawaran_matakuliah', ['aktif' => 0]);
         $this->db->where("kode_mk REGEXP '^(TI|KU|MKU)-[0-9]{3}'")->update('penawaran_matakuliah', ['aktif' => 0]);
@@ -2472,8 +2592,7 @@ class M_akademik extends CI_Model
             'TI-201', 'TI-202', 'TI-203', 'TI-204', 'TI-205', 'TI-206', 'KU-201',
             'TI-301', 'TI-302', 'TI-303', 'TI-304', 'TI-305', 'TI-306', 'TI-307',
             'TI-401', 'TI-402', 'TI-403', 'TI-404', 'TI-405',
-            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401',
-            'MU24PK51', 'MU24BB61', 'MU24BB71'
+            'MKU-101', 'MKU-102', 'MKU-103', 'MKU-104', 'MKU-105', 'MKU-401'
         ];
         $this->db->where_in('kode_mk', $legacy_dummy_codes)->update('penawaran_matakuliah', ['aktif' => 0]);
         $this->db->where("kode_mk REGEXP '^(TI|KU|MKU)-[0-9]{3}'")->update('penawaran_matakuliah', ['aktif' => 0]);
@@ -2686,12 +2805,11 @@ class M_akademik extends CI_Model
             $arthur_offering_ids = [];
             foreach ($arthur_offerings_seed as $aos) {
                 $ex_off = $this->db->where('kode_mk', $aos['kode_mk'])
-                                   ->where('tahun_akademik', $period['tahun_akademik'])
-                                   ->where('semester_akademik', $period['semester_akademik'])
+                                   ->where('kelas', $aos['kelas'])
                                    ->get('penawaran_matakuliah')->row();
                 if (!$ex_off) {
-                    $aos['tahun_akademik'] = $period['tahun_akademik'];
-                    $aos['semester_akademik'] = $period['semester_akademik'];
+                    $aos['tahun_akademik'] = '2024/2025';
+                    $aos['semester_akademik'] = 'Genap';
                     $aos['kuota'] = 40;
                     $aos['prasyarat'] = 'Tidak Ada';
                     $aos['aktif'] = 1;
@@ -2699,12 +2817,14 @@ class M_akademik extends CI_Model
                     $arthur_offering_ids[] = (int)$this->db->insert_id();
                 } else {
                     $arthur_offering_ids[] = (int)$ex_off->id;
-                    // Pastikan kelas, SKS, dan dosen sesuai
+                    // Pastikan kelas, SKS, nama, dosen, dan aktif sesuai
                     $this->db->where('id', (int)$ex_off->id)->update('penawaran_matakuliah', [
                         'kelas' => $aos['kelas'],
                         'sks' => $aos['sks'],
                         'nama_mk' => $aos['nama_mk'],
                         'dosen_id' => $aos['dosen_id'],
+                        'tahun_akademik' => '2024/2025',
+                        'semester_akademik' => 'Genap',
                         'aktif' => 1
                     ]);
                 }

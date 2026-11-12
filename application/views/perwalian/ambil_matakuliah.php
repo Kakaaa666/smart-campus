@@ -127,15 +127,38 @@ if (!empty($krs->mata_kuliah)) {
     /* Right Widgets Grid (Status KRS & Dosen Wali) */
     .krs-widgets-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         gap: 12px;
         width: 100%;
     }
 
+    @media (max-width: 1199.98px) {
+        .krs-widgets-grid {
+            margin-top: 6px;
+        }
+    }
+
     @media (max-width: 575.98px) {
+        .krs-header-card {
+            padding: 16px 14px;
+            border-radius: 12px;
+        }
         .krs-widgets-grid {
             grid-template-columns: 1fr;
             gap: 10px;
+        }
+        .krs-student-profile-wrap {
+            gap: 12px;
+        }
+        .krs-student-name {
+            font-size: 17px;
+        }
+        .krs-student-chips {
+            gap: 4px;
+        }
+        .krs-chip {
+            font-size: 11px;
+            padding: 2.5px 8px;
         }
     }
 
@@ -143,7 +166,7 @@ if (!empty($krs->mata_kuliah)) {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 12px 16px;
+        padding: 12px 14px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -161,7 +184,9 @@ if (!empty($krs->mata_kuliah)) {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 6px;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: nowrap;
     }
 
     .krs-widget-label {
@@ -170,8 +195,10 @@ if (!empty($krs->mata_kuliah)) {
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #64748b;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .btn-krs-edit-pill {
@@ -180,13 +207,16 @@ if (!empty($krs->mata_kuliah)) {
         border: 1px solid #fde68a;
         font-size: 11px;
         font-weight: 700;
-        padding: 3px 9px;
+        padding: 3px 8px;
         border-radius: 6px;
         display: inline-flex;
         align-items: center;
+        white-space: nowrap;
+        flex-shrink: 0;
         transition: all 0.15s ease;
         cursor: pointer;
         outline: none;
+        line-height: 1.3;
     }
 
     .btn-krs-edit-pill:hover {
@@ -202,12 +232,15 @@ if (!empty($krs->mata_kuliah)) {
         border: 1px solid #bfdbfe;
         font-size: 11px;
         font-weight: 700;
-        padding: 3px 9px;
+        padding: 3px 8px;
         border-radius: 6px;
         display: inline-flex;
         align-items: center;
+        white-space: nowrap;
+        flex-shrink: 0;
         transition: all 0.15s ease;
         cursor: pointer;
+        line-height: 1.3;
     }
 
     .btn-krs-action-pill:hover {
@@ -257,8 +290,9 @@ if (!empty($krs->mata_kuliah)) {
         font-size: 12.5px;
         font-weight: 700;
         color: #0f172a;
-        line-height: 1.3;
+        line-height: 1.35;
         margin-bottom: 2px;
+        word-break: break-word;
     }
 
     .advisor-meta-text {
@@ -578,7 +612,7 @@ if (!empty($krs->mata_kuliah)) {
                     <div class="krs-header-card">
                         <div class="row align-items-center">
                             <!-- Left: Identitas Mahasiswa & Periode KRS -->
-                            <div class="col-xl-6 col-lg-6 col-md-12 mb-3 mb-lg-0">
+                            <div class="col-xl-6 col-lg-12 col-md-12 mb-3 mb-xl-0">
                                 <div class="krs-period-tag-row">
                                     <span class="badge-krs-period">
                                         <i class="fa fa-calendar-check-o mr-1"></i> Periode <?= html_escape($academic_period['semester_akademik']) ?> <?= html_escape($academic_period['tahun_akademik']) ?>
@@ -614,7 +648,7 @@ if (!empty($krs->mata_kuliah)) {
                             </div>
 
                             <!-- Right: Status KRS & Dosen Wali Widgets -->
-                            <div class="col-xl-6 col-lg-6 col-md-12">
+                            <div class="col-xl-6 col-lg-12 col-md-12">
                                 <div class="krs-widgets-grid">
                                     
                                     <!-- Widget 1: Status Persetujuan KRS -->
@@ -670,7 +704,7 @@ if (!empty($krs->mata_kuliah)) {
                                             <?php endif; ?>
                                         </div>
                                         <div>
-                                            <div class="advisor-name-text text-truncate" title="<?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>">
+                                            <div class="advisor-name-text" title="<?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>">
                                                 <?= html_escape($advisor ? $advisor->nama_lengkap : 'Belum ditetapkan') ?>
                                             </div>
                                             <div class="advisor-meta-text">

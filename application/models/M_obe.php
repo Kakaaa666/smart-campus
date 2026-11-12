@@ -7,6 +7,13 @@ class M_obe extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $ci =& get_instance();
+        if (!isset($ci->M_akademik)) {
+            $ci->load->model('shared/M_akademik', 'M_akademik');
+        }
+        if (isset($ci->M_akademik) && method_exists($ci->M_akademik, 'cleanup_duplicate_offerings')) {
+            $ci->M_akademik->cleanup_duplicate_offerings();
+        }
         $this->ensure_initial_seeds();
     }
 
@@ -420,17 +427,18 @@ class M_obe extends CI_Model
         // Ambil semua CPL milik prodi ini
         $cpls = $this->get_cpls_by_prodi($prodi_id);
 
-        // Ambil mata kuliah penawaran untuk prodi ini
-        $this->db->select('p.id, p.kode_mk, p.nama_mk, p.semester, p.sks, p.kelas, p.prodi,
-                           b.nama_lengkap as dosen_nama');
+        // Ambil mata kuliah penawaran untuk prodi ini (hanya kelas aktif dan terdeduplikasi)
+        $this->db->select('MIN(p.id) as id, p.kode_mk, MAX(p.nama_mk) as nama_mk, p.semester, MAX(p.sks) as sks, p.kelas, MAX(p.prodi) as prodi, MAX(b.nama_lengkap) as dosen_nama', false);
         $this->db->from('penawaran_matakuliah p');
         $this->db->join('akun_biro b', 'b.id = p.dosen_id', 'left');
+        $this->db->where('p.aktif', 1);
         if (!empty($prodi_name)) {
             $this->db->group_start()
                      ->where('p.prodi', $prodi_name)
                      ->or_where('p.prodi', 'Umum')
                      ->group_end();
         }
+        $this->db->group_by(['p.kode_mk', 'p.kelas', 'p.semester']);
         $this->db->order_by('p.semester', 'ASC');
         $this->db->order_by('p.kode_mk', 'ASC');
         $courses = $this->db->get()->result();
@@ -1557,6 +1565,7 @@ class M_obe extends CI_Model
         $this->db->join('akun_biro b', 'b.id = p.dosen_id', 'left');
         $this->db->join('cpmks c', 'c.penawaran_matakuliah_id = p.id', 'left');
         $this->db->join('komponen_penilaian kp', 'kp.penawaran_matakuliah_id = p.id', 'left');
+        $this->db->where('p.aktif', 1);
 
         if ($selected_prodi) {
             $this->db->where('p.prodi', $selected_prodi->nama_prodi);

@@ -18,20 +18,34 @@ class M_katalog_akademik_admin extends CI_Model
 
     public function schema_ready()
     {
-        // 1. Eksekusi pembuatan skema tabel jika belum ada
+        // 1. Eksekusi pembuatan skema tabel dan migrasi 001, 002, 003 jika belum lengkap
         $this->auto_migrate_schema();
 
-        // 2. Bersihkan cache nama tabel CodeIgniter
+        // 2. Bersihkan cache nama tabel dan kolom CodeIgniter
         if (isset($this->db->data_cache['table_names'])) {
             unset($this->db->data_cache['table_names']);
+        }
+        if (isset($this->db->data_cache['field_names'])) {
+            unset($this->db->data_cache['field_names']);
         }
 
         // 3. Pastikan data awal terisi
         $this->ensure_initial_seeds();
 
-        // 4. Bersihkan cache lagi agar query builder CI mengenali semua tabel
+        $ci =& get_instance();
+        if (!isset($ci->M_akademik)) {
+            $ci->load->model('shared/M_akademik', 'M_akademik');
+        }
+        if (isset($ci->M_akademik) && method_exists($ci->M_akademik, 'cleanup_duplicate_offerings')) {
+            $ci->M_akademik->cleanup_duplicate_offerings();
+        }
+
+        // 4. Bersihkan cache lagi agar query builder CI mengenali semua tabel dan kolom
         if (isset($this->db->data_cache['table_names'])) {
             unset($this->db->data_cache['table_names']);
+        }
+        if (isset($this->db->data_cache['field_names'])) {
+            unset($this->db->data_cache['field_names']);
         }
 
         foreach ([
@@ -45,7 +59,7 @@ class M_katalog_akademik_admin extends CI_Model
             'pemetaan_penawaran_mata_kuliah',
             'histori_katalog_akademik',
         ] as $table) {
-            if (!$this->db->table_exists($table)) {
+            if (!$this->raw_table_exists($table)) {
                 return false;
             }
         }
@@ -57,8 +71,8 @@ class M_katalog_akademik_admin extends CI_Model
             || !in_array('semester_akhir', $curriculum_fields, true)
             || !in_array('jenis_relasi', $prerequisite_fields, true)
             || !in_array('program_studi_id', $offering_mapping_fields, true)
-            || !$this->db->table_exists('penawaran_matakuliah')
-            || !$this->db->table_exists('krs_detail')) {
+            || !$this->raw_table_exists('penawaran_matakuliah')
+            || !$this->raw_table_exists('krs_detail')) {
             return false;
         }
 
@@ -69,6 +83,9 @@ class M_katalog_akademik_admin extends CI_Model
     {
         if (isset($this->db->data_cache['table_names'])) {
             unset($this->db->data_cache['table_names']);
+        }
+        if (isset($this->db->data_cache['field_names'])) {
+            unset($this->db->data_cache['field_names']);
         }
 
         try {
@@ -81,12 +98,18 @@ class M_katalog_akademik_admin extends CI_Model
         // 2. Buat seluruh tabel skema akademik berbahasa Indonesia jika belum ada
         $this->create_indonesian_schema_direct();
 
+        // 3. Jalankan migrasi 003 (data center kurikulum) jika kolom belum lengkap
+        $this->run_migration_003_if_needed();
+
         try {
             $this->db->query('SET FOREIGN_KEY_CHECKS = 1;');
         } catch (\Throwable $e) {}
 
         if (isset($this->db->data_cache['table_names'])) {
             unset($this->db->data_cache['table_names']);
+        }
+        if (isset($this->db->data_cache['field_names'])) {
+            unset($this->db->data_cache['field_names']);
         }
     }
 
@@ -228,6 +251,59 @@ class M_katalog_akademik_admin extends CI_Model
         }
     }
 
+    protected function run_migration_003_if_needed()
+    {
+        // 1. kurikulum_mata_kuliah: pola_semester & semester_akhir
+        if ($this->raw_table_exists('kurikulum_mata_kuliah')) {
+            $fields = $this->db->list_fields('kurikulum_mata_kuliah');
+            if (!in_array('pola_semester', $fields, true)) {
+                try {
+                    $this->db->query("ALTER TABLE `kurikulum_mata_kuliah` ADD COLUMN `pola_semester` ENUM('SEMUA','GANJIL','GENAP') NOT NULL DEFAULT 'SEMUA' AFTER `semester_rekomendasi`");
+                } catch (\Throwable $e) {}
+            }
+            if (!in_array('semester_akhir', $fields, true)) {
+                try {
+                    $this->db->query("ALTER TABLE `kurikulum_mata_kuliah` ADD COLUMN `semester_akhir` TINYINT(1) NOT NULL DEFAULT 0 AFTER `pola_semester`");
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        // 2. prasyarat_mata_kuliah: jenis_relasi
+        if ($this->raw_table_exists('prasyarat_mata_kuliah')) {
+            $fields = $this->db->list_fields('prasyarat_mata_kuliah');
+            if (!in_array('jenis_relasi', $fields, true)) {
+                try {
+                    $this->db->query("ALTER TABLE `prasyarat_mata_kuliah` ADD COLUMN `jenis_relasi` ENUM('PRASYARAT','KOREQUISITE') NOT NULL DEFAULT 'PRASYARAT' AFTER `prasyarat_mata_kuliah_id`");
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        // 3. pemetaan_penawaran_mata_kuliah: program_studi_id
+        if ($this->raw_table_exists('pemetaan_penawaran_mata_kuliah')) {
+            $fields = $this->db->list_fields('pemetaan_penawaran_mata_kuliah');
+            if (!in_array('program_studi_id', $fields, true)) {
+                try {
+                    $this->db->query("ALTER TABLE `pemetaan_penawaran_mata_kuliah` ADD COLUMN `program_studi_id` INT(11) NULL DEFAULT NULL AFTER `mata_kuliah_id`");
+                } catch (\Throwable $e) {}
+                try {
+                    $this->db->query("ALTER TABLE `pemetaan_penawaran_mata_kuliah` ADD KEY `idx_pemetaan_penawaran_program` (`program_studi_id`)");
+                } catch (\Throwable $e) {}
+                if ($this->raw_table_exists('program_studi')) {
+                    try {
+                        $this->db->query("ALTER TABLE `pemetaan_penawaran_mata_kuliah` ADD CONSTRAINT `fk_pemetaan_penawaran_program` FOREIGN KEY (`program_studi_id`) REFERENCES `program_studi` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT");
+                    } catch (\Throwable $e) {}
+                }
+            }
+        }
+
+        // 4. histori_katalog_akademik: update jenis_entitas ENUM
+        if ($this->raw_table_exists('histori_katalog_akademik')) {
+            try {
+                $this->db->query("ALTER TABLE `histori_katalog_akademik` MODIFY COLUMN `jenis_entitas` ENUM('PROGRAM','COURSE','CURRICULUM','CURRICULUM_COURSE','LECTURER_ASSIGNMENT','STUDENT_CURRICULUM','OFFERING') NOT NULL");
+            } catch (\Throwable $e) {}
+        }
+    }
+
     public function create_indonesian_schema_direct()
     {
         $ddl_list = [
@@ -310,6 +386,8 @@ class M_katalog_akademik_admin extends CI_Model
                 `kurikulum_id` INT(11) NOT NULL,
                 `mata_kuliah_id` INT(11) NOT NULL,
                 `semester_rekomendasi` TINYINT(2) UNSIGNED NULL DEFAULT NULL,
+                `pola_semester` ENUM('SEMUA','GANJIL','GENAP') NOT NULL DEFAULT 'SEMUA',
+                `semester_akhir` TINYINT(1) NOT NULL DEFAULT 0,
                 `sks` TINYINT(2) UNSIGNED NOT NULL DEFAULT 3,
                 `kelompok_mata_kuliah` VARCHAR(50) NULL DEFAULT NULL,
                 `wajib` TINYINT(1) NOT NULL DEFAULT 1,
@@ -326,6 +404,7 @@ class M_katalog_akademik_admin extends CI_Model
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `kurikulum_mata_kuliah_id` INT(11) NOT NULL,
                 `prasyarat_mata_kuliah_id` INT(11) NOT NULL,
+                `jenis_relasi` ENUM('PRASYARAT','KOREQUISITE') NOT NULL DEFAULT 'PRASYARAT',
                 `kelompok_alternatif` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1,
                 `nilai_minimum` DECIMAL(3,2) NULL DEFAULT NULL,
                 `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -352,10 +431,12 @@ class M_katalog_akademik_admin extends CI_Model
             "CREATE TABLE IF NOT EXISTS `pemetaan_penawaran_mata_kuliah` (
                 `penawaran_id` INT(11) NOT NULL,
                 `mata_kuliah_id` INT(11) NOT NULL,
+                `program_studi_id` INT(11) NULL DEFAULT NULL,
                 `dibuat_oleh` INT(11) NULL DEFAULT NULL,
                 `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`penawaran_id`),
-                KEY `idx_pemetaan_penawaran_course` (`mata_kuliah_id`)
+                KEY `idx_pemetaan_penawaran_course` (`mata_kuliah_id`),
+                KEY `idx_pemetaan_penawaran_program` (`program_studi_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
             // 9. aturan_akademik
@@ -399,7 +480,7 @@ class M_katalog_akademik_admin extends CI_Model
             // 11. histori_katalog_akademik
             "CREATE TABLE IF NOT EXISTS `histori_katalog_akademik` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
-                `jenis_entitas` ENUM('PROGRAM','COURSE','CURRICULUM','CURRICULUM_COURSE','LECTURER_ASSIGNMENT','STUDENT_CURRICULUM') NOT NULL,
+                `jenis_entitas` ENUM('PROGRAM','COURSE','CURRICULUM','CURRICULUM_COURSE','LECTURER_ASSIGNMENT','STUDENT_CURRICULUM','OFFERING') NOT NULL,
                 `id_entitas` INT(11) NOT NULL,
                 `aksi` ENUM('CREATE','UPDATE','STATUS_CHANGE') NOT NULL,
                 `sebelum_json` LONGTEXT NULL DEFAULT NULL,
@@ -435,6 +516,44 @@ class M_katalog_akademik_admin extends CI_Model
                 `dibuat_pada` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `uq_snapshot_krs_detail` (`krs_detail_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 14. penawaran_matakuliah (jika belum dibuat modul akademik lain)
+            "CREATE TABLE IF NOT EXISTS `penawaran_matakuliah` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `kode_mk` VARCHAR(32) NOT NULL,
+                `nama_mk` VARCHAR(150) NOT NULL,
+                `prodi` VARCHAR(100) NOT NULL,
+                `semester` TINYINT(2) NOT NULL,
+                `tahun_akademik` VARCHAR(9) NOT NULL,
+                `semester_akademik` ENUM('Ganjil','Genap') NOT NULL,
+                `sks` TINYINT(2) NOT NULL,
+                `kelas` VARCHAR(20) NOT NULL,
+                `hari` ENUM('Senin','Selasa','Rabu','Kamis','Jumat','Sabtu') NOT NULL,
+                `waktu_mulai` TIME NOT NULL,
+                `waktu_selesai` TIME NOT NULL,
+                `ruangan` VARCHAR(100) NOT NULL,
+                `dosen_id` INT(11) NOT NULL,
+                `jenis_mk` ENUM('Wajib','Jurusan','Pilihan','Luar Jurusan','Umum') NOT NULL DEFAULT 'Wajib',
+                `kuota` INT(11) NOT NULL DEFAULT 40,
+                `prasyarat` VARCHAR(150) NULL DEFAULT NULL,
+                `aktif` TINYINT(1) NOT NULL DEFAULT 1,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_penawaran_periode` (`tahun_akademik`,`semester_akademik`,`prodi`,`semester`,`aktif`),
+                KEY `idx_penawaran_kode` (`kode_mk`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+            // 15. krs_detail (jika belum dibuat modul akademik lain)
+            "CREATE TABLE IF NOT EXISTS `krs_detail` (
+                `id` INT(11) NOT NULL AUTO_INCREMENT,
+                `krs_id` INT(11) NOT NULL,
+                `penawaran_id` INT(11) NOT NULL,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_krs_detail_offering` (`krs_id`,`penawaran_id`),
+                KEY `idx_krs_detail_penawaran` (`penawaran_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
         ];
 
