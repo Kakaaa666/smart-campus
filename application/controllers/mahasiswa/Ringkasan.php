@@ -43,6 +43,9 @@ class Ringkasan extends MY_Role_Controller {
             return;
         }
 
+        $this->load->model('M_obe');
+        $cpl_radar = $this->M_obe->get_capaian_cpl_mahasiswa($akun_id);
+
         $data = [
             'title'               => 'Ringkasan Akademis - Smart Campus',
             'page_title'          => 'Ringkasan Aktivitas',
@@ -51,6 +54,7 @@ class Ringkasan extends MY_Role_Controller {
             'breadcrumb_parent'   => 'Akademik',
             'ringkasan'           => $ringkasan,
             'student'             => $ringkasan['student'],
+            'cpl_radar'           => $cpl_radar,
             'is_admin'            => $is_admin,
             'is_dosen'            => $is_dosen,
             'all_students'        => $all_students,

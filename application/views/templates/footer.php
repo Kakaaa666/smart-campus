@@ -32,21 +32,44 @@
                 return localStorage.getItem(storageKey) === 'expanded' ? 'expanded' : 'collapsed';
             }
 
+            function ensureSubmenuHeaders() {
+                var items = sidebarRoot.querySelectorAll('.pcoded-item > .pcoded-hasmenu');
+                items.forEach(function(parentLi) {
+                    var submenu = parentLi.querySelector('.pcoded-submenu');
+                    if (!submenu) return;
+                    if (submenu.querySelector('.sc-collapsed-submenu-header')) return;
+                    var menuTextEl = parentLi.querySelector('a > .pcoded-mtext') || parentLi.querySelector('.pcoded-mtext');
+                    var iconEl = parentLi.querySelector('a > .pcoded-micon i') || parentLi.querySelector('.pcoded-micon i');
+                    var titleText = menuTextEl ? menuTextEl.textContent.trim() : '';
+                    if (titleText) {
+                        var headerLi = document.createElement('li');
+                        headerLi.className = 'sc-collapsed-submenu-header';
+                        var iconHtml = iconEl ? '<i class="' + iconEl.className + '"></i>' : '<i class="fa fa-folder-open-o"></i>';
+                        headerLi.innerHTML = '<span class="sc-header-badge">' + iconHtml + '</span><span class="sc-header-info"><span class="sc-header-title">' + titleText + '</span><span class="sc-header-sub">Menu Modul</span></span>';
+                        submenu.insertBefore(headerLi, submenu.firstChild);
+                    }
+                });
+            }
+
             function positionCollapsedSubmenu(parentLi, submenu) {
                 if (!submenu) return;
                 var rect = parentLi.getBoundingClientRect();
                 var top = rect.top;
-                var left = rect.right > 0 ? rect.right : 70;
+                var left = (rect.right > 0 ? rect.right + 8 : 78);
 
                 // Tambahkan judul menu induk sebagai header di panel melayang jika belum ada
-                var menuTextEl = parentLi.querySelector(':scope > a .pcoded-mtext');
-                var titleText = menuTextEl ? menuTextEl.textContent.trim() : '';
                 var existingHeader = submenu.querySelector('.sc-collapsed-submenu-header');
-                if (!existingHeader && titleText) {
-                    var headerLi = document.createElement('li');
-                    headerLi.className = 'sc-collapsed-submenu-header';
-                    headerLi.textContent = titleText;
-                    submenu.insertBefore(headerLi, submenu.firstChild);
+                if (!existingHeader) {
+                    var menuTextEl = parentLi.querySelector('a > .pcoded-mtext') || parentLi.querySelector('.pcoded-mtext');
+                    var iconEl = parentLi.querySelector('a > .pcoded-micon i') || parentLi.querySelector('.pcoded-micon i');
+                    var titleText = menuTextEl ? menuTextEl.textContent.trim() : '';
+                    if (titleText) {
+                        var headerLi = document.createElement('li');
+                        headerLi.className = 'sc-collapsed-submenu-header';
+                        var iconHtml = iconEl ? '<i class="' + iconEl.className + '"></i>' : '<i class="fa fa-folder-open-o"></i>';
+                        headerLi.innerHTML = '<span class="sc-header-badge">' + iconHtml + '</span><span class="sc-header-info"><span class="sc-header-title">' + titleText + '</span><span class="sc-header-sub">Menu Modul</span></span>';
+                        submenu.insertBefore(headerLi, submenu.firstChild);
+                    }
                 }
 
                 // Hitung posisi awal
@@ -89,6 +112,7 @@
             }
 
             // Jalankan setelah plugin PCoded selesai memasang konfigurasi awalnya.
+            ensureSubmenuHeaders();
             setSidebarType(savedType());
 
             // Tangani tombol ini sebelum handler plugin, lalu ubah status sendiri.

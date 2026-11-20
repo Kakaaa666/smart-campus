@@ -53,6 +53,200 @@ class Dosen extends MY_Role_Controller
     }
 
     /**
+     * Integrasi Modul Outcome-Based Education (OBE) Fase 2: Desain Pembelajaran & RPS
+     */
+    public function rps($action = 'index', $param1 = null, $param2 = null, $param3 = null)
+    {
+        if ($action === 'detail') {
+            return $this->rps_detail($param1);
+        } elseif ($action === 'save_cpmk') {
+            return $this->rps_save_cpmk();
+        } elseif ($action === 'delete_cpmk') {
+            return $this->rps_delete_cpmk($param1, $param2);
+        } elseif ($action === 'save_sub_cpmk') {
+            return $this->rps_save_sub_cpmk();
+        } elseif ($action === 'delete_sub_cpmk') {
+            return $this->rps_delete_sub_cpmk($param1, $param2);
+        } elseif ($action === 'publish') {
+            return $this->rps_publish($param1);
+        }
+
+        // Halaman Utama: Daftar Mata Kuliah & Status RPS OBE
+        $user_id = (int)$this->session->userdata('id');
+        $user_role = (int)$this->session->userdata('role');
+        $is_superadmin = ($user_role === 1);
+        $is_kaprodi = ((int)$this->session->userdata('is_kaprodi') === 1);
+        $user_prodi = $this->session->userdata('prodi') ?: 'Teknik Informatika';
+
+        $courses = $this->M_obe->get_dosen_rps_courses($user_id, $user_prodi, $is_superadmin, $is_kaprodi);
+        $published_count = count(array_filter($courses, function($c) { return isset($c->status) && $c->status === 'PUBLISHED'; }));
+        $draft_count = count($courses) - $published_count;
+
+        $data = [
+            'title'           => 'Desain Pembelajaran & RPS OBE - Smart Campus',
+            'page_title'      => 'Desain Pembelajaran & RPS OBE',
+            'page_desc'       => 'Pengelolaan Rencana Pembelajaran Semester (RPS), turunan CPMK & Sub-CPMK berbasis Outcome-Based Education.',
+            'card_subtitle'   => $is_kaprodi ? 'Ketua Program Studi ' . $user_prodi : 'Dosen Pengampu',
+            'courses'         => $courses,
+            'total_mk'        => count($courses),
+            'published_count' => $published_count,
+            'draft_count'     => $draft_count,
+            'is_superadmin'   => $is_superadmin,
+            'is_kaprodi'      => $is_kaprodi,
+        ];
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('dosen/rps/index', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    /**
+     * Editor RPS untuk Mata Kuliah Spesifik
+     */
+    public function rps_detail($mata_kuliah_id)
+    {
+        $mata_kuliah_id = (int)$mata_kuliah_id;
+        $rps_data = $this->M_obe->get_rps_mk($mata_kuliah_id);
+
+        if (!$rps_data || !$rps_data['mata_kuliah']) {
+            show_error('Mata kuliah tidak ditemukan.', 404);
+            return;
+        }
+
+        $mk = $rps_data['mata_kuliah'];
+
+        $data = [
+            'title'             => 'RPS: ' . $mk->nama . ' - Smart Campus',
+            'page_title'        => 'Rencana Pembelajaran Semester (RPS)',
+            'page_desc'         => 'Desain pembelajaran dan pemetaan CPL -> CPMK -> Sub-CPMK (Total Bobot Wajib 100%).',
+            'card_subtitle'     => $mk->kode . ' - ' . $mk->nama,
+            'mk'                => $mk,
+            'cpls'              => $rps_data['cpls'],
+            'cpmks'             => $rps_data['cpmks'],
+            'sub_cpmks'         => $rps_data['sub_cpmks'],
+            'sub_flat'          => $rps_data['sub_flat'],
+            'matriks_16'        => $rps_data['matriks_16'],
+            'total_bobot_nilai' => $rps_data['total_bobot_nilai'],
+            'is_valid_100'      => $rps_data['is_valid_100'],
+            'rps_status'        => $rps_data['rps_status'],
+            'status_publikasi'  => $rps_data['status_publikasi'],
+        ];
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('dosen/rps/detail', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    /**
+     * Simpan / Edit CPMK di modul RPS
+     */
+    public function rps_save_cpmk()
+    {
+        $mk_id      = (int)($this->input->post('mata_kuliah_id') ?: $this->input->post('mk_id'));
+        $cpmk_id    = $this->input->post('id');
+        $cpl_mk_id  = (int)$this->input->post('cpl_mk_id');
+        $kode_cpmk  = trim((string)$this->input->post('kode_cpmk', TRUE));
+        $deskripsi  = trim((string)$this->input->post('deskripsi', TRUE));
+
+        if ($mk_id <= 0 || empty($kode_cpmk) || empty($deskripsi) || $cpl_mk_id <= 0) {
+            $this->session->set_flashdata('error', 'Semua field CPMK wajib diisi dan harus terhubung ke salah satu CPL yang dititipkan.');
+            redirect('dosen/rps/detail/' . $mk_id);
+            return;
+        }
+
+        $data = [
+            'cpl_mk_id'      => $cpl_mk_id,
+            'mata_kuliah_id' => $mk_id,
+            'mk_id'          => $mk_id,
+            'kode_cpmk'      => $kode_cpmk,
+            'deskripsi'      => $deskripsi
+        ];
+
+        $this->M_obe->save_cpmk_obe($data, $cpmk_id ?: null);
+        $this->session->set_flashdata('success', 'CPMK (' . $kode_cpmk . ') berhasil disimpan.');
+        redirect('dosen/rps/detail/' . $mk_id);
+    }
+
+    /**
+     * Hapus CPMK di modul RPS
+     */
+    public function rps_delete_cpmk($cpmk_id, $mk_id)
+    {
+        $this->M_obe->delete_cpmk_obe((int)$cpmk_id);
+        $this->M_obe->sync_rps_status_bobot((int)$mk_id);
+        $this->session->set_flashdata('success', 'CPMK beserta seluruh Sub-CPMK turunannya berhasil dihapus.');
+        redirect('dosen/rps/detail/' . (int)$mk_id);
+    }
+
+    /**
+     * Simpan / Edit Sub-CPMK di modul RPS
+     */
+    public function rps_save_sub_cpmk()
+    {
+        $mk_id              = (int)($this->input->post('mata_kuliah_id') ?: $this->input->post('mk_id'));
+        $cpmk_id            = (int)$this->input->post('cpmk_id');
+        $sub_id             = $this->input->post('id');
+        $kode_sub           = trim((string)($this->input->post('kode_sub', TRUE) ?: $this->input->post('kode_sub_cpmk', TRUE)));
+        $deskripsi          = trim((string)$this->input->post('deskripsi', TRUE));
+        $pertemuan_ke       = trim((string)($this->input->post('pertemuan_ke', TRUE) ?: $this->input->post('minggu_pertemuan', TRUE)));
+        $instrumen_evaluasi = trim((string)($this->input->post('instrumen_evaluasi', TRUE) ?: $this->input->post('bentuk_evaluasi', TRUE)));
+        $bobot_nilai        = (float)$this->input->post('bobot_nilai');
+
+        if ($cpmk_id <= 0 || empty($kode_sub) || empty($deskripsi) || empty($pertemuan_ke) || $bobot_nilai <= 0) {
+            $this->session->set_flashdata('error', 'Semua field Sub-CPMK wajib diisi dengan bobot nilai lebih dari 0%.');
+            redirect('dosen/rps/detail/' . $mk_id);
+            return;
+        }
+
+        $data = [
+            'cpmk_id'            => $cpmk_id,
+            'kode_sub'           => $kode_sub,
+            'kode_sub_cpmk'      => $kode_sub,
+            'deskripsi'          => $deskripsi,
+            'pertemuan_ke'       => $pertemuan_ke,
+            'minggu_pertemuan'   => $pertemuan_ke,
+            'instrumen_evaluasi' => $instrumen_evaluasi,
+            'bentuk_evaluasi'    => $instrumen_evaluasi,
+            'bobot_nilai'        => $bobot_nilai
+        ];
+
+        $this->M_obe->save_sub_cpmk_obe($data, $sub_id ?: null);
+        $this->session->set_flashdata('success', 'Sub-CPMK (' . $kode_sub . ') berhasil disimpan.');
+        redirect('dosen/rps/detail/' . $mk_id);
+    }
+
+    /**
+     * Hapus Sub-CPMK di modul RPS
+     */
+    public function rps_delete_sub_cpmk($sub_id, $mk_id)
+    {
+        $this->M_obe->delete_sub_cpmk_obe((int)$sub_id);
+        $this->session->set_flashdata('success', 'Sub-CPMK berhasil dihapus.');
+        redirect('dosen/rps/detail/' . (int)$mk_id);
+    }
+
+    /**
+     * Publikasikan RPS (Wajib Total Bobot Tepat 100%)
+     */
+    public function rps_publish($mata_kuliah_id)
+    {
+        $user_id = (int)$this->session->userdata('id');
+        $result = $this->M_obe->publish_rps_obe((int)$mata_kuliah_id, $user_id);
+
+        if ($result['success']) {
+            $this->session->set_flashdata('success', $result['message']);
+        } else {
+            $this->session->set_flashdata('error', $result['message']);
+        }
+
+        redirect('dosen/rps/detail/' . (int)$mata_kuliah_id);
+    }
+
+    /**
      * Integrasi Modul Outcome-Based Education (OBE) Dosen
      */
     public function nilai($action = 'index', $param1 = null, $param2 = null)
@@ -317,6 +511,26 @@ class Dosen extends MY_Role_Controller
         redirect('dosen/nilai/matriks/' . $penawaran_id);
     }
 
+    public function evaluasi($penawaran_id)
+    {
+        redirect('dosen/nilai/evaluasi/' . (int)$penawaran_id);
+    }
+
+    public function save_evaluasi()
+    {
+        $penawaran_id = (int)$this->input->post('penawaran_id');
+        $scores = $this->input->post('scores');
+        $krs_map = $this->input->post('krs_map');
+
+        $res = $this->M_obe->batch_save_nilai_evaluasi($penawaran_id, (array)$scores, (array)$krs_map);
+        if ($res['status']) {
+            $this->session->set_flashdata('success', $res['message']);
+        } else {
+            $this->session->set_flashdata('error', $res['message']);
+        }
+        redirect('dosen/nilai/evaluasi/' . $penawaran_id);
+    }
+
     public function khs()
     {
         $user_id = (int)$this->session->userdata('id');
@@ -420,7 +634,13 @@ class Dosen extends MY_Role_Controller
             $target_lecturer_id = $user_id;
         }
 
+        $this->load->model('M_obe');
         $krs_list = $this->M_akademik->get_advisor_krs_list($target_lecturer_id, $status, $prodi, $keyword);
+        if (!empty($krs_list)) {
+            foreach ($krs_list as &$krs_item) {
+                $krs_item->cpl_radar = $this->M_obe->get_capaian_cpl_mahasiswa((int)$krs_item->akun_id);
+            }
+        }
         $stats = $this->M_akademik->get_krs_validation_stats($target_lecturer_id);
         $all_lecturers = $is_admin ? $this->M_akademik->get_lecturers() : [];
 
@@ -438,6 +658,7 @@ class Dosen extends MY_Role_Controller
             'current_lecturer_id' => $user_id,
             'all_lecturers' => $all_lecturers,
             'is_admin' => $is_admin,
+            'cpl_badges' => $this->M_obe->get_krs_cpl_badges(),
             'academic_period' => $this->M_akademik->get_active_period(),
         ];
 

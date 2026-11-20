@@ -66,6 +66,11 @@ $route['dosen/nilai'] = 'dosen/nilai/index';
 $route['dosen/nilai/(:any)'] = 'dosen/nilai/$1';
 $route['dosen/nilai/(:any)/(:any)'] = 'dosen/nilai/$1/$2';
 
+$route['dosen/rps'] = 'dosen/rps/index';
+$route['dosen/rps/(:any)'] = 'dosen/rps/$1';
+$route['dosen/rps/(:any)/(:any)'] = 'dosen/rps/$1/$2';
+$route['dosen/rps/(:any)/(:any)/(:any)'] = 'dosen/rps/$1/$2/$3';
+
 $route['mahasiswa/capaian'] = 'mahasiswa/capaian/index';
 $route['mahasiswa/capaian/(:any)'] = 'mahasiswa/capaian/$1';
 

@@ -37,7 +37,7 @@
     <!-- scrollbar.css -->
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/jquery.mCustomScrollbar.css') ?>">
     <!-- Style.css -->
-    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css') ?>">
+    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/style.css?v=' . time()) ?>">
     <!-- Smart Campus Sidebar Style (dengan cache buster otomatis) -->
     <link rel="stylesheet" type="text/css" href="<?= base_url('assets/css/smart-campus-sidebar.css?v=' . time()) ?>">
     <!-- Keuangan Modern UI System -->
@@ -258,49 +258,253 @@
             white-space: nowrap !important;
         }
 
-        /* Submenu Dropdowns */
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
+        /* Submenu Dropdowns (Neutralize glitch vertical lines, bullets & pseudo chevrons) */
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu:before,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu:before,
+        .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu:before,
+        .pcoded .pcoded-navbar .pcoded-submenu:before,
+        .pcoded-submenu:before,
+        .pcoded-submenu:after,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li>a>.pcoded-mtext:before,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu li>a>.pcoded-mtext:before,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu>li>a>.pcoded-mtext:after,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu>li.active>a>.pcoded-mtext:after,
+        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu[subitem-icon] .pcoded-submenu>li:hover>a>.pcoded-mtext:after {
+            display: none !important;
+            content: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Submenu Dropdowns - Expanded Mode (Sidebar Terbuka / Lebar) */
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu {
             background-color: #f8fafc !important;
-            border-top: 1px solid #f1f5f9 !important;
-            border-bottom: 1px solid #f1f5f9 !important;
+            border-top: 1px solid #eef2f6 !important;
+            border-bottom: 1px solid #eef2f6 !important;
+            padding: 6px 8px !important;
         }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
-            color: #4b5563 !important;
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a {
+            color: #475569 !important;
             background: transparent !important;
+            border-left: 3px solid transparent !important;
+            border-radius: 8px !important;
+            margin: 2px 4px !important;
+            padding: 8px 12px 8px 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            text-decoration: none !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
-            color: #4b5563 !important;
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-mtext {
+            color: inherit !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            flex: 1 !important;
         }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
-            color: #94a3b8 !important;
-        }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a {
-            color: #1565c0 !important;
-            background: #e8f0fe !important;
-        }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-mtext,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-mtext {
-            color: #1565c0 !important;
-        }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a {
-            color: #1565c0 !important;
-            background: #e3f2fd !important;
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon {
+            font-size: 11px !important;
             font-weight: 700 !important;
-            border-left: 3px solid #1976d2 !important;
+            width: 26px !important;
+            min-width: 26px !important;
+            height: 26px !important;
+            border-radius: 7px !important;
+            background: rgba(2, 132, 199, 0.08) !important;
+            border: 1px solid rgba(2, 132, 199, 0.2) !important;
+            margin-right: 11px !important;
+            color: #0284c7 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext {
-            color: #1565c0 !important;
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon i,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a .pcoded-micon i {
+            transition: transform 0.18s ease !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a {
+            color: #0284c7 !important;
+            background: #f0f9ff !important;
+            border-left-color: #38bdf8 !important;
+            transform: translateX(3px) !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-mtext,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-mtext {
+            color: #0284c7 !important;
+            font-weight: 600 !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-micon,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-micon {
+            background: #0284c7 !important;
+            border-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4) !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li > a:hover .pcoded-micon i,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li:hover > a .pcoded-micon i {
+            transform: translateX(2px) !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a {
+            color: #0284c7 !important;
+            background: #e0f2fe !important;
+            font-weight: 600 !important;
+            border-left: 3px solid #0284c7 !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-mtext {
+            color: #0284c7 !important;
+            font-weight: 600 !important;
+        }
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon,
+        .pcoded:not([vertical-nav-type="collapsed"]) .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon {
+            color: #ffffff !important;
+            background: #0284c7 !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4) !important;
+        }
+
+        /* Submenu Dropdowns - Collapsed Flyout Mode (Sidebar Ciut / Minimized) */
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: fixed !important;
+            left: 78px !important;
+            width: 242px !important;
+            height: auto !important;
+            max-height: calc(100vh - 30px) !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            z-index: 99999 !important;
+            padding: 8px 6px !important;
+            margin: 0 !important;
+            list-style: none !important;
+            background: linear-gradient(165deg, rgba(13, 37, 66, 0.96) 0%, rgba(9, 23, 44, 0.98) 100%) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.28) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+            pointer-events: auto !important;
+            animation: scFlyoutIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+        @keyframes scFlyoutIn {
+            from {
+                opacity: 0;
+                transform: translateX(-8px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li {
+            display: block !important;
+            width: 100% !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a {
+            display: flex !important;
+            align-items: center !important;
+            padding: 8px 12px !important;
+            margin: 3px 4px !important;
+            border-radius: 9px !important;
+            width: auto !important;
+            text-align: left !important;
+            text-decoration: none !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #cbd5e1 !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            position: relative !important;
+        }
+        /* Squircle Badge Chevron */
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a .pcoded-micon {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 28px !important;
+            min-width: 28px !important;
+            height: 28px !important;
+            margin-right: 12px !important;
+            border-radius: 9px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0, 0, 0, 0.18) !important;
+            font-size: 12px !important;
             font-weight: 700 !important;
+            color: #ffffff !important;
+            flex-shrink: 0 !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .pcoded .pcoded-navbar .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon,
-        .pcoded .pcoded-navbar[active-item-theme] .pcoded-item .pcoded-hasmenu .pcoded-submenu li.active > a .pcoded-micon {
-            color: #1976d2 !important;
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a .pcoded-micon i {
+            color: #ffffff !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            display: inline-block !important;
+            transition: transform 0.18s ease !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a .pcoded-mtext {
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: static !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+            line-height: 1.4 !important;
+            white-space: normal !important;
+            color: #f1f5f9 !important;
+            flex: 1 !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a:hover {
+            color: #ffffff !important;
+            background: rgba(56, 189, 248, 0.12) !important;
+            border-color: rgba(56, 189, 248, 0.3) !important;
+            transform: translateX(4px) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a:hover .pcoded-micon {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.45) 0%, rgba(56, 189, 248, 0.35) 100%) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li > a:hover .pcoded-micon i {
+            transform: translateX(2px) !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li.active > a {
+            color: #38bdf8 !important;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(2, 132, 199, 0.18) 100%) !important;
+            border-color: rgba(56, 189, 248, 0.45) !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 12px rgba(56, 189, 248, 0.25) !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li.active > a .pcoded-micon {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.6) !important;
+        }
+        .pcoded[theme-layout="vertical"][vertical-nav-type="collapsed"] .pcoded-navbar .pcoded-item > .pcoded-hasmenu.pcoded-trigger > .pcoded-submenu li.active > a:after {
+            content: "" !important;
+            width: 6px !important;
+            height: 6px !important;
+            border-radius: 50% !important;
+            background: #38bdf8 !important;
+            box-shadow: 0 0 8px #38bdf8 !important;
+            margin-left: auto !important;
+            display: inline-block !important;
         }
 
         /* Menjamin konten halaman tidak tertindih oleh sidebar yang fixed baik saat terbuka maupun ciut */

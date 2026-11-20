@@ -117,7 +117,7 @@
                     $total_mhs_all = 0;
                     foreach ($classes as $cl) {
                         $total_mhs_all += (int)$cl->total_mahasiswa;
-                        if (abs((float)$cl->total_bobot - 100.0) <= 0.01 && $cl->total_cpmk > 0) {
+                        if (!empty($cl->is_rps_published)) {
                             $kelas_obe_lengkap++;
                         }
                         if ($cl->total_nilai_khs > 0) {
@@ -198,9 +198,9 @@
                                     <th class="py-3.5 px-4 text-center whitespace-nowrap w-24">Kelas</th>
                                     <th class="py-3.5 px-3 text-center whitespace-nowrap w-20">SKS</th>
                                     <th class="py-3.5 px-4 text-center whitespace-nowrap w-28">Tahun / Smt</th>
-                                    <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[190px]">Status Konfigurasi Asesmen</th>
-                                    <th class="py-3.5 px-4 text-center whitespace-nowrap w-24">Mahasiswa</th>
-                                    <th class="py-3.5 px-4 text-center w-52 whitespace-nowrap">Aksi Penilaian</th>
+                                    <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[210px]">Status RPS & Sub-CPMK</th>
+                                    <th class="py-3.5 px-4 text-center whitespace-nowrap w-28">Mahasiswa</th>
+                                    <th class="py-3.5 px-4 text-center w-60 whitespace-nowrap">Aksi Penilaian</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
@@ -208,16 +208,15 @@
                                 <tr>
                                     <td colspan="9" class="py-8 text-center text-slate-400">
                                         <i class="fa fa-folder-open-o text-4xl mb-2 block text-slate-300"></i>
-                                        Tidak ada kelas perkuliahan yang ditemukan.
+                                        Tidak ada kelas perkuliahan yang ditemukan pada semester ini.
                                     </td>
                                 </tr>
                                 <?php else: ?>
                                     <?php $cno = 1; foreach ($classes as $cl): ?>
                                     <?php
-                                        $bobot = (float)$cl->total_bobot;
-                                        $is_obe_ready = (abs($bobot - 100.0) <= 0.01 && $cl->total_cpmk > 0);
-                                        $is_partial = ($bobot > 0 && !$is_obe_ready);
-                                        $is_historical = ($cl->total_komponen == 0 && $cl->total_nilai_khs > 0);
+                                        $is_published = !empty($cl->is_rps_published);
+                                        $sub_bobot = (float)($cl->total_bobot_sub_cpmk ?? 0.0);
+                                        $sub_count = (int)($cl->total_sub_cpmk ?? 0);
                                     ?>
                                     <tr class="hover:bg-slate-50/80 transition class-row">
                                         <td class="py-3.5 px-4 text-center font-medium text-slate-500 whitespace-nowrap"><?= $cno++ ?></td>
@@ -246,43 +245,48 @@
                                             <span class="block text-[10px] text-slate-400 whitespace-nowrap"><?= html_escape($cl->semester_akademik) ?></span>
                                         </td>
                                         <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                            <?php if ($is_obe_ready): ?>
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                                                    <i class="fa fa-check-circle"></i> OBE Siap (100%)
+                                            <?php if ($is_published): ?>
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                                                    <i class="fa fa-check-circle"></i> RPS Published (100%)
                                                 </span>
-                                                <?php if ($cl->total_nilai_khs > 0): ?>
-                                                    <span class="block text-[10px] text-blue-600 font-semibold mt-1 whitespace-nowrap"><i class="fa fa-archive"></i> <?= $cl->total_nilai_khs ?> arsip nilai KHS</span>
-                                                <?php else: ?>
-                                                    <span class="block text-[10px] text-slate-400 mt-1 whitespace-nowrap"><?= $cl->total_cpmk ?> CPMK &bull; <?= $cl->total_komponen ?> Asesmen</span>
-                                                <?php endif; ?>
-                                            <?php elseif ($is_partial): ?>
+                                                <span class="block text-[10px] text-slate-500 mt-1 whitespace-nowrap"><?= $sub_count ?> Sub-CPMK &bull; Bobot Pas 100%</span>
+                                            <?php elseif ($sub_count > 0 && abs($sub_bobot - 100.0) <= 0.05): ?>
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-                                                    <i class="fa fa-exclamation-circle"></i> Bobot: <?= number_format($bobot, 1) ?>% (Belum 100%)
+                                                    <i class="fa fa-clock-o"></i> RPS Draft (100%)
                                                 </span>
-                                                <span class="block text-[10px] text-amber-600 mt-1 whitespace-nowrap">Perlu pelengkapan bobot</span>
-                                            <?php elseif ($cl->total_nilai_khs > 0 || $is_historical): ?>
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
-                                                    <i class="fa fa-history"></i> Nilai Historis (KHS)
+                                                <span class="block text-[10px] text-amber-600 mt-1 whitespace-nowrap">Belum Dipublish di Menu RPS</span>
+                                            <?php elseif ($sub_bobot > 0): ?>
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+                                                    <i class="fa fa-exclamation-triangle"></i> Bobot Sub-CPMK: <?= number_format($sub_bobot, 1) ?>%
                                                 </span>
-                                                <span class="block text-[10px] text-slate-400 mt-1 whitespace-nowrap"><?= $cl->total_nilai_khs ?> nilai tersimpan di KHS</span>
+                                                <span class="block text-[10px] text-rose-500 font-semibold mt-1 whitespace-nowrap">Belum 100% (Kurang <?= number_format(100 - $sub_bobot, 1) ?>%)</span>
                                             <?php else: ?>
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
-                                                    <i class="fa fa-clock-o"></i> Belum Dikonfigurasi
+                                                    <i class="fa fa-times-circle text-slate-400"></i> RPS Belum Siap
                                                 </span>
-                                                <span class="block text-[10px] text-slate-400 mt-1 whitespace-nowrap">0% Komponen Asesmen</span>
+                                                <span class="block text-[10px] text-slate-400 mt-1 whitespace-nowrap">0 Sub-CPMK Dikonfigurasi</span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                            <span class="font-bold text-slate-800"><?= $cl->total_mahasiswa ?></span>
-                                            <span class="text-[10px] text-slate-400 block whitespace-nowrap">KRS Terdaftar</span>
+                                            <span class="font-bold text-slate-800 text-sm"><?= (int)($cl->total_mahasiswa_disetujui ?? 0) ?></span>
+                                            <span class="text-[10px] text-slate-400 block whitespace-nowrap">KRS Disetujui (<?= (int)$cl->total_mahasiswa ?> Total)</span>
                                         </td>
                                         <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                            <div class="flex items-center justify-center gap-2 flex-nowrap">
-                                                <a href="<?= base_url('dosen/nilai/setup_cpmk/' . $cl->id) ?>" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Konfigurasi CPMK dan Distribusi Bobot Asesmen">
-                                                    <i class="fa fa-sliders"></i> Setup CPMK
+                                            <div class="flex items-center justify-center gap-1.5 flex-nowrap">
+                                                <?php if ($is_published): ?>
+                                                    <a href="<?= base_url('dosen/nilai/evaluasi/' . $cl->id) ?>" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-1 whitespace-nowrap shrink-0" title="Input Nilai Evaluasi Sub-CPMK (0-100)">
+                                                        <i class="fa fa-pencil-square-o"></i> Input Nilai (Sub-CPMK)
+                                                    </a>
+                                                <?php else: ?>
+                                                    <button type="button" disabled class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed flex items-center gap-1 whitespace-nowrap shrink-0" title="Menu input nilai hanya bisa dibuka jika RPS berstatus Published (total bobot Sub-CPMK = 100%). Lengkapi di menu Desain RPS.">
+                                                        <i class="fa fa-lock"></i> Input Nilai (Terkunci)
+                                                    </button>
+                                                <?php endif; ?>
+                                                <a href="<?= base_url('dosen/rps/detail/' . ($cl->mk_id ?: 1)) ?>" class="px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-xs transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Buka Desain RPS & Sub-CPMK">
+                                                    <i class="fa fa-book"></i> RPS
                                                 </a>
-                                                <a href="<?= base_url('dosen/nilai/matriks/' . $cl->id) ?>" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-1.5 whitespace-nowrap shrink-0" title="Input dan Lihat Matriks Nilai Mahasiswa">
-                                                    <i class="fa fa-table"></i> Nilai
+                                                <a href="<?= base_url('dosen/nilai/matriks/' . $cl->id) ?>" class="px-2.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-xs transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Lihat Rekap Nilai KHS">
+                                                    <i class="fa fa-table"></i> KHS
                                                 </a>
                                             </div>
                                         </td>

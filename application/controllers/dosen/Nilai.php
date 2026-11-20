@@ -38,9 +38,15 @@ class Nilai extends MY_Role_Controller
         }
         $user_prodi = $this->session->userdata('prodi') ?: 'Teknik Informatika';
 
+        $active_period = $this->M_akademik->get_active_period();
         $req_dosen_id = $this->input->get('dosen_id');
         $tahun = $this->input->get('tahun', TRUE);
         $semester = $this->input->get('semester', TRUE);
+
+        if ($tahun === null && $semester === null) {
+            $tahun = $active_period['tahun_akademik'];
+            $semester = $active_period['semester_akademik'];
+        }
 
         if ($is_superadmin) {
             $dosen_id = ($req_dosen_id !== null && $req_dosen_id !== '' && $req_dosen_id !== '0') ? (int)$req_dosen_id : 0;
@@ -72,15 +78,20 @@ class Nilai extends MY_Role_Controller
 
         $classes = $this->M_obe->get_dosen_classes($dosen_id, $tahun, $semester, $filter_prodi);
 
-        // Fallback cerdas: Jika dosen reguler belum memiliki kelas yang di-mapping khusus,
-        // ambilkan kelas pada prodi dosen tersebut agar tidak muncul layar kosong 0 kelas
+        // Fallback cerdas: Jika belum ada kelas pada semester filter, ambilkan seluruh kelas dosen
+        if (empty($classes) && $dosen_id > 0) {
+            $classes = $this->M_obe->get_dosen_classes($dosen_id, null, null, $filter_prodi);
+        }
+
+        // Fallback prodi: Jika dosen reguler belum di-mapping kelas, ambil kelas pada prodi dosen
         if (empty($classes) && $dosen_id > 0 && !$is_superadmin && !$is_kaprodi) {
-            $classes = $this->M_obe->get_dosen_classes(0, $tahun, $semester, $user_prodi);
+            $classes = $this->M_obe->get_dosen_classes(0, null, null, $user_prodi);
         }
 
         $data = [
             'title'          => ($is_kaprodi ? 'Monitoring & ' : '') . 'Penilaian Akademik & OBE - Smart Campus',
             'page_title'     => $is_kaprodi ? 'Monitoring & Penilaian OBE Program Studi' : 'Penilaian Akademik & OBE',
+            'active_period'  => $active_period,
             'page_desc'      => $is_kaprodi 
                                 ? 'Pengawasan instrumen asesmen CPMK, konfigurasi bobot 100%, dan penilaian mahasiswa di Program Studi ' . $user_prodi . '.' 
                                 : 'Pengelolaan instrumen asesmen CPMK berbasis Outcome-Based Education dan penilaian mahasiswa yang diampu.',
@@ -292,4 +303,137 @@ class Nilai extends MY_Role_Controller
 
         redirect('dosen/nilai/matriks/' . $penawaran_id);
     }
+
+    /**
+     * FASE 4 & 5: Input Nilai Evaluasi Mentah (0-100) per Sub-CPMK & Kalkulasi Otomatis ke KHS
+     */
+    public function evaluasi($penawaran_id)
+    {
+        $penawaran_id = (int)$penawaran_id;
+        $grid = $this->M_obe->get_evaluasi_grid_data($penawaran_id);
+
+        if (!$grid || !$grid['penawaran']) {
+            show_error('Kelas perkuliahan tidak ditemukan.', 404);
+            return;
+        }
+
+        $penawaran = $grid['penawaran'];
+        $mk = $grid['mata_kuliah'];
+
+        // Validasi Dosen Pengampu (Hanya pengampu kelas, Kaprodi, atau Superadmin)
+        $user_id = (int)$this->session->userdata('id');
+        $user_role = (int)$this->session->userdata('role');
+        $is_superadmin = ($user_role === 1);
+        $is_kaprodi = ((int)$this->session->userdata('is_kaprodi') === 1);
+
+        if (!$is_superadmin && !$is_kaprodi && (int)$penawaran->dosen_id !== $user_id) {
+            $this->session->set_flashdata('error', 'Anda tidak memiliki hak akses sebagai dosen pengampu untuk kelas ini.');
+            redirect('dosen/nilai');
+            return;
+        }
+
+        // Validasi Wajib: menu input nilai hanya bisa dibuka jika RPS MK tersebut sudah berstatus Published (total bobot Sub-CPMK = 100%)
+        if (!$grid['is_rps_published']) {
+            $msg = 'Menu input nilai hanya dapat dibuka jika RPS Mata Kuliah "' . $penawaran->nama_mk . '" sudah berstatus Published (total bobot Sub-CPMK = 100%). ';
+            if ($grid['total_bobot_sub_cpmk'] < 100.0) {
+                $msg .= 'Saat ini total bobot Sub-CPMK baru ' . number_format($grid['total_bobot_sub_cpmk'], 1) . '%. ';
+            } else {
+                $msg .= 'RPS saat ini masih berstatus DRAFT. ';
+            }
+            $msg .= 'Silakan buka menu Desain RPS untuk melengkapi dan mempublikasikan RPS terlebih dahulu.';
+            $this->session->set_flashdata('error', $msg);
+            redirect('dosen/nilai');
+            return;
+        }
+
+        $data = [
+            'title'          => 'Input Nilai Evaluasi Sub-CPMK - ' . $penawaran->nama_mk,
+            'page_title'     => 'Input Nilai Evaluasi Sub-CPMK (OBE)',
+            'page_desc'      => 'Input skor mentah (0-100) per Sub-CPMK. Nilai akhir dihitung otomatis (bottom-up) dan tersinkronisasi ke KHS.',
+            'card_subtitle'  => $penawaran->kode_mk . ' - ' . $penawaran->nama_mk . ' (Kelas ' . $penawaran->kelas . ')',
+            'penawaran'      => $penawaran,
+            'mata_kuliah'    => $mk,
+            'sub_cpmks'      => $grid['sub_cpmks'],
+            'total_bobot'    => $grid['total_bobot_sub_cpmk'],
+            'students'       => $grid['students'],
+            'scores'         => $grid['scores'],
+            'pending_count'  => $grid['pending_count'],
+        ];
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('dosen/nilai/input_evaluasi', $data);
+        $this->load->view('templates/footer', $data);
+    }
+
+    /**
+     * Simpan Massal Nilai Evaluasi Sub-CPMK & Kalkulasi Bottom-Up ke KHS (Batch Save / Upsert)
+     */
+    public function save_evaluasi()
+    {
+        $penawaran_id = (int)$this->input->post('penawaran_id');
+        $scores = $this->input->post('scores'); // [krs_detail_id][sub_cpmk_id] = nilai (0-100)
+        $krs_map = $this->input->post('krs_map'); // [krs_detail_id] => krs_id
+
+        $penawaran = $this->db->where('id', $penawaran_id)->get('penawaran_matakuliah')->row();
+        if (!$penawaran) {
+            $this->session->set_flashdata('error', 'Kelas perkuliahan tidak ditemukan.');
+            redirect('dosen/nilai');
+            return;
+        }
+
+        // Validasi hak akses dosen pengampu
+        $user_id = (int)$this->session->userdata('id');
+        $user_role = (int)$this->session->userdata('role');
+        $is_superadmin = ($user_role === 1);
+        $is_kaprodi = ((int)$this->session->userdata('is_kaprodi') === 1);
+
+        if (!$is_superadmin && !$is_kaprodi && (int)$penawaran->dosen_id !== $user_id) {
+            $this->session->set_flashdata('error', 'Anda tidak memiliki hak akses sebagai dosen pengampu untuk menyimpan nilai pada kelas ini.');
+            redirect('dosen/nilai');
+            return;
+        }
+
+        // Validasi status RPS Published & bobot 100%
+        $rps_check = $this->M_obe->check_course_rps_published($penawaran->kode_mk);
+        if (!$rps_check['is_published']) {
+            $this->session->set_flashdata('error', 'Penyimpanan nilai ditolak karena RPS mata kuliah "' . $penawaran->nama_mk . '" belum berstatus Published (100%).');
+            redirect('dosen/nilai');
+            return;
+        }
+
+        if (empty($scores) || !is_array($scores)) {
+            $this->session->set_flashdata('error', 'Tidak ada data nilai evaluasi yang dikirim.');
+            redirect('dosen/nilai/evaluasi/' . $penawaran_id);
+            return;
+        }
+
+        // Validasi di sisi backend bahwa semua nilai berada di rentang 0–100
+        foreach ($scores as $krs_detail_id => $sub_scores) {
+            if (is_array($sub_scores)) {
+                foreach ($sub_scores as $sub_id => $val) {
+                    if ($val !== '' && $val !== null) {
+                        if (!is_numeric($val) || (float)$val < 0.0 || (float)$val > 100.0) {
+                            $this->session->set_flashdata('error', 'Validasi gagal: Seluruh nilai evaluasi harus berada di rentang 0 sampai 100. Ditemukan nilai: "' . html_escape($val) . '".');
+                            redirect('dosen/nilai/evaluasi/' . $penawaran_id);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Batch save / upsert melalui Model dalam 1 transaksi
+        $res = $this->M_obe->batch_save_nilai_evaluasi($penawaran_id, $scores, (array)$krs_map);
+
+        if ($res['status']) {
+            $this->session->set_flashdata('success', $res['message']);
+        } else {
+            $this->session->set_flashdata('error', $res['message']);
+        }
+
+        redirect('dosen/nilai/evaluasi/' . $penawaran_id);
+    }
 }
+

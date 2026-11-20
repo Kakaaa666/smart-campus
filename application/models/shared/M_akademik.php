@@ -3958,6 +3958,21 @@ class M_akademik extends CI_Model
         }
         $courses = $this->db->order_by('id', 'ASC')->get('khs_nilai')->result();
 
+        // Enrich courses dengan detail Sub-CPMK evaluasi OBE bottom-up (Fase 5)
+        $ci =& get_instance();
+        if (!isset($ci->M_obe)) {
+            $ci->load->model('M_obe');
+        }
+        foreach ($courses as &$c) {
+            if (isset($ci->M_obe) && method_exists($ci->M_obe, 'get_student_course_evaluations')) {
+                $c->evaluasi_detail = $ci->M_obe->get_student_course_evaluations($akun_id, $c->kode_mk, $c->semester_mhs);
+                if (empty($c->nilai_angka) || (float)$c->nilai_angka <= 0) {
+                    $c->nilai_angka = $c->evaluasi_detail['nilai_akhir'] ?? 0;
+                }
+            }
+        }
+        unset($c);
+
         // Hitung statistik untuk semester yang dipilih (atau seluruhnya jika transkrip)
         $jumlah_sks = 0;
         $jumlah_bobot = 0;

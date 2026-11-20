@@ -63,24 +63,31 @@
                             </div>
                         </div>
 
-                        <!-- Filter Switcher (Admin / Dosen Mode) -->
-                        <?php if (($is_admin || $is_dosen) && !empty($all_students)): ?>
-                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-2">
-                            <span class="text-xs text-slate-600 font-semibold whitespace-nowrap">Lihat Mahasiswa:</span>
-                            <form method="GET" class="m-0">
-                                <?php if ($filter_semester !== 'all'): ?>
-                                <input type="hidden" name="semester" value="<?= $filter_semester ?>">
-                                <?php endif; ?>
-                                <select name="student_id" onchange="this.form.submit()" class="text-xs bg-white text-slate-800 border border-slate-300 rounded-xl px-3 py-1.5 outline-none cursor-pointer">
-                                    <?php foreach ($all_students as $as): ?>
-                                    <option value="<?= $as->id ?>" <?= ($selected_student_id == $as->id) ? 'selected' : '' ?>>
-                                        <?= html_escape($as->nim . ' - ' . $as->nama_lengkap) ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </form>
+                        <!-- Action Buttons & Filter Switcher -->
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <!-- Tombol Cetak Portofolio / SKPI -->
+                            <a href="<?= base_url('mahasiswa/capaian/cetak' . (($is_admin || $is_dosen) ? '?student_id=' . $selected_student_id : '')) ?>" target="_blank" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition inline-flex items-center gap-2 text-decoration-none" title="Cetak Dokumen SKPI / Portofolio CPL Resmi">
+                                <i class="fa fa-print text-sm"></i> Cetak Portofolio / SKPI
+                            </a>
+
+                            <?php if (($is_admin || $is_dosen) && !empty($all_students)): ?>
+                            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 flex items-center gap-2">
+                                <span class="text-xs text-slate-600 font-semibold whitespace-nowrap">Lihat Mahasiswa:</span>
+                                <form method="GET" class="m-0">
+                                    <?php if ($filter_semester !== 'all'): ?>
+                                    <input type="hidden" name="semester" value="<?= $filter_semester ?>">
+                                    <?php endif; ?>
+                                    <select name="student_id" onchange="this.form.submit()" class="text-xs bg-white text-slate-800 border border-slate-300 rounded-xl px-3 py-1.5 outline-none cursor-pointer">
+                                        <?php foreach ($all_students as $as): ?>
+                                        <option value="<?= $as->id ?>" <?= ($selected_student_id == $as->id) ? 'selected' : '' ?>>
+                                            <?= html_escape($as->nim . ' - ' . $as->nama_lengkap) ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </form>
+                            </div>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
                     </div>
 
                     <!-- Filter Semester Bar -->
@@ -149,11 +156,11 @@
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="text-sm font-bold text-slate-900 m-0">Radar Ketercapaian CPL</h3>
                                 <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
-                                    Target Ambang: 70.0
+                                    Target Ambang: 60.0%
                                 </span>
                             </div>
                             <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-                                Poligon visualisasi profil kompetensi mahasiswa terhadap Capaian Pembelajaran Lulusan program studi.
+                                Poligon visualisasi profil kompetensi mahasiswa terhadap Capaian Pembelajaran Lulusan program studi (Standar Minimum 60%).
                             </p>
                         </div>
 
@@ -178,7 +185,7 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
-                                <span>Target Minimal (70)</span>
+                                <span>Target Minimal (60%)</span>
                             </div>
                         </div>
                     </div>
@@ -189,22 +196,28 @@
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900 m-0">Rincian Capaian per Dimensi CPL</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    <?= $is_semester_ongoing ? 'Status pemenuhan CPL pada semester berjalan yang sedang ditempuh.' : 'Nilai rata-rata akumulatif yang diperoleh dari seluruh instrumen CPMK mata kuliah terkait.' ?>
+                                    <?= $is_semester_ongoing ? 'Status pemenuhan CPL pada semester berjalan yang sedang ditempuh.' : 'Kalkulasi bottom-up akumulatif yang diperoleh dari seluruh nilai evaluasi Sub-CPMK mata kuliah terkait.' ?>
                                 </p>
                             </div>
                         </div>
 
                         <div class="space-y-4 max-h-[380px] overflow-y-auto pr-1">
-                            <?php if (empty($cpls)): ?>
+                            <?php 
+                                $cpl_items = !empty($cpl_bottomup['details']) ? $cpl_bottomup['details'] : $cpls;
+                            ?>
+                            <?php if (empty($cpl_items)): ?>
                             <div class="p-6 text-center text-slate-400">
                                 Tidak ada data CPL yang terdaftar.
                             </div>
                             <?php else: ?>
-                                <?php foreach ($cpls as $c): ?>
+                                <?php foreach ($cpl_items as $c): ?>
                                 <?php
-                                    $isOngoingCpl = !empty($c['is_ongoing']);
-                                    $score = $c['skor'] !== null ? (float)$c['skor'] : null;
-                                    $is_passed = ($score !== null && $score >= 70.0);
+                                    $c_code = $c['kode_cpl'] ?? '';
+                                    $c_kat  = $c['kategori'] ?? '';
+                                    $c_desc = $c['deskripsi'] ?? '';
+                                    $isOngoingCpl = !empty($c['is_ongoing']) && $is_semester_ongoing;
+                                    $score = isset($c['capaian']) ? (float)$c['capaian'] : (isset($c['skor']) && $c['skor'] !== null ? (float)$c['skor'] : 0.0);
+                                    $is_passed = ($score >= 60.0);
                                     $barColor = $isOngoingCpl 
                                         ? 'bg-amber-300' 
                                         : ($is_passed ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-amber-500 to-rose-500');
@@ -213,10 +226,10 @@
                                     <div class="flex items-center justify-between mb-1.5">
                                         <div class="flex items-center gap-2">
                                             <span class="px-2 py-0.5 bg-blue-100 text-blue-800 font-mono font-bold text-xs rounded-md">
-                                                <?= html_escape($c['kode_cpl']) ?>
+                                                <?= html_escape($c_code) ?>
                                             </span>
                                             <span class="text-[11px] font-semibold text-slate-500">
-                                                <?= html_escape($c['kategori']) ?>
+                                                <?= html_escape($c_kat) ?>
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-2">
@@ -229,10 +242,10 @@
                                                 </span>
                                             <?php else: ?>
                                                 <span class="text-xs font-black <?= $is_passed ? 'text-emerald-600' : 'text-amber-600' ?>">
-                                                    <?= number_format((float)$score, 1) ?> / 100
+                                                    <?= number_format((float)$score, 1) ?>%
                                                 </span>
                                                 <span class="text-[10px] px-2 py-0.5 rounded-full font-bold <?= $is_passed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' ?>">
-                                                    <?= $is_passed ? 'Tercapai' : 'Perlu Peningkatan' ?>
+                                                    <?= $is_passed ? 'Tercapai' : 'Perlu Ditingkatkan' ?>
                                                 </span>
                                             <?php endif; ?>
                                         </div>
@@ -242,7 +255,7 @@
                                         <div class="<?= $barColor ?> h-2 rounded-full transition-all duration-700" style="width: <?= $isOngoingCpl ? '25%' : min(100, max(0, (float)$score)) ?>%;"></div>
                                     </div>
                                     <p class="text-[11px] text-slate-600 leading-relaxed m-0">
-                                        <?= html_escape($c['deskripsi']) ?>
+                                        <?= html_escape($c_desc) ?>
                                     </p>
                                 </div>
                                 <?php endforeach; ?>
@@ -447,8 +460,8 @@
                         borderWidth: 2,
                     },
                     {
-                        label: 'Batas Minimal (70)',
-                        data: labels.map(() => 70),
+                        label: 'Batas Minimal (60%)',
+                        data: labels.map(() => 60),
                         backgroundColor: 'transparent',
                         borderColor: '#34d399',
                         borderWidth: 1.5,

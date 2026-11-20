@@ -2320,16 +2320,18 @@ select.khs-form-input {
                                         <?php endif; ?>
                                         <th class="col-kode" style="width: 90px;">Kode</th>
                                         <th class="col-nama">Mata Kuliah</th>
-                                        <th class="text-center col-sks" style="width: 55px;">SKS</th>
-                                        <th class="text-center col-nilai" style="width: 55px;">Nilai</th>
-                                        <th class="text-center col-index" style="width: 60px;">Index</th>
+                                        <th class="text-center col-sks" style="width: 50px;">SKS</th>
+                                        <th class="text-center" style="width: 80px;" title="Nilai Akhir Hasil Kalkulasi Bottom-Up Evaluasi Sub-CPMK">Nilai Akhir</th>
+                                        <th class="text-center col-nilai" style="width: 55px;">Grade</th>
+                                        <th class="text-center col-index" style="width: 55px;">Index</th>
                                         <?php if ($selected_jenis !== 'transkrip'): ?>
-                                            <th style="width: 140px;">Kategori</th>
+                                            <th style="width: 120px;">Kategori</th>
                                         <?php endif; ?>
                                         <th class="text-center col-nxk" style="width: 65px;">NxK</th>
                                         <?php if ($selected_jenis !== 'transkrip'): ?>
-                                            <th class="text-center" style="width: 100px;">Keterangan</th>
+                                            <th class="text-center" style="width: 90px;">Keterangan</th>
                                         <?php endif; ?>
+                                        <th class="text-center" style="width: 100px;">Transparansi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2350,6 +2352,10 @@ select.khs-form-input {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-center col-sks"><?= (int)$c->sks ?></td>
+                                                <!-- Nilai Akhir (0-100 Bottom-Up) -->
+                                                <td class="text-center font-weight-bold" style="color: #0288d1; font-size: 13.5px;">
+                                                    <?= number_format((float)($c->nilai_angka ?? ($c->evaluasi_detail['nilai_akhir'] ?? 0)), 2) ?>
+                                                </td>
                                                 <td class="text-center font-weight-bold col-nilai">
                                                     <?php 
                                                         $grade = strtoupper(trim($c->nilai_huruf));
@@ -2368,11 +2374,17 @@ select.khs-form-input {
                                                 <?php if ($selected_jenis !== 'transkrip'): ?>
                                                     <td class="text-center"><?= html_escape($c->keterangan) ?></td>
                                                 <?php endif; ?>
+                                                <!-- Tombol Detail Nilai Sub-CPMK -->
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-info shadow-none" style="font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600;" data-toggle="modal" data-target="#modalSubCpmk_<?= $c->id ?>" title="Lihat Transparansi Nilai Sub-CPMK">
+                                                        <i class="fa fa-list-alt mr-1"></i> Detail Nilai
+                                                    </button>
+                                                </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="<?= ($selected_jenis === 'transkrip') ? 8 : 9 ?>" class="text-center py-5 text-muted">
+                                            <td colspan="<?= ($selected_jenis === 'transkrip') ? 10 : 11 ?>" class="text-center py-5 text-muted">
                                                 <i class="fa fa-clock-o text-warning" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
                                                 <span class="font-weight-bold" style="font-size: 14px; color: #334155;">Belum Ada Rekaman Nilai KHS</span>
                                                 <p class="text-muted mb-0 mt-1" style="font-size: 12.5px;">
@@ -2389,36 +2401,37 @@ select.khs-form-input {
                                         <tr class="transkrip-row-green">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">TOTAL AMBIL SKS</td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_ambil_sks'] ?? 0) ?></td>
-                                            <td colspan="3" class="transkrip-empty-cell"></td>
+                                            <td colspan="5" class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-green">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">TOTAL SKS LULUS</td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_lulus'] ?? 0) ?></td>
-                                            <td colspan="3" class="transkrip-empty-cell"></td>
+                                            <td colspan="5" class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-teal">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">TOTAL NILAI (NxK)</td>
-                                            <td colspan="3" class="transkrip-empty-cell"></td>
+                                            <td colspan="4" class="transkrip-empty-cell"></td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= number_format((float)($summary['total_nilai'] ?? 0), 1) ?></td>
+                                            <td class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-green">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">INDEKS PRESTASI KUMULATIF (IPK)</td>
-                                            <td colspan="2" class="transkrip-empty-cell"></td>
+                                            <td colspan="3" class="transkrip-empty-cell"></td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= number_format((float)($summary['ipk_transkrip'] ?? $summary['grand_ipk'] ?? 0), 2) ?></td>
-                                            <td class="transkrip-empty-cell"></td>
+                                            <td colspan="2" class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-teal">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">TOTAL SKS D</td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_d'] ?? 0) ?></td>
-                                            <td colspan="3" class="transkrip-empty-cell"></td>
+                                            <td colspan="5" class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-green">
                                             <td colspan="4" class="text-right font-weight-bold transkrip-title-cell">TOTAL SKS E</td>
                                             <td class="text-center font-weight-bold transkrip-val-cell"><?= (int)($summary['total_sks_e'] ?? 0) ?></td>
-                                            <td colspan="3" class="transkrip-empty-cell"></td>
+                                            <td colspan="5" class="transkrip-empty-cell"></td>
                                         </tr>
                                         <tr class="transkrip-row-teal">
-                                            <td colspan="8" class="text-left transkrip-notes-cell">
+                                            <td colspan="10" class="text-left transkrip-notes-cell">
                                                 <div class="mb-1">* IP tidak termasuk matakuliah dengan nilai kosong</div>
                                                 <div>* IPK termasuk mata kuliah dengan nilai D dan E.</div>
                                             </td>
@@ -2427,6 +2440,124 @@ select.khs-form-input {
                                 <?php endif; ?>
                             </table>
                         </div>
+
+                        <!-- MODAL-MODAL DETAIL EVALUASI SUB-CPMK (Fase 5: KHS Transparan) -->
+                        <?php if (!empty($courses)): ?>
+                            <?php foreach ($courses as $c): ?>
+                                <?php 
+                                    $eval_info = $c->evaluasi_detail ?? null;
+                                    $sub_list = $eval_info['sub_cpmks'] ?? [];
+                                    $final_num = (float)($c->nilai_angka ?? ($eval_info['nilai_akhir'] ?? 0));
+                                ?>
+                                <div class="modal fade" id="modalSubCpmk_<?= $c->id ?>" tabindex="-1" role="dialog" aria-labelledby="labelSubCpmk_<?= $c->id ?>" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                                            <div class="modal-header text-white" style="background: linear-gradient(135deg, #0288d1 0%, #01579b 100%); padding: 16px 22px;">
+                                                <div>
+                                                    <h5 class="modal-title font-weight-bold m-0" id="labelSubCpmk_<?= $c->id ?>" style="font-size: 16px; color: #ffffff !important;">
+                                                        <i class="fa fa-calculator mr-2"></i> Transparansi Nilai Evaluasi Sub-CPMK
+                                                    </h5>
+                                                    <div class="text-white-50 mt-1" style="font-size: 12.5px;">
+                                                        <strong><?= html_escape($c->kode_mk) ?></strong> - <?= html_escape($c->nama_mk) ?> (<?= (int)$c->sks ?> SKS) &bull; Semester <?= (int)$c->semester_mhs ?>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.9;">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body p-4" style="background: #f8fafc;">
+                                                <!-- Kartu Ringkasan Hasil Belajar -->
+                                                <div class="d-flex align-items-center justify-content-between p-3 mb-3 bg-white rounded border border-slate-200 shadow-sm">
+                                                    <div>
+                                                        <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 600;">Metode Asesmen OBE</span>
+                                                        <span class="font-weight-bold text-dark" style="font-size: 14px;"><i class="fa fa-check-circle text-success mr-1"></i> Bottom-Up Asesmen Sub-CPMK</span>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <span class="text-muted d-block" style="font-size: 11.5px; text-transform: uppercase; font-weight: 600;">Nilai Akhir MK (0 - 100)</span>
+                                                        <div class="d-flex align-items-center justify-content-end">
+                                                            <span class="font-weight-bold text-primary mr-2" style="font-size: 20px;">
+                                                                <?= number_format($final_num, 2) ?>
+                                                            </span>
+                                                            <span class="badge badge-primary px-2.5 py-1" style="font-size: 13px; font-weight: 700;">
+                                                                Grade: <?= html_escape($c->nilai_huruf) ?> (<?= number_format((float)$c->nilai_indeks, 2) ?>)
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Callout Rumus Transparansi -->
+                                                <div class="p-3 mb-3 rounded" style="background: #eff6ff; border-left: 4px solid #0288d1; font-size: 12.5px; color: #1e3a8a;">
+                                                    <div class="font-weight-bold mb-1"><i class="fa fa-info-circle mr-1"></i> Rumus Perhitungan KHS Transparan:</div>
+                                                    <span>Nilai Akhir diperoleh dari formula <code>Nilai Akhir = &sum;(Nilai Evaluasi &times; (Bobot Sub-CPMK &divide; 100))</code>. Komponen dan bobot sesuai dengan Rencana Pembelajaran Semester (RPS) yang telah dipublikasikan.</span>
+                                                </div>
+
+                                                <!-- Tabel Rincian Asesmen -->
+                                                <div class="table-responsive bg-white rounded border border-slate-200">
+                                                    <table class="table table-sm table-hover mb-0" style="font-size: 12.5px;">
+                                                        <thead style="background: #f1f5f9; color: #1e293b;">
+                                                            <tr>
+                                                                <th class="text-center py-2" style="width: 40px;">No</th>
+                                                                <th class="py-2" style="width: 120px;">Kode Sub-CPMK</th>
+                                                                <th class="py-2" style="width: 130px;">Bentuk Evaluasi</th>
+                                                                <th class="py-2">Deskripsi Kemampuan Akhir</th>
+                                                                <th class="text-center py-2" style="width: 80px;">Bobot (%)</th>
+                                                                <th class="text-center py-2" style="width: 90px;">Skor Mhs (0-100)</th>
+                                                                <th class="text-right py-2" style="width: 95px;">Kontribusi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php 
+                                                                $sub_no = 1;
+                                                                $tot_b = 0;
+                                                                $tot_k = 0;
+                                                            ?>
+                                                            <?php if (!empty($sub_list)): ?>
+                                                                <?php foreach ($sub_list as $sb): ?>
+                                                                    <?php 
+                                                                        $tot_b += (float)$sb['bobot_nilai'];
+                                                                        $tot_k += (float)$sb['kontribusi'];
+                                                                    ?>
+                                                                    <tr>
+                                                                        <td class="text-center font-weight-bold"><?= $sub_no++ ?></td>
+                                                                        <td>
+                                                                            <span class="badge badge-light border text-dark font-weight-bold"><?= html_escape($sb['kode_sub']) ?></span>
+                                                                            <small class="d-block text-muted"><?= html_escape($sb['kode_cpmk']) ?></small>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge badge-info text-white"><?= html_escape($sb['instrumen_evaluasi']) ?></span>
+                                                                        </td>
+                                                                        <td style="color: #334155;"><?= html_escape($sb['deskripsi']) ?></td>
+                                                                        <td class="text-center font-weight-bold text-secondary"><?= number_format((float)$sb['bobot_nilai'], 1) ?>%</td>
+                                                                        <td class="text-center font-weight-bold text-dark"><?= number_format((float)$sb['nilai_angka'], 2) ?></td>
+                                                                        <td class="text-right font-weight-bold text-primary"><?= number_format((float)$sb['kontribusi'], 2) ?></td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <tr>
+                                                                    <td colspan="7" class="text-center py-3 text-muted">Data rincian Sub-CPMK sedang disinkronkan.</td>
+                                                                </tr>
+                                                            <?php endif; ?>
+                                                        </tbody>
+                                                        <tfoot style="background: #f8fafc; font-weight: 700; color: #0f172a; border-top: 2px solid #cbd5e1;">
+                                                            <tr>
+                                                                <td colspan="4" class="text-right font-weight-bold">TOTAL BOBOT &amp; NILAI AKHIR:</td>
+                                                                <td class="text-center font-weight-bold text-primary"><?= number_format((float)$tot_b, 1) ?>%</td>
+                                                                <td class="text-center">-</td>
+                                                                <td class="text-right font-weight-bold text-success" style="font-size: 14px;"><?= number_format((float)$tot_k, 2) ?></td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer bg-light p-3 d-flex justify-content-between align-items-center">
+                                                <small class="text-muted"><i class="fa fa-shield text-success mr-1"></i> Data nilai resmi tersertifikasi kurikulum OBE</small>
+                                                <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
 
                         <!-- Footer Ringkasan KHS Per-Semester (Hanya ditampilkan saat mode KHS Per-Semester) -->
                         <?php if ($selected_jenis !== 'transkrip'): ?>

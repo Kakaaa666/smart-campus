@@ -10,6 +10,7 @@ class Perwalian extends CI_Controller {
         $this->load->helper(['url', 'form']);
         $this->load->model('mahasiswa/M_keuangan_mahasiswa', 'M_keuangan');
         $this->load->model('shared/M_akademik', 'M_akademik');
+        $this->load->model('M_obe');
 
         // Wajib login untuk mengakses menu perwalian
         if (!$this->session->userdata('is_logged_in')) {
@@ -132,6 +133,8 @@ class Perwalian extends CI_Controller {
         $data['current_user_avatar']= $this->session->userdata('foto') ?: 'avatar-4.png';
         $data['max_sks']           = M_akademik::MAX_SKS_PER_SEMESTER;
         $data['min_sks']           = M_akademik::MIN_SKS_PER_SEMESTER;
+        $data['cpl_radar']         = $this->M_obe->get_capaian_cpl_mahasiswa($akun_id);
+        $data['cpl_badges']        = $this->M_obe->get_krs_cpl_badges($target_mhs->prodi, $akun_id);
 
         $krs_is_locked_initially = ($data['krs'] && in_array(strtoupper($data['krs']->status ?? ''), ['MENUNGGU', 'DISETUJUI'], true));
         $is_edit_mode = ($this->input->get('edit') === '1') || !$krs_is_locked_initially;

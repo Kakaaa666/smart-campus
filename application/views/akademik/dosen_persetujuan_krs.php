@@ -575,6 +575,15 @@
                                                         <i class="fa fa-list-alt mr-1.5 text-muted"></i> Detail Matkul
                                                     </button>
 
+                                                    <button class="btn btn-sm font-weight-bold d-inline-flex align-items-center" type="button" data-toggle="collapse" data-target="#cpl-radar-collapse-<?= (int)$item->id ?>" aria-expanded="false" style="border-radius: 8px; height: 32px; font-size: 12px; background: #eef2ff; border: 1px solid #c7d2fe; color: #4338ca;" title="Evaluasi Capaian CPL & Radar Kompetensi Mahasiswa">
+                                                        <i class="fa fa-pie-chart mr-1.5 text-primary"></i> Evaluasi CPL (OBE)
+                                                        <?php if (!empty($item->cpl_radar['has_gap'])): ?>
+                                                            <span class="badge badge-danger ml-1" style="font-size: 9px; padding: 2px 5px; border-radius: 4px;">Gap: <?= count($item->cpl_radar['gap_cpls']) ?></span>
+                                                        <?php else: ?>
+                                                            <span class="badge badge-success ml-1" style="font-size: 9px; padding: 2px 5px; border-radius: 4px;">✓ Baik</span>
+                                                        <?php endif; ?>
+                                                    </button>
+
                                                     <button type="button" class="btn btn-sm font-weight-bold d-inline-flex align-items-center" onclick="openAdvisorEditModal(<?= (int)$item->id ?>)" style="border-radius: 8px; height: 32px; font-size: 12px; background: #fef3c7; border: 1px solid #fde68a; color: #92400e;" title="Pilihkan atau gantikan mata kuliah mahasiswa">
                                                         <i class="fa fa-pencil-square-o mr-1.5 text-warning"></i> Edit / Pilihkan Matkul
                                                     </button>
@@ -660,6 +669,98 @@
                                     <?php endif; ?>
                                 </div>
 
+                                <!-- COLLAPSIBLE OBE CPL EVALUATION & RADAR CHART -->
+                                <div class="collapse" id="cpl-radar-collapse-<?= (int)$item->id ?>">
+                                    <div class="p-3 p-md-4 border-top" style="background: #ffffff; border-color: #e0e7ff !important;">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
+                                            <div>
+                                                <div class="d-flex align-items-center flex-wrap mb-1" style="gap: 6px;">
+                                                    <span class="badge badge-primary px-2 py-0.5" style="background: #4f46e5; border-radius: 6px; font-size: 10.5px;">
+                                                        <i class="fa fa-crosshairs mr-1"></i> Evaluasi CPL Berbasis OBE (Fase 3)
+                                                    </span>
+                                                    <span class="badge badge-light border text-muted" style="font-size: 10.5px;">
+                                                        Standar Minimum: 60.0%
+                                                    </span>
+                                                </div>
+                                                <h6 class="font-weight-bold text-dark mb-0" style="font-size: 15px;">
+                                                    Radar Pemenuhan Capaian Pembelajaran Lulusan (CPL) - <?= html_escape($item->nama_lengkap) ?>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    Evaluasi kompetensi mahasiswa yang dihitung secara <em>bottom-up</em> dari evaluasi Sub-CPMK. Pastikan pemilihan MK semester ini seimbang dan menuntaskan CPL yang masih di bawah standar.
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <?php if (!empty($item->cpl_radar) && !empty($item->cpl_radar['labels'])): ?>
+                                        <div class="row align-items-center">
+                                            <!-- Radar Chart Canvas -->
+                                            <div class="col-lg-5 col-md-12 mb-3 mb-lg-0 text-center">
+                                                <div style="position: relative; max-width: 320px; height: 260px; margin: 0 auto;">
+                                                    <canvas id="advisorRadarChart_<?= (int)$item->id ?>"></canvas>
+                                                </div>
+                                                <div class="d-flex justify-content-center align-items-center mt-2" style="gap: 16px; font-size: 11px; color: #64748b;">
+                                                    <span><span style="display:inline-block;width:9px;height:9px;background:#4f46e5;border-radius:50%;margin-right:4px;"></span> Capaian Mahasiswa</span>
+                                                    <span><span style="display:inline-block;width:9px;height:9px;background:#10b981;border-radius:50%;margin-right:4px;"></span> Standar (60%)</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- CPL Attainment Breakdown & Course Alignment -->
+                                            <div class="col-lg-7 col-md-12">
+                                                <div class="row" style="gap: 6px 0;">
+                                                    <?php 
+                                                        $gap_codes = [];
+                                                        foreach ($item->cpl_radar['details'] as $cd): 
+                                                            $is_met = ($cd['capaian'] >= $cd['target']);
+                                                            if (!$is_met) {
+                                                                $gap_codes[] = $cd['kode_cpl'] ?? $cd['cpl']->kode_cpl;
+                                                            }
+                                                            $cpl_code = $cd['kode_cpl'] ?? $cd['cpl']->kode_cpl;
+                                                            $cpl_kat  = $cd['kategori'] ?? $cd['cpl']->kategori;
+                                                            $cpl_desk = $cd['deskripsi'] ?? $cd['cpl']->deskripsi;
+                                                    ?>
+                                                    <div class="col-sm-6 mb-2">
+                                                        <div class="p-2 rounded border" style="background: <?= $is_met ? '#f0fdf4' : '#fff1f2' ?>; border-color: <?= $is_met ? '#bbf7d0' : '#fecdd3' ?> !important; font-size: 12px; border-radius: 8px;">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <span class="font-weight-bold" style="color: <?= $is_met ? '#166534' : '#9f1239' ?>;">
+                                                                    <?= html_escape($cpl_code) ?>
+                                                                </span>
+                                                                <span class="font-weight-bold font-monospace" style="color: <?= $is_met ? '#166534' : '#9f1239' ?>;">
+                                                                    <?= number_format($cd['capaian'], 1) ?>% <?= $is_met ? '✓' : '⚠' ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="progress" style="height: 5px; border-radius: 3px; background: #e2e8f0;">
+                                                                <div class="progress-bar" style="width: <?= min(100, $cd['capaian']) ?>%; background: <?= $is_met ? '#10b981' : '#f43f5e' ?>;"></div>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between mt-1 text-muted" style="font-size: 10px;">
+                                                                <span class="text-truncate mr-1" title="<?= html_escape($cpl_desk) ?>"><?= html_escape($cpl_kat) ?></span>
+                                                                <span class="font-weight-bold"><?= $is_met ? 'Memenuhi' : 'Gap: ' . number_format($cd['gap'], 1) . '%' ?></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+
+                                                <!-- Dosen Advisory Alignment Note -->
+                                                <div class="mt-2 p-2.5 rounded d-flex align-items-center" style="background: #eef2ff; border: 1px solid #c7d2fe; font-size: 11.5px; color: #3730a3; border-radius: 8px;">
+                                                    <i class="fa fa-lightbulb-o fa-lg mr-2 text-warning flex-shrink-0"></i>
+                                                    <div>
+                                                        <?php if (!empty($gap_codes)): ?>
+                                                            <strong>Analisis Gap Dosen Wali:</strong> Mahasiswa ini masih memerlukan penguatan pada <strong><?= implode(', ', $gap_codes) ?></strong> (< 60%). Evaluasi apakah daftar MK yang dipilih di bawah sudah relevan sebelum memberikan persetujuan.
+                                                        <?php else: ?>
+                                                            <strong>Status Baik:</strong> Seluruh capaian CPL mahasiswa telah melampaui standar kelulusan minimum 60%.
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php else: ?>
+                                            <div class="alert alert-light border text-muted py-3 px-3 mb-0" style="font-size: 12px;">
+                                                <i class="fa fa-info-circle mr-1 text-primary"></i> Data capaian CPL mahasiswa ini belum tercatat atau belum memiliki riwayat evaluasi mata kuliah.
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
                                 <!-- COLLAPSIBLE DETAILS (COURSES, SKS BREAKDOWN, TIMETABLE, & VALIDATION FORM) -->
                                 <div class="collapse show" id="krs-collapse-<?= (int)$item->id ?>">
                                     <div class="p-3 p-md-4 bg-light" style="border-top: 1px solid #f1f5f9;">
@@ -719,6 +820,22 @@
                                                                     <?= html_escape($c->nama_mk) ?>
                                                                     <?php if (!empty($c->conflict)): ?>
                                                                         <span class="badge badge-conflict ml-1">Bentrok</span>
+                                                                    <?php endif; ?>
+                                                                    <?php
+                                                                        $c_code_key = strtoupper(trim($c->kode_mk));
+                                                                        $c_cpl_info = isset($cpl_badges['by_code'][$c_code_key]) ? $cpl_badges['by_code'][$c_code_key] : null;
+                                                                        $c_cpl_items = !empty($c_cpl_info['cpl_list']) ? $c_cpl_info['cpl_list'] : (is_array($c_cpl_info) ? $c_cpl_info : []);
+                                                                        $mhs_gap_cpls = $item->cpl_radar['gap_cpls'] ?? [];
+                                                                    ?>
+                                                                    <?php if (!empty($c_cpl_items)): ?>
+                                                                        <div class="d-flex align-items-center flex-wrap mt-1" style="gap: 4px;">
+                                                                            <?php foreach ($c_cpl_items as $cb): if (!is_array($cb) || empty($cb['label'])) continue; ?>
+                                                                                <?php $is_gap_support = in_array($cb['cpl'] ?? '', $mhs_gap_cpls, true); ?>
+                                                                                <span class="badge" style="background: <?= $is_gap_support ? '#ecfdf5' : '#f1f5f9' ?>; color: <?= $is_gap_support ? '#065f46' : '#475569' ?>; border: 1px solid <?= $is_gap_support ? '#a7f3d0' : '#e2e8f0' ?>; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px;" title="Mendukung <?= html_escape($cb['cpl'] ?? '') ?> (bobot <?= round($cb['bobot'] ?? 0) ?>%)<?= $is_gap_support ? ' - Penguatan Gap Kompetensi' : '' ?>">
+                                                                                    <i class="fa <?= $is_gap_support ? 'fa-check-circle text-success' : 'fa-bookmark text-muted' ?> mr-1"></i><?= html_escape($cb['label']) ?>
+                                                                                </span>
+                                                                            <?php endforeach; ?>
+                                                                        </div>
                                                                     <?php endif; ?>
                                                                 </td>
                                                                 <td class="text-center font-weight-bold text-primary py-2 align-middle">
@@ -1466,5 +1583,93 @@ document.querySelectorAll('.adv-cat-filter').forEach(btn => {
 
 document.getElementById('advSearchInput')?.addEventListener('input', function() {
     renderAdvisorOfferingsTable();
+});
+</script>
+
+<!-- CHART.JS CDN & SCRIPT INISIALISASI RADAR CPL DOSEN WALI (FASE 3 OBE) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const advisorRadarCharts = {};
+
+    function initAdvisorRadarChart(krsId, labels, scores, targets) {
+        const canvasId = 'advisorRadarChart_' + krsId;
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        if (advisorRadarCharts[krsId]) {
+            advisorRadarCharts[krsId].resize();
+            return;
+        }
+
+        advisorRadarCharts[krsId] = new Chart(canvas, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Capaian Mahasiswa (%)',
+                        data: scores,
+                        backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Target Standar (60%)',
+                        data: targets,
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                        borderColor: '#10b981',
+                        borderWidth: 1.5,
+                        borderDash: [4, 4],
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(203, 213, 225, 0.6)' },
+                        grid: { color: 'rgba(226, 232, 240, 0.8)' },
+                        pointLabels: {
+                            font: { size: 10.5, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
+                            color: '#1e293b'
+                        },
+                        min: 0,
+                        max: 100,
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        ticks: { stepSize: 20, display: true, backdropColor: 'transparent', color: '#94a3b8', font: { size: 8 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Attach listener to each collapse toggle for lazy chart rendering
+    <?php if (!empty($krs_list)): foreach ($krs_list as $kl): if (empty($kl->cpl_radar['labels'])) continue; ?>
+    $('#cpl-radar-collapse-<?= (int)$kl->id ?>').on('shown.bs.collapse', function() {
+        initAdvisorRadarChart(
+            <?= (int)$kl->id ?>,
+            <?= json_encode($kl->cpl_radar['labels'] ?? []) ?>,
+            <?= json_encode($kl->cpl_radar['scores'] ?? []) ?>,
+            <?= json_encode($kl->cpl_radar['targets'] ?? []) ?>
+        );
+    });
+    <?php endforeach; endif; ?>
 });
 </script>
